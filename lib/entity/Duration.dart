@@ -1,0 +1,1 @@
+enum Duration {QUARTER, HALF, ONE, TWO}

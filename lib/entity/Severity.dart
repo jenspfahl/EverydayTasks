@@ -1,0 +1,1 @@
+enum Severity {EASY, MEDIUM, HARD}
