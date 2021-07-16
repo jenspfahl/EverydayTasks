@@ -3,10 +3,10 @@ import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 
 @dao
 abstract class TaskEventDao {
-  @Query('SELECT * FROM TaskEvent')
+  @Query('SELECT * FROM TaskEventEntity')
   Future<List<TaskEventEntity>> findAll();
 
-  @Query('SELECT * FROM TaskEvent WHERE id = :id')
+  @Query('SELECT * FROM TaskEventEntity WHERE id = :id')
   Stream<TaskEventEntity?> findById(int id);
 
   @insert

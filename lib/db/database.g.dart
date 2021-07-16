@@ -160,7 +160,7 @@ class _$TaskEventDao extends TaskEventDao {
 
   @override
   Future<List<TaskEventEntity>> findAll() async {
-    return _queryAdapter.queryList('SELECT * FROM TaskEvent',
+    return _queryAdapter.queryList('SELECT * FROM TaskEventEntity',
         mapper: (Map<String, Object?> row) => TaskEventEntity(
             row['id'] as int?,
             row['name'] as String,
@@ -175,7 +175,8 @@ class _$TaskEventDao extends TaskEventDao {
 
   @override
   Stream<TaskEventEntity?> findById(int id) {
-    return _queryAdapter.queryStream('SELECT * FROM TaskEvent WHERE id = ?1',
+    return _queryAdapter.queryStream(
+        'SELECT * FROM TaskEventEntity WHERE id = ?1',
         mapper: (Map<String, Object?> row) => TaskEventEntity(
             row['id'] as int?,
             row['name'] as String,

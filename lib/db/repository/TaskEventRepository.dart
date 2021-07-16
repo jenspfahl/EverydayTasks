@@ -20,7 +20,6 @@ class TaskEventRepository {
   }
 
   static Future<List<TaskEvent>> getAll() async {
-
     final database = await getDb();
 
     final taskEventDao = database.taskEventDao;

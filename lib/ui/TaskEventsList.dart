@@ -6,7 +6,6 @@ import '../model/Severity.dart';
 import '../model/TaskEvent.dart';
 
 class TaskEventsList extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return TaskEventsListState();
@@ -17,22 +16,22 @@ class TaskEventsListState extends State<TaskEventsList> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<TaskEvent>>(
-      future: TaskEventRepository.getAll(),
-        initialData: [],
-        builder: (context, snapshot) {
-          return _buildList(context, snapshot);
-        },
+      future: TaskEventRepository.getAll(), // _loadTaskEvents(),
+      initialData: [],
+      builder: (context, snapshot) {
+        return _buildList(context, snapshot);
+      },
     );
   }
 
-  Widget _buildList(BuildContext context, AsyncSnapshot<List<TaskEvent>> snapshot) {
+  Widget _buildList(
+      BuildContext context, AsyncSnapshot<List<TaskEvent>> snapshot) {
     if (!snapshot.hasData) {
       return Center(
-          child: Text("Nothing to show, create a new event log first.")
-      );
+          child: Text("Nothing to show, create a new event log first."));
     }
     var taskEvents = snapshot.data!;
-   // var taskEvents = _loadTaskEvents();
+    // var taskEvents = _loadTaskEvents();
 
     DateTime? dateHeading = null;
     List<Widget> rows = List.empty(growable: true);
@@ -57,7 +56,6 @@ class TaskEventsListState extends State<TaskEventsList> {
   }
 
   Widget _buildRow(TaskEvent taskEvent, DateTime? dateHeading) {
-
     List<Widget> expansionWidgets = _createExpansionWidgets(taskEvent);
 
     var listTile = ListTile(
@@ -71,7 +69,7 @@ class TaskEventsListState extends State<TaskEventsList> {
         clipBehavior: Clip.antiAlias,
         child: ExpansionTile(
           title: Text(taskEvent.name),
-          subtitle: Text(taskEvent.originTaskGroup?? ""),
+          subtitle: Text(taskEvent.originTaskGroup ?? ""),
           //          backgroundColor: Colors.lime,
           children: expansionWidgets,
         ),
@@ -96,12 +94,12 @@ class TaskEventsListState extends State<TaskEventsList> {
         child: Text(taskEvent.description!),
       ));
     }
-    
+
     expansionWidgets.addAll([
       Padding(
         padding: EdgeInsets.all(4.0),
-        child: Text(formatToDateTimeRange(
-            taskEvent.startedAt, taskEvent.finishedAt)),
+        child: Text(
+            formatToDateTimeRange(taskEvent.startedAt, taskEvent.finishedAt)),
       ),
       Padding(
         padding: EdgeInsets.all(4.0),
@@ -145,7 +143,7 @@ class TaskEventsListState extends State<TaskEventsList> {
     return expansionWidgets;
   }
 
-  List<TaskEvent> _loadTaskEvents() {
+  Future<List<TaskEvent>> _loadTaskEvents() async {
     var taskEvents = [
       TaskEvent(
           1,
@@ -214,8 +212,8 @@ class TaskEventsListState extends State<TaskEventsList> {
   }
 
   Widget severityToIcon(Severity severity) {
-    List<Icon> icons =
-        List.generate(severity.index + 1, (index) => Icon(Icons.fitness_center_outlined));
+    List<Icon> icons = List.generate(
+        severity.index + 1, (index) => Icon(Icons.fitness_center_outlined));
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -223,4 +221,3 @@ class TaskEventsListState extends State<TaskEventsList> {
     );
   }
 }
-
