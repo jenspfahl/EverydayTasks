@@ -1,14 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
+import 'package:personaltasklogger/util/dates.dart';
 
 import '../model/Severity.dart';
 import '../model/TaskEvent.dart';
 
-class TaskEventsList extends StatelessWidget {
+class TaskEventsList extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() {
+    return TaskEventsListState();
+  }
+}
+
+class TaskEventsListState extends State<TaskEventsList> {
   @override
   Widget build(BuildContext context) {
-    var taskEvents = _loadTaskEvents();
+    return FutureBuilder<List<TaskEvent>>(
+      future: TaskEventRepository.getAll(),
+        initialData: [],
+        builder: (context, snapshot) {
+          return _buildList(context, snapshot);
+        },
+    );
+  }
+
+  Widget _buildList(BuildContext context, AsyncSnapshot<List<TaskEvent>> snapshot) {
+    if (!snapshot.hasData) {
+      return Center(
+          child: Text("Nothing to show, create a new event log first.")
+      );
+    }
+    var taskEvents = snapshot.data!;
+   // var taskEvents = _loadTaskEvents();
 
     DateTime? dateHeading = null;
     List<Widget> rows = List.empty(growable: true);
@@ -200,45 +224,3 @@ class TaskEventsList extends StatelessWidget {
   }
 }
 
-DateTime truncToDate(DateTime dateTime) {
-  return DateTime(dateTime.year, dateTime.month, dateTime.day);
-}
-
-String formatToDateOrWord(DateTime dateTime) {
-  var today = truncToDate(DateTime.now());
-  if (truncToDate(dateTime) == today) {
-    return "Today";
-  }
-  var yesterday = truncToDate(DateTime.now().subtract(Duration(days: 1)));
-  if (truncToDate(dateTime) == yesterday) {
-    return "Yesterday";
-  }
-  return formatToDate(dateTime);
-}
-
-String formatToDate(DateTime dateTime) {
-  final DateFormat formatter = DateFormat('yyyy-MMM-dd');
-  return formatter.format(dateTime);
-}
-
-String formatToDateTime(DateTime dateTime) {
-  final DateFormat formatter = DateFormat('yyyy-MMM-dd H:mm');
-  return formatter.format(dateTime);
-}
-
-String formatToTime(DateTime dateTime) {
-  final DateFormat formatter = DateFormat('H:mm');
-  return formatter.format(dateTime);
-}
-
-String formatToDateTimeRange(DateTime start, DateTime end) {
-  var duration = end.difference(start);
-  var minutes = duration.inMinutes;
-  var durationText = "$minutes minutes";
-  if (minutes >= 60) {
-    var hours = duration.inHours;
-    var remainingMinutes = minutes % 60;
-    durationText = "$hours hours $remainingMinutes minutes";
-  }
-  return "${formatToTime(start)} - ${formatToTime(end)} ($durationText)";
-}

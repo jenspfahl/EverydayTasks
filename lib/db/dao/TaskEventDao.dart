@@ -4,18 +4,18 @@ import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 @dao
 abstract class TaskEventDao {
   @Query('SELECT * FROM TaskEvent')
-  Stream<TaskEventEntity> findAll();
+  Future<List<TaskEventEntity>> findAll();
 
   @Query('SELECT * FROM TaskEvent WHERE id = :id')
   Stream<TaskEventEntity?> findById(int id);
 
   @insert
-  Future<void> insertTaskEvent(TaskEventEntity taskEvent);
+  Future<int> insertTaskEvent(TaskEventEntity taskEvent);
 
   @update
-  Future<void> updateTaskEvent(TaskEventEntity taskEvent);
+  Future<int> updateTaskEvent(TaskEventEntity taskEvent);
 
   @delete
-  Future<void> deleteTaskEvent(TaskEventEntity taskEvent);
+  Future<int> deleteTaskEvent(TaskEventEntity taskEvent);
 }
 

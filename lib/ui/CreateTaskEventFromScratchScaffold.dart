@@ -57,9 +57,9 @@ class _TaskEventFormState extends State<_TaskEventForm> {
                         nameController.text,
                         DateTime.now(),
                         DateTime.now().add(Duration(minutes: 5)));
-                    TaskEventRepository.insert(taskEvent).then((value) {
+                    TaskEventRepository.insert(taskEvent).then((taskEvent) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('New event created')));
+                          SnackBar(content: Text('New event with id = ${taskEvent.id} created')));
                       Navigator.pop(context);
                     });
                   }

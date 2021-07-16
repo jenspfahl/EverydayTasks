@@ -5,30 +5,31 @@ import '../database.dart';
 import 'mapper.dart';
 
 class TaskEventRepository {
-  static Future<void> insert(TaskEvent taskEvent) async {
+  static Future<TaskEvent> insert(TaskEvent taskEvent) async {
 
-    final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+    final database = await getDb();
 
     final taskEventDao = database.taskEventDao;
     final entity = _mapToEntity(taskEvent);
 
-    await taskEventDao.insertTaskEvent(entity);
+    final id = await taskEventDao.insertTaskEvent(entity);
+    taskEvent.id = id;
+
+    return taskEvent;
 
   }
 
   static Future<List<TaskEvent>> getAll() async {
 
-    final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+    final database = await getDb();
 
     final taskEventDao = database.taskEventDao;
-    return await taskEventDao.findAll()
-        .map((e) => _mapFromEntity(e!))
-        .toList();
+    return taskEventDao.findAll().then((entities) => _mapFromEntities(entities));
   }
 
   static Future<TaskEvent> getById(int id) async {
 
-    final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+    final database = await getDb();
 
     final taskEventDao = database.taskEventDao;
     return await taskEventDao.findById(id)
@@ -59,5 +60,12 @@ class TaskEventRepository {
         dateTimeFromEntity(entity.finishedAt),
         Severity.values.elementAt(entity.severity),
         entity.favorite);
-  
+
+
+  static List<TaskEvent> _mapFromEntities(List<TaskEventEntity> entities) =>
+      entities.map(_mapFromEntity).toList();
+
+  static Future<AppDatabase> getDb() async =>
+      $FloorAppDatabase.databaseBuilder('app_database.db').build();
+
 }

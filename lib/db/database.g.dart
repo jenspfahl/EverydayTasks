@@ -192,19 +192,20 @@ class _$TaskEventDao extends TaskEventDao {
   }
 
   @override
-  Future<void> insertTaskEvent(TaskEventEntity taskEvent) async {
-    await _taskEventEntityInsertionAdapter.insert(
+  Future<int> insertTaskEvent(TaskEventEntity taskEvent) {
+    return _taskEventEntityInsertionAdapter.insertAndReturnId(
         taskEvent, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> updateTaskEvent(TaskEventEntity taskEvent) async {
-    await _taskEventEntityUpdateAdapter.update(
+  Future<int> updateTaskEvent(TaskEventEntity taskEvent) {
+    return _taskEventEntityUpdateAdapter.updateAndReturnChangedRows(
         taskEvent, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> deleteTaskEvent(TaskEventEntity taskEvent) async {
-    await _taskEventEntityDeletionAdapter.delete(taskEvent);
+  Future<int> deleteTaskEvent(TaskEventEntity taskEvent) {
+    return _taskEventEntityDeletionAdapter
+        .deleteAndReturnChangedRows(taskEvent);
   }
 }
