@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 
-import '../entity/Severity.dart';
-import '../entity/TaskEvent.dart';
+import '../model/Severity.dart';
+import '../model/TaskEvent.dart';
 
 class TaskEventsList extends StatelessWidget {
   @override
@@ -32,6 +33,9 @@ class TaskEventsList extends StatelessWidget {
   }
 
   Widget _buildRow(TaskEvent taskEvent, DateTime? dateHeading) {
+
+    List<Widget> expansionWidgets = _createExpansionWidgets(taskEvent);
+
     var listTile = ListTile(
       title: dateHeading != null
           ? Text(
@@ -43,57 +47,9 @@ class TaskEventsList extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: ExpansionTile(
           title: Text(taskEvent.name),
-          subtitle: Text(taskEvent.originTaskGroup),
+          subtitle: Text(taskEvent.originTaskGroup?? ""),
           //          backgroundColor: Colors.lime,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(4.0),
-              child: Text(taskEvent.description),
-            ),
-            Padding(
-              padding: EdgeInsets.all(4.0),
-              child: Text(formatToDateTimeRange(
-                  taskEvent.startedAt, taskEvent.finishedAt)),
-            ),
-            Padding(
-              padding: EdgeInsets.all(4.0),
-              child: severityToIcon(taskEvent.severity),
-            ),
-            Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ButtonBar(
-                  alignment: MainAxisAlignment.start,
-                  children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: Icon(taskEvent.favorite
-                          ? Icons.favorite
-                          : Icons.favorite_border),
-                    ),
-                  ],
-                ),
-                ButtonBar(
-                  alignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        // Perform some action
-                      },
-                      child: const Text("Change"),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Perform some action
-                      },
-                      child: const Icon(Icons.delete),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+          children: expansionWidgets,
         ),
       ),
     );
@@ -105,6 +61,64 @@ class TaskEventsList extends StatelessWidget {
     } else {
       return listTile;
     }
+  }
+
+  List<Widget> _createExpansionWidgets(TaskEvent taskEvent) {
+    var expansionWidgets = <Widget>[];
+
+    if (taskEvent.description != null && taskEvent.description!.isNotEmpty) {
+      expansionWidgets.add(Padding(
+        padding: EdgeInsets.all(4.0),
+        child: Text(taskEvent.description!),
+      ));
+    }
+    
+    expansionWidgets.addAll([
+      Padding(
+        padding: EdgeInsets.all(4.0),
+        child: Text(formatToDateTimeRange(
+            taskEvent.startedAt, taskEvent.finishedAt)),
+      ),
+      Padding(
+        padding: EdgeInsets.all(4.0),
+        child: severityToIcon(taskEvent.severity),
+      ),
+      Divider(),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ButtonBar(
+            alignment: MainAxisAlignment.start,
+            children: [
+              TextButton(
+                onPressed: () {},
+                child: Icon(taskEvent.favorite
+                    ? Icons.favorite
+                    : Icons.favorite_border),
+              ),
+            ],
+          ),
+          ButtonBar(
+            alignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () {
+                  // Perform some action
+                },
+                child: const Text("Change"),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Perform some action
+                },
+                child: const Icon(Icons.delete),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ]);
+    return expansionWidgets;
   }
 
   List<TaskEvent> _loadTaskEvents() {
@@ -193,22 +207,22 @@ DateTime truncToDate(DateTime dateTime) {
 String formatToDateOrWord(DateTime dateTime) {
   var today = truncToDate(DateTime.now());
   if (truncToDate(dateTime) == today) {
-    return "today";
+    return "Today";
   }
   var yesterday = truncToDate(DateTime.now().subtract(Duration(days: 1)));
   if (truncToDate(dateTime) == yesterday) {
-    return "yesterday";
+    return "Yesterday";
   }
   return formatToDate(dateTime);
 }
 
 String formatToDate(DateTime dateTime) {
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  final DateFormat formatter = DateFormat('yyyy-MMM-dd');
   return formatter.format(dateTime);
 }
 
 String formatToDateTime(DateTime dateTime) {
-  final DateFormat formatter = DateFormat('yyyy-MM-dd H:mm');
+  final DateFormat formatter = DateFormat('yyyy-MMM-dd H:mm');
   return formatter.format(dateTime);
 }
 

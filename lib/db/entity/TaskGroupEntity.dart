@@ -4,11 +4,12 @@ import 'package:floor/floor.dart';
 class TaskGroup {
   @primaryKey
   final int id;
+  final int? taskGroupId;
 
   final String name;
   final String description;
   final int? colorRGB;
-  final int? taskGroupId;
 
-  TaskGroup(this.id, this.name, this.description, this.colorRGB, this.taskGroupId);
+  TaskGroup(this.id, this.taskGroupId,
+      this.name, this.description, this.colorRGB);
 }
