@@ -3,7 +3,8 @@ import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 
 @dao
 abstract class TaskEventDao {
-  @Query('SELECT * FROM TaskEventEntity')
+  // TODO add paging
+  @Query('SELECT * FROM TaskEventEntity ORDER BY startedAt DESC, id DESC')
   Future<List<TaskEventEntity>> findAll();
 
   @Query('SELECT * FROM TaskEventEntity WHERE id = :id')

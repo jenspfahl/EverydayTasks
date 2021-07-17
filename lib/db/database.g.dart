@@ -160,7 +160,8 @@ class _$TaskEventDao extends TaskEventDao {
 
   @override
   Future<List<TaskEventEntity>> findAll() async {
-    return _queryAdapter.queryList('SELECT * FROM TaskEventEntity',
+    return _queryAdapter.queryList(
+        'SELECT * FROM TaskEventEntity ORDER BY startedAt DESC, id DESC',
         mapper: (Map<String, Object?> row) => TaskEventEntity(
             row['id'] as int?,
             row['name'] as String,

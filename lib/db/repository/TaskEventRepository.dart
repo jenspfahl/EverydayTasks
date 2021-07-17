@@ -5,6 +5,7 @@ import '../database.dart';
 import 'mapper.dart';
 
 class TaskEventRepository {
+
   static Future<TaskEvent> insert(TaskEvent taskEvent) async {
 
     final database = await getDb();
@@ -15,6 +16,30 @@ class TaskEventRepository {
     final id = await taskEventDao.insertTaskEvent(entity);
     taskEvent.id = id;
 
+    return taskEvent;
+
+  }
+
+  static Future<TaskEvent> update(TaskEvent taskEvent) async {
+
+    final database = await getDb();
+
+    final taskEventDao = database.taskEventDao;
+    final entity = _mapToEntity(taskEvent);
+
+    await taskEventDao.updateTaskEvent(entity);
+    return taskEvent;
+
+  }
+
+  static Future<TaskEvent> delete(TaskEvent taskEvent) async {
+
+    final database = await getDb();
+
+    final taskEventDao = database.taskEventDao;
+    final entity = _mapToEntity(taskEvent);
+
+    await taskEventDao.deleteTaskEvent(entity);
     return taskEvent;
 
   }
