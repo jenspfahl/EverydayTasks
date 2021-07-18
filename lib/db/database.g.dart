@@ -159,19 +159,12 @@ class _$TaskEventDao extends TaskEventDao {
   final DeletionAdapter<TaskEventEntity> _taskEventEntityDeletionAdapter;
 
   @override
-  Future<List<TaskEventEntity>> findAll() async {
+  Future<List<TaskEventEntity>> findAllBeginningByStartedAt(
+      int lastStartedAt, int lastId, int limit) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM TaskEventEntity ORDER BY startedAt DESC, id DESC',
-        mapper: (Map<String, Object?> row) => TaskEventEntity(
-            row['id'] as int?,
-            row['name'] as String,
-            row['description'] as String?,
-            row['originTaskGroup'] as String?,
-            row['colorRGB'] as int?,
-            row['startedAt'] as int,
-            row['finishedAt'] as int,
-            row['severity'] as int,
-            (row['favorite'] as int) != 0));
+        'SELECT * FROM TaskEventEntity WHERE startedAt < ?1 AND id < ?2 ORDER BY startedAt DESC, id DESC LIMIT ?3',
+        mapper: (Map<String, Object?> row) => TaskEventEntity(row['id'] as int?, row['name'] as String, row['description'] as String?, row['originTaskGroup'] as String?, row['colorRGB'] as int?, row['startedAt'] as int, row['finishedAt'] as int, row['severity'] as int, (row['favorite'] as int) != 0),
+        arguments: [lastStartedAt, lastId, limit]);
   }
 
   @override

@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/util/dates.dart';
-import 'package:personaltasklogger/ui/Dialogs.dart';
+import 'package:personaltasklogger/ui/dialogs.dart';
 
 import 'TaskEventForm.dart';
 
@@ -20,7 +21,8 @@ class _TaskEventListState extends State<TaskEventList> {
   int _selected = -1;
 
   _TaskEventListState() {
-    TaskEventRepository.getAll().then((taskEvents) {
+    final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 100);
+    TaskEventRepository.getAllPaged(paging).then((taskEvents) { 
       setState(() {
         taskEvents.addAll(_loadTestTaskEvents());
         _taskEvents = taskEvents..sort();
@@ -32,6 +34,7 @@ class _TaskEventListState extends State<TaskEventList> {
     setState(() {
       _taskEvents.add(taskEvent);
       _taskEvents..sort();
+      _selected = _taskEvents.indexOf(taskEvent);
     });
   }
 
@@ -152,7 +155,6 @@ class _TaskEventListState extends State<TaskEventList> {
     }
 
     return ListView.builder(
-        key: Key("builder ${_selected.toString()}"),
         itemCount: _taskEvents.length,
         itemBuilder: (context, index) {
           return _buildRow(index, dateHeadings);
@@ -175,16 +177,16 @@ class _TaskEventListState extends State<TaskEventList> {
       subtitle: Card(
         clipBehavior: Clip.antiAlias,
         child: ExpansionTile(
-          key: Key(index.toString()),
+          key: GlobalKey(), // this makes updating all tiles if state changed
           title: Text(kReleaseMode ? taskEvent.name : "${taskEvent.name} (id=${taskEvent.id})"),
           subtitle: taskEvent.originTaskGroup != null ? Text(taskEvent.originTaskGroup!) : null,
           children: expansionWidgets,
           collapsedBackgroundColor: Colors.lime.shade50,
           backgroundColor: Colors.lime.shade100,
           initiallyExpanded: index == _selected,
-          onExpansionChanged: ((newState) {
+          onExpansionChanged: ((expanded) {
             setState(() {
-              _selected = newState ? index : -1;
+              _selected = expanded ? index : -1;
             });
           }),
         ),

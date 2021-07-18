@@ -2,6 +2,7 @@ import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import '../database.dart';
+import 'ChronologicalPaging.dart';
 import 'mapper.dart';
 
 class TaskEventRepository {
@@ -44,11 +45,13 @@ class TaskEventRepository {
 
   }
 
-  static Future<List<TaskEvent>> getAll() async {
+  static Future<List<TaskEvent>> getAllPaged(ChronologicalPaging paging) async {
     final database = await getDb();
 
     final taskEventDao = database.taskEventDao;
-    return taskEventDao.findAll().then((entities) => _mapFromEntities(entities));
+    return taskEventDao.findAllBeginningByStartedAt(
+        paging.lastDateTime.millisecondsSinceEpoch, paging.lastId, paging.size)
+        .then((entities) => _mapFromEntities(entities));
   }
 
   static Future<TaskEvent> getById(int id) async {
