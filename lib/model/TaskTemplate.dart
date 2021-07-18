@@ -1,19 +1,16 @@
-import 'package:flutter/material.dart';
+import 'Severity.dart';
 import 'When.dart';
 
 class TaskTemplate {
-  final int? id;
-  final int? taskGroupId;
+  int? id;
+  int? taskGroupId;
 
-  final String name;
-  final String description;
-  final When? when;
-  final TimeOfDay? whenExactly;
-  final Duration? duration;
-  final int? durationExactlyMinutes;
-  final bool favorite;
+  String name;
+  String? description;
+  When? when;
+  Severity? severity;
+  bool? favorite = false;
 
-  TaskTemplate(this.id, this.taskGroupId,
-      this.name, this.description, this.when, this.whenExactly,
-      this.duration, this.durationExactlyMinutes, this.favorite);
+  TaskTemplate({this.id, this.taskGroupId,
+      required this.name, this.description, this.when, this.severity, this.favorite});
 }

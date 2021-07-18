@@ -158,9 +158,6 @@ class _TaskEventListState extends State<TaskEventList> {
           return _buildRow(index, dateHeadings);
         });
 
-   /* return ListView(
-      children: rows,
-    );*/
   }
 
   Widget _buildRow(int index, List<DateTime?> dateHeadings) {
@@ -180,9 +177,10 @@ class _TaskEventListState extends State<TaskEventList> {
         child: ExpansionTile(
           key: Key(index.toString()),
           title: Text(kReleaseMode ? taskEvent.name : "${taskEvent.name} (id=${taskEvent.id})"),
-          subtitle: Text(taskEvent.originTaskGroup ?? ""),
-          //          backgroundColor: Colors.lime,
+          subtitle: taskEvent.originTaskGroup != null ? Text(taskEvent.originTaskGroup!) : null,
           children: expansionWidgets,
+          collapsedBackgroundColor: Colors.lime.shade50,
+          backgroundColor: Colors.lime.shade100,
           initiallyExpanded: index == _selected,
           onExpansionChanged: ((newState) {
             setState(() {

@@ -12,9 +12,10 @@ class TaskTemplate {
   final int? whenExactly;
   final int? duration;
   final int? durationExactlyMinutes;
+  final int? severity;
   final bool favorite;
 
   TaskTemplate(this.id, this.taskGroupId,
       this.name, this.description, this.when, this.whenExactly,
-      this.duration, this.durationExactlyMinutes, this.favorite);
+      this.duration, this.durationExactlyMinutes, this.severity, this.favorite);
 }

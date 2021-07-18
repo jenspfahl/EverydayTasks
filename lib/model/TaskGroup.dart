@@ -1,9 +1,9 @@
 class TaskGroup {
-  final int? id;
-  final String name;
-  final String description;
-  final int? colorRGB;
-  final int? taskGroupId;
+  int? id;
+  String name;
+  String? description;
+  int? colorRGB;
+  int? taskGroupId;
 
-  TaskGroup(this.id, this.name, this.description, this.colorRGB, this.taskGroupId);
+  TaskGroup({this.id, required this.name, this.description, this.colorRGB, this.taskGroupId});
 }
