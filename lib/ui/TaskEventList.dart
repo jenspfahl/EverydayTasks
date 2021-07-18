@@ -17,6 +17,7 @@ class TaskEventList extends StatefulWidget {
 
 class _TaskEventListState extends State<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
+  int _selected = -1;
 
   _TaskEventListState() {
     TaskEventRepository.getAll().then((taskEvents) {
@@ -37,6 +38,7 @@ class _TaskEventListState extends State<TaskEventList> {
   void _removeTaskEvent(TaskEvent taskEvent) {
     setState(() {
       _taskEvents.remove(taskEvent);
+      _selected = -1;
     });
   }
 
@@ -54,23 +56,6 @@ class _TaskEventListState extends State<TaskEventList> {
         ],
       ),
       body: _buildList(),
-      /*ListView.builder(
-        itemCount: _taskEvents.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundColor: _notes[index].priority == 1? Colors.yellow: Colors.red,
-              child: Icon(_notes[index].priority == 1 ? Icons.arrow_right : Icons.add),
-            ),
-            title: Text(_notes[index].title),
-            subtitle: Text(_notes[index].date),
-            trailing: Icon(Icons.delete),
-            onTap: () {
-              navigateToNoteForm("Edit Note", _notes[index]);
-            },
-          );
-        }),*/
-      // TaskEventsList(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -150,7 +135,7 @@ class _TaskEventListState extends State<TaskEventList> {
 
   Widget _buildList() {
     DateTime? dateHeading;
-    List<Widget> rows = List.empty(growable: true);
+    List<DateTime?> dateHeadings = [];
     for (var i = 0; i < _taskEvents.length; i++) {
       var taskEvent = _taskEvents[i];
       var taskEventDate = truncToDate(taskEvent.startedAt);
@@ -163,18 +148,27 @@ class _TaskEventListState extends State<TaskEventList> {
         usedDateHeading = taskEventDate;
       }
       dateHeading = taskEventDate;
-      rows.add(_buildRow(taskEvent, usedDateHeading));
+      dateHeadings.add(usedDateHeading);
     }
 
-    return ListView(
+    return ListView.builder(
+        key: Key("builder ${_selected.toString()}"),
+        itemCount: _taskEvents.length,
+        itemBuilder: (context, index) {
+          return _buildRow(index, dateHeadings);
+        });
+
+   /* return ListView(
       children: rows,
-    );
+    );*/
   }
 
-  Widget _buildRow(TaskEvent taskEvent, DateTime? dateHeading) {
-    List<Widget> expansionWidgets = _createExpansionWidgets(taskEvent);
+  Widget _buildRow(int index, List<DateTime?> dateHeadings) {
+    final taskEvent = _taskEvents[index];
+    final dateHeading = dateHeadings[index];
 
-    var listTile = ListTile(
+    final expansionWidgets = _createExpansionWidgets(taskEvent);
+    final listTile = ListTile(
       title: dateHeading != null
           ? Text(
               formatToDateOrWord(dateHeading),
@@ -184,10 +178,17 @@ class _TaskEventListState extends State<TaskEventList> {
       subtitle: Card(
         clipBehavior: Clip.antiAlias,
         child: ExpansionTile(
+          key: Key(index.toString()),
           title: Text(kReleaseMode ? taskEvent.name : "${taskEvent.name} (id=${taskEvent.id})"),
           subtitle: Text(taskEvent.originTaskGroup ?? ""),
           //          backgroundColor: Colors.lime,
           children: expansionWidgets,
+          initiallyExpanded: index == _selected,
+          onExpansionChanged: ((newState) {
+            setState(() {
+              _selected = newState ? index : -1;
+            });
+          }),
         ),
       ),
     );
