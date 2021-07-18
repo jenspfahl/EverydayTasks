@@ -3,11 +3,11 @@ import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/util/dates.dart';
+import 'package:personaltasklogger/ui/Dialogs.dart';
 
 import 'TaskEventForm.dart';
 
 class TaskEventList extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return _TaskEventListState();
@@ -15,26 +15,26 @@ class TaskEventList extends StatefulWidget {
 }
 
 class _TaskEventListState extends State<TaskEventList> {
-
   List<TaskEvent> _taskEvents = [];
 
   @override
   void initState() {
     super.initState();
-    TaskEventRepository.getAll()
-        .then((taskEvents) {
-    //  setState(() {
-        _taskEvents = taskEvents;
-    //  });
+    TaskEventRepository.getAll().then((taskEvents) {
+      _taskEvents = taskEvents;
     });
   }
 
-  void _reloadTaskEvents() {
-    TaskEventRepository.getAll()
-        .then((taskEvents) {
-          setState(() {
-            _taskEvents = taskEvents;
-          });
+  void _addTaskEvent(TaskEvent taskEvent) {
+    setState(() {
+      _taskEvents.add(taskEvent);
+      _taskEvents..sort();
+    });
+  }
+
+  void _removeTaskEvent(TaskEvent taskEvent) {
+    setState(() {
+      _taskEvents.remove(taskEvent);
     });
   }
 
@@ -68,7 +68,7 @@ class _TaskEventListState extends State<TaskEventList> {
             },
           );
         }),*/
-       // TaskEventsList(),
+      // TaskEventsList(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
@@ -87,13 +87,19 @@ class _TaskEventListState extends State<TaskEventList> {
                           child: const Text('From scratch'),
                           onPressed: () async {
                             Navigator.pop(context);
-                            TaskEvent? result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                            TaskEvent? newTaskEvent = await Navigator.push(
+                                context, MaterialPageRoute(builder: (context) {
                               return TaskEventForm("Create new TaskEvent ");
                             }));
 
-                            if (result != null) {
-                              debugPrint("Updating list");
-                              _reloadTaskEvents();
+                            if (newTaskEvent != null) {
+                              TaskEventRepository.insert(newTaskEvent)
+                                  .then((newTaskEvent) {
+                                ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
+                                    content: Text(
+                                        'New event with id = ${newTaskEvent.id} created')));
+                                _addTaskEvent(newTaskEvent);
+                              });
                             }
                           },
                         ),
@@ -138,15 +144,13 @@ class _TaskEventListState extends State<TaskEventList> {
     );
   }
 
-
-
   Widget _buildList() {
     DateTime? dateHeading;
     List<Widget> rows = List.empty(growable: true);
     for (var i = 0; i < _taskEvents.length; i++) {
       var taskEvent = _taskEvents[i];
       var taskEventDate = truncToDate(taskEvent.startedAt);
-      DateTime? usedDateHeading = null;
+      DateTime? usedDateHeading;
 
       if (dateHeading == null) {
         dateHeading = truncToDate(taskEvent.startedAt);
@@ -169,9 +173,9 @@ class _TaskEventListState extends State<TaskEventList> {
     var listTile = ListTile(
       title: dateHeading != null
           ? Text(
-        formatToDateOrWord(dateHeading),
-        style: TextStyle(color: Colors.grey, fontSize: 10.0),
-      )
+              formatToDateOrWord(dateHeading),
+              style: TextStyle(color: Colors.grey, fontSize: 10.0),
+            )
           : null,
       subtitle: Card(
         clipBehavior: Clip.antiAlias,
@@ -239,7 +243,23 @@ class _TaskEventListState extends State<TaskEventList> {
               ),
               TextButton(
                 onPressed: () {
-                  // Perform some action
+                  showConfirmationDialog(
+                    context,
+                    "Delete Task Event",
+                    "Are you sure to delete ${taskEvent.name} ?",
+                    okPressed: () {
+                      TaskEventRepository.delete(taskEvent).then(
+                        (_) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  'Task event with id = ${taskEvent.id} deleted')));
+                          _removeTaskEvent(taskEvent);
+                        },
+                      );
+                      Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                    },
+                    cancelPressed: () => Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                  );
                 },
                 child: const Icon(Icons.delete),
               ),
@@ -315,8 +335,7 @@ class _TaskEventListState extends State<TaskEventList> {
           true),
     ];
 
-    // return descending sorted list
-    return taskEvents..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    return taskEvents..sort();
   }
 
   Widget severityToIcon(Severity severity) {
@@ -328,6 +347,4 @@ class _TaskEventListState extends State<TaskEventList> {
       children: icons,
     );
   }
-
-
 }

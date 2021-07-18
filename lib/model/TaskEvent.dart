@@ -1,6 +1,6 @@
 import 'Severity.dart';
 
-class TaskEvent {
+class TaskEvent implements Comparable {
   int? id;
   String name;
   String? description;
@@ -18,5 +18,12 @@ class TaskEvent {
       this.startedAt, this.finishedAt, this.severity);
 
     TaskEvent.newPlainInstance(this.name, this.startedAt, this.finishedAt);
+
+  @override
+  int compareTo(other) {
+    int result = other.startedAt.compareTo(startedAt);
+    if (result != 0) return result;
+    return other.id??0.compareTo(id??0);
+  }
 
 }

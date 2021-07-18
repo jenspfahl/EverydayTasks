@@ -1,4 +1,3 @@
-
 import 'package:intl/intl.dart';
 
 DateTime truncToDate(DateTime dateTime) {

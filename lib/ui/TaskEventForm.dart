@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 
 class TaskEventForm extends StatefulWidget {
-  String _title = "";
-  TaskEvent? _taskEvent;
+  final String _title;
+  final TaskEvent? _taskEvent;
 
-  TaskEventForm(String title, [TaskEvent? taskEvent]) {
-    this._title = title;
-    this._taskEvent = taskEvent;
-  }
+  TaskEventForm(this._title, [this._taskEvent]);
 
   @override
   State<StatefulWidget> createState() {
@@ -57,12 +53,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           nameController.text,
                           DateTime.now(),
                           DateTime.now().add(Duration(minutes: 5)));
-                      TaskEventRepository.insert(taskEvent).then((taskEvent) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(
-                                'New event with id = ${taskEvent.id} created')));
-                        Navigator.pop(context, taskEvent);
-                      });
+                      Navigator.pop(context, taskEvent);
                     }
                   },
                   child: Text('Save'),
