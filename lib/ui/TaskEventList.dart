@@ -19,15 +19,11 @@ class _TaskEventListState extends State<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
 
   _TaskEventListState() {
-    _taskEvents = _loadTestTaskEvents();
-  }
-
-  @override
-  void initState() {
-    super.initState();
     TaskEventRepository.getAll().then((taskEvents) {
-      taskEvents.addAll(_loadTestTaskEvents());
-      _taskEvents = taskEvents..sort();
+      setState(() {
+        taskEvents.addAll(_loadTestTaskEvents());
+        _taskEvents = taskEvents..sort();
+      });
     });
   }
 
@@ -75,6 +71,7 @@ class _TaskEventListState extends State<TaskEventList> {
           );
         }),*/
       // TaskEventsList(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
@@ -122,6 +119,7 @@ class _TaskEventListState extends State<TaskEventList> {
         child: Icon(Icons.event_available),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         showUnselectedLabels: true,
         showSelectedLabels: true,
         items: const <BottomNavigationBarItem>[
@@ -252,7 +250,7 @@ class _TaskEventListState extends State<TaskEventList> {
                   showConfirmationDialog(
                     context,
                     "Delete Task Event",
-                    "Are you sure to delete ${taskEvent.name} ?",
+                    "Are you sure to delete \'${taskEvent.name}\' ?",
                     okPressed: () {
                       TaskEventRepository.delete(taskEvent).then(
                         (_) {
