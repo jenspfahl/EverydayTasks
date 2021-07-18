@@ -32,34 +32,37 @@ class _TaskEventFormState extends State<TaskEventForm> {
       body: Builder(
         builder: (scaffoldContext) => Form(
           key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextFormField(
-                controller: nameController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a name';
-                  }
-                  return null;
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      var taskEvent = TaskEvent.newPlainInstance(
-                          nameController.text,
-                          DateTime.now(),
-                          DateTime.now().add(Duration(minutes: 5)));
-                      Navigator.pop(context, taskEvent);
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                TextFormField(
+                  controller: nameController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a name';
                     }
+                    return null;
                   },
-                  child: Text('Save'),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        var taskEvent = TaskEvent.newPlainInstance(
+                            nameController.text,
+                            DateTime.now(),
+                            DateTime.now().add(Duration(minutes: 5)));
+                        Navigator.pop(context, taskEvent);
+                      }
+                    },
+                    child: Text('Save'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

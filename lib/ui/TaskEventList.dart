@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
@@ -17,11 +18,16 @@ class TaskEventList extends StatefulWidget {
 class _TaskEventListState extends State<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
 
+  _TaskEventListState() {
+    _taskEvents = _loadTestTaskEvents();
+  }
+
   @override
   void initState() {
     super.initState();
     TaskEventRepository.getAll().then((taskEvents) {
-      _taskEvents = taskEvents;
+      taskEvents.addAll(_loadTestTaskEvents());
+      _taskEvents = taskEvents..sort();
     });
   }
 
@@ -97,7 +103,7 @@ class _TaskEventListState extends State<TaskEventList> {
                                   .then((newTaskEvent) {
                                 ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
                                     content: Text(
-                                        'New event with id = ${newTaskEvent.id} created')));
+                                        'New task event with name \'${newTaskEvent.name}\' created')));
                                 _addTaskEvent(newTaskEvent);
                               });
                             }
@@ -180,7 +186,7 @@ class _TaskEventListState extends State<TaskEventList> {
       subtitle: Card(
         clipBehavior: Clip.antiAlias,
         child: ExpansionTile(
-          title: Text(taskEvent.name),
+          title: Text(kReleaseMode ? taskEvent.name : "${taskEvent.name} (id=${taskEvent.id})"),
           subtitle: Text(taskEvent.originTaskGroup ?? ""),
           //          backgroundColor: Colors.lime,
           children: expansionWidgets,
@@ -252,7 +258,7 @@ class _TaskEventListState extends State<TaskEventList> {
                         (_) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content: Text(
-                                  'Task event with id = ${taskEvent.id} deleted')));
+                                  'Task event \'${taskEvent.name}\' deleted')));
                           _removeTaskEvent(taskEvent);
                         },
                       );
@@ -271,10 +277,10 @@ class _TaskEventListState extends State<TaskEventList> {
     return expansionWidgets;
   }
 
-  Future<List<TaskEvent>> _loadTaskEvents() async {
+  List<TaskEvent> _loadTestTaskEvents() {
     var taskEvents = [
       TaskEvent(
-          1,
+          -1,
           "Wash up",
           "Washing all up",
           "Household/Daily",
@@ -284,7 +290,7 @@ class _TaskEventListState extends State<TaskEventList> {
           Severity.MEDIUM,
           false),
       TaskEvent(
-          2,
+          -2,
           "Clean kitchen",
           "Clean all in kitchen",
           "Household/Weekly",
@@ -294,7 +300,7 @@ class _TaskEventListState extends State<TaskEventList> {
           Severity.MEDIUM,
           false),
       TaskEvent(
-          3,
+          -3,
           "Bring kid to daycare",
           "",
           "Care/Daily",
@@ -304,7 +310,7 @@ class _TaskEventListState extends State<TaskEventList> {
           Severity.EASY,
           true),
       TaskEvent(
-          4,
+          -4,
           "Cook lunch",
           "Pasta",
           "Cooking",
@@ -314,7 +320,7 @@ class _TaskEventListState extends State<TaskEventList> {
           Severity.HARD,
           false),
       TaskEvent(
-          6,
+          -5,
           "Repair closet",
           "Pasta",
           "Repair",
@@ -324,7 +330,7 @@ class _TaskEventListState extends State<TaskEventList> {
           Severity.HARD,
           false),
       TaskEvent(
-          7,
+          -6,
           "Build bathroom",
           "Assemble Ikea bathroom furniture",
           "Construct/Assembe",
