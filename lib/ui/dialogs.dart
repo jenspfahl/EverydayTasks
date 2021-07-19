@@ -29,10 +29,11 @@ void showConfirmationDialog(BuildContext context, String title, String message,
   );
 }
 
+/// Returns if a duration was chosen
+Future<bool?> showDurationPickerDialog(BuildContext context, Function(Duration) _selectedDuration,
+    [Duration? initialDuration]) {
 
-Future<Duration?> showDurationPickerDialog(BuildContext context, [Duration? duration]) {
-
-  final durationPicker = DurationPicker(duration?.inHours??0, (duration?.inMinutes ??0) % 60);
+  final durationPicker = DurationPicker(initialDuration, _selectedDuration);
 
   Dialog dialog = Dialog(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)), //this right here
@@ -50,11 +51,11 @@ Future<Duration?> showDurationPickerDialog(BuildContext context, [Duration? dura
             children: [
             TextButton(
               child: Text("Cancel"),
-              onPressed:  () => Navigator.of(context).pop(),
+              onPressed:  () => Navigator.of(context).pop(false),
             ),
             TextButton(
               child: Text("Ok"),
-              onPressed:  () => Navigator.of(context).pop(durationPicker.getSelectedDuration()),
+              onPressed:  () => Navigator.of(context).pop(true),
             )
             ],)
         ],

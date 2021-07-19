@@ -30,6 +30,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   DurationHours? _selectedDurationHours;
   Duration? _customDuration;
+  Duration? _tempSelectedDuration;
 
   _TaskEventFormState([this._taskEvent]) {
     final severity = _taskEvent?.severity != null ? _taskEvent!.severity : Severity.MEDIUM;
@@ -136,9 +137,13 @@ class _TaskEventFormState extends State<TaskEventForm> {
                     isExpanded: true,
                     onChanged: (value) {
                       if (value == DurationHours.CUSTOM) {
-                        showDurationPickerDialog(context, _customDuration ?? Duration(minutes: 1)).then((duration) {
-                          if (duration != null) {
-                            setState(() => _customDuration = duration);
+                        final initialDuration = _customDuration ?? Duration(minutes: 1);
+                        showDurationPickerDialog(context, 
+                            (selectedDuration) => setState(() => _tempSelectedDuration = selectedDuration),
+                            initialDuration)
+                            .then((okPressed) {
+                          if (okPressed ?? false) {
+                            setState(() => _customDuration = _tempSelectedDuration ?? initialDuration);
                           }
                         });
                       }
@@ -172,13 +177,13 @@ class _TaskEventFormState extends State<TaskEventForm> {
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         var taskEvent = TaskEvent.newInstance(
+                          null,
                           nameController.text,
                           descriptionController.text,
                           null,
-                          null,
                           DateTime.now(),
                           DateTime.now()
-                              .add(When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration!)),
+                              .add(When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration)),
                           Severity.values.elementAt(_severityIndex),
                         );
                         Navigator.pop(context, taskEvent);

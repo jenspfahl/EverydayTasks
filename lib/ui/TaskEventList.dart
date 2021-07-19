@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
-import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
@@ -25,8 +24,7 @@ class _TaskEventListState extends State<TaskEventList> {
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 100);
     TaskEventRepository.getAllPaged(paging).then((taskEvents) { 
       setState(() {
-        taskEvents.addAll(_loadTestTaskEvents());
-        _taskEvents = taskEvents..sort();
+        _taskEvents = taskEvents;
       });
     });
   }
@@ -181,7 +179,7 @@ class _TaskEventListState extends State<TaskEventList> {
         child: ExpansionTile(
           key: GlobalKey(), // this makes updating all tiles if state changed
           title: Text(kReleaseMode ? taskEvent.name : "${taskEvent.name} (id=${taskEvent.id})"),
-          subtitle: taskEvent.originTaskGroup != null ? Text(taskEvent.originTaskGroup!) : null,
+          subtitle: taskEvent.taskGroupId != null ? Text(taskEvent.taskGroupId.toString()) : null,//TODO getTaskGroupPath
           children: expansionWidgets,
           collapsedBackgroundColor: Colors.lime.shade50,
           backgroundColor: Colors.lime.shade100,
@@ -276,73 +274,6 @@ class _TaskEventListState extends State<TaskEventList> {
       ),
     ]);
     return expansionWidgets;
-  }
-
-  List<TaskEvent> _loadTestTaskEvents() {
-    var taskEvents = [
-      TaskEvent(
-          -1,
-          "Wash up",
-          "Washing all up",
-          "Household/Daily",
-          null,
-          DateTime(2021, 5, 12, 17, 30),
-          DateTime(2021, 5, 12, 17, 45),
-          Severity.MEDIUM,
-          false),
-      TaskEvent(
-          -2,
-          "Clean kitchen",
-          "Clean all in kitchen",
-          "Household/Weekly",
-          null,
-          DateTime(2021, 5, 12, 20, 30),
-          DateTime(2021, 5, 12, 21, 00),
-          Severity.MEDIUM,
-          false),
-      TaskEvent(
-          -3,
-          "Bring kid to daycare",
-          "",
-          "Care/Daily",
-          null,
-          DateTime(2021, 5, 11, 08, 05),
-          DateTime(2021, 5, 11, 08, 20),
-          Severity.EASY,
-          true),
-      TaskEvent(
-          -4,
-          "Cook lunch",
-          "Pasta",
-          "Cooking",
-          null,
-          DateTime.now().subtract(Duration(minutes: 10)),
-          DateTime.now(),
-          Severity.HARD,
-          false),
-      TaskEvent(
-          -5,
-          "Repair closet",
-          "Pasta",
-          "Repair",
-          null,
-          DateTime.now().subtract(Duration(minutes: 10, days: 1)),
-          DateTime.now().subtract(Duration(days: 1)),
-          Severity.HARD,
-          false),
-      TaskEvent(
-          -6,
-          "Build bathroom",
-          "Assemble Ikea bathroom furniture",
-          "Construct/Assembe",
-          null,
-          DateTime(2020, 12, 1, 09, 30),
-          DateTime(2020, 12, 1, 14, 20),
-          Severity.HARD,
-          true),
-    ];
-
-    return taskEvents..sort();
   }
 
 }

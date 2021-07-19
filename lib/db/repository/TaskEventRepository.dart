@@ -67,9 +67,9 @@ class TaskEventRepository {
   static TaskEventEntity _mapToEntity(TaskEvent taskEvent) =>
     TaskEventEntity(
         taskEvent.id,
+        taskEvent.taskGroupId,
         taskEvent.name,
         taskEvent.description,
-        taskEvent.originTaskGroup,
         taskEvent.colorRGB,
         dateTimeToEntity(taskEvent.startedAt),
         dateTimeToEntity(taskEvent.finishedAt),
@@ -79,9 +79,9 @@ class TaskEventRepository {
   static TaskEvent _mapFromEntity(TaskEventEntity entity) =>
     TaskEvent(
         entity.id,
+        entity.taskGroupId,
         entity.name,
         entity.description,
-        entity.originTaskGroup,
         entity.colorRGB,
         dateTimeFromEntity(entity.startedAt),
         dateTimeFromEntity(entity.finishedAt),

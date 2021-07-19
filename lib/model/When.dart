@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 enum WhenAtDay {MORNING, FORENOON, NOON, AFTERNOON, EVENING, NIGHT, CUSTOM}
+enum WhenOnDate {TODAY, YESTERDAY, CUSTOM}
 
 enum DurationHours {QUARTER, HALF, ONE, TWO, CUSTOM}
 

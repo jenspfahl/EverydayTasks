@@ -2,53 +2,53 @@ import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 class DurationPicker extends StatefulWidget {
-  int _currentHours;
-  int _currentMinutes;
+  late final int _initialHours;
+  late final int _initialMinutes;
+  final Function(Duration) _selectedDuration;
 
-  _DurationPickerState? _stateRef;
+//  _DurationPickerState? _stateRef;
 
-  DurationPicker(this._currentHours, this._currentMinutes);
+  DurationPicker(Duration? initialDuration, this._selectedDuration) {
+    this._initialHours = initialDuration?.inHours ?? 0;
+    this._initialMinutes = (initialDuration?.inMinutes ?? 0) % 60;
+  }
   
   @override
   _DurationPickerState createState() {
-    final state = _DurationPickerState(_currentHours, _currentMinutes);
-    _stateRef = state;
-    return state;
-  }
-
-  Duration? getSelectedDuration() {
-    final hours = _stateRef?._currentHours;
-    final minutes = _stateRef?._currentMinutes;
-
-    if (hours != null && minutes != null) {
-      return Duration(hours: hours, minutes: minutes);
-    }
-    return null;
+    return _DurationPickerState(_initialHours, _initialMinutes, _selectedDuration);
   }
 
 }
 
 class _DurationPickerState extends State<DurationPicker> {
-  int _currentHours;
-  int _currentMinutes;
+  int _initialHours;
+  int _initialMinutes;
+  final Function(Duration) _selectedDuration;
+
   late NumberPicker _hoursPicker;
   late NumberPicker _minutesPicker;
 
-  _DurationPickerState(this._currentHours, this._currentMinutes);
+  _DurationPickerState(this._initialHours, this._initialMinutes, this._selectedDuration);
   
   @override
   Widget build(BuildContext context) {
     _hoursPicker = new NumberPicker(
-      value: _currentHours,
+      value: _initialHours,
       minValue: 0,
       maxValue: 23,
-      onChanged: (value) => setState(() => _currentHours = value),
+      onChanged: (value) => setState(() { 
+        _initialHours = value;
+        _selectedDuration(_getSelectedDuration());
+      }),
     );
     _minutesPicker = new NumberPicker(
-      value: _currentMinutes,
+      value: _initialMinutes,
       minValue: 0,
       maxValue: 59,
-      onChanged: (value) => setState(() => _currentMinutes = value),
+      onChanged: (value) => setState(() { 
+        _initialMinutes = value;
+        _selectedDuration(_getSelectedDuration());
+      }),
     );
     //scaffold the full homepage
     return Row(
@@ -68,5 +68,9 @@ class _DurationPickerState extends State<DurationPicker> {
         ),
       ],
     );
+  }
+
+  Duration _getSelectedDuration() {
+      return Duration(hours: _initialHours, minutes: _initialMinutes);
   }
 }

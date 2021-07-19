@@ -81,7 +81,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `TaskEventEntity` (`id` INTEGER, `name` TEXT NOT NULL, `description` TEXT, `originTaskGroup` TEXT, `colorRGB` INTEGER, `startedAt` INTEGER NOT NULL, `finishedAt` INTEGER NOT NULL, `severity` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `TaskEventEntity` (`id` INTEGER, `taskGroupId` INTEGER, `name` TEXT NOT NULL, `description` TEXT, `colorRGB` INTEGER, `startedAt` INTEGER NOT NULL, `finishedAt` INTEGER NOT NULL, `severity` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -103,9 +103,9 @@ class _$TaskEventDao extends TaskEventDao {
             'TaskEventEntity',
             (TaskEventEntity item) => <String, Object?>{
                   'id': item.id,
+                  'taskGroupId': item.taskGroupId,
                   'name': item.name,
                   'description': item.description,
-                  'originTaskGroup': item.originTaskGroup,
                   'colorRGB': item.colorRGB,
                   'startedAt': item.startedAt,
                   'finishedAt': item.finishedAt,
@@ -119,9 +119,9 @@ class _$TaskEventDao extends TaskEventDao {
             ['id'],
             (TaskEventEntity item) => <String, Object?>{
                   'id': item.id,
+                  'taskGroupId': item.taskGroupId,
                   'name': item.name,
                   'description': item.description,
-                  'originTaskGroup': item.originTaskGroup,
                   'colorRGB': item.colorRGB,
                   'startedAt': item.startedAt,
                   'finishedAt': item.finishedAt,
@@ -135,9 +135,9 @@ class _$TaskEventDao extends TaskEventDao {
             ['id'],
             (TaskEventEntity item) => <String, Object?>{
                   'id': item.id,
+                  'taskGroupId': item.taskGroupId,
                   'name': item.name,
                   'description': item.description,
-                  'originTaskGroup': item.originTaskGroup,
                   'colorRGB': item.colorRGB,
                   'startedAt': item.startedAt,
                   'finishedAt': item.finishedAt,
@@ -163,7 +163,7 @@ class _$TaskEventDao extends TaskEventDao {
       int lastStartedAt, int lastId, int limit) async {
     return _queryAdapter.queryList(
         'SELECT * FROM TaskEventEntity WHERE startedAt < ?1 AND id < ?2 ORDER BY startedAt DESC, id DESC LIMIT ?3',
-        mapper: (Map<String, Object?> row) => TaskEventEntity(row['id'] as int?, row['name'] as String, row['description'] as String?, row['originTaskGroup'] as String?, row['colorRGB'] as int?, row['startedAt'] as int, row['finishedAt'] as int, row['severity'] as int, (row['favorite'] as int) != 0),
+        mapper: (Map<String, Object?> row) => TaskEventEntity(row['id'] as int?, row['taskGroupId'] as int?, row['name'] as String, row['description'] as String?, row['colorRGB'] as int?, row['startedAt'] as int, row['finishedAt'] as int, row['severity'] as int, (row['favorite'] as int) != 0),
         arguments: [lastStartedAt, lastId, limit]);
   }
 
@@ -173,9 +173,9 @@ class _$TaskEventDao extends TaskEventDao {
         'SELECT * FROM TaskEventEntity WHERE id = ?1',
         mapper: (Map<String, Object?> row) => TaskEventEntity(
             row['id'] as int?,
+            row['taskGroupId'] as int?,
             row['name'] as String,
             row['description'] as String?,
-            row['originTaskGroup'] as String?,
             row['colorRGB'] as int?,
             row['startedAt'] as int,
             row['finishedAt'] as int,
