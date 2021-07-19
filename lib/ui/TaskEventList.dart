@@ -4,6 +4,7 @@ import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
+import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 
@@ -73,7 +74,7 @@ class _TaskEventListState extends State<TaskEventList> {
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         const Text(
-                            'From what do you want to create a new log entry?'),
+                            'From what do you want to create a new task event?'),
                         OutlinedButton(
                           child: const Text('From scratch'),
                           onPressed: () async {
@@ -117,7 +118,7 @@ class _TaskEventListState extends State<TaskEventList> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.event_available),
-            label: 'Logs',
+            label: 'Events',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.task_alt),
@@ -343,13 +344,4 @@ class _TaskEventListState extends State<TaskEventList> {
     return taskEvents..sort();
   }
 
-  Widget severityToIcon(Severity severity) {
-    List<Icon> icons = List.generate(
-        severity.index + 1, (index) => Icon(Icons.fitness_center_outlined));
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: icons,
-    );
-  }
 }
