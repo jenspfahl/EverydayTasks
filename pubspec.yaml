@@ -28,6 +28,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   floor: ^1.1.0
   intl: ^0.17.0
+  numberpicker: ^2.1.1
 
 dev_dependencies:
   flutter_test:

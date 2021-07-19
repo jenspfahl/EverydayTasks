@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
+import 'package:personaltasklogger/model/When.dart';
+import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/utils.dart';
+import 'package:personaltasklogger/util/dates.dart';
 
 class TaskEventForm extends StatefulWidget {
   final String _title;
@@ -21,16 +24,18 @@ class _TaskEventFormState extends State<TaskEventForm> {
   final descriptionController = TextEditingController();
 
   late TaskEvent? _taskEvent;
+
   late List<bool> _severitySelection;
   late int _severityIndex;
 
+  DurationHours? _selectedDurationHours;
+  Duration? _customDuration;
+
   _TaskEventFormState([this._taskEvent]) {
-    final severity =
-        _taskEvent?.severity != null ? _taskEvent!.severity : Severity.MEDIUM;
+    final severity = _taskEvent?.severity != null ? _taskEvent!.severity : Severity.MEDIUM;
 
     this._severityIndex = severity.index;
-    this._severitySelection = List.generate(
-        Severity.values.length, (index) => index == _severityIndex);
+    this._severitySelection = List.generate(Severity.values.length, (index) => index == _severityIndex);
   }
 
   @override
@@ -51,10 +56,11 @@ class _TaskEventFormState extends State<TaskEventForm> {
           child: Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 TextFormField(
                   controller: nameController,
+                  decoration: InputDecoration(hintText: "Enter an event name"),
                   maxLength: 50,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -65,60 +71,98 @@ class _TaskEventFormState extends State<TaskEventForm> {
                 ),
                 TextFormField(
                   controller: descriptionController,
+                  decoration: InputDecoration(hintText: "An optional description"),
                   maxLength: 500,
                   maxLines: 3,
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 30.0),
-                  child: Center(
-                    child: ToggleButtons(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      renderBorder: true,
-                      borderWidth: 1.5,
-                      borderColor: Colors.grey,
-                      color: Colors.grey.shade600,
-                      selectedBorderColor: Colors.blue,
-                      children: [
-                        SizedBox(
-                          width: 100,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              severityToIcon(Severity.EASY),
-                              Text('Easy going'),
-                            ],
-                          ),
+                  child: ToggleButtons(
+                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                    renderBorder: true,
+                    borderWidth: 1.5,
+                    borderColor: Colors.grey,
+                    color: Colors.grey.shade600,
+                    selectedBorderColor: Colors.blue,
+                    children: [
+                      SizedBox(
+                        width: 100,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            severityToIcon(Severity.EASY),
+                            Text('Easy going'),
+                          ],
                         ),
-                        SizedBox(
-                          width: 100,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              severityToIcon(Severity.MEDIUM),
-                              Text('As always ok'),
-                            ],
-                          ),
+                      ),
+                      SizedBox(
+                        width: 100,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            severityToIcon(Severity.MEDIUM),
+                            Text('As always ok'),
+                          ],
                         ),
-                        SizedBox(
-                          width: 100,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              severityToIcon(Severity.HARD),
-                              Text('Exhausting'),
-                            ],
-                          ),
+                      ),
+                      SizedBox(
+                        width: 100,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            severityToIcon(Severity.HARD),
+                            Text('Exhausting'),
+                          ],
                         ),
-                      ],
-                      isSelected: _severitySelection,
-                      onPressed: (int index) {
-                        setState(() {
-                          _severitySelection[_severityIndex] = false;
-                          _severitySelection[index] = true;
-                          _severityIndex = index;
-                        });
-                      },
+                      ),
+                    ],
+                    isSelected: _severitySelection,
+                    onPressed: (int index) {
+                      setState(() {
+                        _severitySelection[_severityIndex] = false;
+                        _severitySelection[index] = true;
+                        _severityIndex = index;
+                      });
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 30.0),
+                  child: DropdownButtonFormField<DurationHours?>(
+                    value: _selectedDurationHours,
+                    hint: Text(
+                      'Choose a duration',
                     ),
+                    isExpanded: true,
+                    onChanged: (value) {
+                      if (value == DurationHours.CUSTOM) {
+                        showDurationPickerDialog(context, _customDuration ?? Duration(minutes: 1)).then((duration) {
+                          if (duration != null) {
+                            setState(() => _customDuration = duration);
+                          }
+                        });
+                      }
+                      setState(() {
+                        _selectedDurationHours = value;
+                      });
+                    },
+                    validator: (DurationHours? value) {
+                      if (value == null || (value == DurationHours.CUSTOM && _customDuration == null)) {
+                        return "Please select a duration";
+                      } else {
+                        return null;
+                      }
+                    },
+                    items: DurationHours.values.map((DurationHours durationHour) {
+                      return DropdownMenuItem(
+                        value: durationHour,
+                        child: Text(
+                          durationHour == DurationHours.CUSTOM && _customDuration != null
+                              ? formatDuration(_customDuration!)
+                              : When.fromDurationHoursString(durationHour),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
                 Spacer(),
@@ -133,7 +177,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           null,
                           null,
                           DateTime.now(),
-                          DateTime.now().add(Duration(minutes: 5)),
+                          DateTime.now()
+                              .add(When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration!)),
                           Severity.values.elementAt(_severityIndex),
                         );
                         Navigator.pop(context, taskEvent);

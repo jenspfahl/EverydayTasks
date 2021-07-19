@@ -33,12 +33,22 @@ String formatToTime(DateTime dateTime) {
 
 String formatToDateTimeRange(DateTime start, DateTime end) {
   var duration = end.difference(start);
+  String durationText = formatDuration(duration);
+  return "${formatToTime(start)} - ${formatToTime(end)} ($durationText)";
+}
+
+String formatDuration(Duration duration) {
   var minutes = duration.inMinutes;
   var durationText = "$minutes minutes";
   if (minutes >= 60) {
     var hours = duration.inHours;
     var remainingMinutes = minutes % 60;
-    durationText = "$hours hours $remainingMinutes minutes";
+    if (remainingMinutes != 0) {
+      durationText = "$hours hours $remainingMinutes minutes";
+    }
+    else {
+      durationText = "$hours hours";
+    }
   }
-  return "${formatToTime(start)} - ${formatToTime(end)} ($durationText)";
+  return durationText;
 }

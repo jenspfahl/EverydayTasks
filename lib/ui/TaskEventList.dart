@@ -169,6 +169,7 @@ class _TaskEventListState extends State<TaskEventList> {
 
     final expansionWidgets = _createExpansionWidgets(taskEvent);
     final listTile = ListTile(
+      dense: true,
       title: dateHeading != null
           ? Text(
               formatToDateOrWord(dateHeading),
