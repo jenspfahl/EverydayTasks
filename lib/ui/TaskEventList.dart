@@ -87,7 +87,7 @@ class _TaskEventListState extends State<TaskEventList> {
                                   .then((newTaskEvent) {
                                 ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
                                     content: Text(
-                                        'New task event with name \'${newTaskEvent.name}\' created')));
+                                        'New task event with name \'${newTaskEvent.title}\' created')));
                                 _addTaskEvent(newTaskEvent);
                               });
                             }
@@ -178,7 +178,7 @@ class _TaskEventListState extends State<TaskEventList> {
         clipBehavior: Clip.antiAlias,
         child: ExpansionTile(
           key: GlobalKey(), // this makes updating all tiles if state changed
-          title: Text(kReleaseMode ? taskEvent.name : "${taskEvent.name} (id=${taskEvent.id})"),
+          title: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
           subtitle: taskEvent.taskGroupId != null ? Text(taskEvent.taskGroupId.toString()) : null,//TODO getTaskGroupPath
           children: expansionWidgets,
           collapsedBackgroundColor: Colors.lime.shade50,
@@ -251,13 +251,13 @@ class _TaskEventListState extends State<TaskEventList> {
                   showConfirmationDialog(
                     context,
                     "Delete Task Event",
-                    "Are you sure to delete \'${taskEvent.name}\' ?",
+                    "Are you sure to delete \'${taskEvent.title}\' ?",
                     okPressed: () {
                       TaskEventRepository.delete(taskEvent).then(
                         (_) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               content: Text(
-                                  'Task event \'${taskEvent.name}\' deleted')));
+                                  'Task event \'${taskEvent.title}\' deleted')));
                           _removeTaskEvent(taskEvent);
                         },
                       );

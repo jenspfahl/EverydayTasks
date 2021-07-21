@@ -1,34 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:personaltasklogger/util/dates.dart';
 
-enum WhenAtDay {MORNING, FORENOON, NOON, AFTERNOON, EVENING, NIGHT, CUSTOM}
-enum WhenOnDate {TODAY, YESTERDAY, CUSTOM}
+enum AroundWhenAtDay {NOW, MORNING, FORENOON, NOON, AFTERNOON, EVENING, NIGHT, CUSTOM}
+enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM}
 
-enum DurationHours {QUARTER, HALF, ONE, TWO, CUSTOM}
+enum WhenOnDate {TODAY, YESTERDAY, BEFORE_YESTERDAY, CUSTOM}
+
 
 class When {
-  WhenAtDay startAt = WhenAtDay.CUSTOM;
+  AroundWhenAtDay startAt = AroundWhenAtDay.CUSTOM;
   TimeOfDay? startAtExactly;
-  DurationHours durationHours = DurationHours.CUSTOM;
+  AroundDurationHours durationHours = AroundDurationHours.CUSTOM;
   Duration? durationExactly;
 
-  When(WhenAtDay startAt, DurationHours duration);
+  When(AroundWhenAtDay startAt, AroundDurationHours duration);
 
-  When.durationExactly(WhenAtDay startAt, Duration durationExactly) {
-    this.durationHours = DurationHours.CUSTOM;
+  When.durationExactly(AroundWhenAtDay startAt, Duration durationExactly) {
+    this.durationHours = AroundDurationHours.CUSTOM;
   }
 
-  When.startAtExactly(TimeOfDay startAtExactly, DurationHours duration) {
-    this.startAt = WhenAtDay.CUSTOM;
+  When.startAtExactly(TimeOfDay startAtExactly, AroundDurationHours duration) {
+    this.startAt = AroundWhenAtDay.CUSTOM;
   }
 
   When.exactly(TimeOfDay startAtExactly, Duration durationExactly) {
-    this.durationHours = DurationHours.CUSTOM;
-    this.startAt = WhenAtDay.CUSTOM;
+    this.durationHours = AroundDurationHours.CUSTOM;
+    this.startAt = AroundWhenAtDay.CUSTOM;
   }
 
   When.of(int? startAt, int? startAtExactly, int? durationHours, int? durationExactlyMinutes) {
     if (startAt != null) {
-      this.startAt = WhenAtDay.values.elementAt(startAt);
+      this.startAt = AroundWhenAtDay.values.elementAt(startAt);
     }
     if (startAtExactly != null) {
       this.startAtExactly = TimeOfDay(
@@ -37,7 +39,7 @@ class When {
     }
 
     if (durationHours != null) {
-      this.durationHours = DurationHours.values.elementAt(durationHours);
+      this.durationHours = AroundDurationHours.values.elementAt(durationHours);
     }
     if (durationExactlyMinutes != null) {
       this.durationExactly = Duration(minutes: durationExactlyMinutes);
@@ -68,23 +70,70 @@ class When {
     return _durationExactly.inMinutes;
   }
 
-  static Duration fromDurationHoursToDuration(DurationHours durationHours, Duration? customDuration) {
+  static Duration fromDurationHoursToDuration(AroundDurationHours durationHours, Duration? customDuration) {
     switch(durationHours) {
-      case DurationHours.QUARTER: return Duration(minutes: 15);
-      case DurationHours.HALF: return Duration(minutes: 30);
-      case DurationHours.ONE: return Duration(hours: 1);
-      case DurationHours.TWO: return Duration(hours: 2);
-      case DurationHours.CUSTOM: return customDuration!;
+      case AroundDurationHours.QUARTER: return Duration(minutes: 15);
+      case AroundDurationHours.HALF: return Duration(minutes: 30);
+      case AroundDurationHours.ONE: return Duration(hours: 1);
+      case AroundDurationHours.TWO: return Duration(hours: 2);
+      case AroundDurationHours.THREE: return Duration(hours: 3);
+      case AroundDurationHours.FOUR: return Duration(hours: 4);
+      case AroundDurationHours.CUSTOM: return customDuration!;
     }
   }
-  static String fromDurationHoursString(DurationHours durationHours) {
+  static String fromDurationHoursToString(AroundDurationHours durationHours) {
     switch(durationHours) {
-      case DurationHours.QUARTER: return "Quarter of an hour";
-      case DurationHours.HALF: return "Half an hour";
-      case DurationHours.ONE: return "An hour";
-      case DurationHours.TWO: return "Two hours";
-      case DurationHours.CUSTOM: return "Custom...";
+      case AroundDurationHours.QUARTER: return "Around quarter of an hour";
+      case AroundDurationHours.HALF: return "Around half an hour";
+      case AroundDurationHours.ONE: return "Around an hour";
+      case AroundDurationHours.TWO: return "Around two hours";
+      case AroundDurationHours.THREE: return "Around three hours";
+      case AroundDurationHours.FOUR: return "Around four hours";
+      case AroundDurationHours.CUSTOM: return "Custom...";
     }
   }
+
+  static TimeOfDay fromWhenAtDayToTimeOfDay(AroundWhenAtDay whenAtDay, TimeOfDay? customWhenAt) {
+    switch(whenAtDay) {
+      case AroundWhenAtDay.NOW: return TimeOfDay.now();
+      case AroundWhenAtDay.MORNING: return TimeOfDay(hour: 8, minute: 0);
+      case AroundWhenAtDay.FORENOON: return TimeOfDay(hour: 10, minute: 0);
+      case AroundWhenAtDay.NOON: return TimeOfDay(hour: 12, minute: 0);
+      case AroundWhenAtDay.AFTERNOON: return TimeOfDay(hour: 15, minute: 0);
+      case AroundWhenAtDay.EVENING: return TimeOfDay(hour: 18, minute: 0);
+      case AroundWhenAtDay.NIGHT: return TimeOfDay(hour: 23, minute: 0);
+      case AroundWhenAtDay.CUSTOM: return customWhenAt!;
+    }
+  }
+  static String fromWhenAtDayToString(AroundWhenAtDay whenAtDay) {
+    switch(whenAtDay) {
+      case AroundWhenAtDay.NOW: return "Now";
+      case AroundWhenAtDay.MORNING: return "In the morning";
+      case AroundWhenAtDay.FORENOON: return "At forenoon";
+      case AroundWhenAtDay.NOON: return "At noon";
+      case AroundWhenAtDay.AFTERNOON: return "At afternoon";
+      case AroundWhenAtDay.EVENING: return "In the evening";
+      case AroundWhenAtDay.NIGHT: return "At night";
+      case AroundWhenAtDay.CUSTOM: return "Custom...";
+    }
+  }
+
+  static DateTime fromWhenOnDateToDate(WhenOnDate whenOnDate, DateTime? customDate) {
+    switch(whenOnDate) {
+      case WhenOnDate.TODAY: return truncToDate(DateTime.now());
+      case WhenOnDate.YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 1)));
+      case WhenOnDate.BEFORE_YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 2)));
+      case WhenOnDate.CUSTOM: return customDate!;
+    }
+  }
+  static String fromWhenOnDateToString(WhenOnDate whenOnDate) {
+    switch(whenOnDate) {
+      case WhenOnDate.TODAY: return "Today";
+      case WhenOnDate.YESTERDAY: return "Yesterday";
+      case WhenOnDate.BEFORE_YESTERDAY: return "Before yesterday";
+      case WhenOnDate.CUSTOM: return "Custom...";
+    }
+  }
+
 
 }

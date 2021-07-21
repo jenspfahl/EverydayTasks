@@ -20,7 +20,7 @@ class TaskEventForm extends StatefulWidget {
 
 class _TaskEventFormState extends State<TaskEventForm> {
   final _formKey = GlobalKey<FormState>();
-  final nameController = TextEditingController();
+  final titleController = TextEditingController();
   final descriptionController = TextEditingController();
 
   late TaskEvent? _taskEvent;
@@ -28,9 +28,18 @@ class _TaskEventFormState extends State<TaskEventForm> {
   late List<bool> _severitySelection;
   late int _severityIndex;
 
-  DurationHours? _selectedDurationHours;
+  AroundDurationHours? _selectedDurationHours;
   Duration? _customDuration;
   Duration? _tempSelectedDuration;
+
+  AroundWhenAtDay? _selectedWhenAtDay;
+  TimeOfDay? _customWhenAt;
+  TimeOfDay? _tempSelectedWhenAt;
+
+  WhenOnDate? _selectedWhenOnDate;
+  DateTime? _customWhenOn;
+  DateTime? _tempSelectedWhenOn;
+
 
   _TaskEventFormState([this._taskEvent]) {
     final severity = _taskEvent?.severity != null ? _taskEvent!.severity : Severity.MEDIUM;
@@ -41,7 +50,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   @override
   void dispose() {
-    nameController.dispose();
+    titleController.dispose();
     super.dispose();
   }
 
@@ -60,12 +69,12 @@ class _TaskEventFormState extends State<TaskEventForm> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 TextFormField(
-                  controller: nameController,
-                  decoration: InputDecoration(hintText: "Enter an event name"),
+                  controller: titleController,
+                  decoration: InputDecoration(hintText: "Enter an event title"),
                   maxLength: 50,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a name';
+                      return 'Please enter a title';
                     }
                     return null;
                   },
@@ -129,18 +138,19 @@ class _TaskEventFormState extends State<TaskEventForm> {
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 30.0),
-                  child: DropdownButtonFormField<DurationHours?>(
+                  child: DropdownButtonFormField<AroundDurationHours?>(
                     value: _selectedDurationHours,
                     hint: Text(
                       'Choose a duration',
                     ),
                     isExpanded: true,
                     onChanged: (value) {
-                      if (value == DurationHours.CUSTOM) {
+                      if (value == AroundDurationHours.CUSTOM) {
                         final initialDuration = _customDuration ?? Duration(minutes: 1);
-                        showDurationPickerDialog(context, 
-                            (selectedDuration) => setState(() => _tempSelectedDuration = selectedDuration),
-                            initialDuration)
+                        showDurationPickerDialog(
+                                context,
+                                (selectedDuration) => setState(() => _tempSelectedDuration = selectedDuration),
+                                initialDuration)
                             .then((okPressed) {
                           if (okPressed ?? false) {
                             setState(() => _customDuration = _tempSelectedDuration ?? initialDuration);
@@ -151,39 +161,149 @@ class _TaskEventFormState extends State<TaskEventForm> {
                         _selectedDurationHours = value;
                       });
                     },
-                    validator: (DurationHours? value) {
-                      if (value == null || (value == DurationHours.CUSTOM && _customDuration == null)) {
+                    validator: (AroundDurationHours? value) {
+                      if (value == null || (value == AroundDurationHours.CUSTOM && _customDuration == null)) {
                         return "Please select a duration";
                       } else {
                         return null;
                       }
                     },
-                    items: DurationHours.values.map((DurationHours durationHour) {
+                    items: AroundDurationHours.values.map((AroundDurationHours durationHour) {
                       return DropdownMenuItem(
                         value: durationHour,
                         child: Text(
-                          durationHour == DurationHours.CUSTOM && _customDuration != null
+                          durationHour == AroundDurationHours.CUSTOM && _customDuration != null
                               ? formatDuration(_customDuration!)
-                              : When.fromDurationHoursString(durationHour),
+                              : When.fromDurationHoursToString(durationHour),
                         ),
                       );
                     }).toList(),
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsets.only(top: 30.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        height: 60.0,
+                        width: 150.0,
+                        child: DropdownButtonFormField<AroundWhenAtDay?>(
+                          value: _selectedWhenAtDay,
+                          hint: Text(
+                            'Choose when at',
+                          ),
+                          isExpanded: true,
+                          onChanged: (value) {
+                            if (value == AroundWhenAtDay.CUSTOM) {
+                              final initialWhenAt = _customWhenAt ?? TimeOfDay.now();
+                              showDurationPickerDialog(
+                                      context,
+                                      (selectedWhenAt) => setState(() => _tempSelectedWhenAt = TimeOfDay(
+                                          hour: selectedWhenAt.inHours, minute: selectedWhenAt.inMinutes % 60)),
+                                      //TODO change picker
+                                      Duration(hours: initialWhenAt.hour, minutes: initialWhenAt.minute))
+                                  .then((okPressed) {
+                                if (okPressed ?? false) {
+                                  setState(() => _customWhenAt = _tempSelectedWhenAt ?? initialWhenAt);
+                                }
+                              });
+                            }
+                            setState(() {
+                              _selectedWhenAtDay = value;
+                            });
+                          },
+                          validator: (AroundWhenAtDay? value) {
+                            if (value == null || (value == AroundWhenAtDay.CUSTOM && _customWhenAt == null)) {
+                              return "Please select when the event starts";
+                            } else {
+                              return null;
+                            }
+                          },
+                          items: AroundWhenAtDay.values.map((AroundWhenAtDay whenAtDay) {
+                            return DropdownMenuItem(
+                              value: whenAtDay,
+                              child: Text(
+                                whenAtDay == AroundWhenAtDay.CUSTOM && _customWhenAt != null
+                                    ? formatTimeOfDay(_customWhenAt!)
+                                    : When.fromWhenAtDayToString(whenAtDay),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      Container(
+                        height: 60.0,
+                        width: 150,
+                        child: DropdownButtonFormField<WhenOnDate?>(
+                          value: _selectedWhenOnDate,
+                          hint: Text(
+                            'Choose when on',
+                          ),
+                          isExpanded: true,
+                          onChanged: (value) {
+                            if (value == WhenOnDate.CUSTOM) {
+                              final initialWhenOn = _customWhenOn ?? truncToDate(DateTime.now());
+                              showDurationPickerDialog(
+                                      context,
+                                      (selectedWhenOn) => setState(() => _tempSelectedWhenOn = DateTime(selectedWhenOn.inHours)),
+                                      //TODO change picker
+                                      Duration(hours: initialWhenOn.hour, minutes: initialWhenOn.minute))
+                                  .then((okPressed) {
+                                if (okPressed ?? false) {
+                                  setState(() => _customWhenOn = _tempSelectedWhenOn ?? initialWhenOn);
+                                }
+                              });
+                            }
+                            setState(() {
+                              _selectedWhenOnDate = value;
+                            });
+                          },
+                          validator: (WhenOnDate? value) {
+                            if (value == null || (value == WhenOnDate.CUSTOM && _customWhenOn == null)) {
+                              return "Please select which day the event starts";
+                            } else {
+                              return null;
+                            }
+                          },
+                          items: WhenOnDate.values.map((WhenOnDate whenOnDate) {
+                            return DropdownMenuItem(
+                              value: whenOnDate,
+                              child: Text(
+                                whenOnDate == WhenOnDate.CUSTOM && _customWhenOn != null
+                                    ? formatToDateOrWord(_customWhenOn!)
+                                    : When.fromWhenOnDateToString(whenOnDate),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Spacer(),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32.0),
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity, 40), // double.infinity is the width and 30 is the height
+                    ),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
+                        final startedAtTimeOfDay = When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt);
+                        final date = When.fromWhenOnDateToDate(_selectedWhenOnDate!, _customWhenOn);
+                        final startedAt =
+                            DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour, startedAtTimeOfDay.minute);
+                        final duration = When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration);
                         var taskEvent = TaskEvent.newInstance(
                           null,
-                          nameController.text,
+                          titleController.text,
                           descriptionController.text,
                           null,
-                          DateTime.now(),
-                          DateTime.now()
-                              .add(When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration)),
+                          startedAt,
+                          _selectedWhenAtDay!,
+                          duration,
+                          _selectedDurationHours!,
                           Severity.values.elementAt(_severityIndex),
                         );
                         Navigator.pop(context, taskEvent);

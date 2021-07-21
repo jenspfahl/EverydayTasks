@@ -1,24 +1,33 @@
+import 'package:personaltasklogger/model/When.dart';
+
 import 'Severity.dart';
 
 class TaskEvent implements Comparable {
   int? id;
   int? taskGroupId;
 
-  String name;
+  String title;
   String? description;
   int? colorRGB;
+  DateTime createdAt = DateTime.now();
   DateTime startedAt;
-  DateTime finishedAt;
+  AroundWhenAtDay aroundStartedAt;
+  Duration duration;
+  AroundDurationHours aroundDuration;
   Severity severity = Severity.MEDIUM;
   bool favorite = false;
 
-  TaskEvent(this.id, this.taskGroupId, this.name, this.description, this.colorRGB,
-      this.startedAt, this.finishedAt, this.severity, this.favorite);
+  TaskEvent(this.id, this.taskGroupId, this.title, this.description, this.colorRGB, this.createdAt, 
+      this.startedAt, this.aroundStartedAt, this.duration, this.aroundDuration, 
+      this.severity, this.favorite);
 
-    TaskEvent.newInstance(this.taskGroupId, this.name, this.description, this.colorRGB,
-      this.startedAt, this.finishedAt, this.severity);
+    TaskEvent.newInstance(this.taskGroupId, this.title, this.description, this.colorRGB,
+      this.startedAt, this.aroundStartedAt, this.duration, this.aroundDuration, this.severity);
 
-    TaskEvent.newPlainInstance(this.name, this.startedAt, this.finishedAt);
+    TaskEvent.newPlainInstance(this.title,
+        this.startedAt, this.aroundStartedAt, this.duration, this.aroundDuration);
+
+  DateTime get finishedAt => startedAt.add(duration);
 
   @override
   int compareTo(other) {

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 DateTime truncToDate(DateTime dateTime) {
@@ -51,4 +52,9 @@ String formatDuration(Duration duration) {
     }
   }
   return durationText;
+}
+
+String formatTimeOfDay(TimeOfDay timeOfDay) {
+  final formatter = new NumberFormat("00");
+  return "${timeOfDay.hour}:${formatter.format(timeOfDay.minute)}";
 }

@@ -6,16 +6,16 @@ class TaskTemplateVariant {
   final int id;
   final int taskTemplateId;
 
-  final String name;
+  final String title;
   final String description;
-  final int? when;
-  final int? whenExactly;
+  final int? startedAt;
+  final int? aroundStartedAt;
   final int? duration;
-  final int? durationExactlyMinutes;
+  final int? aroundDuration;
   final int? severity;
   final bool favorite;
 
   TaskTemplateVariant(this.id, this.taskTemplateId,
-      this.name, this.description, this.when, this.whenExactly,
-      this.duration, this.durationExactlyMinutes, this.severity, this.favorite);
+      this.title, this.description, this.startedAt, this.aroundStartedAt,
+      this.duration, this.aroundDuration, this.severity, this.favorite);
 }

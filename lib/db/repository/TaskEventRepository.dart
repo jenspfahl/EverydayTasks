@@ -1,6 +1,7 @@
 import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
+import 'package:personaltasklogger/model/When.dart';
 import '../database.dart';
 import 'ChronologicalPaging.dart';
 import 'mapper.dart';
@@ -68,11 +69,14 @@ class TaskEventRepository {
     TaskEventEntity(
         taskEvent.id,
         taskEvent.taskGroupId,
-        taskEvent.name,
+        taskEvent.title,
         taskEvent.description,
         taskEvent.colorRGB,
+        dateTimeToEntity(taskEvent.createdAt),
         dateTimeToEntity(taskEvent.startedAt),
-        dateTimeToEntity(taskEvent.finishedAt),
+        taskEvent.aroundStartedAt.index,
+        durationToEntity(taskEvent.duration),
+        taskEvent.aroundDuration.index,
         taskEvent.severity.index,
         taskEvent.favorite);
 
@@ -80,11 +84,14 @@ class TaskEventRepository {
     TaskEvent(
         entity.id,
         entity.taskGroupId,
-        entity.name,
+        entity.title,
         entity.description,
         entity.colorRGB,
+        dateTimeFromEntity(entity.createdAt),
         dateTimeFromEntity(entity.startedAt),
-        dateTimeFromEntity(entity.finishedAt),
+        AroundWhenAtDay.values.elementAt(entity.aroundStartedAt),
+        durationFromEntity(entity.duration),
+        AroundDurationHours.values.elementAt(entity.aroundDuration),
         Severity.values.elementAt(entity.severity),
         entity.favorite);
 
