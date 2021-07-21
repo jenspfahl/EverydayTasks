@@ -34,12 +34,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   AroundWhenAtDay? _selectedWhenAtDay;
   TimeOfDay? _customWhenAt;
-  TimeOfDay? _tempSelectedWhenAt;
 
   WhenOnDate? _selectedWhenOnDate;
   DateTime? _customWhenOn;
-  DateTime? _tempSelectedWhenOn;
-
 
   _TaskEventFormState([this._taskEvent]) {
     final severity = _taskEvent?.severity != null ? _taskEvent!.severity : Severity.MEDIUM;
@@ -197,16 +194,11 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           onChanged: (value) {
                             if (value == AroundWhenAtDay.CUSTOM) {
                               final initialWhenAt = _customWhenAt ?? TimeOfDay.now();
-                              showDurationPickerDialog(
-                                      context,
-                                      (selectedWhenAt) => setState(() => _tempSelectedWhenAt = TimeOfDay(
-                                          hour: selectedWhenAt.inHours, minute: selectedWhenAt.inMinutes % 60)),
-                                      //TODO change picker
-                                      Duration(hours: initialWhenAt.hour, minutes: initialWhenAt.minute))
-                                  .then((okPressed) {
-                                if (okPressed ?? false) {
-                                  setState(() => _customWhenAt = _tempSelectedWhenAt ?? initialWhenAt);
-                                }
+                              showTimePicker(
+                                initialTime: initialWhenAt,
+                                context: context,
+                              ).then((selectedTimeOfDay) {
+                                setState(() => _customWhenAt = selectedTimeOfDay ?? initialWhenAt);
                               });
                             }
                             setState(() {
@@ -244,16 +236,12 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           onChanged: (value) {
                             if (value == WhenOnDate.CUSTOM) {
                               final initialWhenOn = _customWhenOn ?? truncToDate(DateTime.now());
-                              showDurationPickerDialog(
-                                      context,
-                                      (selectedWhenOn) => setState(() => _tempSelectedWhenOn = DateTime(selectedWhenOn.inHours)),
-                                      //TODO change picker
-                                      Duration(hours: initialWhenOn.hour, minutes: initialWhenOn.minute))
-                                  .then((okPressed) {
-                                if (okPressed ?? false) {
-                                  setState(() => _customWhenOn = _tempSelectedWhenOn ?? initialWhenOn);
-                                }
-                              });
+                              showDatePicker(
+                                  context: context,
+                                  initialDate: initialWhenOn,
+                                  firstDate: DateTime.now().subtract(Duration(days: 600)),
+                                  lastDate: DateTime.now(),
+                              ).then((selectedDate) => setState(() => _customWhenOn = selectedDate ?? initialWhenOn));
                             }
                             setState(() {
                               _selectedWhenOnDate = value;

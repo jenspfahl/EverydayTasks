@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:personaltasklogger/model/When.dart';
 
 DateTime truncToDate(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day);
@@ -32,10 +33,24 @@ String formatToTime(DateTime dateTime) {
   return formatter.format(dateTime);
 }
 
-String formatToDateTimeRange(DateTime start, DateTime end) {
-  var duration = end.difference(start);
-  String durationText = formatDuration(duration);
-  return "${formatToTime(start)} - ${formatToTime(end)} ($durationText)";
+String formatToDateTimeRange(
+    AroundWhenAtDay aroundStartedAt,
+    DateTime startedAt,
+    AroundDurationHours aroundDurationHours,
+    Duration duration,
+    bool showAround) {
+
+  final finishedAt = startedAt.add(duration);
+  var rangeText = "${formatToTime(startedAt)} - ${formatToTime(finishedAt)}";
+  if (showAround && aroundStartedAt != AroundWhenAtDay.NOW && aroundStartedAt != AroundWhenAtDay.CUSTOM) {
+    rangeText = When.fromWhenAtDayToString(aroundStartedAt);
+  }
+
+  var durationText = formatDuration(duration);
+  if (showAround && aroundDurationHours != AroundDurationHours.CUSTOM) {
+    durationText = When.fromDurationHoursToString(aroundDurationHours);
+  }
+  return "$rangeText ($durationText)";
 }
 
 String formatDuration(Duration duration) {

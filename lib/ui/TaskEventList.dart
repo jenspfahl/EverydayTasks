@@ -216,7 +216,10 @@ class _TaskEventListState extends State<TaskEventList> {
       Padding(
         padding: EdgeInsets.all(4.0),
         child: Text(
-            formatToDateTimeRange(taskEvent.startedAt, taskEvent.finishedAt)),
+          formatToDateTimeRange(
+              taskEvent.aroundStartedAt, taskEvent.startedAt,
+              taskEvent.aroundDuration, taskEvent.duration,
+              true)),
       ),
       Padding(
         padding: EdgeInsets.all(4.0),

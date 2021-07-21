@@ -35,7 +35,7 @@ class _DurationPickerState extends State<DurationPicker> {
     _hoursPicker = new NumberPicker(
       value: _initialHours,
       minValue: 0,
-      maxValue: 23,
+      maxValue: 10, //TODO control this from outside
       onChanged: (value) => setState(() { 
         _initialHours = value;
         _selectedDuration(_getSelectedDuration());
