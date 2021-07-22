@@ -28,13 +28,13 @@ String getTaskGroupPathAsString(int taskGroupId) {
 }
 
 _buildTaskGroupPathAsString(int taskGroupId, StringBuffer sb) {
-  final group = _findById(taskGroupId);
+  final group = findTaskGroupById(taskGroupId);
   if (group.taskGroupId != null) {
     _buildTaskGroupPathAsString(group.taskGroupId!, sb);
   }
   sb..write(group.name)..write(_pathSeparator);
 }
 
-TaskGroup _findById(int id) => testGroups.firstWhere((element) => element.id == id);
+TaskGroup findTaskGroupById(int id) => testGroups.firstWhere((element) => element.id == id);
 
 

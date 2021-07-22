@@ -38,6 +38,18 @@ class _TaskEventListState extends State<TaskEventList> {
     });
   }
 
+  void _updateTaskEvent(TaskEvent origin, TaskEvent updated) {
+    setState(() {
+      final index = _taskEvents.indexOf(origin);
+      if (index != -1) {
+        _taskEvents.removeAt(index);
+        _taskEvents.insert(index, updated);
+      }
+      _taskEvents..sort();
+      _selected = _taskEvents.indexOf(updated);
+    });
+  }
+
   void _removeTaskEvent(TaskEvent taskEvent) {
     setState(() {
       _taskEvents.remove(taskEvent);
@@ -245,8 +257,18 @@ class _TaskEventListState extends State<TaskEventList> {
             alignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                onPressed: () {
-                  // Perform some action
+                onPressed: () async {
+                  TaskEvent? changedTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return TaskEventForm("Change TaskEvent \'${taskEvent.title}\'", taskEvent);
+                  }));
+
+                  if (changedTaskEvent != null) {
+                    TaskEventRepository.update(changedTaskEvent).then((updatedTaskEvent) {
+                      ScaffoldMessenger.of(super.context).showSnackBar(
+                          SnackBar(content: Text('Task event with name \'${updatedTaskEvent.title}\' updated')));
+                      _updateTaskEvent(taskEvent, updatedTaskEvent);
+                    });
+                  }
                 },
                 child: const Text("Change"),
               ),

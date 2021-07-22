@@ -7,13 +7,14 @@ DateTime truncToDate(DateTime dateTime) {
 }
 
 String formatToDateOrWord(DateTime dateTime) {
-  var today = truncToDate(DateTime.now());
-  if (truncToDate(dateTime) == today) {
+  if (isToday(dateTime)) {
     return "Today";
   }
-  var yesterday = truncToDate(DateTime.now().subtract(Duration(days: 1)));
-  if (truncToDate(dateTime) == yesterday) {
+  if (isYesterday(dateTime)) {
     return "Yesterday";
+  }
+  if (isBeforeYesterday(dateTime)) {
+    return "Before yesterday";
   }
   return formatToDate(dateTime);
 }
@@ -72,4 +73,19 @@ String formatDuration(Duration duration) {
 String formatTimeOfDay(TimeOfDay timeOfDay) {
   final formatter = new NumberFormat("00");
   return "${timeOfDay.hour}:${formatter.format(timeOfDay.minute)}";
+}
+
+bool isToday(DateTime? dateTime) {
+  if (dateTime == null) return false;
+  return truncToDate(dateTime) == truncToDate(DateTime.now());
+}
+
+bool isYesterday(DateTime? dateTime) {
+  if (dateTime == null) return false;
+  return truncToDate(dateTime) == truncToDate(DateTime.now().subtract(Duration(days: 1)));
+}
+
+bool isBeforeYesterday(DateTime? dateTime) {
+  if (dateTime == null) return false;
+  return truncToDate(dateTime) == truncToDate(DateTime.now().subtract(Duration(days: 2)));
 }

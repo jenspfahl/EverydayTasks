@@ -21,12 +21,6 @@ class TaskEvent implements Comparable {
       this.startedAt, this.aroundStartedAt, this.duration, this.aroundDuration, 
       this.severity, this.favorite);
 
-    TaskEvent.newInstance(this.taskGroupId, this.title, this.description, this.colorRGB,
-      this.startedAt, this.aroundStartedAt, this.duration, this.aroundDuration, this.severity);
-
-    TaskEvent.newPlainInstance(this.title,
-        this.startedAt, this.aroundStartedAt, this.duration, this.aroundDuration);
-
   DateTime get finishedAt => startedAt.add(duration);
 
 

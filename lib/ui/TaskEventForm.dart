@@ -43,9 +43,43 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   _TaskEventFormState([this._taskEvent]) {
     final severity = _taskEvent?.severity != null ? _taskEvent!.severity : Severity.MEDIUM;
-
     this._severityIndex = severity.index;
     this._severitySelection = List.generate(Severity.values.length, (index) => index == _severityIndex);
+
+    if (_taskEvent != null) {
+      titleController.text = _taskEvent!.title;
+      descriptionController.text = _taskEvent!.description ?? "";
+      if (_taskEvent?.taskGroupId != null) {
+        _selectedTaskGroup = findTaskGroupById(_taskEvent!.taskGroupId!);
+      }
+
+      _selectedDurationHours = _taskEvent?.aroundDuration;
+      if (_selectedDurationHours == AroundDurationHours.CUSTOM) {
+        _customDuration = _taskEvent?.duration;
+      }
+
+      _selectedWhenAtDay = _taskEvent?.aroundStartedAt;
+      if (_selectedWhenAtDay == AroundWhenAtDay.NOW || _selectedWhenAtDay == AroundWhenAtDay.CUSTOM) {
+        _selectedWhenAtDay = AroundWhenAtDay.CUSTOM; // Former NOW is now CUSTOM
+        _customWhenAt = TimeOfDay.fromDateTime(_taskEvent!.startedAt);
+      }
+
+      final startedAt = truncToDate(_taskEvent!.startedAt);
+      if (isToday(startedAt)) {
+        _selectedWhenOnDate = WhenOnDate.TODAY;
+      }
+      else if (isYesterday(startedAt)) {
+        _selectedWhenOnDate = WhenOnDate.YESTERDAY;
+      }
+      else if (isBeforeYesterday(startedAt)) {
+        _selectedWhenOnDate = WhenOnDate.BEFORE_YESTERDAY;
+      }
+      else {
+        _selectedWhenOnDate = WhenOnDate.CUSTOM;
+        _customWhenOn = startedAt;
+      }
+
+    }
   }
 
   @override
@@ -265,7 +299,23 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   initialDate: initialWhenOn,
                                   firstDate: DateTime.now().subtract(Duration(days: 600)),
                                   lastDate: DateTime.now(),
-                              ).then((selectedDate) => setState(() => _customWhenOn = selectedDate ?? initialWhenOn));
+                              ).then((selectedDate) => setState(() {
+                                if (isToday(selectedDate)) {
+                                  _selectedWhenOnDate = WhenOnDate.TODAY;
+                                  _customWhenOn = null;
+                                }
+                                else if (isYesterday(selectedDate)) {
+                                  _selectedWhenOnDate = WhenOnDate.YESTERDAY;
+                                  _customWhenOn = null;
+                                }
+                                else if (isBeforeYesterday(selectedDate)) {
+                                  _selectedWhenOnDate = WhenOnDate.BEFORE_YESTERDAY;
+                                  _customWhenOn = null;
+                                }
+                                else {
+                                  _customWhenOn = selectedDate ?? initialWhenOn;
+                                }
+                              }));
                             }
                             setState(() {
                               _selectedWhenOnDate = value;
@@ -307,16 +357,19 @@ class _TaskEventFormState extends State<TaskEventForm> {
                         final startedAt =
                             DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour, startedAtTimeOfDay.minute);
                         final duration = When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration);
-                        var taskEvent = TaskEvent.newInstance(
+                        var taskEvent = TaskEvent(
+                          _taskEvent?.id,
                           _selectedTaskGroup?.id,
                           titleController.text,
                           descriptionController.text,
-                          null,
+                          _taskEvent?.colorRGB,
+                          _taskEvent?.createdAt ?? DateTime.now(),
                           startedAt,
                           _selectedWhenAtDay!,
                           duration,
                           _selectedDurationHours!,
                           Severity.values.elementAt(_severityIndex),
+                          _taskEvent?.favorite ?? false,
                         );
                         Navigator.pop(context, taskEvent);
                       }
