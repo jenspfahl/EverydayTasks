@@ -29,6 +29,7 @@ class TaskEvent implements Comparable {
 
   DateTime get finishedAt => startedAt.add(duration);
 
+
   @override
   int compareTo(other) {
     int result = other.startedAt.compareTo(startedAt);

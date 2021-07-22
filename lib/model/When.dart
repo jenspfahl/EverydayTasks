@@ -83,7 +83,7 @@ class When {
   }
   static String fromDurationHoursToString(AroundDurationHours durationHours) {
     switch(durationHours) {
-      case AroundDurationHours.QUARTER: return "Around quarter of an hour";
+      case AroundDurationHours.QUARTER: return "Around a quarter of an hour";
       case AroundDurationHours.HALF: return "Around half an hour";
       case AroundDurationHours.ONE: return "Around an hour";
       case AroundDurationHours.TWO: return "Around two hours";

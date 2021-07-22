@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
+import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/utils.dart';
@@ -24,6 +25,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
   final descriptionController = TextEditingController();
 
   late TaskEvent? _taskEvent;
+
+  TaskGroup? _selectedTaskGroup;
 
   late List<bool> _severitySelection;
   late int _severityIndex;
@@ -80,10 +83,31 @@ class _TaskEventFormState extends State<TaskEventForm> {
                   controller: descriptionController,
                   decoration: InputDecoration(hintText: "An optional description"),
                   maxLength: 500,
-                  maxLines: 3,
+                  maxLines: 1,
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 30.0),
+                  padding: EdgeInsets.only(left: 16.0, right: 16.0),
+                  child: DropdownButtonFormField<TaskGroup?>(
+                    value: _selectedTaskGroup,
+                    hint: Text(
+                      'Link the event to a group',
+                    ),
+                    isExpanded: true,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedTaskGroup = value;
+                      });
+                    },
+                    items: testGroups.map((TaskGroup group) {
+                      return DropdownMenuItem(
+                        value: group,
+                        child: Text(getTaskGroupPathAsString(group.id!)),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20.0),
                   child: ToggleButtons(
                     borderRadius: BorderRadius.all(Radius.circular(5.0)),
                     renderBorder: true,
@@ -134,7 +158,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 30.0),
+                  padding: EdgeInsets.only(top: 20.0),
                   child: DropdownButtonFormField<AroundDurationHours?>(
                     value: _selectedDurationHours,
                     hint: Text(
@@ -178,12 +202,12 @@ class _TaskEventFormState extends State<TaskEventForm> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 30.0),
+                  padding: EdgeInsets.only(top: 20.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        height: 60.0,
+                        height: 64.0,
                         width: 150.0,
                         child: DropdownButtonFormField<AroundWhenAtDay?>(
                           value: _selectedWhenAtDay,
@@ -225,7 +249,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                         ),
                       ),
                       Container(
-                        height: 60.0,
+                        height: 64.0,
                         width: 150,
                         child: DropdownButtonFormField<WhenOnDate?>(
                           value: _selectedWhenOnDate,
@@ -284,7 +308,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                             DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour, startedAtTimeOfDay.minute);
                         final duration = When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration);
                         var taskEvent = TaskEvent.newInstance(
-                          null,
+                          _selectedTaskGroup?.id,
                           titleController.text,
                           descriptionController.text,
                           null,

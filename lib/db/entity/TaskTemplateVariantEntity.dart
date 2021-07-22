@@ -1,7 +1,7 @@
 import 'package:floor/floor.dart';
 
 @entity
-class TaskTemplateVariant {
+class TaskTemplateVariantEntity {
   @primaryKey
   final int id;
   final int taskTemplateId;
@@ -15,7 +15,7 @@ class TaskTemplateVariant {
   final int? severity;
   final bool favorite;
 
-  TaskTemplateVariant(this.id, this.taskTemplateId,
+  TaskTemplateVariantEntity(this.id, this.taskTemplateId,
       this.title, this.description, this.startedAt, this.aroundStartedAt,
       this.duration, this.aroundDuration, this.severity, this.favorite);
 }

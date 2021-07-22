@@ -1,7 +1,7 @@
 import 'package:floor/floor.dart';
 
 @entity
-class TaskGroup {
+class TaskGroupEntity {
   @primaryKey
   final int id;
   final int? taskGroupId;
@@ -10,6 +10,6 @@ class TaskGroup {
   final String description;
   final int? colorRGB;
 
-  TaskGroup(this.id, this.taskGroupId,
+  TaskGroupEntity(this.id, this.taskGroupId,
       this.name, this.description, this.colorRGB);
 }

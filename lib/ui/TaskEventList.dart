@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
+import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
@@ -179,7 +180,7 @@ class _TaskEventListState extends State<TaskEventList> {
         child: ExpansionTile(
           key: GlobalKey(), // this makes updating all tiles if state changed
           title: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
-          subtitle: taskEvent.taskGroupId != null ? Text(taskEvent.taskGroupId.toString()) : null,//TODO getTaskGroupPath
+          subtitle: taskEvent.taskGroupId != null ? Text(getTaskGroupPathAsString(taskEvent.taskGroupId!)) : null,
           children: expansionWidgets,
           collapsedBackgroundColor: Colors.lime.shade50,
           backgroundColor: Colors.lime.shade100,
