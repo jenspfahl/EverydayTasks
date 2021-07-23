@@ -104,7 +104,10 @@ class _TaskEventFormState extends State<TaskEventForm> {
               children: <Widget>[
                 TextFormField(
                   controller: titleController,
-                  decoration: InputDecoration(hintText: "Enter an event title"),
+                  decoration: InputDecoration(
+                      hintText: "Enter an event title",
+                      icon: Icon(Icons.event_available),
+                  ),
                   maxLength: 50,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -115,7 +118,10 @@ class _TaskEventFormState extends State<TaskEventForm> {
                 ),
                 TextFormField(
                   controller: descriptionController,
-                  decoration: InputDecoration(hintText: "An optional description"),
+                  decoration: InputDecoration(
+                    hintText: "An optional description",
+                    icon: Icon(Icons.info_outline),
+                  ),
                   maxLength: 500,
                   maxLines: 1,
                 ),
@@ -124,7 +130,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                   child: DropdownButtonFormField<TaskGroup?>(
                     value: _selectedTaskGroup,
                     hint: Text(
-                      'Link the event to a group',
+                      'Belongs to a group',
                     ),
                     isExpanded: true,
                     onChanged: (value) {
@@ -135,7 +141,10 @@ class _TaskEventFormState extends State<TaskEventForm> {
                     items: testGroups.map((TaskGroup group) {
                       return DropdownMenuItem(
                         value: group,
-                        child: Text(getTaskGroupPathAsString(group.id!)),
+                        child: Text(
+                          getTaskGroupPathAsString(group.id!),
+                          style: TextStyle(backgroundColor: getShadedColor(group.colorRGB, true)),
+                        ),
                       );
                     }).toList(),
                   ),
@@ -198,6 +207,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                     hint: Text(
                       'Choose a duration',
                     ),
+                    icon: Icon(Icons.timer),
                     isExpanded: true,
                     onChanged: (value) {
                       if (value == AroundDurationHours.CUSTOM) {
@@ -248,6 +258,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           hint: Text(
                             'Choose when at',
                           ),
+                          icon: Icon(Icons.watch_later_outlined),
                           isExpanded: true,
                           onChanged: (value) {
                             if (value == AroundWhenAtDay.CUSTOM) {
@@ -290,6 +301,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           hint: Text(
                             'Choose when on',
                           ),
+                          icon: Icon(Icons.date_range),
                           isExpanded: true,
                           onChanged: (value) {
                             if (value == WhenOnDate.CUSTOM) {

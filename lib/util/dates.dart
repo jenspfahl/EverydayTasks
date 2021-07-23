@@ -50,6 +50,7 @@ String formatToDateTimeRange(
   var durationText = formatDuration(duration);
   if (showAround && aroundDurationHours != AroundDurationHours.CUSTOM) {
     durationText = When.fromDurationHoursToString(aroundDurationHours);
+    rangeText = "${formatToTime(startedAt)} - ~${formatToTime(finishedAt)}";
   }
   return "$rangeText ($durationText)";
 }

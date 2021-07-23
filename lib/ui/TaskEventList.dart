@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
@@ -194,8 +196,8 @@ class _TaskEventListState extends State<TaskEventList> {
           title: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
           subtitle: taskEvent.taskGroupId != null ? Text(getTaskGroupPathAsString(taskEvent.taskGroupId!)) : null,
           children: expansionWidgets,
-          collapsedBackgroundColor: Colors.lime.shade50,
-          backgroundColor: Colors.lime.shade100,
+          collapsedBackgroundColor: getTaskGroupColor(taskEvent.taskGroupId, true),
+          backgroundColor: getTaskGroupColor(taskEvent.taskGroupId, false),
           initiallyExpanded: index == _selected,
           onExpansionChanged: ((expanded) {
             setState(() {

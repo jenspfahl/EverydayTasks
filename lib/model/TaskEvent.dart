@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:personaltasklogger/model/When.dart';
 
 import 'Severity.dart';
@@ -8,7 +10,7 @@ class TaskEvent implements Comparable {
 
   String title;
   String? description;
-  int? colorRGB;
+  Color? colorRGB;
   DateTime createdAt = DateTime.now();
   DateTime startedAt;
   AroundWhenAtDay aroundStartedAt;
