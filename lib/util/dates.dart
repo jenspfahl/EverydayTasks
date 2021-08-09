@@ -41,18 +41,31 @@ String formatToDateTimeRange(
     Duration duration,
     bool showAround) {
 
-  final finishedAt = startedAt.add(duration);
-  var rangeText = "${formatToTime(startedAt)} - ${formatToTime(finishedAt)}";
+
+  final sb = StringBuffer();
   if (showAround && aroundStartedAt != AroundWhenAtDay.NOW && aroundStartedAt != AroundWhenAtDay.CUSTOM) {
-    rangeText = When.fromWhenAtDayToString(aroundStartedAt);
+    sb.write(When.fromWhenAtDayToString(aroundStartedAt));
+  }
+  else {
+    sb.write(formatToTime(startedAt));
+    sb.write(" - ");
+    if (showAround && aroundDurationHours != AroundDurationHours.CUSTOM) {
+      sb.write("~");
+    }
+    final finishedAt = startedAt.add(duration);
+    sb.write(formatToTime(finishedAt));
   }
 
-  var durationText = formatDuration(duration);
+  sb.write(" (");
   if (showAround && aroundDurationHours != AroundDurationHours.CUSTOM) {
-    durationText = When.fromDurationHoursToString(aroundDurationHours);
-    rangeText = "${formatToTime(startedAt)} - ~${formatToTime(finishedAt)}";
+    sb.write(When.fromDurationHoursToString(aroundDurationHours));
   }
-  return "$rangeText ($durationText)";
+  else {
+    sb.write(formatDuration(duration));
+  }
+  sb.write(")");
+
+  return sb.toString();
 }
 
 String formatDuration(Duration duration) {

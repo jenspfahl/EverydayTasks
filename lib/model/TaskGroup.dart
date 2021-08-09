@@ -20,6 +20,7 @@ List<TaskGroup> testGroups = [
   TaskGroup(id: -1, name: "Household", colorRGB: Color.fromARGB(100, 3, 138, 128)),
   TaskGroup(id: -3, name: "Cooking", taskGroupId: -1, colorRGB: Color.fromARGB(100, 123, 155, 0)),
   TaskGroup(id: -4, name: "Cleaning", taskGroupId: -1, colorRGB: Color.fromARGB(100, 223, 3, 128)),
+  TaskGroup(id: -5, name: "Hovering", taskGroupId: -4, colorRGB: Color.fromARGB(100, 183, 3, 248)),
   TaskGroup(id: -2, name: "Kid"),
 ];
 

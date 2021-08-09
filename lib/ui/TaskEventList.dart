@@ -22,10 +22,11 @@ class TaskEventList extends StatefulWidget {
 class _TaskEventListState extends State<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
   int _selected = -1;
+  Set<DateTime> _hiddenTiles = Set();
 
   _TaskEventListState() {
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 100);
-    TaskEventRepository.getAllPaged(paging).then((taskEvents) { 
+    TaskEventRepository.getAllPaged(paging).then((taskEvents) {
       setState(() {
         _taskEvents = taskEvents;
       });
@@ -86,23 +87,20 @@ class _TaskEventListState extends State<TaskEventList> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        const Text(
-                            'From what do you want to create a new task event?'),
+                        const Text('From what do you want to create a new task event?'),
                         OutlinedButton(
                           child: const Text('From scratch'),
                           onPressed: () async {
                             Navigator.pop(context);
-                            TaskEvent? newTaskEvent = await Navigator.push(
-                                context, MaterialPageRoute(builder: (context) {
+                            TaskEvent? newTaskEvent =
+                                await Navigator.push(context, MaterialPageRoute(builder: (context) {
                               return TaskEventForm("Create new TaskEvent ");
                             }));
 
                             if (newTaskEvent != null) {
-                              TaskEventRepository.insert(newTaskEvent)
-                                  .then((newTaskEvent) {
+                              TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                                 ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        'New task event with name \'${newTaskEvent.title}\' created')));
+                                    content: Text('New task event with name \'${newTaskEvent.title}\' created')));
                                 _addTaskEvent(newTaskEvent);
                               });
                             }
@@ -171,39 +169,79 @@ class _TaskEventListState extends State<TaskEventList> {
     return ListView.builder(
         itemCount: _taskEvents.length,
         itemBuilder: (context, index) {
-          return _buildRow(index, dateHeadings);
+          var taskEvent = _taskEvents[index];
+          var taskEventDate = truncToDate(taskEvent.startedAt);
+          return Visibility(
+            visible: dateHeadings[index] != null || !_hiddenTiles.contains(taskEventDate),
+            child: _buildRow(index, dateHeadings),
+          );
         });
-
   }
 
   Widget _buildRow(int index, List<DateTime?> dateHeadings) {
     final taskEvent = _taskEvents[index];
     final dateHeading = dateHeadings[index];
+    var taskEventDate = truncToDate(taskEvent.startedAt);
 
     final expansionWidgets = _createExpansionWidgets(taskEvent);
     final listTile = ListTile(
       dense: true,
       title: dateHeading != null
-          ? Text(
-              formatToDateOrWord(dateHeading),
-              style: TextStyle(color: Colors.grey, fontSize: 10.0,),
+          ? TextButton(
+              style: ButtonStyle(
+                alignment: Alignment.centerLeft,
+                visualDensity: VisualDensity.compact,
+                padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
+
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    formatToDateOrWord(dateHeading),
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10.0,
+                    ),
+                  ),
+                  Icon(
+                    _hiddenTiles.contains(taskEventDate)
+                        ? Icons.arrow_drop_down_sharp
+                        : Icons.arrow_drop_up_sharp,
+                    color: Colors.grey,
+                  ),
+                ],
+              ),
+              onPressed: () {
+                setState(() {
+                  if (_hiddenTiles.contains(taskEventDate)) {
+                    _hiddenTiles.remove(taskEventDate);
+                  }
+                  else {
+                    _hiddenTiles.add(taskEventDate);
+                  }
+                });
+              },
             )
           : null,
-      subtitle: Card(
-        clipBehavior: Clip.antiAlias,
-        child: ExpansionTile(
-          key: GlobalKey(), // this makes updating all tiles if state changed
-          title: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
-          subtitle: taskEvent.taskGroupId != null ? Text(getTaskGroupPathAsString(taskEvent.taskGroupId!)) : null,
-          children: expansionWidgets,
-          collapsedBackgroundColor: getTaskGroupColor(taskEvent.taskGroupId, true),
-          backgroundColor: getTaskGroupColor(taskEvent.taskGroupId, false),
-          initiallyExpanded: index == _selected,
-          onExpansionChanged: ((expanded) {
-            setState(() {
-              _selected = expanded ? index : -1;
-            });
-          }),
+      subtitle: Visibility(
+        visible: !_hiddenTiles.contains(taskEventDate),
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
+            key: GlobalKey(),
+            // this makes updating all tiles if state changed
+            title: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
+            subtitle: taskEvent.taskGroupId != null ? Text(getTaskGroupPathAsString(taskEvent.taskGroupId!)) : null,
+            children: expansionWidgets,
+            collapsedBackgroundColor: getTaskGroupColor(taskEvent.taskGroupId, true),
+            backgroundColor: getTaskGroupColor(taskEvent.taskGroupId, false),
+            initiallyExpanded: index == _selected,
+            onExpansionChanged: ((expanded) {
+              setState(() {
+                _selected = expanded ? index : -1;
+              });
+            }),
+          ),
         ),
       ),
     );
@@ -230,11 +268,8 @@ class _TaskEventListState extends State<TaskEventList> {
     expansionWidgets.addAll([
       Padding(
         padding: EdgeInsets.all(4.0),
-        child: Text(
-          formatToDateTimeRange(
-              taskEvent.aroundStartedAt, taskEvent.startedAt,
-              taskEvent.aroundDuration, taskEvent.duration,
-              true)),
+        child: Text(formatToDateTimeRange(
+            taskEvent.aroundStartedAt, taskEvent.startedAt, taskEvent.aroundDuration, taskEvent.duration, true)),
       ),
       Padding(
         padding: EdgeInsets.all(4.0),
@@ -249,9 +284,7 @@ class _TaskEventListState extends State<TaskEventList> {
             children: [
               TextButton(
                 onPressed: () {},
-                child: Icon(taskEvent.favorite
-                    ? Icons.favorite
-                    : Icons.favorite_border),
+                child: Icon(taskEvent.favorite ? Icons.favorite : Icons.favorite_border),
               ),
             ],
           ),
@@ -283,15 +316,15 @@ class _TaskEventListState extends State<TaskEventList> {
                     okPressed: () {
                       TaskEventRepository.delete(taskEvent).then(
                         (_) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(
-                                  'Task event \'${taskEvent.title}\' deleted')));
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(content: Text('Task event \'${taskEvent.title}\' deleted')));
                           _removeTaskEvent(taskEvent);
                         },
                       );
                       Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
                     },
-                    cancelPressed: () => Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                    cancelPressed: () =>
+                        Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
                   );
                 },
                 child: const Icon(Icons.delete),
@@ -303,5 +336,4 @@ class _TaskEventListState extends State<TaskEventList> {
     ]);
     return expansionWidgets;
   }
-
 }
