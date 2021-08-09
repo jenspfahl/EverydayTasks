@@ -81,7 +81,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `TaskEventEntity` (`id` INTEGER, `taskGroupId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `colorRGB` INTEGER, `createdAt` INTEGER NOT NULL, `startedAt` INTEGER NOT NULL, `startedAtDay` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `durationHours` INTEGER NOT NULL, `severity` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `TaskEventEntity` (`id` INTEGER, `taskGroupId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `startedAt` INTEGER NOT NULL, `aroundStartedAt` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `aroundDuration` INTEGER NOT NULL, `severity` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -106,12 +106,11 @@ class _$TaskEventDao extends TaskEventDao {
                   'taskGroupId': item.taskGroupId,
                   'title': item.title,
                   'description': item.description,
-                  'colorRGB': item.colorRGB,
                   'createdAt': item.createdAt,
                   'startedAt': item.startedAt,
-                  'startedAtDay': item.aroundStartedAt,
+                  'aroundStartedAt': item.aroundStartedAt,
                   'duration': item.duration,
-                  'durationHours': item.aroundDuration,
+                  'aroundDuration': item.aroundDuration,
                   'severity': item.severity,
                   'favorite': item.favorite ? 1 : 0
                 },
@@ -125,12 +124,11 @@ class _$TaskEventDao extends TaskEventDao {
                   'taskGroupId': item.taskGroupId,
                   'title': item.title,
                   'description': item.description,
-                  'colorRGB': item.colorRGB,
                   'createdAt': item.createdAt,
                   'startedAt': item.startedAt,
-                  'startedAtDay': item.aroundStartedAt,
+                  'aroundStartedAt': item.aroundStartedAt,
                   'duration': item.duration,
-                  'durationHours': item.aroundDuration,
+                  'aroundDuration': item.aroundDuration,
                   'severity': item.severity,
                   'favorite': item.favorite ? 1 : 0
                 },
@@ -144,12 +142,11 @@ class _$TaskEventDao extends TaskEventDao {
                   'taskGroupId': item.taskGroupId,
                   'title': item.title,
                   'description': item.description,
-                  'colorRGB': item.colorRGB,
                   'createdAt': item.createdAt,
                   'startedAt': item.startedAt,
-                  'startedAtDay': item.aroundStartedAt,
+                  'aroundStartedAt': item.aroundStartedAt,
                   'duration': item.duration,
-                  'durationHours': item.aroundDuration,
+                  'aroundDuration': item.aroundDuration,
                   'severity': item.severity,
                   'favorite': item.favorite ? 1 : 0
                 },
@@ -172,7 +169,7 @@ class _$TaskEventDao extends TaskEventDao {
       int lastStartedAt, int lastId, int limit) async {
     return _queryAdapter.queryList(
         'SELECT * FROM TaskEventEntity WHERE startedAt < ?1 AND id < ?2 ORDER BY startedAt DESC, id DESC LIMIT ?3',
-        mapper: (Map<String, Object?> row) => TaskEventEntity(row['id'] as int?, row['taskGroupId'] as int?, row['title'] as String, row['description'] as String?, row['colorRGB'] as int?, row['createdAt'] as int, row['startedAt'] as int, row['startedAtDay'] as int, row['duration'] as int, row['durationHours'] as int, row['severity'] as int, (row['favorite'] as int) != 0),
+        mapper: (Map<String, Object?> row) => TaskEventEntity(row['id'] as int?, row['taskGroupId'] as int?, row['title'] as String, row['description'] as String?, row['createdAt'] as int, row['startedAt'] as int, row['aroundStartedAt'] as int, row['duration'] as int, row['aroundDuration'] as int, row['severity'] as int, (row['favorite'] as int) != 0),
         arguments: [lastStartedAt, lastId, limit]);
   }
 
@@ -185,12 +182,11 @@ class _$TaskEventDao extends TaskEventDao {
             row['taskGroupId'] as int?,
             row['title'] as String,
             row['description'] as String?,
-            row['colorRGB'] as int?,
             row['createdAt'] as int,
             row['startedAt'] as int,
-            row['startedAtDay'] as int,
+            row['aroundStartedAt'] as int,
             row['duration'] as int,
-            row['durationHours'] as int,
+            row['aroundDuration'] as int,
             row['severity'] as int,
             (row['favorite'] as int) != 0),
         arguments: [id],

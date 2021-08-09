@@ -186,7 +186,7 @@ class _TaskEventListState extends State<TaskEventList> {
       title: dateHeading != null
           ? Text(
               formatToDateOrWord(dateHeading),
-              style: TextStyle(color: Colors.grey, fontSize: 10.0),
+              style: TextStyle(color: Colors.grey, fontSize: 10.0,),
             )
           : null,
       subtitle: Card(

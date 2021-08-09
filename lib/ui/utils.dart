@@ -25,7 +25,7 @@ Color getShadedColor(Color? colorRGB, bool lessShaded) {
 
 Color shadeColor(bool lessShaded, Color color) {
   if (lessShaded) {
-    return color.withAlpha(50);
+    return color.withAlpha((color.alpha/2).toInt());
   }
   else {
     return color;

@@ -10,7 +10,6 @@ class TaskEvent implements Comparable {
 
   String title;
   String? description;
-  Color? colorRGB;
   DateTime createdAt = DateTime.now();
   DateTime startedAt;
   AroundWhenAtDay aroundStartedAt;
@@ -19,7 +18,7 @@ class TaskEvent implements Comparable {
   Severity severity = Severity.MEDIUM;
   bool favorite = false;
 
-  TaskEvent(this.id, this.taskGroupId, this.title, this.description, this.colorRGB, this.createdAt, 
+  TaskEvent(this.id, this.taskGroupId, this.title, this.description, this.createdAt,
       this.startedAt, this.aroundStartedAt, this.duration, this.aroundDuration, 
       this.severity, this.favorite);
 

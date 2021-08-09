@@ -73,7 +73,6 @@ class TaskEventRepository {
         taskEvent.taskGroupId,
         taskEvent.title,
         taskEvent.description,
-        taskEvent.colorRGB?.value,
         dateTimeToEntity(taskEvent.createdAt),
         dateTimeToEntity(taskEvent.startedAt),
         taskEvent.aroundStartedAt.index,
@@ -88,7 +87,6 @@ class TaskEventRepository {
         entity.taskGroupId,
         entity.title,
         entity.description,
-        entity.colorRGB != null ? Color(entity.colorRGB!) : null,
         dateTimeFromEntity(entity.createdAt),
         dateTimeFromEntity(entity.startedAt),
         AroundWhenAtDay.values.elementAt(entity.aroundStartedAt),
@@ -100,8 +98,5 @@ class TaskEventRepository {
 
   static List<TaskEvent> _mapFromEntities(List<TaskEventEntity> entities) =>
       entities.map(_mapFromEntity).toList();
-
-  static Future<AppDatabase> getDb() async =>
-      $FloorAppDatabase.databaseBuilder('app_database.db').build();
 
 }

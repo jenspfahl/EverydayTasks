@@ -8,7 +8,6 @@ class TaskEventEntity {
 
   final String title;
   final String? description;
-  final int? colorRGB;
   final int createdAt;
   final int startedAt;
   final int aroundStartedAt;
@@ -17,7 +16,7 @@ class TaskEventEntity {
   final int severity;
   final bool favorite;
 
-  TaskEventEntity(this.id, this.taskGroupId, this.title, this.description, this.colorRGB,
+  TaskEventEntity(this.id, this.taskGroupId, this.title, this.description,
       this.createdAt, this.startedAt, this.aroundStartedAt,
       this.duration, this.aroundDuration, this.severity, this.favorite);
 }
