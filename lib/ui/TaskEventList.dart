@@ -21,7 +21,7 @@ class TaskEventList extends StatefulWidget {
 
 class _TaskEventListState extends State<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
-  int _selected = -1;
+  int _selectedTile = -1;
   Set<DateTime> _hiddenTiles = Set();
 
   _TaskEventListState() {
@@ -37,7 +37,7 @@ class _TaskEventListState extends State<TaskEventList> {
     setState(() {
       _taskEvents.add(taskEvent);
       _taskEvents..sort();
-      _selected = _taskEvents.indexOf(taskEvent);
+      _selectedTile = _taskEvents.indexOf(taskEvent);
     });
   }
 
@@ -49,14 +49,14 @@ class _TaskEventListState extends State<TaskEventList> {
         _taskEvents.insert(index, updated);
       }
       _taskEvents..sort();
-      _selected = _taskEvents.indexOf(updated);
+      _selectedTile = _taskEvents.indexOf(updated);
     });
   }
 
   void _removeTaskEvent(TaskEvent taskEvent) {
     setState(() {
       _taskEvents.remove(taskEvent);
-      _selected = -1;
+      _selectedTile = -1;
     });
   }
 
@@ -124,11 +124,11 @@ class _TaskEventListState extends State<TaskEventList> {
         showSelectedLabels: true,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.add_circle_outline_outlined),
             label: 'Add',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.event_available),
+            icon: Icon(Icons.event_available_rounded),
             label: 'Events',
           ),
           BottomNavigationBarItem(
@@ -136,8 +136,8 @@ class _TaskEventListState extends State<TaskEventList> {
             label: 'Tasks',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorites',
+            icon: Icon(Icons.next_plan_outlined),
+            label: 'Schedules',
           ),
         ],
         selectedItemColor: Colors.lime[800],
@@ -235,10 +235,10 @@ class _TaskEventListState extends State<TaskEventList> {
             children: expansionWidgets,
             collapsedBackgroundColor: getTaskGroupColor(taskEvent.taskGroupId, true),
             backgroundColor: getTaskGroupColor(taskEvent.taskGroupId, false),
-            initiallyExpanded: index == _selected,
+            initiallyExpanded: index == _selectedTile,
             onExpansionChanged: ((expanded) {
               setState(() {
-                _selected = expanded ? index : -1;
+                _selectedTile = expanded ? index : -1;
               });
             }),
           ),
