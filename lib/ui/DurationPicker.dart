@@ -6,8 +6,6 @@ class DurationPicker extends StatefulWidget {
   late final int _initialMinutes;
   final Function(Duration) _selectedDuration;
 
-//  _DurationPickerState? _stateRef;
-
   DurationPicker(Duration? initialDuration, this._selectedDuration) {
     this._initialHours = initialDuration?.inHours ?? 0;
     this._initialMinutes = (initialDuration?.inMinutes ?? 0) % 60;

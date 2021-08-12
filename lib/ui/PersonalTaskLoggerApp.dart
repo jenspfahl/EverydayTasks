@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 
-import 'TaskEventList.dart';
+import 'pages/TaskEventList.dart';
 
 class PersonalTaskLoggerApp extends StatelessWidget {
 
@@ -11,7 +12,7 @@ class PersonalTaskLoggerApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.lime,
       ),
-      home: TaskEventList(),
+      home: PersonalTaskLoggerScaffold(),
     );
   }
 }

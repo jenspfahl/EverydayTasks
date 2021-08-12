@@ -1,30 +1,70 @@
-import 'dart:ffi';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
+import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 
-import 'TaskEventForm.dart';
+import '../forms/TaskEventForm.dart';
 
-class TaskEventList extends StatefulWidget {
+class TaskEventList extends StatefulWidget implements PageScaffold {
+
+  _TaskEventListState? _state;
+
   @override
   State<StatefulWidget> createState() {
-    return _TaskEventListState();
+    _state = _TaskEventListState();
+    return _state!;
+  }
+
+  @override
+  String getTitle() {
+    return 'Personal Task Logger';
+  }
+
+  @override
+  Icon getIcon() {
+    return Icon(Icons.event_available);
+  }
+
+  @override
+  List<Widget>? getActions() {
+    return [
+      IconButton(
+        icon: const Icon(Icons.list),
+        onPressed: () {}, //_pushFavorite,
+        tooltip: 'Saved Favorites',
+      ),
+    ];
+  }
+
+  @override
+  Function() handleActionPressed(int index) {
+    // TODO: implement handleActionPressed
+    throw UnimplementedError();
+  }
+
+  @override
+  void handleFABPressed(BuildContext context) {
+    _state?._onFABPressed();
   }
 }
+
+
 
 class _TaskEventListState extends State<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
   int _selectedTile = -1;
   Set<DateTime> _hiddenTiles = Set();
 
-  _TaskEventListState() {
+  @override
+  void initState() {
+    super.initState();
+
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 100);
     TaskEventRepository.getAllPaged(paging).then((taskEvents) {
       setState(() {
@@ -38,6 +78,7 @@ class _TaskEventListState extends State<TaskEventList> {
       _taskEvents.add(taskEvent);
       _taskEvents..sort();
       _selectedTile = _taskEvents.indexOf(taskEvent);
+      _hiddenTiles.remove(truncToDate(taskEvent.startedAt));
     });
   }
 
@@ -62,6 +103,8 @@ class _TaskEventListState extends State<TaskEventList> {
 
   @override
   Widget build(BuildContext context) {
+    return _buildList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Personal Task Logger'),
@@ -117,33 +160,6 @@ class _TaskEventListState extends State<TaskEventList> {
               });
         },
         child: Icon(Icons.event_available),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        showUnselectedLabels: true,
-        showSelectedLabels: true,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline_outlined),
-            label: 'Add',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.event_available_rounded),
-            label: 'Events',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.task_alt),
-            label: 'Tasks',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.next_plan_outlined),
-            label: 'Schedules',
-          ),
-        ],
-        selectedItemColor: Colors.lime[800],
-        unselectedItemColor: Colors.grey.shade600,
-        currentIndex: 1,
-        // onTap: _onItemTapped,
       ),
     );
   }
@@ -335,5 +351,46 @@ class _TaskEventListState extends State<TaskEventList> {
       ),
     ]);
     return expansionWidgets;
+  }
+
+  void _onFABPressed() {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            height: 200,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const Text('From what do you want to create a new task event?'),
+                  OutlinedButton(
+                    child: const Text('From scratch'),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      TaskEvent? newTaskEvent =
+                      await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return TaskEventForm("Create new TaskEvent ");
+                      }));
+
+                      if (newTaskEvent != null) {
+                        TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+                          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
+                              content: Text('New task event with name \'${newTaskEvent.title}\' created')));
+                          _addTaskEvent(newTaskEvent);
+                        });
+                      }
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('From task template'),
+                    onPressed: () => Navigator.pop(context),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 }
