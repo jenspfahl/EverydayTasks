@@ -29,6 +29,7 @@ dependencies:
   floor: ^1.1.0
   intl: ^0.17.0
   numberpicker: ^2.1.1
+  flutter_treeview: ^1.0.6+1
 
 dev_dependencies:
   flutter_test:

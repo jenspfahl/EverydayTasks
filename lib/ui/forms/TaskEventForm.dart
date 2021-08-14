@@ -142,11 +142,11 @@ class _TaskEventFormState extends State<TaskEventForm> {
                               _selectedTaskGroup = value;
                             });
                           },
-                          items: testGroups.map((TaskGroup group) {
+                          items: predefinedTaskGroups.map((TaskGroup group) {
                             return DropdownMenuItem(
                               value: group,
                               child: Text(
-                                getTaskGroupPathAsString(group.id!),
+                                group.name,
                                 style: TextStyle(backgroundColor: getShadedColor(group.colorRGB, true)),
                               ),
                             );

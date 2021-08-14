@@ -104,64 +104,6 @@ class _TaskEventListState extends State<TaskEventList> {
   @override
   Widget build(BuildContext context) {
     return _buildList();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Personal Task Logger'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list),
-            onPressed: () {}, //_pushFavorite,
-            tooltip: 'Saved Favorites',
-          ),
-        ],
-      ),
-      body: _buildList(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-              context: context,
-              builder: (BuildContext context) {
-                return Container(
-                  height: 200,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        const Text('From what do you want to create a new task event?'),
-                        OutlinedButton(
-                          child: const Text('From scratch'),
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            TaskEvent? newTaskEvent =
-                                await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                              return TaskEventForm("Create new TaskEvent ");
-                            }));
-
-                            if (newTaskEvent != null) {
-                              TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                                ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-                                    content: Text('New task event with name \'${newTaskEvent.title}\' created')));
-                                _addTaskEvent(newTaskEvent);
-                              });
-                            }
-                          },
-                        ),
-                        ElevatedButton(
-                          child: const Text('From task template'),
-                          onPressed: () => Navigator.pop(context),
-                        )
-                      ],
-                    ),
-                  ),
-                );
-              });
-        },
-        child: Icon(Icons.event_available),
-      ),
-    );
   }
 
   Widget _buildList() {
@@ -247,7 +189,7 @@ class _TaskEventListState extends State<TaskEventList> {
             key: GlobalKey(),
             // this makes updating all tiles if state changed
             title: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
-            subtitle: taskEvent.taskGroupId != null ? Text(getTaskGroupPathAsString(taskEvent.taskGroupId!)) : null,
+            subtitle: taskEvent.taskGroupId != null ? Text(findTaskGroupById(taskEvent.taskGroupId!).name) : null,
             children: expansionWidgets,
             collapsedBackgroundColor: getTaskGroupColor(taskEvent.taskGroupId, true),
             backgroundColor: getTaskGroupColor(taskEvent.taskGroupId, false),

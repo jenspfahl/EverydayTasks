@@ -15,6 +15,8 @@ class When {
 
   When(AroundWhenAtDay startAt, AroundDurationHours duration);
 
+  When.aroundAt(AroundWhenAtDay startAt);
+
   When.durationExactly(AroundWhenAtDay startAt, Duration durationExactly) {
     this.durationHours = AroundDurationHours.CUSTOM;
   }
