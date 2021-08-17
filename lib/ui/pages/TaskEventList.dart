@@ -12,7 +12,6 @@ import 'package:personaltasklogger/ui/dialogs.dart';
 import '../forms/TaskEventForm.dart';
 
 class TaskEventList extends StatefulWidget implements PageScaffold {
-
   _TaskEventListState? _state;
 
   @override
@@ -53,8 +52,6 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
     _state?._onFABPressed();
   }
 }
-
-
 
 class _TaskEventListState extends State<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
@@ -150,7 +147,6 @@ class _TaskEventListState extends State<TaskEventList> {
                 alignment: Alignment.centerLeft,
                 visualDensity: VisualDensity.compact,
                 padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
-
               ),
               child: Row(
                 children: [
@@ -162,9 +158,7 @@ class _TaskEventListState extends State<TaskEventList> {
                     ),
                   ),
                   Icon(
-                    _hiddenTiles.contains(taskEventDate)
-                        ? Icons.arrow_drop_down_sharp
-                        : Icons.arrow_drop_up_sharp,
+                    _hiddenTiles.contains(taskEventDate) ? Icons.arrow_drop_down_sharp : Icons.arrow_drop_up_sharp,
                     color: Colors.grey,
                   ),
                 ],
@@ -173,8 +167,7 @@ class _TaskEventListState extends State<TaskEventList> {
                 setState(() {
                   if (_hiddenTiles.contains(taskEventDate)) {
                     _hiddenTiles.remove(taskEventDate);
-                  }
-                  else {
+                  } else {
                     _hiddenTiles.add(taskEventDate);
                   }
                 });
@@ -189,7 +182,7 @@ class _TaskEventListState extends State<TaskEventList> {
             key: GlobalKey(),
             // this makes updating all tiles if state changed
             title: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
-            subtitle: taskEvent.taskGroupId != null ? Text(findTaskGroupById(taskEvent.taskGroupId!).name) : null,
+            subtitle: _taskGroupPresentation(taskEvent),
             children: expansionWidgets,
             collapsedBackgroundColor: getTaskGroupColor(taskEvent.taskGroupId, true),
             backgroundColor: getTaskGroupColor(taskEvent.taskGroupId, false),
@@ -211,6 +204,18 @@ class _TaskEventListState extends State<TaskEventList> {
     } else {
       return listTile;
     }
+  }
+
+  Widget? _taskGroupPresentation(TaskEvent taskEvent) {
+    if (taskEvent.taskGroupId != null) {
+      final taskGroup = findTaskGroupById(taskEvent.taskGroupId!);
+      if (taskGroup.icon != null) {
+        return Row(children: [taskGroup.icon!, Text(taskGroup.name)]);
+      } else {
+        return Text(taskGroup.name);
+      }
+    }
+    return null;
   }
 
   List<Widget> _createExpansionWidgets(TaskEvent taskEvent) {
@@ -311,15 +316,14 @@ class _TaskEventListState extends State<TaskEventList> {
                     child: const Text('From scratch'),
                     onPressed: () async {
                       Navigator.pop(context);
-                      TaskEvent? newTaskEvent =
-                      await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                         return TaskEventForm("Create new TaskEvent ");
                       }));
 
                       if (newTaskEvent != null) {
                         TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-                              content: Text('New task event with name \'${newTaskEvent.title}\' created')));
+                          ScaffoldMessenger.of(super.context).showSnackBar(
+                              SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
                           _addTaskEvent(newTaskEvent);
                         });
                       }

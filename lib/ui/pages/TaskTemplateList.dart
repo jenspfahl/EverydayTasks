@@ -55,7 +55,8 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
 
     _nodes = predefinedTaskGroups.map((group) => Node(
         key: group.id.toString(), 
-        label: group.name, 
+        label: group.name,
+        icon: group.icon?.icon,
         data: group,
         children: findTaskTemplatesByTaskGroupId(group.id!).map((template) => Node(
           key: template.id.toString(),

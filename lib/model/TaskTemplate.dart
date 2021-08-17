@@ -54,13 +54,21 @@ List<TaskTemplate> predefinedTaskTemplates = [
   TaskTemplate(id: -6003, title: "Pickup from daycare", taskGroupId: -6, when: When.aroundAt(AroundWhenAtDay.AFTERNOON)),
   TaskTemplate(id: -6004, title: "Bring to bed", taskGroupId: -6, when: When.aroundAt(AroundWhenAtDay.EVENING)),
 
+  // Indoor plants
+  TaskTemplate(id: -7001, title: "Water plants", taskGroupId: -7),
+  TaskTemplate(id: -7002, title: "Dung plants", taskGroupId: -7),
+
+  // Garden
+  TaskTemplate(id: -8001, title: "Water vegetable patch", taskGroupId: -8),
+  TaskTemplate(id: -8002, title: "Dig vegetable patch", taskGroupId: -8),
+
   // Maintenance
-  TaskTemplate(id: -7001, title: "Defrost fridge", taskGroupId: -7),
-  TaskTemplate(id: -7002, title: "Fixing", taskGroupId: -7),
+  TaskTemplate(id: -9001, title: "Defrost fridge", taskGroupId: -9),
+  TaskTemplate(id: -9002, title: "Fixing", taskGroupId: -9),
 
   // Organization
-  TaskTemplate(id: -8001, title: "Organize vacation", taskGroupId: -8),
-  TaskTemplate(id: -8002, title: "Shop gifts", taskGroupId: -8),
+  TaskTemplate(id: -10001, title: "Organize vacation", taskGroupId: -10),
+  TaskTemplate(id: -10002, title: "Shop gifts", taskGroupId: -10),
 
 ];
 
