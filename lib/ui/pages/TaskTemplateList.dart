@@ -7,6 +7,8 @@ import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 
+import '../utils.dart';
+
 class TaskTemplateList extends StatefulWidget implements PageScaffold {
 
   @override
@@ -54,9 +56,12 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
 
 
     _nodes = predefinedTaskGroups.map((group) => Node(
-        key: group.id.toString(), 
+        key: group.id.toString(),
         label: group.name,
-        icon: group.icon?.icon,
+        icon: group.iconData,
+        iconColor: getSharpedColor(group.colorRGB),
+        //selectedIconColor: getColorWithOpacity(group.colorRGB, 1),
+
         data: group,
         children: findTaskTemplatesByTaskGroupId(group.id!).map((template) => Node(
           key: template.id.toString(),

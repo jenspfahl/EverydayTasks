@@ -145,10 +145,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           items: predefinedTaskGroups.map((TaskGroup group) {
                             return DropdownMenuItem(
                               value: group,
-                              child: Text(
-                                group.name,
-                                style: TextStyle(backgroundColor: getShadedColor(group.colorRGB, true)),
-                              ),
+                              child: group.getTaskGroupRepresentation(useIconColor: true),
                             );
                           }).toList(),
                         ),

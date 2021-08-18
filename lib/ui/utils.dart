@@ -18,6 +18,16 @@ Color getTaskGroupColor(int? taskGroupId, bool lessShaded) {
   return getShadedColor(taskGroupColor, lessShaded);
 }
 
+Color getColorWithOpacity(Color? colorRGB, double opacity) {
+  var color = colorRGB ?? Colors.lime.shade100;
+  return color.withOpacity(opacity);
+}
+
+Color getSharpedColor(Color? colorRGB) {
+  var color = colorRGB ?? Colors.lime.shade100;
+  return color.withAlpha((color.alpha*2).toInt());
+}
+
 Color getShadedColor(Color? colorRGB, bool lessShaded) {
   var color = colorRGB ?? Colors.lime.shade100;
   return shadeColor(lessShaded, color);

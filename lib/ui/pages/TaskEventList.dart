@@ -209,11 +209,7 @@ class _TaskEventListState extends State<TaskEventList> {
   Widget? _taskGroupPresentation(TaskEvent taskEvent) {
     if (taskEvent.taskGroupId != null) {
       final taskGroup = findTaskGroupById(taskEvent.taskGroupId!);
-      if (taskGroup.icon != null) {
-        return Row(children: [taskGroup.icon!, Text(taskGroup.name)]);
-      } else {
-        return Text(taskGroup.name);
-      }
+      return taskGroup.getTaskGroupRepresentation(useIconColor: true);
     }
     return null;
   }
