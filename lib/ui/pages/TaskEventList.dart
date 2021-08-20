@@ -253,7 +253,9 @@ class _TaskEventListState extends State<TaskEventList> {
               TextButton(
                 onPressed: () async {
                   TaskEvent? changedTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return TaskEventForm("Change TaskEvent \'${taskEvent.title}\'", taskEvent);
+                    return TaskEventForm(
+                        formTitle: "Change TaskEvent \'${taskEvent.title}\'", 
+                        taskEvent: taskEvent);
                   }));
 
                   if (changedTaskEvent != null) {
@@ -313,7 +315,7 @@ class _TaskEventListState extends State<TaskEventList> {
                     onPressed: () async {
                       Navigator.pop(context);
                       TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                        return TaskEventForm("Create new TaskEvent ");
+                        return TaskEventForm(formTitle: "Create new TaskEvent ");
                       }));
 
                       if (newTaskEvent != null) {
@@ -327,7 +329,27 @@ class _TaskEventListState extends State<TaskEventList> {
                   ),
                   ElevatedButton(
                     child: const Text('From task template'),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      showTemplateDialog(context, "Select a task template",
+                          okPressed: () async {
+                            Navigator.pop(super.context);
+                            TaskEvent? newTaskEvent = await Navigator.push(super.context, MaterialPageRoute(builder: (context) {
+                              return TaskEventForm(formTitle: "Create new event from task template");
+                            }));
+
+                            if (newTaskEvent != null) {
+                              TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+                                ScaffoldMessenger.of(super.context).showSnackBar(
+                                    SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
+                                _addTaskEvent(newTaskEvent);
+                              });
+                            }
+                          },
+                          cancelPressed: () {
+                            Navigator.pop(super.context);
+                          });
+                    },
                   )
                 ],
               ),

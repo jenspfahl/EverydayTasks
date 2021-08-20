@@ -2,20 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
+import 'package:personaltasklogger/model/TaskTemplate.dart';
+import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 class TaskEventForm extends StatefulWidget {
-  final String _title;
-  final TaskEvent? _taskEvent;
+  final String formTitle;
+  final TaskEvent? taskEvent;
+  final TaskGroup? taskGroup;
+  final TaskTemplate? taskTemplate;
+  final TaskTemplateVariant? taskTemplateVariant;
 
-  TaskEventForm(this._title, [this._taskEvent]);
+  TaskEventForm({required this.formTitle, this.taskEvent, 
+    this.taskGroup, this.taskTemplate, this.taskTemplateVariant});
 
   @override
   State<StatefulWidget> createState() {
-    return _TaskEventFormState(_taskEvent);
+    return _TaskEventFormState(taskEvent, taskGroup, taskTemplate, taskTemplateVariant);
   }
 }
 
@@ -25,6 +31,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
   final descriptionController = TextEditingController();
 
   late TaskEvent? _taskEvent;
+  final TaskGroup? _taskGroup;
+  final TaskTemplate? _taskTemplate;
+  final TaskTemplateVariant? _taskTemplateVariant;
 
   TaskGroup? _selectedTaskGroup;
 
@@ -41,7 +50,27 @@ class _TaskEventFormState extends State<TaskEventForm> {
   WhenOnDate? _selectedWhenOnDate;
   DateTime? _customWhenOn;
 
-  _TaskEventFormState([this._taskEvent]) {
+  _TaskEventFormState([this._taskEvent, this._taskGroup, this._taskTemplate, this._taskTemplateVariant]) {
+
+    if (_taskEvent == null) {
+      int? taskGroupId;
+      if (_taskGroup != null) {
+        taskGroupId = _taskGroup?.id;
+      }
+      else if (_taskTemplate != null) {
+        taskGroupId = _taskTemplate?.taskGroupId;
+      }
+      else if (_taskTemplateVariant != null) {
+        taskGroupId = findTaskTemplateById(_taskTemplateVariant!.taskTemplateId).taskGroupId;
+      }
+      if (taskGroupId != null) {
+        _selectedTaskGroup = findTaskGroupById(taskGroupId);
+      }
+
+      // TODO also model for description and the other existing models below here (severity, duration etc)
+    }
+
+
     final severity = _taskEvent?.severity != null ? _taskEvent!.severity : Severity.MEDIUM;
     this._severityIndex = severity.index;
     this._severitySelection = List.generate(Severity.values.length, (index) => index == _severityIndex);
@@ -91,7 +120,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget._title),
+          title: Text(widget.formTitle),
         ),
         body: SingleChildScrollView(
           child: Container(
