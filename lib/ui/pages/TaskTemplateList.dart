@@ -10,6 +10,11 @@ import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import '../utils.dart';
 
 class TaskTemplateList extends StatefulWidget implements PageScaffold {
+  Function(Object)? _selectedItem;
+
+  TaskTemplateList();
+  TaskTemplateList.withSelectionCallback(this._selectedItem);
+
 
   @override
   String getTitle() {
@@ -39,7 +44,7 @@ class TaskTemplateList extends StatefulWidget implements PageScaffold {
 
   @override
   State<StatefulWidget> createState() {
-    return _TaskTemplateListState();
+    return _TaskTemplateListState(_selectedItem);
   }
 }
 
@@ -48,8 +53,9 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
   String? _selectedNode;
   List<Node> _nodes = [];
   late TreeViewController _treeViewController;
-  bool docsOpen = true;
-  bool deepExpanded = true;
+  Function(Object)? _selectedItem;
+
+  _TaskTemplateListState(this._selectedItem);
 
   @override
   void initState() {
@@ -60,16 +66,18 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
         label: group.name,
         icon: group.iconData,
         iconColor: getSharpedColor(group.colorRGB),
-        //selectedIconColor: getColorWithOpacity(group.colorRGB, 1),
-
         data: group,
         children: findTaskTemplatesByTaskGroupId(group.id!).map((template) => Node(
           key: template.id.toString(),
           label: template.title,
+          icon: group.iconData,
+          iconColor: getShadedColor(group.colorRGB, false),
           data: template,
           children: findTaskTemplateVariantsByTaskTemplateId(template.id!).map((variant) => Node(
             key: variant.id.toString(),
             label: variant.title,
+            icon: group.iconData,
+            iconColor: getShadedColor(group.colorRGB, true),
             data: variant,
           )).toList()
         )).toList(),
@@ -121,6 +129,12 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
             _selectedNode = key;
             _treeViewController =
                 _treeViewController.copyWith(selectedKey: key);
+            if (_selectedItem != null) {
+              Object? data = _treeViewController.selectedNode?.data;
+              if (data != null) {
+                _selectedItem!(data);
+              }
+            }
           });
         },
         theme: _treeViewTheme,

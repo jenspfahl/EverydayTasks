@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
-import 'package:personaltasklogger/model/TaskTemplate.dart';
-import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
+import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/utils.dart';
@@ -13,15 +12,14 @@ class TaskEventForm extends StatefulWidget {
   final String formTitle;
   final TaskEvent? taskEvent;
   final TaskGroup? taskGroup;
-  final TaskTemplate? taskTemplate;
-  final TaskTemplateVariant? taskTemplateVariant;
+  final Template? template;
 
   TaskEventForm({required this.formTitle, this.taskEvent, 
-    this.taskGroup, this.taskTemplate, this.taskTemplateVariant});
+    this.taskGroup, this.template});
 
   @override
   State<StatefulWidget> createState() {
-    return _TaskEventFormState(taskEvent, taskGroup, taskTemplate, taskTemplateVariant);
+    return _TaskEventFormState(taskEvent, taskGroup, template);
   }
 }
 
@@ -30,10 +28,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
 
-  late TaskEvent? _taskEvent;
+  final TaskEvent? _taskEvent;
   final TaskGroup? _taskGroup;
-  final TaskTemplate? _taskTemplate;
-  final TaskTemplateVariant? _taskTemplateVariant;
+  final Template? _template;
 
   TaskGroup? _selectedTaskGroup;
 
@@ -50,61 +47,91 @@ class _TaskEventFormState extends State<TaskEventForm> {
   WhenOnDate? _selectedWhenOnDate;
   DateTime? _customWhenOn;
 
-  _TaskEventFormState([this._taskEvent, this._taskGroup, this._taskTemplate, this._taskTemplateVariant]) {
+  _TaskEventFormState([this._taskEvent, this._taskGroup, this._template]) {
 
-    if (_taskEvent == null) {
-      int? taskGroupId;
-      if (_taskGroup != null) {
-        taskGroupId = _taskGroup?.id;
-      }
-      else if (_taskTemplate != null) {
-        taskGroupId = _taskTemplate?.taskGroupId;
-      }
-      else if (_taskTemplateVariant != null) {
-        taskGroupId = findTaskTemplateById(_taskTemplateVariant!.taskTemplateId).taskGroupId;
-      }
-      if (taskGroupId != null) {
-        _selectedTaskGroup = findTaskGroupById(taskGroupId);
+    int? selectedTaskGroupId;
+    Severity severity = Severity.MEDIUM;
+
+    AroundDurationHours? aroundDuration;
+    Duration? duration;
+
+    AroundWhenAtDay? aroundStartedAt;
+    TimeOfDay? startedAt;
+
+    DateTime ? startedOn;
+
+    if (_taskEvent != null) {
+      selectedTaskGroupId = _taskEvent!.taskGroupId;
+
+      severity = _taskEvent!.severity;
+
+      titleController.text = _taskEvent!.title;
+      descriptionController.text = _taskEvent!.description ?? "";
+
+      aroundDuration = _taskEvent!.aroundDuration;
+      duration = _taskEvent!.duration;
+
+      aroundStartedAt = _taskEvent!.aroundStartedAt;
+      startedAt = TimeOfDay.fromDateTime(_taskEvent!.startedAt);
+
+      startedOn = truncToDate(_taskEvent!.startedAt);
+    }
+    else if (_taskGroup != null) {
+      selectedTaskGroupId = _taskGroup?.id;
+      startedOn = DateTime.now();
+    }
+    else if (_template != null) {
+      selectedTaskGroupId = _template?.taskGroupId;
+
+      if (_template!.severity != null) {
+        severity = _template!.severity!;
       }
 
-      // TODO also model for description and the other existing models below here (severity, duration etc)
+      titleController.text = _template!.title;
+      descriptionController.text = _template!.description ?? "";
+
+      aroundDuration = _template!.when?.durationHours;
+      duration = _template!.when?.durationExactly;
+
+      aroundStartedAt = _template!.when?.startAt;
+      startedAt = _template!.when?.startAtExactly;
+
+      startedOn = DateTime.now();
     }
 
 
-    final severity = _taskEvent?.severity != null ? _taskEvent!.severity : Severity.MEDIUM;
+    if (selectedTaskGroupId != null) {
+      _selectedTaskGroup = findTaskGroupById(selectedTaskGroupId);
+    }
+
     this._severityIndex = severity.index;
     this._severitySelection = List.generate(Severity.values.length, (index) => index == _severityIndex);
 
-    if (_taskEvent != null) {
-      titleController.text = _taskEvent!.title;
-      descriptionController.text = _taskEvent!.description ?? "";
-      if (_taskEvent?.taskGroupId != null) {
-        _selectedTaskGroup = findTaskGroupById(_taskEvent!.taskGroupId!);
-      }
+    _selectedDurationHours = aroundDuration;
+    if (_selectedDurationHours == AroundDurationHours.CUSTOM) {
+      _customDuration = duration;
+    }
 
-      _selectedDurationHours = _taskEvent?.aroundDuration;
-      if (_selectedDurationHours == AroundDurationHours.CUSTOM) {
-        _customDuration = _taskEvent?.duration;
-      }
+    _selectedWhenAtDay = aroundStartedAt;
+    if (startedAt != null &&
+        (_selectedWhenAtDay == AroundWhenAtDay.NOW || _selectedWhenAtDay == AroundWhenAtDay.CUSTOM)) {
+      _selectedWhenAtDay = AroundWhenAtDay.CUSTOM; // Former NOW is now CUSTOM
+      _customWhenAt = startedAt;
+    }
 
-      _selectedWhenAtDay = _taskEvent?.aroundStartedAt;
-      if (_selectedWhenAtDay == AroundWhenAtDay.NOW || _selectedWhenAtDay == AroundWhenAtDay.CUSTOM) {
-        _selectedWhenAtDay = AroundWhenAtDay.CUSTOM; // Former NOW is now CUSTOM
-        _customWhenAt = TimeOfDay.fromDateTime(_taskEvent!.startedAt);
-      }
-
-      final startedAt = truncToDate(_taskEvent!.startedAt);
-      if (isToday(startedAt)) {
+    if (startedOn != null) {
+      if (isToday(startedOn)) {
         _selectedWhenOnDate = WhenOnDate.TODAY;
-      } else if (isYesterday(startedAt)) {
+      } else if (isYesterday(startedOn)) {
         _selectedWhenOnDate = WhenOnDate.YESTERDAY;
-      } else if (isBeforeYesterday(startedAt)) {
+      } else if (isBeforeYesterday(startedOn)) {
         _selectedWhenOnDate = WhenOnDate.BEFORE_YESTERDAY;
       } else {
         _selectedWhenOnDate = WhenOnDate.CUSTOM;
-        _customWhenOn = startedAt;
+        _customWhenOn = startedOn;
       }
     }
+
   }
 
   @override

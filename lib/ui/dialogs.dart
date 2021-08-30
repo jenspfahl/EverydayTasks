@@ -73,7 +73,7 @@ Future<bool?> showDurationPickerDialog(BuildContext context, Function(Duration) 
 }
 
 void showTemplateDialog(BuildContext context, String title,
-    {Function()? okPressed, Function()? cancelPressed}) {
+    {Function()? okPressed, Function()? cancelPressed, required Function(Object) selectedItem,}) {
   Widget cancelButton = TextButton(
     child: Text("Cancel"),
     onPressed:  cancelPressed,
@@ -85,7 +85,7 @@ void showTemplateDialog(BuildContext context, String title,
 
   AlertDialog alert = AlertDialog(
     title: Text(title),
-    content: TaskTemplateList(),
+    content: TaskTemplateList.withSelectionCallback(selectedItem),
     actions: [
       cancelButton,
       okButton,

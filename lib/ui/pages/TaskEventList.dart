@@ -4,6 +4,7 @@ import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
+import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
@@ -57,6 +58,7 @@ class _TaskEventListState extends State<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
   int _selectedTile = -1;
   Set<DateTime> _hiddenTiles = Set();
+  Object? _selectedTemplateItem;
 
   @override
   void initState() {
@@ -332,10 +334,27 @@ class _TaskEventListState extends State<TaskEventList> {
                     onPressed: () {
                       Navigator.pop(context);
                       showTemplateDialog(context, "Select a task template",
+                          selectedItem: (selectedItem) {
+                            setState(() {
+                              _selectedTemplateItem = selectedItem;
+                            });
+                          },
                           okPressed: () async {
                             Navigator.pop(super.context);
                             TaskEvent? newTaskEvent = await Navigator.push(super.context, MaterialPageRoute(builder: (context) {
-                              return TaskEventForm(formTitle: "Create new event from task template");
+                              if (_selectedTemplateItem is TaskGroup) {
+                                return TaskEventForm(
+                                  formTitle: "Create new event from task group",
+                                  taskGroup: _selectedTemplateItem as TaskGroup,);
+                              }
+                              else if (_selectedTemplateItem is Template) {
+                                return TaskEventForm(
+                                  formTitle: "Create new event from task template",
+                                  template: _selectedTemplateItem as Template,);
+                              }
+                              else {
+                                return TaskEventForm(formTitle: "Create new event from scratch");
+                              }
                             }));
 
                             if (newTaskEvent != null) {

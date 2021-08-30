@@ -8,26 +8,28 @@ enum WhenOnDate {TODAY, YESTERDAY, BEFORE_YESTERDAY, CUSTOM}
 
 
 class When {
-  AroundWhenAtDay startAt = AroundWhenAtDay.CUSTOM;
+  AroundWhenAtDay? startAt;
   TimeOfDay? startAtExactly;
-  AroundDurationHours durationHours = AroundDurationHours.CUSTOM;
+  AroundDurationHours? durationHours;
   Duration? durationExactly;
 
-  When(AroundWhenAtDay startAt, AroundDurationHours duration);
+  When(this.startAt, this.durationHours);
 
-  When.aroundAt(AroundWhenAtDay startAt);
+  When.aroundAt(this.startAt);
 
-  When.durationExactly(AroundWhenAtDay startAt, Duration durationExactly) {
-    this.durationHours = AroundDurationHours.CUSTOM;
+  When.aroundDuration(this.durationHours);
+
+  When.durationExactly(this.startAt, this.durationExactly) {
+    durationHours = AroundDurationHours.CUSTOM;
   }
 
-  When.startAtExactly(TimeOfDay startAtExactly, AroundDurationHours duration) {
-    this.startAt = AroundWhenAtDay.CUSTOM;
+  When.startAtExactly(this.startAtExactly, this.durationHours) {
+    startAt = AroundWhenAtDay.CUSTOM;
   }
 
-  When.exactly(TimeOfDay startAtExactly, Duration durationExactly) {
-    this.durationHours = AroundDurationHours.CUSTOM;
-    this.startAt = AroundWhenAtDay.CUSTOM;
+  When.exactly(this.startAtExactly, this.durationExactly) {
+    durationHours = AroundDurationHours.CUSTOM;
+    startAt = AroundWhenAtDay.CUSTOM;
   }
 
   When.of(int? startAt, int? startAtExactly, int? durationHours, int? durationExactlyMinutes) {
@@ -38,6 +40,7 @@ class When {
       this.startAtExactly = TimeOfDay(
           hour: startAtExactly ~/ 100,
           minute: (startAtExactly % 100));
+      this.startAt = AroundWhenAtDay.CUSTOM;
     }
 
     if (durationHours != null) {
@@ -45,11 +48,12 @@ class When {
     }
     if (durationExactlyMinutes != null) {
       this.durationExactly = Duration(minutes: durationExactlyMinutes);
+      this.durationHours = AroundDurationHours.CUSTOM;
     }
   }
 
-  int fromStartAt() {
-    return startAt.index;
+  int? fromStartAt() {
+    return startAt?.index;
   }
 
   int? fromWhenExactly() {
@@ -60,8 +64,8 @@ class When {
     return _startAtExactly.hour * 100 + _startAtExactly.minute;
   }
 
-  int fromDurationHours() {
-    return durationHours.index;
+  int? fromDurationHours() {
+    return durationHours?.index;
   }
 
   int? fromDurationExactly() {
