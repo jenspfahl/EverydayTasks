@@ -62,10 +62,11 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
 
 
     _nodes = predefinedTaskGroups.map((group) => Node(
-        key: group.id.toString(),
+        key: group.runtimeType.toString() +":"+ group.id.toString(),
         label: group.name,
         icon: group.iconData,
         iconColor: getSharpedColor(group.colorRGB),
+        parent: true,
         data: group,
         children: findTaskTemplatesByTaskGroupId(group.id!).map((template) => Node(
           key: template.id.toString(),
@@ -110,10 +111,9 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
         letterSpacing: 0.1,
         fontWeight: FontWeight.w800,
       ),
-      iconTheme: IconThemeData(
+    /*  iconTheme: IconThemeData(
         size: 18,
-        color: Colors.grey.shade800,
-      ),
+      ),*/
       colorScheme: Theme.of(context).colorScheme,
     );
 
@@ -122,7 +122,9 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
       child: TreeView(
         controller: _treeViewController,
         allowParentSelect: true,
-        supportParentDoubleTap: true,
+        supportParentDoubleTap: false,
+        onExpansionChanged: (key, expanded) =>
+            _expandNode(key, expanded),
         onNodeTap: (key) {
           debugPrint('Selected: $key');
           setState(() {
@@ -142,6 +144,18 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
     );
   }
 
+  _expandNode(String key, bool expanded) {
+    String msg = '${expanded ? "Expanded" : "Collapsed"}: $key';
+    debugPrint(msg);
+    Node? node = _treeViewController.getNode(key);
+    if (node != null) {
+      List<Node> updated = _treeViewController.updateNode(
+            key, node.copyWith(expanded: expanded));
+      setState(() {
+        _treeViewController = _treeViewController.copyWith(children: updated);
+      });
+    }
+  }
 }
 
 

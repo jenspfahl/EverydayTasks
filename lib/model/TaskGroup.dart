@@ -37,7 +37,6 @@ class TaskGroup implements Comparable {
 
 
 List<TaskGroup> predefinedTaskGroups = [
-  TaskGroup(id: 0, name: "Others"),
   TaskGroup(id: -1, name: "Cleaning & Tidy up", colorRGB: Color.fromARGB(100, 3, 138, 128), iconData: Icons.cleaning_services_outlined),
   TaskGroup(id: -2, name: "Laundry", colorRGB: Color.fromARGB(100, 223, 185, 0), iconData: Icons.local_laundry_service_outlined),
   TaskGroup(id: -3, name: "Cooking", colorRGB: Color.fromARGB(100, 222, 123, 8), iconData: Icons.lunch_dining_outlined),
@@ -49,6 +48,9 @@ List<TaskGroup> predefinedTaskGroups = [
   TaskGroup(id: -9, name: "Maintenance", colorRGB: Color.fromARGB(100, 183, 3, 7), iconData: Icons.build_outlined),
   TaskGroup(id: -10, name: "Organization",colorRGB: Color.fromARGB(100, 183, 123, 128), iconData: Icons.phone_in_talk_outlined),
   TaskGroup(id: -11, name: "Car",colorRGB: Color.fromARGB(100, 83, 123, 228), iconData: Icons.directions_car_outlined),
+
+  //last one
+  TaskGroup(id: 0, name: "Others", colorRGB: Color.fromARGB(100, 128, 128, 128), iconData: Icons.lightbulb_outline),
 ];
 
 

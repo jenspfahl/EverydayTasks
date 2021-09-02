@@ -78,6 +78,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
     }
     else if (_taskGroup != null) {
       selectedTaskGroupId = _taskGroup?.id;
+      aroundStartedAt = AroundWhenAtDay.NOW;
       startedOn = DateTime.now();
     }
     else if (_template != null) {
@@ -93,7 +94,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
       aroundDuration = _template!.when?.durationHours;
       duration = _template!.when?.durationExactly;
 
-      aroundStartedAt = _template!.when?.startAt;
+      aroundStartedAt = _template!.when?.startAt ?? AroundWhenAtDay.NOW;
       startedAt = _template!.when?.startAtExactly;
 
       startedOn = DateTime.now();
