@@ -435,6 +435,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                 var taskEvent = TaskEvent(
                                   _taskEvent?.id,
                                   _selectedTaskGroup?.id,
+                                  _template?.tId,
                                   titleController.text,
                                   descriptionController.text,
                                   _taskEvent?.createdAt ?? DateTime.now(),

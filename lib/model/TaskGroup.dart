@@ -15,7 +15,7 @@ class TaskGroup implements Comparable {
 
   @override
   int compareTo(other) {
-    return other.id??0.compareTo(id??0);
+    return other.tId??0.compareTo(id??0);
   }
   
   Widget getTaskGroupRepresentation({bool useBackgroundColor = false, bool useIconColor = false}) {

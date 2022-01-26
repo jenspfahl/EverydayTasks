@@ -1,8 +1,9 @@
 import 'Severity.dart';
+import 'TemplateId.dart';
 import 'When.dart';
 
 abstract class Template {
-  int? id;
+  TemplateId? tId;
   int taskGroupId;
 
   String title;
@@ -11,6 +12,7 @@ abstract class Template {
   Severity? severity;
   bool? favorite = false;
 
-  Template({this.id, required this.taskGroupId,
+  Template({this.tId, required this.taskGroupId,
       required this.title, this.description, this.when, this.severity, this.favorite});
+
 }

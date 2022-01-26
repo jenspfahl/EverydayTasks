@@ -11,20 +11,21 @@ enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, 
 class Schedule {
   DateTime? startAt = DateTime.now();
   DateTime? endAt;
-  List<DayOfWeek>? daysOfWeek;
+  DayOfWeek? dayOfWeek; // suitable for RepetitionStep.WEEKLY and greater, e.g. each TUESDAY of EVERY_OTHER_WEEK
+  int? dayOfMonth; // suitable for RepetitionStep.MONTHLY and greater, e.g. each 3rd of EVERY_OTHER_MONTH
   RepetitionStep? repetitionStep = RepetitionStep.CUSTOM;
   int? customRepetitionDays;
 
 
-  Schedule({this.startAt, this.endAt, this.daysOfWeek, this.repetitionStep, this.customRepetitionDays});
+  Schedule({this.startAt, this.endAt, this.dayOfWeek, this.repetitionStep, this.customRepetitionDays});
 
-  Schedule.withDaysOfWeekAndRepetition(List<DayOfWeek>? daysOfWeek, RepetitionStep repetitionStep) {
-    this.daysOfWeek = daysOfWeek;
+  Schedule.withDaysfWeekAndRepetition(DayOfWeek daysOfWeek, RepetitionStep repetitionStep) {
+    this.dayOfWeek = daysOfWeek;
     this.repetitionStep = repetitionStep;
   }
 
   Schedule.withCustomerRepetition(int customRepetitionDays) {
-    this.daysOfWeek = daysOfWeek;
+    this.dayOfWeek = dayOfWeek;
     this.customRepetitionDays = customRepetitionDays;
   }
 

@@ -69,13 +69,13 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
         parent: true,
         data: group,
         children: findTaskTemplatesByTaskGroupId(group.id!).map((template) => Node(
-          key: template.id.toString(),
+          key: template.tId.toString(),
           label: template.title,
           icon: group.iconData,
           iconColor: getShadedColor(group.colorRGB, false),
           data: template,
-          children: findTaskTemplateVariantsByTaskTemplateId(template.id!).map((variant) => Node(
-            key: variant.id.toString(),
+          children: findTaskTemplateVariantsByTaskTemplateId(template.tId!.id).map((variant) => Node(
+            key: variant.tId.toString(),
             label: variant.title,
             icon: group.iconData,
             iconColor: getShadedColor(group.colorRGB, true),

@@ -6,11 +6,18 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 2, entities: [TaskEventEntity])
+@Database(version: 3, entities: [TaskEventEntity])
 abstract class AppDatabase extends FloorDatabase {
   TaskEventDao get taskEventDao;
 }
 
+Migration migration2To3 = new Migration(2, 3,
+        (sqflite.Database database) async {
+  database.execute("ALTER TABLE TaskEventEntity ADD COLUMN originTaskTemplateId INTEGER");
+  database.execute("ALTER TABLE TaskEventEntity ADD COLUMN originTaskTemplateVariantId INTEGER");
+});
+
 Future<AppDatabase> getDb() async => $FloorAppDatabase
     .databaseBuilder('app_database.db')
+    .addMigrations([migration2To3])
     .build();

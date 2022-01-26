@@ -1,23 +1,47 @@
 import 'dart:ui';
 
-import 'package:personaltasklogger/model/When.dart';
+import 'package:personaltasklogger/model/TaskTemplate.dart';
 
 import 'Schedule.dart';
-import 'Severity.dart';
+import 'TaskTemplateVariant.dart';
+import 'TemplateId.dart';
 
 class ScheduledTask {
   int? id;
-  int? taskTemplateId; //taskTemplate or taskTemplateVariant
-  int? taskTemplateVariantId; //taskTemplate or taskTemplateVariant
+  TemplateId templateId;
 
   String title;
   String? description;
-  DateTime createdAt = DateTime.now();
+  DateTime? createdAt = DateTime.now();
   Schedule schedule;
-  bool favorite = false;
+  bool? active = true;
 
-  ScheduledTask(this.id, this.taskTemplateId, this.taskTemplateVariantId,
-      this.title, this.description, this.createdAt,
-      this.schedule, this.favorite);
+  ScheduledTask({
+    this.id,
+    required this.templateId,
+    required this.title,
+    this.description,
+    this.createdAt,
+    required this.schedule,
+    this.active,
+  });
+
+  ScheduledTask.forTaskTemplate(
+      TaskTemplate taskTemplate,
+      Schedule schedule,
+      ) :
+        templateId = taskTemplate.tId!,
+        title = taskTemplate.title,
+        description = taskTemplate.description,
+        schedule = schedule;
+
+  ScheduledTask.forTaskTemplateVariant(
+      TaskTemplateVariant taskTemplateVariant,
+      Schedule schedule,
+      ) :
+        templateId = taskTemplateVariant.tId!,
+        title = taskTemplateVariant.title,
+        description = taskTemplateVariant.description,
+        schedule = schedule;
 
 }
