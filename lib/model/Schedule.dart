@@ -1,44 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:personaltasklogger/util/dates.dart';
+import 'package:jiffy/jiffy.dart';
 
 import 'When.dart';
 
-enum DayOfWeek {MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY}
 enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, EVERY_OTHER_MONTH, QUARTERLY, HALF_YEARLY, YEARLY, CUSTOM}
 
 
-
 class Schedule {
-  DateTime? startAt = DateTime.now();
-  DateTime? endAt;
-  DayOfWeek? dayOfWeek; // suitable for RepetitionStep.WEEKLY and greater, e.g. each TUESDAY of EVERY_OTHER_WEEK
-  int? dayOfMonth; // suitable for RepetitionStep.MONTHLY and greater, e.g. each 3rd of EVERY_OTHER_MONTH
+  AroundWhenAtDay? startAt;
+  TimeOfDay? startAtExactly;
   RepetitionStep? repetitionStep = RepetitionStep.CUSTOM;
   int? customRepetitionDays;
 
-
-  Schedule({this.startAt, this.endAt, this.dayOfWeek, this.repetitionStep, this.customRepetitionDays});
-
-  Schedule.withDaysfWeekAndRepetition(DayOfWeek daysOfWeek, RepetitionStep repetitionStep) {
-    this.dayOfWeek = daysOfWeek;
-    this.repetitionStep = repetitionStep;
-  }
-
-  Schedule.withCustomerRepetition(int customRepetitionDays) {
-    this.dayOfWeek = dayOfWeek;
-    this.customRepetitionDays = customRepetitionDays;
-  }
+  Schedule({
+    this.startAt,
+    this.startAtExactly,
+    this.repetitionStep,
+    this.customRepetitionDays,
+  });
 
   DateTime? getNextRepetitionFrom(DateTime from) {
-    final now = DateTime.now();
-    if (endAt != null && now.isAfter(endAt!)) {
-      return null;
+    if (customRepetitionDays != null) {
+      return from.add(Duration(days: customRepetitionDays!));
     }
-    var nextDate = startAt??DateTime.now();
+    if (repetitionStep != null && repetitionStep != RepetitionStep.CUSTOM) {
+      return fromRepetitionStepToDuration(from, repetitionStep!);
+    }
+    throw new Exception("unknown repetition step");
+  }
 
-    //TODO calc next repetition here
-
-    return nextDate;
+  static DateTime fromRepetitionStepToDuration(DateTime from, RepetitionStep repetitionStep) {
+    switch(repetitionStep) {
+      case RepetitionStep.DAILY: return from.add(Duration(days: 1));
+      case RepetitionStep.EVERY_OTHER_DAY: return from.add(Duration(days: 2));
+      case RepetitionStep.WEEKLY: return from.add(Duration(days: 7));
+      case RepetitionStep.EVERY_OTHER_WEEK: return from.add(Duration(days: 14));
+      case RepetitionStep.MONTHLY: return Jiffy(from).add(months: 1).dateTime;
+      case RepetitionStep.EVERY_OTHER_MONTH: return Jiffy(from).add(months: 2).dateTime;
+      case RepetitionStep.QUARTERLY: return Jiffy(from).add(months: 3).dateTime;
+      case RepetitionStep.HALF_YEARLY: return Jiffy(from).add(months: 6).dateTime;
+      case RepetitionStep.YEARLY: return Jiffy(from).add(years: 1).dateTime;
+      case RepetitionStep.CUSTOM: throw new Exception("custom repetition step not allowed here");
+    }
   }
 
   static String fromRepetitionStepToString(RepetitionStep repetitionStep) {
@@ -53,18 +56,6 @@ class Schedule {
       case RepetitionStep.HALF_YEARLY: return "Half yearly";
       case RepetitionStep.YEARLY: return "Yarly";
       case RepetitionStep.CUSTOM: return "Custom...";
-    }
-  }
-
-  static String fromDayOfWeekToString(DayOfWeek dayOfWeek) {
-    switch(dayOfWeek) {
-      case DayOfWeek.MONDAY: return "Monday";
-      case DayOfWeek.TUESDAY: return "Tuesday";
-      case DayOfWeek.WEDNESDAY: return "Wednesday";
-      case DayOfWeek.THURSDAY: return "Thursday";
-      case DayOfWeek.FRIDAY: return "Friday";
-      case DayOfWeek.SATURDAY: return "Saturday";
-      case DayOfWeek.SUNDAY: return "Sunday";
     }
   }
 

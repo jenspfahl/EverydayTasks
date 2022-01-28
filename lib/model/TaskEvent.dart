@@ -42,7 +42,7 @@ class TaskEvent implements Comparable {
 
   @override
   int compareTo(other) {
-    int result = other.startedAt.compareTo(startedAt);
+    int result = other.startAt.compareTo(startedAt);
     if (result != 0) return result;
     return other.id??0.compareTo(id??0);
   }

@@ -4,11 +4,18 @@ import 'package:personaltasklogger/db/dao/TaskEventDao.dart';
 import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
+import 'dao/ScheduledTaskDao.dart';
+import 'dao/ScheduledTaskEventDao.dart';
+import 'entity/ScheduledTaskEntity.dart';
+import 'entity/ScheduledTaskEventEntity.dart';
+
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 3, entities: [TaskEventEntity])
+@Database(version: 3, entities: [TaskEventEntity, ScheduledTaskEntity, ScheduledTaskEventEntity])
 abstract class AppDatabase extends FloorDatabase {
   TaskEventDao get taskEventDao;
+  ScheduledTaskDao get scheduledTaskDao;
+  ScheduledTaskEventDao get scheduledTaskEventDao;
 }
 
 Migration migration2To3 = new Migration(2, 3,
