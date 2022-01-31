@@ -52,8 +52,6 @@ List<TaskTemplate> predefinedTaskTemplates = [
   TaskTemplate.data(subId: -4, title: "Wiping", taskGroupId: -1),
   TaskTemplate.data(subId: -5, title: "Empty bin", taskGroupId: -1),
   TaskTemplate.data(subId: -6, title: "Dispose old paper and waste glass", taskGroupId: -1),
-  TaskTemplate.data(subId: -7, title: "Clean windows (depr)", taskGroupId: -1),
-  TaskTemplate.data(subId: -8, title: "Clean fridge (depr)", taskGroupId: -1),
 
   // Laundry
   TaskTemplate.data(subId: -1, title: "Prepare washing machine", taskGroupId: -2),

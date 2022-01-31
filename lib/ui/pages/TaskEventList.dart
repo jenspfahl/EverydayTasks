@@ -183,7 +183,7 @@ class _TaskEventListState extends State<TaskEventList> {
           child: ExpansionTile(
             key: GlobalKey(),
             // this makes updating all tiles if state changed
-            title: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id}, origin=${taskEvent.originTemplateId})"),
+            title: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
             subtitle: _taskGroupPresentation(taskEvent),
             children: expansionWidgets,
             collapsedBackgroundColor: getTaskGroupColor(taskEvent.taskGroupId, true),

@@ -76,11 +76,12 @@ class ScheduledTaskRepository {
         scheduledTask.title,
         scheduledTask.description,
         dateTimeToEntity(scheduledTask.createdAt),
-        scheduledTask.schedule.startAt?.index,
+        scheduledTask.schedule.aroundStartAt.index,
         scheduledTask.schedule.startAtExactly != null ? timeOfDayToEntity(scheduledTask.schedule.startAtExactly!) : null,
-        scheduledTask.schedule.repetitionStep?.index,
-        scheduledTask.schedule.customRepetitionDays,
-        scheduledTask.lastScheduledEventAt != null ? dateTimeToEntity(scheduledTask.lastScheduledEventAt!) : null,
+        scheduledTask.schedule.repetitionStep.index,
+        scheduledTask.schedule.customRepetition?.repetitionValue,
+        scheduledTask.schedule.customRepetition?.repetitionUnit.index,
+        scheduledTask.lastScheduledEventOn != null ? dateTimeToEntity(scheduledTask.lastScheduledEventOn!) : null,
         scheduledTask.active);
 
   static ScheduledTask _mapFromEntity(ScheduledTaskEntity entity) =>
@@ -94,12 +95,14 @@ class ScheduledTaskRepository {
         description: entity.description,
         createdAt: dateTimeFromEntity(entity.createdAt),
         schedule: Schedule(
-          startAt: entity.aroundStartAt != null ? AroundWhenAtDay.values.elementAt(entity.aroundStartAt!) : null,
+          aroundStartAt: AroundWhenAtDay.values.elementAt(entity.aroundStartAt),
           startAtExactly: entity.startAt != null ? timeOfDayFromEntity(entity.startAt!) : null,
-          repetitionStep: entity.repetitionAfter != null ? RepetitionStep.values.elementAt(entity.repetitionAfter!) : null,
-          customRepetitionDays: entity.exactRepetitionAfterDays
+          repetitionStep: RepetitionStep.values.elementAt(entity.repetitionAfter),
+          customRepetition: entity.exactRepetitionAfter != null && entity.exactRepetitionAfterUnit != null
+              ? CustomRepetition(entity.exactRepetitionAfter!, RepetitionUnit.values.elementAt(entity.exactRepetitionAfterUnit!) )
+              : null,
         ),
-        lastScheduledEventAt: entity.lastScheduledEventAt != null ? dateTimeFromEntity(entity.lastScheduledEventAt!) : null,
+        lastScheduledEventOn: entity.lastScheduledEventAt != null ? dateTimeFromEntity(entity.lastScheduledEventAt!) : null,
         active: entity.active);
 
 

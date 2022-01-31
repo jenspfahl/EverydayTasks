@@ -121,14 +121,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
     }
 
     if (startedOn != null) {
-      if (isToday(startedOn)) {
-        _selectedWhenOnDate = WhenOnDate.TODAY;
-      } else if (isYesterday(startedOn)) {
-        _selectedWhenOnDate = WhenOnDate.YESTERDAY;
-      } else if (isBeforeYesterday(startedOn)) {
-        _selectedWhenOnDate = WhenOnDate.BEFORE_YESTERDAY;
-      } else {
-        _selectedWhenOnDate = WhenOnDate.CUSTOM;
+      _selectedWhenOnDate = fromDateTimeToWhenOnDate(startedOn);
+      if (_selectedWhenOnDate == WhenOnDate.CUSTOM) {
         _customWhenOn = startedOn;
       }
     }

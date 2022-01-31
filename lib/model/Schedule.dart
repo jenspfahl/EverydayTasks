@@ -1,30 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:personaltasklogger/util/dates.dart';
 
 import 'When.dart';
 
 enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, EVERY_OTHER_MONTH, QUARTERLY, HALF_YEARLY, YEARLY, CUSTOM}
+enum RepetitionUnit {DAYS, WEEKS, MONTHS, YEARS}
 
+class CustomRepetition {
+  int repetitionValue;
+  RepetitionUnit repetitionUnit;
+
+  CustomRepetition(this.repetitionValue, this.repetitionUnit);
+
+  DateTime getNextRepetitionFrom(DateTime from) {
+    var jiffy = Jiffy(from);
+    switch(repetitionUnit) {
+      case RepetitionUnit.DAYS: return jiffy.add(days: repetitionValue).dateTime;
+      case RepetitionUnit.WEEKS: return jiffy.add(weeks: repetitionValue).dateTime;
+      case RepetitionUnit.MONTHS: return jiffy.add(months: repetitionValue).dateTime;
+      case RepetitionUnit.YEARS: return jiffy.add(years: repetitionValue).dateTime;
+    }
+  }
+}
 
 class Schedule {
-  AroundWhenAtDay? startAt;
+  AroundWhenAtDay aroundStartAt;
   TimeOfDay? startAtExactly;
-  RepetitionStep? repetitionStep = RepetitionStep.CUSTOM;
-  int? customRepetitionDays;
+  RepetitionStep repetitionStep;
+  CustomRepetition? customRepetition;
 
   Schedule({
-    this.startAt,
+    required this.aroundStartAt,
     this.startAtExactly,
-    this.repetitionStep,
-    this.customRepetitionDays,
+    required this.repetitionStep,
+    this.customRepetition,
   });
 
-  DateTime? getNextRepetitionFrom(DateTime from) {
-    if (customRepetitionDays != null) {
-      return from.add(Duration(days: customRepetitionDays!));
+  DateTime getNextRepetitionFrom(DateTime fromDate) {
+    var startAt = When.fromWhenAtDayToTimeOfDay(aroundStartAt, startAtExactly);
+    var from = DateTime(fromDate.year, fromDate.month, fromDate.day, startAt.hour, startAt.minute);
+    if (customRepetition != null) {
+      return customRepetition!.getNextRepetitionFrom(from);
     }
-    if (repetitionStep != null && repetitionStep != RepetitionStep.CUSTOM) {
-      return fromRepetitionStepToDuration(from, repetitionStep!);
+    else if (repetitionStep != RepetitionStep.CUSTOM) {
+      return fromRepetitionStepToDuration(from, repetitionStep);
     }
     throw new Exception("unknown repetition step");
   }

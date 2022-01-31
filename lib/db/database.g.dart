@@ -87,7 +87,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `TaskEventEntity` (`id` INTEGER, `taskGroupId` INTEGER, `originTaskTemplateId` INTEGER, `originTaskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `startedAt` INTEGER NOT NULL, `aroundStartedAt` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `aroundDuration` INTEGER NOT NULL, `severity` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `ScheduledTaskEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER, `taskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `aroundStartAt` INTEGER, `startAt` INTEGER, `repetitionAfter` INTEGER, `exactRepetitionAfterDays` INTEGER, `lastScheduledEventAt` INTEGER, `active` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `ScheduledTaskEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER, `taskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `aroundStartAt` INTEGER NOT NULL, `startAt` INTEGER, `repetitionAfter` INTEGER NOT NULL, `exactRepetitionAfter` INTEGER, `exactRepetitionAfterUnit` INTEGER, `lastScheduledEventAt` INTEGER, `active` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `ScheduledTaskEventEntity` (`id` INTEGER, `taskEventId` INTEGER NOT NULL, `scheduledTaskId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY (`id`))');
 
@@ -261,7 +261,8 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
                   'aroundStartAt': item.aroundStartAt,
                   'startAt': item.startAt,
                   'repetitionAfter': item.repetitionAfter,
-                  'exactRepetitionAfterDays': item.exactRepetitionAfterDays,
+                  'exactRepetitionAfter': item.exactRepetitionAfter,
+                  'exactRepetitionAfterUnit': item.exactRepetitionAfterUnit,
                   'lastScheduledEventAt': item.lastScheduledEventAt,
                   'active': item.active ? 1 : 0
                 },
@@ -281,7 +282,8 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
                   'aroundStartAt': item.aroundStartAt,
                   'startAt': item.startAt,
                   'repetitionAfter': item.repetitionAfter,
-                  'exactRepetitionAfterDays': item.exactRepetitionAfterDays,
+                  'exactRepetitionAfter': item.exactRepetitionAfter,
+                  'exactRepetitionAfterUnit': item.exactRepetitionAfterUnit,
                   'lastScheduledEventAt': item.lastScheduledEventAt,
                   'active': item.active ? 1 : 0
                 },
@@ -301,7 +303,8 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
                   'aroundStartAt': item.aroundStartAt,
                   'startAt': item.startAt,
                   'repetitionAfter': item.repetitionAfter,
-                  'exactRepetitionAfterDays': item.exactRepetitionAfterDays,
+                  'exactRepetitionAfter': item.exactRepetitionAfter,
+                  'exactRepetitionAfterUnit': item.exactRepetitionAfterUnit,
                   'lastScheduledEventAt': item.lastScheduledEventAt,
                   'active': item.active ? 1 : 0
                 },
@@ -333,10 +336,11 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
             row['title'] as String,
             row['description'] as String?,
             row['createdAt'] as int,
-            row['aroundStartAt'] as int?,
+            row['aroundStartAt'] as int,
             row['startAt'] as int?,
-            row['repetitionAfter'] as int?,
-            row['exactRepetitionAfterDays'] as int?,
+            row['repetitionAfter'] as int,
+            row['exactRepetitionAfter'] as int?,
+            row['exactRepetitionAfterUnit'] as int?,
             row['lastScheduledEventAt'] as int?,
             (row['active'] as int) != 0));
   }
@@ -353,10 +357,11 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
             row['title'] as String,
             row['description'] as String?,
             row['createdAt'] as int,
-            row['aroundStartAt'] as int?,
+            row['aroundStartAt'] as int,
             row['startAt'] as int?,
-            row['repetitionAfter'] as int?,
-            row['exactRepetitionAfterDays'] as int?,
+            row['repetitionAfter'] as int,
+            row['exactRepetitionAfter'] as int?,
+            row['exactRepetitionAfterUnit'] as int?,
             row['lastScheduledEventAt'] as int?,
             (row['active'] as int) != 0),
         arguments: [id],

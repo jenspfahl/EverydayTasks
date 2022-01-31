@@ -24,13 +24,18 @@ class TaskGroup implements Comparable {
         : Text(" " + name);
 
     if (iconData != null) {
-      final icon = useIconColor
-        ? Icon(iconData, color: getSharpedColor(colorRGB))
-        : Icon(iconData);
+      var icon = getIcon(useIconColor);
       return Row(children: [icon, text]);
     } else {
       return text;
     }
+  }
+
+  Icon getIcon(bool useIconColor) {
+    final icon = useIconColor
+      ? Icon(iconData, color: getSharpedColor(colorRGB))
+      : Icon(iconData);
+    return icon;
   }
 
 }

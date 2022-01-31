@@ -12,11 +12,12 @@ class ScheduledTaskEntity {
   final String? description;
   final int createdAt;
 
-  final int? aroundStartAt;
+  final int aroundStartAt;
   final int? startAt;
 
-  final int? repetitionAfter;
-  final int? exactRepetitionAfterDays;
+  final int repetitionAfter;
+  final int? exactRepetitionAfter;
+  final int? exactRepetitionAfterUnit;
 
   final int? lastScheduledEventAt;
   final bool active;
@@ -32,7 +33,8 @@ class ScheduledTaskEntity {
       this.aroundStartAt,
       this.startAt,
       this.repetitionAfter,
-      this.exactRepetitionAfterDays,
+      this.exactRepetitionAfter,
+      this.exactRepetitionAfterUnit,
       this.lastScheduledEventAt,
       this.active,
       );

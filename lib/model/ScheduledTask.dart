@@ -1,8 +1,11 @@
+import 'package:jiffy/jiffy.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
+import 'package:personaltasklogger/util/dates.dart';
 
 import 'Schedule.dart';
 import 'TaskTemplateVariant.dart';
+import 'Template.dart';
 import 'TemplateId.dart';
 
 class ScheduledTask {
@@ -14,7 +17,7 @@ class ScheduledTask {
   String? description;
   DateTime createdAt = DateTime.now();
   Schedule schedule;
-  DateTime? lastScheduledEventAt;
+  DateTime? lastScheduledEventOn;
   bool active = true;
 
   ScheduledTask({
@@ -25,39 +28,37 @@ class ScheduledTask {
     this.description,
     required this.createdAt,
     required this.schedule,
-    this.lastScheduledEventAt,
+    this.lastScheduledEventOn,
     required this.active,
   });
 
-  ScheduledTask.forTaskTemplate(
-      TaskTemplate taskTemplate,
+  ScheduledTask.forTemplate(
+      Template template,
       Schedule schedule,
       ) :
-        taskGroupId = taskTemplate.taskGroupId,
-        templateId = taskTemplate.tId!,
-        title = taskTemplate.title,
-        description = taskTemplate.description,
-        schedule = schedule;
-
-  ScheduledTask.forTaskTemplateVariant(
-      TaskTemplateVariant taskTemplateVariant,
-      Schedule schedule,
-      ) :
-        taskGroupId = taskTemplateVariant.taskGroupId,
-        templateId = taskTemplateVariant.tId!,
-        title = taskTemplateVariant.title,
-        description = taskTemplateVariant.description,
+        taskGroupId = template.taskGroupId,
+        templateId = template.tId!,
+        title = template.title,
+        description = template.description,
         schedule = schedule;
 
   DateTime? getNextSchedule() {
-    if (lastScheduledEventAt != null) {
-      return schedule.getNextRepetitionFrom(lastScheduledEventAt!);
+    if (lastScheduledEventOn != null) {
+      return schedule.getNextRepetitionFrom(lastScheduledEventOn!);
+    }
+  }
+
+  Duration? getScheduledDuration() {
+    if (lastScheduledEventOn != null) {
+      var nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
+      return nextRepetition.difference(lastScheduledEventOn!);
     }
   }
 
   Duration? getMissingDuration() {
-    if (lastScheduledEventAt != null) {
-      return schedule.getNextRepetitionFrom(lastScheduledEventAt!)?.difference(DateTime.now());
+    if (lastScheduledEventOn != null) {
+      var nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
+      return nextRepetition.difference(DateTime.now());
     }
   }
 
@@ -69,13 +70,25 @@ class ScheduledTask {
     return false;
   }
 
+  double? getNextRepetitionIndicatorValue() {
+    var scheduledDuration = getScheduledDuration();
+    var missingDuration = getMissingDuration();
+    if (scheduledDuration != null && missingDuration != null) {
+      if (missingDuration.isNegative) {
+        return 1; //
+      }
+      return 1 - (missingDuration.inMinutes / (scheduledDuration.inMinutes != 0 ? scheduledDuration.inMinutes : 1));
+    }
+  }
+
   executeSchedule(TaskEvent taskEvent) {
     if (taskEvent.originTemplateId == templateId) {
-      lastScheduledEventAt = taskEvent.startedAt;
+      lastScheduledEventOn = taskEvent.startedAt;
     }
   }
 
   resetSchedule() {
-    lastScheduledEventAt = DateTime.now();
+    lastScheduledEventOn = DateTime.now();
   }
+
 }

@@ -16,6 +16,12 @@ String formatToDateOrWord(DateTime dateTime) {
   if (isBeforeYesterday(dateTime)) {
     return "Before yesterday";
   }
+  if (isTomorrow(dateTime)) {
+    return "Tomorrow";
+  }
+  if (isAfterTomorrow(dateTime)) {
+    return "After tomorrow";
+  }
   return formatToDate(dateTime);
 }
 
@@ -69,10 +75,20 @@ String formatToDateTimeRange(
 }
 
 String formatDuration(Duration duration) {
+  var days = duration.inDays;
+  var hours = duration.inHours;
   var minutes = duration.inMinutes;
   var durationText = "$minutes minutes";
-  if (minutes >= 60) {
-    var hours = duration.inHours;
+  if (hours.abs() >= 24) {
+    var remainingHours = hours % 24;
+    if (remainingHours != 0) {
+      durationText = "$days days $remainingHours hours";
+    }
+    else {
+      durationText = "$days days";
+    }
+  }
+  else if (minutes.abs() >= 60) {
     var remainingMinutes = minutes % 60;
     if (remainingMinutes != 0) {
       durationText = "$hours hours $remainingMinutes minutes";
@@ -89,6 +105,17 @@ String formatTimeOfDay(TimeOfDay timeOfDay) {
   return "${timeOfDay.hour}:${formatter.format(timeOfDay.minute)}";
 }
 
+
+bool isAfterTomorrow(DateTime? dateTime) {
+  if (dateTime == null) return false;
+  return truncToDate(dateTime) == truncToDate(DateTime.now().add(Duration(days: 2)));
+}
+
+bool isTomorrow(DateTime? dateTime) {
+  if (dateTime == null) return false;
+  return truncToDate(dateTime) == truncToDate(DateTime.now().add(Duration(days: 1)));
+}
+
 bool isToday(DateTime? dateTime) {
   if (dateTime == null) return false;
   return truncToDate(dateTime) == truncToDate(DateTime.now());
@@ -102,4 +129,16 @@ bool isYesterday(DateTime? dateTime) {
 bool isBeforeYesterday(DateTime? dateTime) {
   if (dateTime == null) return false;
   return truncToDate(dateTime) == truncToDate(DateTime.now().subtract(Duration(days: 2)));
+}
+
+WhenOnDate fromDateTimeToWhenOnDate(DateTime dateTime) {
+  if (isToday(dateTime)) {
+    return WhenOnDate.TODAY;
+  } else if (isYesterday(dateTime)) {
+    return WhenOnDate.YESTERDAY;
+  } else if (isBeforeYesterday(dateTime)) {
+    return WhenOnDate.BEFORE_YESTERDAY;
+  } else {
+    return WhenOnDate.CUSTOM;
+  }
 }
