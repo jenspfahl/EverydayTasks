@@ -85,9 +85,25 @@ class Schedule {
       case RepetitionStep.EVERY_OTHER_MONTH: return "Every other month";
       case RepetitionStep.QUARTERLY: return "Quarterly";
       case RepetitionStep.HALF_YEARLY: return "Half yearly";
-      case RepetitionStep.YEARLY: return "Yarly";
+      case RepetitionStep.YEARLY: return "Yearly";
       case RepetitionStep.CUSTOM: return "Custom...";
     }
+  }
+
+  static String fromRepetitionUnitToString(RepetitionUnit repetitionUnit) {
+    switch(repetitionUnit) {
+      case RepetitionUnit.DAYS: return "Days";
+      case RepetitionUnit.WEEKS: return "Weeks";
+      case RepetitionUnit.MONTHS: return "Months";
+      case RepetitionUnit.YEARS: return "Years";
+    }
+  }
+
+  static String fromCustomRepetitionToString(CustomRepetition? customRepetition) {
+    if (customRepetition == null) {
+      return "Custom...";
+    }
+    return customRepetition.repetitionValue.toString() + " " + fromRepetitionUnitToString(customRepetition.repetitionUnit);
   }
 
 }

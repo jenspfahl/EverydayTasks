@@ -82,14 +82,13 @@ class ScheduledTask implements Comparable {
     }
   }
 
-  executeSchedule(TaskEvent taskEvent) {
-    if (taskEvent.originTemplateId == templateId) {
-      lastScheduledEventOn = taskEvent.startedAt;
+  executeSchedule(TaskEvent? taskEvent) {
+    if (taskEvent?.originTemplateId == templateId) {
+      lastScheduledEventOn = taskEvent?.startedAt;
     }
-  }
-
-  resetSchedule() {
-    lastScheduledEventOn = DateTime.now();
+    else {
+      lastScheduledEventOn = DateTime.now();
+    }
   }
 
   @override

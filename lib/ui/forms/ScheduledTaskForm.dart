@@ -5,6 +5,7 @@ import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/When.dart';
+import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 class ScheduledTaskForm extends StatefulWidget {
@@ -143,18 +144,34 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 isExpanded: true,
                                 icon: Icon(Icons.next_plan_outlined),
                                 onChanged: (value) {
-                                  setState(() {
-                                    _selectedRepetitionStep = value;
-                                  });
+                                  if (value == RepetitionStep.CUSTOM) {
+                                    CustomRepetition? tempSelectedRepetition;
+                                    showRepetitionPickerDialog(
+                                        context,
+                                            (selectedRepetition) => setState(() => tempSelectedRepetition = selectedRepetition),
+                                        _customRepetition)
+                                        .then((okPressed) {
+                                      if (okPressed ?? false) {
+                                        setState(() {
+                                          _selectedRepetitionStep = RepetitionStep.CUSTOM;
+                                          _customRepetition = tempSelectedRepetition ?? _customRepetition;
+                                        });
+                                      }
+                                    });
+                                  }
+                                  else {
+                                    setState(() {
+                                      _selectedRepetitionStep = value;
+                                      _customRepetition = null;
+                                    });
+                                  }
                                 },
                                 items: RepetitionStep.values.map((RepetitionStep repetitionStep) {
                                   return DropdownMenuItem(
                                     value: repetitionStep,
-                                    child: Text( Schedule.fromRepetitionStepToString(repetitionStep)
-                                      /* durationHour == RepetitionStep.CUSTOM && _customRepetition != null
-                                    ? formatDuration(_customDuration!)
-                                    : When.fromDurationHoursToString(durationHour),*/
-                                    ),
+                                    child: Text(repetitionStep != RepetitionStep.CUSTOM 
+                                        ? Schedule.fromRepetitionStepToString(repetitionStep)
+                                        : Schedule.fromCustomRepetitionToString(_customRepetition))
                                   );
                                 }).toList(),
                                 validator: (RepetitionStep? value) {
@@ -240,32 +257,31 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 hint: Text(
                                   'Scheduled from',
                                 ),
-                            icon: Icon(MdiIcons.arrowExpandRight),
+                                icon: Icon(MdiIcons.arrowExpandRight),
                                 isExpanded: true,
                                 onChanged: (value) {
-                                 /* if (value == WhenOnDate.CUSTOM) {
-                                    final initialWhenOn = _customWhenOn ?? truncToDate(DateTime.now());
+                                  if (value == WhenOnDate.CUSTOM) {
+                                    final initialScheduleFrom = _customScheduleFrom ?? truncToDate(DateTime.now());
                                     showDatePicker(
                                       context: context,
-                                      initialDate: initialWhenOn,
+                                      initialDate: initialScheduleFrom,
                                       firstDate: DateTime.now().subtract(Duration(days: 600)),
-                                      lastDate: DateTime.now(),
+                                      lastDate: DateTime.now().add(Duration(days: 600)),
                                     ).then((selectedDate) => setState(() {
                                       if (isToday(selectedDate)) {
-                                        _selectedWhenOnDate = WhenOnDate.TODAY;
-                                        _customWhenOn = null;
+                                        _selectedScheduleFrom = WhenOnDate.TODAY;
+                                        _customScheduleFrom = null;
                                       } else if (isYesterday(selectedDate)) {
-                                        _selectedWhenOnDate = WhenOnDate.YESTERDAY;
-                                        _customWhenOn = null;
+                                        _selectedScheduleFrom = WhenOnDate.YESTERDAY;
+                                        _customScheduleFrom = null;
                                       } else if (isBeforeYesterday(selectedDate)) {
-                                        _selectedWhenOnDate = WhenOnDate.BEFORE_YESTERDAY;
-                                        _customWhenOn = null;
+                                        _selectedScheduleFrom = WhenOnDate.BEFORE_YESTERDAY;
+                                        _customScheduleFrom = null;
                                       } else {
-                                        _customWhenOn = selectedDate ?? initialWhenOn;
+                                        _customScheduleFrom = selectedDate ?? initialScheduleFrom;
                                       }
                                     }));
                                   }
-                                  */
                                   setState(() {
                                     _selectedScheduleFrom = value;
                                   });

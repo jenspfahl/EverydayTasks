@@ -78,6 +78,8 @@ class _TaskEventListState extends State<TaskEventList> {
       _taskEvents..sort();
       _selectedTile = _taskEvents.indexOf(taskEvent);
       _hiddenTiles.remove(truncToDate(taskEvent.startedAt));
+
+      //TODO find corresponding TaskSchedule and update with ScheduledTask.executeSchedule and log into ScheduledTaskEvent
     });
   }
 

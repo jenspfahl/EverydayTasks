@@ -95,9 +95,12 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
         subtitle: Column(
           children: [
             taskGroup.getTaskGroupRepresentation(useIconColor: true),
-            LinearProgressIndicator(
-              value: scheduledTask.getNextRepetitionIndicatorValue(),
-              color: scheduledTask.isNextScheduleReached() ? Colors.red[500] : null,
+            Visibility(
+              visible: scheduledTask.active,
+              child: LinearProgressIndicator(
+                value: scheduledTask.getNextRepetitionIndicatorValue(),
+                color: scheduledTask.isNextScheduleReached() ? Colors.red[500] : null,
+              ),
             ),
           ],
         ),
@@ -124,7 +127,6 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
         child: Text(scheduledTask.description!),
       ));
     }
-
     expansionWidgets.addAll([
       Padding(
         padding: EdgeInsets.all(4.0),
@@ -134,14 +136,35 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ButtonBar(
-            alignment: MainAxisAlignment.start,
-            children: [
-              TextButton(
-                onPressed: () {},
-                child: Icon(scheduledTask.active ? Icons.check_box : Icons.check_box_outline_blank),
-              ),
-            ],
+          Visibility(
+            visible: scheduledTask.active,
+            child: ButtonBar(
+              alignment: MainAxisAlignment.start,
+              children: [
+                TextButton(
+                  child: Icon(Icons.replay),
+                  onPressed: () {
+                    showConfirmationDialog(
+                      context,
+                      "Reset schedule",
+                      "Are you sure to reset \'${scheduledTask.title}\' ? This will change the due date to the origin.",
+                      okPressed: () {
+                        scheduledTask.executeSchedule(null);
+                        ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+                          ScaffoldMessenger.of(super.context).showSnackBar(
+                              SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' reset done')));
+                          _updateScheduledTask(scheduledTask, changedScheduledTask);
+                        });
+                        Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                      },
+                      cancelPressed: () =>
+                          Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                    );
+
+                  },
+                ),
+              ],
+            ),
           ),
           ButtonBar(
             alignment: MainAxisAlignment.end,
@@ -170,7 +193,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
                 onPressed: () {
                   showConfirmationDialog(
                     context,
-                    "Delete Task Event",
+                    "Delete Schedule",
                     "Are you sure to delete \'${scheduledTask.title}\' ?",
                     okPressed: () {
                       ScheduledTaskRepository.delete(scheduledTask).then(
@@ -198,13 +221,20 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
 
 
   String getDetailsMessage(ScheduledTask scheduledTask) {
-    if (scheduledTask.isNextScheduleReached()) {
-      return "Overdue ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true).toLowerCase()} "
-          "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} ";
+    if (scheduledTask.active) {
+      if (scheduledTask.isNextScheduleReached()) {
+        return "Overdue ${formatToDateOrWord(
+            scheduledTask.getNextSchedule()!, true).toLowerCase()} "
+            "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} ";
+      }
+      return "Due ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true)
+          .toLowerCase()} "
+          "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
+          "${scheduledTask.schedule.toStartAtAsString().toLowerCase()}";
     }
-    return "Due ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true).toLowerCase()} "
-        "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
-        "${scheduledTask.schedule.toStartAtAsString().toLowerCase()}";
+    else {
+      return "- currently inactive -";
+    }
   }
 
 
