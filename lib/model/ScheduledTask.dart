@@ -8,7 +8,7 @@ import 'TaskTemplateVariant.dart';
 import 'Template.dart';
 import 'TemplateId.dart';
 
-class ScheduledTask {
+class ScheduledTask implements Comparable {
   int? id;
   int taskGroupId;
   TemplateId templateId;
@@ -28,9 +28,9 @@ class ScheduledTask {
     this.description,
     required this.createdAt,
     required this.schedule,
-    this.lastScheduledEventOn,
+    DateTime? lastScheduledEventOn,
     required this.active,
-  });
+  }) : lastScheduledEventOn = lastScheduledEventOn != null ? schedule.adjustScheduleFrom(lastScheduledEventOn) : null;
 
   ScheduledTask.forTemplate(
       Template template,
@@ -55,6 +55,7 @@ class ScheduledTask {
     }
   }
 
+
   Duration? getMissingDuration() {
     if (lastScheduledEventOn != null) {
       var nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
@@ -65,7 +66,7 @@ class ScheduledTask {
   bool isNextScheduleReached() {
     var duration = getMissingDuration();
     if (duration != null) {
-      return duration.isNegative;
+      return duration.inMinutes.isNegative;
     }
     return false;
   }
@@ -89,6 +90,14 @@ class ScheduledTask {
 
   resetSchedule() {
     lastScheduledEventOn = DateTime.now();
+  }
+
+  @override
+  int compareTo(other) {
+    var otherNextSchedule = other.getNextSchedule() ?? DateTime(0);
+    int result = getNextSchedule()!.compareTo(otherNextSchedule);
+    if (result != 0) return result;
+    return other.title.compareTo(title);
   }
 
 }

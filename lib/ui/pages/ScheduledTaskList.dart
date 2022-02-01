@@ -7,6 +7,7 @@ import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
@@ -127,8 +128,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
     expansionWidgets.addAll([
       Padding(
         padding: EdgeInsets.all(4.0),
-        // in Text: null checks!!! and use fromWhenAtDayToString AND check egative duration!
-        child: Text("Due on ${formatToDateOrWord(scheduledTask.getNextSchedule()!).toLowerCase()} in ${formatDuration(scheduledTask.getMissingDuration()!)}\nat ${formatToTime(scheduledTask.getNextSchedule()!)}"),
+        child: Text(getDetailsMessage(scheduledTask)),
       ),
       Divider(),
       Row(
@@ -148,19 +148,21 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
             children: [
               TextButton(
                 onPressed: () async {
-                  /*scheduledTask? changedscheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return scheduledTaskForm(
+                  ScheduledTask? changedScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return ScheduledTaskForm(
                         formTitle: "Change scheduledTask \'${scheduledTask.title}\'",
-                        scheduledTask: taskEvent);
+                        scheduledTask: scheduledTask,
+                        taskGroup: findTaskGroupById(scheduledTask.taskGroupId),
+                    );
                   }));
 
-                  if (changedTaskEvent != null) {
-                    TaskEventRepository.update(changedscheduledTask).then((updatedTaskEvent) {
+                  if (changedScheduledTask != null) {
+                    ScheduledTaskRepository.update(changedScheduledTask).then((changedScheduledTask) {
                       ScaffoldMessenger.of(super.context).showSnackBar(
-                          SnackBar(content: Text('Task event with name \'${updatedTaskEvent.title}\' updated')));
-                      _updateTaskEvent(taskEvent, updatedTaskEvent);
+                          SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' updated')));
+                      _updateScheduledTask(scheduledTask, changedScheduledTask);
                     });
-                  }*/
+                  }
                 },
                 child: const Text("Change"),
               ),
@@ -194,11 +196,35 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
     return expansionWidgets;
   }
 
+
+  String getDetailsMessage(ScheduledTask scheduledTask) {
+    if (scheduledTask.isNextScheduleReached()) {
+      return "Overdue ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true).toLowerCase()} "
+          "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} ";
+    }
+    return "Due ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true).toLowerCase()} "
+        "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
+        "${scheduledTask.schedule.toStartAtAsString().toLowerCase()}";
+  }
+
+
   void _addScheduledTask(ScheduledTask scheduledTask) {
     setState(() {
       _scheduledTasks.add(scheduledTask);
       _scheduledTasks..sort();
       _selectedTile = _scheduledTasks.indexOf(scheduledTask);
+    });
+  }
+
+  void _updateScheduledTask(ScheduledTask origin, ScheduledTask updated) {
+    setState(() {
+      final index = _scheduledTasks.indexOf(origin);
+      if (index != -1) {
+        _scheduledTasks.removeAt(index);
+        _scheduledTasks.insert(index, updated);
+      }
+      _scheduledTasks..sort();
+      _selectedTile = _scheduledTasks.indexOf(updated);
     });
   }
 
@@ -237,7 +263,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
             }
           }
           else {
-            //TODO toast "please select a template or a variant"
+            SnackBar(content: Text( "Please select a template or a variant"));
           }
         },
         cancelPressed: () {

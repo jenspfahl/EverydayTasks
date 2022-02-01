@@ -37,9 +37,13 @@ class Schedule {
     this.customRepetition,
   });
 
-  DateTime getNextRepetitionFrom(DateTime fromDate) {
+  DateTime adjustScheduleFrom(DateTime fromDate) {
     var startAt = When.fromWhenAtDayToTimeOfDay(aroundStartAt, startAtExactly);
-    var from = DateTime(fromDate.year, fromDate.month, fromDate.day, startAt.hour, startAt.minute);
+    return DateTime(fromDate.year, fromDate.month, fromDate.day, startAt.hour, startAt.minute);
+  }
+
+
+  DateTime getNextRepetitionFrom(DateTime from) {
     if (customRepetition != null) {
       return customRepetition!.getNextRepetitionFrom(from);
     }
@@ -47,6 +51,13 @@ class Schedule {
       return fromRepetitionStepToDuration(from, repetitionStep);
     }
     throw new Exception("unknown repetition step");
+  }
+
+  String toStartAtAsString() {
+    return (aroundStartAt == AroundWhenAtDay.CUSTOM)
+        && startAtExactly != null
+        ? "at " + formatTimeOfDay(startAtExactly!)
+        : When.fromWhenAtDayToString(aroundStartAt);
   }
 
   static DateTime fromRepetitionStepToDuration(DateTime from, RepetitionStep repetitionStep) {

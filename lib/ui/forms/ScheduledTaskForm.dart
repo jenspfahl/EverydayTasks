@@ -11,13 +11,13 @@ class ScheduledTaskForm extends StatefulWidget {
   final String formTitle;
   final ScheduledTask? scheduledTask;
   final TaskGroup taskGroup;
-  final Template template;
+  final Template? template;
 
   ScheduledTaskForm({
     required this.formTitle, 
     this.scheduledTask, 
     required this.taskGroup, 
-    required this.template
+    this.template
   });
 
   @override
@@ -33,7 +33,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
   final ScheduledTask? _scheduledTask;
   final TaskGroup _taskGroup;
-  final Template _template;
+  final Template? _template;
 
   RepetitionStep? _selectedRepetitionStep;
   CustomRepetition? _customRepetition;
@@ -66,11 +66,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       _isActive = _scheduledTask!.active;
     }
     else if (_template != null) {
-      titleController.text = _template.title;
-      descriptionController.text = _template.description ?? "";
+      titleController.text = _template!.title;
+      descriptionController.text = _template?.description ?? "";
 
-      _selectedStartAt = _template.when?.startAt;
-      _customStartAt = _template.when?.startAtExactly;
+      _selectedStartAt = _template?.when?.startAt;
+      _customStartAt = _template?.when?.startAtExactly;
       _isActive = true;
     }
 
@@ -309,7 +309,12 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 final startedAt = DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour,
                                     startedAtTimeOfDay.minute);
                         */
-                                var scheduleFrom = When.fromWhenOnDateToDate(_selectedScheduleFrom!, _customScheduleFrom);
+                                var scheduleFrom = truncToDate(
+                                  When.fromWhenOnDateToDate(_selectedScheduleFrom!, _customScheduleFrom));
+                                if (_selectedStartAt == AroundWhenAtDay.NOW) {
+                                  _selectedStartAt = AroundWhenAtDay.CUSTOM;
+                                  _customStartAt = TimeOfDay.now();
+                                }
                                 var schedule = Schedule(
                                   aroundStartAt: _selectedStartAt!,
                                   startAtExactly: _customStartAt,
@@ -319,7 +324,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 var scheduledTask = ScheduledTask(
                                   id: _scheduledTask?.id,
                                   taskGroupId: _taskGroup.id!,
-                                  templateId: _template.tId!,
+                                  templateId: _scheduledTask?.templateId ?? _template!.tId!,
                                   title: titleController.text,
                                   description: descriptionController.text,
                                   createdAt: _scheduledTask?.createdAt ?? DateTime.now(),

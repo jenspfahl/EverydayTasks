@@ -6,7 +6,7 @@ DateTime truncToDate(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day);
 }
 
-String formatToDateOrWord(DateTime dateTime) {
+String formatToDateOrWord(DateTime dateTime, [bool? withPreposition]) {
   if (isToday(dateTime)) {
     return "Today";
   }
@@ -21,6 +21,9 @@ String formatToDateOrWord(DateTime dateTime) {
   }
   if (isAfterTomorrow(dateTime)) {
     return "After tomorrow";
+  }
+  if (withPreposition ?? false) {
+    return "on " + formatToDate(dateTime);
   }
   return formatToDate(dateTime);
 }
@@ -74,7 +77,10 @@ String formatToDateTimeRange(
   return sb.toString();
 }
 
-String formatDuration(Duration duration) {
+String formatDuration(Duration duration, [bool? avoidNegativeDurationString]) {
+  if (avoidNegativeDurationString ?? false) {
+    duration = duration.abs();
+  }
   var days = duration.inDays;
   var hours = duration.inHours;
   var minutes = duration.inMinutes;
@@ -82,7 +88,7 @@ String formatDuration(Duration duration) {
   if (hours.abs() >= 24) {
     var remainingHours = hours % 24;
     if (remainingHours != 0) {
-      durationText = "$days days $remainingHours hours";
+      durationText = "$days days and $remainingHours hours";
     }
     else {
       durationText = "$days days";
@@ -91,7 +97,7 @@ String formatDuration(Duration duration) {
   else if (minutes.abs() >= 60) {
     var remainingMinutes = minutes % 60;
     if (remainingMinutes != 0) {
-      durationText = "$hours hours $remainingMinutes minutes";
+      durationText = "$hours hours and $remainingMinutes minutes";
     }
     else {
       durationText = "$hours hours";
