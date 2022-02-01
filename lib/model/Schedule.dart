@@ -44,11 +44,12 @@ class Schedule {
 
 
   DateTime getNextRepetitionFrom(DateTime from) {
+    from = adjustScheduleFrom(from);
     if (customRepetition != null) {
       return customRepetition!.getNextRepetitionFrom(from);
     }
     else if (repetitionStep != RepetitionStep.CUSTOM) {
-      return fromRepetitionStepToDuration(from, repetitionStep);
+      return fromRepetitionStepToDateTime(from, repetitionStep);
     }
     throw new Exception("unknown repetition step");
   }
@@ -60,7 +61,7 @@ class Schedule {
         : When.fromWhenAtDayToString(aroundStartAt);
   }
 
-  static DateTime fromRepetitionStepToDuration(DateTime from, RepetitionStep repetitionStep) {
+  static DateTime fromRepetitionStepToDateTime(DateTime from, RepetitionStep repetitionStep) {
     switch(repetitionStep) {
       case RepetitionStep.DAILY: return from.add(Duration(days: 1));
       case RepetitionStep.EVERY_OTHER_DAY: return from.add(Duration(days: 2));

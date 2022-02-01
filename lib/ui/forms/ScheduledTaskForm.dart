@@ -325,8 +325,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 final startedAt = DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour,
                                     startedAtTimeOfDay.minute);
                         */
-                                var scheduleFrom = truncToDate(
-                                  When.fromWhenOnDateToDate(_selectedScheduleFrom!, _customScheduleFrom));
+                                var scheduleFrom = When.fromWhenOnDateToDate(_selectedScheduleFrom!, _customScheduleFrom);
                                 if (_selectedStartAt == AroundWhenAtDay.NOW) {
                                   _selectedStartAt = AroundWhenAtDay.CUSTOM;
                                   _customStartAt = TimeOfDay.now();

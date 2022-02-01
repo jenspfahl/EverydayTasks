@@ -64,6 +64,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
       setState(() {
         _scheduledTasks = scheduledTasks;
+        _scheduledTasks..sort();
       });
     });
   }
@@ -221,19 +222,23 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
 
 
   String getDetailsMessage(ScheduledTask scheduledTask) {
+    var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}\n";
     if (scheduledTask.active) {
       if (scheduledTask.isNextScheduleReached()) {
-        return "Overdue ${formatToDateOrWord(
+        return debug +
+            "Overdue ${formatToDateOrWord(
             scheduledTask.getNextSchedule()!, true).toLowerCase()} "
             "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} ";
       }
-      return "Due ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true)
+      return debug +
+          "Due ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true)
           .toLowerCase()} "
           "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
           "${scheduledTask.schedule.toStartAtAsString().toLowerCase()}";
     }
     else {
-      return "- currently inactive -";
+      return debug +
+          "- currently inactive -";
     }
   }
 

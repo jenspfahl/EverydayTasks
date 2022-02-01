@@ -28,9 +28,9 @@ class ScheduledTask implements Comparable {
     this.description,
     required this.createdAt,
     required this.schedule,
-    DateTime? lastScheduledEventOn,
+    this.lastScheduledEventOn,
     required this.active,
-  }) : lastScheduledEventOn = lastScheduledEventOn != null ? schedule.adjustScheduleFrom(lastScheduledEventOn) : null;
+  });
 
   ScheduledTask.forTemplate(
       Template template,
@@ -54,7 +54,6 @@ class ScheduledTask implements Comparable {
       return nextRepetition.difference(lastScheduledEventOn!);
     }
   }
-
 
   Duration? getMissingDuration() {
     if (lastScheduledEventOn != null) {
@@ -83,8 +82,8 @@ class ScheduledTask implements Comparable {
   }
 
   executeSchedule(TaskEvent? taskEvent) {
-    if (taskEvent?.originTemplateId == templateId) {
-      lastScheduledEventOn = taskEvent?.startedAt;
+    if (taskEvent?.originTemplateId == templateId && taskEvent != null) {
+      lastScheduledEventOn = taskEvent.startedAt;
     }
     else {
       lastScheduledEventOn = DateTime.now();
@@ -93,10 +92,9 @@ class ScheduledTask implements Comparable {
 
   @override
   int compareTo(other) {
-    var otherNextSchedule = other.getNextSchedule() ?? DateTime(0);
-    int result = getNextSchedule()!.compareTo(otherNextSchedule);
-    if (result != 0) return result;
-    return other.title.compareTo(title);
+    var o = other.active ? other.getNextRepetitionIndicatorValue() : -100 * other.id!.toDouble();
+    var c = active ? getNextRepetitionIndicatorValue() : -100 * id!.toDouble();
+    return o.compareTo(c);
   }
 
 }
