@@ -346,6 +346,24 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
   }
 
   @override
+  Future<List<ScheduledTaskEntity>> findByTaskTemplateId(
+      int taskTemplateId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM ScheduledTaskEntity WHERE taskTemplateId = ?1 ORDER BY createdAt DESC, id DESC',
+        mapper: (Map<String, Object?> row) => ScheduledTaskEntity(row['id'] as int?, row['taskGroupId'] as int, row['taskTemplateId'] as int?, row['taskTemplateVariantId'] as int?, row['title'] as String, row['description'] as String?, row['createdAt'] as int, row['aroundStartAt'] as int, row['startAt'] as int?, row['repetitionAfter'] as int, row['exactRepetitionAfter'] as int?, row['exactRepetitionAfterUnit'] as int?, row['lastScheduledEventAt'] as int?, (row['active'] as int) != 0),
+        arguments: [taskTemplateId]);
+  }
+
+  @override
+  Future<List<ScheduledTaskEntity>> findByTaskTemplateVariantId(
+      int taskTemplateVariantId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM ScheduledTaskEntity WHERE taskTemplateVariantId = ?1 ORDER BY createdAt DESC, id DESC',
+        mapper: (Map<String, Object?> row) => ScheduledTaskEntity(row['id'] as int?, row['taskGroupId'] as int, row['taskTemplateId'] as int?, row['taskTemplateVariantId'] as int?, row['title'] as String, row['description'] as String?, row['createdAt'] as int, row['aroundStartAt'] as int, row['startAt'] as int?, row['repetitionAfter'] as int, row['exactRepetitionAfter'] as int?, row['exactRepetitionAfterUnit'] as int?, row['lastScheduledEventAt'] as int?, (row['active'] as int) != 0),
+        arguments: [taskTemplateVariantId]);
+  }
+
+  @override
   Stream<ScheduledTaskEntity?> findById(int id) {
     return _queryAdapter.queryStream(
         'SELECT * FROM ScheduledTaskEntity WHERE id = ?1',

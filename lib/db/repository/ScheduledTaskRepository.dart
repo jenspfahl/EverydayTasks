@@ -57,6 +57,16 @@ class ScheduledTaskRepository {
         .then((entities) => _mapFromEntities(entities));
   }
 
+  static Future<List<ScheduledTask>> getByTemplateId(TemplateId templateId) async {
+    final database = await getDb();
+
+    final scheduledTaskDao = database.scheduledTaskDao;
+    return (templateId.isVariant
+        ? scheduledTaskDao.findByTaskTemplateVariantId(templateId.id)
+        : scheduledTaskDao.findByTaskTemplateId(templateId.id))
+        .then((entities) => _mapFromEntities(entities));
+  }
+
   static Future<ScheduledTask> getById(int id) async {
 
     final database = await getDb();

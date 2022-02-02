@@ -10,14 +10,23 @@ import 'pages/TaskEventList.dart';
 class PersonalTaskLoggerScaffold extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _PersonalTaskLoggerScaffoldState();
+    return PersonalTaskLoggerScaffoldState();
   }
 }
 
-class _PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> {
+class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> {
   int _selectedNavigationIndex = 1;
 
-  final _pages = <PageScaffold>[AddTaskEventPage(), TaskEventList(), TaskTemplateList(), ScheduledTaskList()];
+  late List<PageScaffold> _pages;
+
+  PersonalTaskLoggerScaffoldState() {
+
+    // ScheduledTaskList is dependent from TaskEventList. Tried to notify instead without that but failed.
+    var scheduledTaskList = ScheduledTaskList();
+    var taskEventList = TaskEventList(scheduledTaskList);
+
+    _pages = <PageScaffold>[AddTaskEventPage(), taskEventList, TaskTemplateList(), scheduledTaskList];
+  }
 
   PageScaffold getSelectedPage() {
     return _pages.elementAt(_selectedNavigationIndex);
@@ -67,6 +76,11 @@ class _PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold>
         onTap: _onItemTapped,
       ),
     );
+  }
+
+  void dispatch(Notification notification) {
+    debugPrint("dispatch to context $context");
+    notification..dispatch(context);
   }
 
   void _onItemTapped(int index) {

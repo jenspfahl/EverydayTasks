@@ -1,6 +1,3 @@
-import 'dart:ui';
-
-import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/When.dart';
 
 import 'Severity.dart';
@@ -42,7 +39,7 @@ class TaskEvent implements Comparable {
 
   @override
   int compareTo(other) {
-    int result = other.aroundStartAt.compareTo(startedAt);
+    int result = other.startedAt.compareTo(startedAt);
     if (result != 0) return result;
     return other.id??0.compareTo(id??0);
   }

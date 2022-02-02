@@ -1,23 +1,29 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
+import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
+import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
-import 'package:personaltasklogger/ui/dialogs.dart';
 
+import '../PersonalTaskLoggerScaffold.dart';
 import '../forms/TaskEventForm.dart';
 
 class TaskEventList extends StatefulWidget implements PageScaffold {
   _TaskEventListState? _state;
+  ScheduledTaskList scheduledTaskList;
+
+  TaskEventList(this.scheduledTaskList);
 
   @override
   State<StatefulWidget> createState() {
-    _state = _TaskEventListState();
+    _state = _TaskEventListState(scheduledTaskList);
     return _state!;
   }
 
@@ -59,6 +65,9 @@ class _TaskEventListState extends State<TaskEventList> {
   int _selectedTile = -1;
   Set<DateTime> _hiddenTiles = Set();
   Object? _selectedTemplateItem;
+  ScheduledTaskList scheduledTaskList;
+
+  _TaskEventListState(this.scheduledTaskList);
 
   @override
   void initState() {
@@ -73,13 +82,29 @@ class _TaskEventListState extends State<TaskEventList> {
   }
 
   void _addTaskEvent(TaskEvent taskEvent) {
+    //TODO find corresponding TaskSchedule and update with ScheduledTask.executeSchedule and log into ScheduledTaskEvent
+    if (taskEvent.originTemplateId != null) {
+      ScheduledTaskRepository.getByTemplateId(taskEvent.originTemplateId!)
+          .then((scheduledTasks) {
+            scheduledTasks.forEach((scheduledTask) {
+              scheduledTask.executeSchedule(taskEvent);
+              debugPrint("schedule ${scheduledTask.id} executed");
+              ScheduledTaskRepository.update(scheduledTask).then((
+                  changedScheduledTask) {
+                debugPrint("schedule ${changedScheduledTask.id} notified");
+                PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
+                debugPrint("found root $root target: $scheduledTaskList");
+                scheduledTaskList.updateScheduledTask(changedScheduledTask.id!);
+              });
+            });
+      });
+    }
+
     setState(() {
       _taskEvents.add(taskEvent);
       _taskEvents..sort();
       _selectedTile = _taskEvents.indexOf(taskEvent);
       _hiddenTiles.remove(truncToDate(taskEvent.startedAt));
-
-      //TODO find corresponding TaskSchedule and update with ScheduledTask.executeSchedule and log into ScheduledTaskEvent
     });
   }
 

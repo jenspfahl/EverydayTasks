@@ -1,13 +1,12 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
+
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
-import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/Template.dart';
-import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
@@ -16,6 +15,7 @@ import 'package:personaltasklogger/util/dates.dart';
 import '../utils.dart';
 
 class ScheduledTaskList extends StatefulWidget implements PageScaffold {
+
   _ScheduledTaskListState? _state;
 
   @override
@@ -49,13 +49,17 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
   void handleFABPressed(BuildContext context) {
     _state?._onFABPressed();
   }
+
+  void updateScheduledTask(int scheduledTaskId) {
+    _state?.updateScheduledTask(scheduledTaskId);
+  }
 }
 
 class _ScheduledTaskListState extends State<ScheduledTaskList> {
   List<ScheduledTask> _scheduledTasks = [];
   int _selectedTile = -1;
   Object? _selectedTemplateItem;
-
+  
   @override
   void initState() {
     super.initState();
@@ -72,6 +76,27 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
   @override
   Widget build(BuildContext context) {
     return _buildList();
+  }
+
+  void updateScheduledTask(int scheduledTaskId) {
+    debugPrint("received scheduledTaskId:" + scheduledTaskId.toString());
+    setState(() {
+      final found = _scheduledTasks.firstWhereOrNull((element) => element.id == scheduledTaskId);
+      debugPrint("found in list: " + found.toString());
+      if (found != null) {
+        var index = _scheduledTasks.indexOf(found);
+        debugPrint("index in list: " + index.toString());
+        if (index != -1) {
+          ScheduledTaskRepository.getById(scheduledTaskId)
+              .then((freshScheduledTask) {
+            _scheduledTasks.removeAt(index);
+            _scheduledTasks.insert(index, freshScheduledTask);
+            debugPrint("exchanged: " + freshScheduledTask.toString());
+            _scheduledTasks..sort();
+          });
+        }
+      }
+    });
   }
 
   Widget _buildList() {

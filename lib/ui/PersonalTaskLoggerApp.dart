@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 
 import 'pages/TaskEventList.dart';

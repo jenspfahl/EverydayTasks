@@ -9,6 +9,14 @@ abstract class ScheduledTaskDao {
       'ORDER BY createdAt DESC, id DESC')
   Future<List<ScheduledTaskEntity>> findAll();
 
+  @Query('SELECT * FROM ScheduledTaskEntity WHERE taskTemplateId = :taskTemplateId '
+      'ORDER BY createdAt DESC, id DESC')
+  Future<List<ScheduledTaskEntity>> findByTaskTemplateId(int taskTemplateId);
+
+  @Query('SELECT * FROM ScheduledTaskEntity WHERE taskTemplateVariantId = :taskTemplateVariantId '
+      'ORDER BY createdAt DESC, id DESC')
+  Future<List<ScheduledTaskEntity>> findByTaskTemplateVariantId(int taskTemplateVariantId);
+
   @Query('SELECT * FROM ScheduledTaskEntity WHERE id = :id')
   Stream<ScheduledTaskEntity?> findById(int id);
 
