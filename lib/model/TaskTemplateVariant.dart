@@ -61,10 +61,13 @@ List<TaskTemplateVariant> predefinedTaskTemplateVariants = [
   // Cleaning
   TaskTemplateVariant.data(subId: -1, title: "Cleaning toilet", subTaskTemplateId: -2, taskGroupId: -1,
       when: When.aroundDuration(AroundDurationHours.QUARTER)),
-/* TODO add as variant:
-TaskTemplate.data(subId: -7, title: "Clean windows", taskGroupId: -1),
-  TaskTemplate.data(subId: -8, title: "Clean fridge", taskGroupId: -1),
-* */
+  TaskTemplateVariant.data(subId: -2, title: "Cleaning sink", subTaskTemplateId: -2, taskGroupId: -1,
+      when: When.aroundDuration(AroundDurationHours.QUARTER)),
+  TaskTemplateVariant.data(subId: -3, title: "Cleaning shower / bathtub", subTaskTemplateId: -2, taskGroupId: -1,
+      when: When.aroundDuration(AroundDurationHours.QUARTER)),
+  TaskTemplateVariant.data(subId: -4, title: "Cleaning windows", subTaskTemplateId: -2, taskGroupId: -1),
+  TaskTemplateVariant.data(subId: -5, title: "Cleaning fridge", subTaskTemplateId: -2, taskGroupId: -1,
+      when: When.aroundDuration(AroundDurationHours.ONE)),
 
   // Dishes / Wash up
   TaskTemplateVariant.data(subId: -1, title: "Wash up after dinner", subTaskTemplateId: -1, taskGroupId: -4,

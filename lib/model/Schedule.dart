@@ -81,9 +81,9 @@ class Schedule {
       case RepetitionStep.DAILY: return "Daily";
       case RepetitionStep.EVERY_OTHER_DAY: return "Every other day";
       case RepetitionStep.WEEKLY: return "Weekly";
-      case RepetitionStep.EVERY_OTHER_WEEK: return "Every other week";
+      case RepetitionStep.EVERY_OTHER_WEEK: return "Biweekly";
       case RepetitionStep.MONTHLY: return "Monthly";
-      case RepetitionStep.EVERY_OTHER_MONTH: return "Every other month";
+      case RepetitionStep.EVERY_OTHER_MONTH: return "Bimonthly";
       case RepetitionStep.QUARTERLY: return "Quarterly";
       case RepetitionStep.HALF_YEARLY: return "Half yearly";
       case RepetitionStep.YEARLY: return "Yearly";

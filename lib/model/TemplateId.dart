@@ -1,5 +1,4 @@
-import 'Severity.dart';
-import 'When.dart';
+
 
 class TemplateId {
 
@@ -17,4 +16,17 @@ class TemplateId {
   String toString() {
     return 'TemplateId{id: $id, isVariant: $isVariant}';
   }
+
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TemplateId &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          isVariant == other.isVariant;
+
+  @override
+  int get hashCode => id.hashCode ^ isVariant.hashCode;
+
 }
