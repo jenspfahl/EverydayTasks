@@ -102,7 +102,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
 
     if (selectedTaskGroupId != null) {
-      _selectedTaskGroup = findTaskGroupById(selectedTaskGroupId);
+      _selectedTaskGroup = findPredefinedTaskGroupById(selectedTaskGroupId);
     }
 
     this._severityIndex = severity.index;

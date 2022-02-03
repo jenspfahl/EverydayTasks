@@ -13,7 +13,7 @@ class When {
   AroundDurationHours? durationHours;
   Duration? durationExactly;
 
-  When(this.startAt, this.durationHours);
+  When({this.startAt, this.startAtExactly, this.durationHours, this.durationExactly});
 
   When.aroundAt(this.startAt);
 

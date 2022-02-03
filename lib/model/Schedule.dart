@@ -5,7 +5,7 @@ import 'package:personaltasklogger/util/dates.dart';
 import 'When.dart';
 
 enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, EVERY_OTHER_MONTH, QUARTERLY, HALF_YEARLY, YEARLY, CUSTOM}
-enum RepetitionUnit {DAYS, WEEKS, MONTHS, YEARS}
+enum RepetitionUnit {HOURS, DAYS, WEEKS, MONTHS, YEARS}
 
 class CustomRepetition {
   int repetitionValue;
@@ -16,11 +16,17 @@ class CustomRepetition {
   DateTime getNextRepetitionFrom(DateTime from) {
     var jiffy = Jiffy(from);
     switch(repetitionUnit) {
+      case RepetitionUnit.HOURS: return jiffy.add(hours: repetitionValue).dateTime;
       case RepetitionUnit.DAYS: return jiffy.add(days: repetitionValue).dateTime;
       case RepetitionUnit.WEEKS: return jiffy.add(weeks: repetitionValue).dateTime;
       case RepetitionUnit.MONTHS: return jiffy.add(months: repetitionValue).dateTime;
       case RepetitionUnit.YEARS: return jiffy.add(years: repetitionValue).dateTime;
     }
+  }
+
+  @override
+  String toString() {
+    return 'CustomRepetition{repetitionValue: $repetitionValue, repetitionUnit: $repetitionUnit}';
   }
 }
 
@@ -93,6 +99,7 @@ class Schedule {
 
   static String fromRepetitionUnitToString(RepetitionUnit repetitionUnit) {
     switch(repetitionUnit) {
+      case RepetitionUnit.HOURS: return "Hours";
       case RepetitionUnit.DAYS: return "Days";
       case RepetitionUnit.WEEKS: return "Weeks";
       case RepetitionUnit.MONTHS: return "Months";

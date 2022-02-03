@@ -14,7 +14,7 @@ Widget severityToIcon(Severity severity) {
 }
 
 Color getTaskGroupColor(int? taskGroupId, bool lessShaded) {
-  final taskGroupColor = taskGroupId != null ? findTaskGroupById(taskGroupId).colorRGB : null;
+  final taskGroupColor = taskGroupId != null ? findPredefinedTaskGroupById(taskGroupId).colorRGB : null;
   return getShadedColor(taskGroupColor, lessShaded);
 }
 

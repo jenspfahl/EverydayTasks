@@ -39,7 +39,7 @@ class TaskTemplateList extends StatefulWidget implements PageScaffold {
 
   @override
   void handleFABPressed(BuildContext context) {
-    showConfirmationDialog(context, "test", "dummy template");
+    showConfirmationDialog(context, "Manage templates", "Managing templates is not yet supported. Stay tuned until it comes...");
   }
 
   @override
@@ -68,13 +68,13 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
         iconColor: getSharpedColor(group.colorRGB),
         parent: true,
         data: group,
-        children: findTaskTemplatesByTaskGroupId(group.id!).map((template) => Node(
+        children: findTaskTemplates(group).map((template) => Node(
           key: template.tId.toString(),
           label: template.title,
           icon: group.iconData,
           iconColor: getShadedColor(group.colorRGB, false),
           data: template,
-          children: findTaskTemplateVariantsByTaskTemplateId(template.tId!.id).map((variant) => Node(
+          children: findTaskTemplateVariants(template).map((variant) => Node(
             key: variant.tId.toString(),
             label: variant.title,
             icon: group.iconData,
@@ -94,68 +94,81 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
     super.initState();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    TreeViewTheme _treeViewTheme = TreeViewTheme(
-      expanderTheme: ExpanderThemeData(
-          type: ExpanderType.caret,
-          modifier: ExpanderModifier.none,
-          position: ExpanderPosition.end,
-          size: 20),
-      labelStyle: TextStyle(
-        fontSize: 16,
-        letterSpacing: 0.3,
-      ),
-      parentLabelStyle: TextStyle(
-        fontSize: 16,
-        letterSpacing: 0.1,
-        fontWeight: FontWeight.w800,
-      ),
-    /*  iconTheme: IconThemeData(
+  List<TaskTemplateVariant> findTaskTemplateVariants(TaskTemplate template) {
+    final predefined = findPredefinedTaskTemplateVariantsByTaskTemplateId(template.tId!.id);
+    //TODO overwrite existing ones
+    return predefined;
+  }
+
+    List<TaskTemplate> findTaskTemplates(TaskGroup group) {
+      final predefined = findPredefinedTaskTemplatesByTaskGroupId(group.id!);
+      //TODO overwrite existing ones
+      return predefined;
+    }
+
+    @override
+    Widget build(BuildContext context) {
+      TreeViewTheme _treeViewTheme = TreeViewTheme(
+        expanderTheme: ExpanderThemeData(
+            type: ExpanderType.caret,
+            modifier: ExpanderModifier.none,
+            position: ExpanderPosition.end,
+            size: 20),
+        labelStyle: TextStyle(
+          fontSize: 16,
+          letterSpacing: 0.3,
+        ),
+        parentLabelStyle: TextStyle(
+          fontSize: 16,
+          letterSpacing: 0.1,
+          fontWeight: FontWeight.w800,
+        ),
+        /*  iconTheme: IconThemeData(
         size: 18,
       ),*/
-      colorScheme: Theme.of(context).colorScheme,
-    );
+        colorScheme: Theme.of(context).colorScheme,
+      );
 
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: TreeView(
-        controller: _treeViewController,
-        allowParentSelect: true,
-        supportParentDoubleTap: false,
-        onExpansionChanged: (key, expanded) =>
-            _expandNode(key, expanded),
-        onNodeTap: (key) {
-          debugPrint('Selected: $key');
-          setState(() {
-            _selectedNode = key;
-            _treeViewController =
-                _treeViewController.copyWith(selectedKey: key);
-            if (_selectedItem != null) {
-              Object? data = _treeViewController.selectedNode?.data;
-              if (data != null) {
-                _selectedItem!(data);
+      return Padding(
+        padding: EdgeInsets.all(16.0),
+        child: TreeView(
+          controller: _treeViewController,
+          allowParentSelect: true,
+          supportParentDoubleTap: false,
+          onExpansionChanged: (key, expanded) =>
+              _expandNode(key, expanded),
+          onNodeTap: (key) {
+            debugPrint('Selected: $key');
+            setState(() {
+              _selectedNode = key;
+              _treeViewController =
+                  _treeViewController.copyWith(selectedKey: key);
+              if (_selectedItem != null) {
+                Object? data = _treeViewController.selectedNode?.data;
+                if (data != null) {
+                  _selectedItem!(data);
+                }
               }
-            }
-          });
-        },
-        theme: _treeViewTheme,
-      ),
-    );
-  }
+            });
+          },
+          theme: _treeViewTheme,
+        ),
+      );
+    }
 
-  _expandNode(String key, bool expanded) {
-    String msg = '${expanded ? "Expanded" : "Collapsed"}: $key';
-    debugPrint(msg);
-    Node? node = _treeViewController.getNode(key);
-    if (node != null) {
-      List<Node> updated = _treeViewController.updateNode(
+    _expandNode(String key, bool expanded) {
+      String msg = '${expanded ? "Expanded" : "Collapsed"}: $key';
+      debugPrint(msg);
+      Node? node = _treeViewController.getNode(key);
+      if (node != null) {
+        List<Node> updated = _treeViewController.updateNode(
             key, node.copyWith(expanded: expanded));
-      setState(() {
-        _treeViewController = _treeViewController.copyWith(children: updated);
-      });
+        setState(() {
+          _treeViewController = _treeViewController.copyWith(children: updated);
+        });
+      }
     }
   }
-}
+
 
 

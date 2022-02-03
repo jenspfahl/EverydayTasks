@@ -3,11 +3,11 @@ import 'package:floor/floor.dart';
 @entity
 class TaskTemplateEntity {
   @primaryKey
-  final int id;
-  final int? taskGroupId;
+  final int? id;
+  final int taskGroupId;
 
   final String title;
-  final String description;
+  final String? description;
   final int? startedAt;
   final int? aroundStartedAt;
   final int? duration;

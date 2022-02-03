@@ -25,7 +25,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     var scheduledTaskList = ScheduledTaskList();
     var taskEventList = TaskEventList(scheduledTaskList);
 
-    _pages = <PageScaffold>[AddTaskEventPage(), taskEventList, TaskTemplateList(), scheduledTaskList];
+    _pages = <PageScaffold>[QuickAddTaskEventPage(), taskEventList, TaskTemplateList(), scheduledTaskList];
   }
 
   PageScaffold getSelectedPage() {

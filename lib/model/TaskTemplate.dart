@@ -101,7 +101,7 @@ List<TaskTemplate> predefinedTaskTemplates = [
 
 ];
 
-TaskTemplate findTaskTemplateById(int id) => predefinedTaskTemplates.firstWhere((element) => element.tId?.id == id);
+TaskTemplate findPredefinedTaskTemplateById(int id) => predefinedTaskTemplates.firstWhere((element) => element.tId?.id == id);
 
-List<TaskTemplate >findTaskTemplatesByTaskGroupId(int taskGroupId) =>
+List<TaskTemplate >findPredefinedTaskTemplatesByTaskGroupId(int taskGroupId) =>
     predefinedTaskTemplates.where((element) => element.taskGroupId == taskGroupId).toList();

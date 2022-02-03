@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
+import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
@@ -58,8 +59,7 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
 class _ScheduledTaskListState extends State<ScheduledTaskList> {
   List<ScheduledTask> _scheduledTasks = [];
   int _selectedTile = -1;
-  Object? _selectedTemplateItem;
-  
+
   @override
   void initState() {
     super.initState();
@@ -101,48 +101,53 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
 
   Widget _buildList() {
 
-    return ListView.builder(
-        itemCount: _scheduledTasks.length,
-        itemBuilder: (context, index) {
-          var scheduledTask = _scheduledTasks[index];
-          var taskGroup = findTaskGroupById(scheduledTask.taskGroupId);
-          return _buildRow(index, scheduledTask, taskGroup);
-        });
+    return Padding(
+        padding: EdgeInsets.all(8.0),
+        child: ListView.builder(
+            itemCount: _scheduledTasks.length,
+            itemBuilder: (context, index) {
+              var scheduledTask = _scheduledTasks[index];
+              var taskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
+              return _buildRow(index, scheduledTask, taskGroup);
+            }),
+    );
   }
 
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
     final expansionWidgets = _createExpansionWidgets(scheduledTask);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: ExpansionTile( //better use ExpansionPanel?
-        key: GlobalKey(),
-        // this makes updating all tiles if state changed
-        title: Text(kReleaseMode ? scheduledTask.title : "${scheduledTask.title} (id=${scheduledTask.id})"),
-        subtitle: Column(
-          children: [
-            taskGroup.getTaskGroupRepresentation(useIconColor: true),
-            Visibility(
-              visible: scheduledTask.active,
-              child: LinearProgressIndicator(
-                value: scheduledTask.getNextRepetitionIndicatorValue(),
-                color: scheduledTask.isNextScheduleReached() ? Colors.red[500] : null,
-              ),
+    return Padding(
+        padding: EdgeInsets.all(4.0),
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile( //better use ExpansionPanel?
+            key: GlobalKey(),
+            // this makes updating all tiles if state changed
+            title: Text(kReleaseMode ? scheduledTask.title : "${scheduledTask.title} (id=${scheduledTask.id})"),
+            subtitle: Column(
+              children: [
+                taskGroup.getTaskGroupRepresentation(useIconColor: true),
+                Visibility(
+                  visible: scheduledTask.active,
+                  child: LinearProgressIndicator(
+                    value: scheduledTask.getNextRepetitionIndicatorValue(),
+                    color: scheduledTask.isNextScheduleReached() ? Colors.red[500] : null,
+                  ),
+                ),
+              ],
             ),
-          ],
+            children: expansionWidgets,
+            collapsedBackgroundColor: getTaskGroupColor(scheduledTask.taskGroupId, true),
+            backgroundColor: getTaskGroupColor(scheduledTask.taskGroupId, false),
+            initiallyExpanded: index == _selectedTile,
+            onExpansionChanged: ((expanded) {
+              setState(() {
+                _selectedTile = expanded ? index : -1;
+              });
+            }),
+          )
         ),
-        children: expansionWidgets,
-        collapsedBackgroundColor: getTaskGroupColor(scheduledTask.taskGroupId, true),
-        backgroundColor: getTaskGroupColor(scheduledTask.taskGroupId, false),
-        initiallyExpanded: index == _selectedTile,
-        onExpansionChanged: ((expanded) {
-          setState(() {
-            _selectedTile = expanded ? index : -1;
-          });
-        }),
-      ),
     );
   }
-
 
   List<Widget> _createExpansionWidgets(ScheduledTask scheduledTask) {
     var expansionWidgets = <Widget>[];
@@ -201,7 +206,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
                     return ScheduledTaskForm(
                         formTitle: "Change scheduledTask \'${scheduledTask.title}\'",
                         scheduledTask: scheduledTask,
-                        taskGroup: findTaskGroupById(scheduledTask.taskGroupId),
+                        taskGroup: findPredefinedTaskGroupById(scheduledTask.taskGroupId),
                     );
                   }));
 
@@ -255,11 +260,22 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
             scheduledTask.getNextSchedule()!, true).toLowerCase()} "
             "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} ";
       }
-      return debug +
-          "Due ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true)
-          .toLowerCase()} "
-          "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
-          "${scheduledTask.schedule.toStartAtAsString().toLowerCase()}";
+      debugPrint(scheduledTask.schedule.customRepetition?.toString());
+      if (scheduledTask.schedule.repetitionStep == RepetitionStep.CUSTOM
+          && scheduledTask.schedule.customRepetition!.repetitionUnit == RepetitionUnit.HOURS) {
+        return debug +
+            "Due ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true)
+                .toLowerCase()} "
+                "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
+                "at ${formatToTime(scheduledTask.getNextSchedule()!)}";
+      }
+      else {
+        return debug +
+            "Due ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true)
+                .toLowerCase()} "
+                "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
+                "${scheduledTask.schedule.toStartAtAsString().toLowerCase()}";
+      }
     }
     else {
       return debug +
@@ -297,20 +313,22 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
 
 
   void _onFABPressed() {
+    Object? selectedTemplateItem;
+
     showTemplateDialog(context, "Select a task template",
         selectedItem: (selectedItem) {
           setState(() {
-            _selectedTemplateItem = selectedItem;
+            selectedTemplateItem = selectedItem;
           });
         },
         okPressed: () async {
-          if (_selectedTemplateItem is Template) {
+          if (selectedTemplateItem is Template) {
             Navigator.pop(context);
             ScheduledTask? newScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
               return ScheduledTaskForm(
                 formTitle: "Create new schedule ",
-                taskGroup: findTaskGroupById((_selectedTemplateItem as Template).taskGroupId),
-                template: _selectedTemplateItem as Template,
+                taskGroup: findPredefinedTaskGroupById((selectedTemplateItem as Template).taskGroupId),
+                template: selectedTemplateItem as Template,
               );
             }));
 

@@ -20,7 +20,7 @@ class TaskGroup implements Comparable {
   
   Widget getTaskGroupRepresentation({bool useBackgroundColor = false, bool useIconColor = false}) {
     final text = useBackgroundColor
-        ? Text(" " + name, style: TextStyle(backgroundColor: getShadedColor(colorRGB, true)))
+        ? Text(" " + name, style: TextStyle(backgroundColor: backgroundColor))
         : Text(" " + name);
 
     if (iconData != null) {
@@ -30,6 +30,8 @@ class TaskGroup implements Comparable {
       return text;
     }
   }
+
+  Color get backgroundColor => getShadedColor(colorRGB, true);
 
   Icon getIcon(bool useIconColor) {
     final icon = useIconColor
@@ -59,7 +61,7 @@ List<TaskGroup> predefinedTaskGroups = [
 ];
 
 
-TaskGroup findTaskGroupById(int id) => predefinedTaskGroups.firstWhere((element) => element.id == id);
+TaskGroup findPredefinedTaskGroupById(int id) => predefinedTaskGroups.firstWhere((element) => element.id == id);
 
 
 

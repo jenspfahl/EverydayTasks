@@ -78,8 +78,8 @@ List<TaskTemplateVariant> predefinedTaskTemplateVariants = [
 
 ];
 
-TaskTemplateVariant findTaskTemplateVariantById(int id) =>
+TaskTemplateVariant findPredefinedTaskTemplateVariantById(int id) =>
     predefinedTaskTemplateVariants.firstWhere((element) => element.tId?.id == id);
 
-List<TaskTemplateVariant >findTaskTemplateVariantsByTaskTemplateId(int taskTemplateId) =>
+List<TaskTemplateVariant >findPredefinedTaskTemplateVariantsByTaskTemplateId(int taskTemplateId) =>
     predefinedTaskTemplateVariants.where((element) => element.taskTemplateId == taskTemplateId).toList();

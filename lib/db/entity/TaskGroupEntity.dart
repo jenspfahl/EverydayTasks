@@ -3,7 +3,7 @@ import 'package:floor/floor.dart';
 @entity
 class TaskGroupEntity {
   @primaryKey
-  final int id;
+  final int? id;
 
   final String name;
   final String description;

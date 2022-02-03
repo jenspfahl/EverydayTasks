@@ -62,6 +62,10 @@ class _$AppDatabase extends AppDatabase {
 
   TaskEventDao? _taskEventDaoInstance;
 
+  TaskTemplateDao? _taskTemplateDaoInstance;
+
+  TaskTemplateVariantDao? _taskTemplateVariantDaoInstance;
+
   ScheduledTaskDao? _scheduledTaskDaoInstance;
 
   ScheduledTaskEventDao? _scheduledTaskEventDaoInstance;
@@ -69,7 +73,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 3,
+      version: 4,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -87,6 +91,10 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `TaskEventEntity` (`id` INTEGER, `taskGroupId` INTEGER, `originTaskTemplateId` INTEGER, `originTaskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `startedAt` INTEGER NOT NULL, `aroundStartedAt` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `aroundDuration` INTEGER NOT NULL, `severity` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `TaskTemplateEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `startedAt` INTEGER, `aroundStartedAt` INTEGER, `duration` INTEGER, `aroundDuration` INTEGER, `severity` INTEGER, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `TaskTemplateVariantEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `startedAt` INTEGER, `aroundStartedAt` INTEGER, `duration` INTEGER, `aroundDuration` INTEGER, `severity` INTEGER, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
             'CREATE TABLE IF NOT EXISTS `ScheduledTaskEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER, `taskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `aroundStartAt` INTEGER NOT NULL, `startAt` INTEGER, `repetitionAfter` INTEGER NOT NULL, `exactRepetitionAfter` INTEGER, `exactRepetitionAfterUnit` INTEGER, `lastScheduledEventAt` INTEGER, `active` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `ScheduledTaskEventEntity` (`id` INTEGER, `taskEventId` INTEGER NOT NULL, `scheduledTaskId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY (`id`))');
@@ -100,6 +108,18 @@ class _$AppDatabase extends AppDatabase {
   @override
   TaskEventDao get taskEventDao {
     return _taskEventDaoInstance ??= _$TaskEventDao(database, changeListener);
+  }
+
+  @override
+  TaskTemplateDao get taskTemplateDao {
+    return _taskTemplateDaoInstance ??=
+        _$TaskTemplateDao(database, changeListener);
+  }
+
+  @override
+  TaskTemplateVariantDao get taskTemplateVariantDao {
+    return _taskTemplateVariantDaoInstance ??=
+        _$TaskTemplateVariantDao(database, changeListener);
   }
 
   @override
@@ -241,6 +261,253 @@ class _$TaskEventDao extends TaskEventDao {
   Future<int> deleteTaskEvent(TaskEventEntity taskEvent) {
     return _taskEventEntityDeletionAdapter
         .deleteAndReturnChangedRows(taskEvent);
+  }
+}
+
+class _$TaskTemplateDao extends TaskTemplateDao {
+  _$TaskTemplateDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database, changeListener),
+        _taskTemplateEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'TaskTemplateEntity',
+            (TaskTemplateEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'taskGroupId': item.taskGroupId,
+                  'title': item.title,
+                  'description': item.description,
+                  'startedAt': item.startedAt,
+                  'aroundStartedAt': item.aroundStartedAt,
+                  'duration': item.duration,
+                  'aroundDuration': item.aroundDuration,
+                  'severity': item.severity,
+                  'favorite': item.favorite ? 1 : 0
+                },
+            changeListener),
+        _taskTemplateEntityUpdateAdapter = UpdateAdapter(
+            database,
+            'TaskTemplateEntity',
+            ['id'],
+            (TaskTemplateEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'taskGroupId': item.taskGroupId,
+                  'title': item.title,
+                  'description': item.description,
+                  'startedAt': item.startedAt,
+                  'aroundStartedAt': item.aroundStartedAt,
+                  'duration': item.duration,
+                  'aroundDuration': item.aroundDuration,
+                  'severity': item.severity,
+                  'favorite': item.favorite ? 1 : 0
+                },
+            changeListener),
+        _taskTemplateEntityDeletionAdapter = DeletionAdapter(
+            database,
+            'TaskTemplateEntity',
+            ['id'],
+            (TaskTemplateEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'taskGroupId': item.taskGroupId,
+                  'title': item.title,
+                  'description': item.description,
+                  'startedAt': item.startedAt,
+                  'aroundStartedAt': item.aroundStartedAt,
+                  'duration': item.duration,
+                  'aroundDuration': item.aroundDuration,
+                  'severity': item.severity,
+                  'favorite': item.favorite ? 1 : 0
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<TaskTemplateEntity>
+      _taskTemplateEntityInsertionAdapter;
+
+  final UpdateAdapter<TaskTemplateEntity> _taskTemplateEntityUpdateAdapter;
+
+  final DeletionAdapter<TaskTemplateEntity> _taskTemplateEntityDeletionAdapter;
+
+  @override
+  Future<List<TaskTemplateEntity>> findAllPaged(int lastId, int limit) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM TaskTemplateEntity WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
+        mapper: (Map<String, Object?> row) => TaskTemplateEntity(row['id'] as int?, row['taskGroupId'] as int, row['title'] as String, row['description'] as String?, row['startedAt'] as int?, row['aroundStartedAt'] as int?, row['duration'] as int?, row['aroundDuration'] as int?, row['severity'] as int?, (row['favorite'] as int) != 0),
+        arguments: [lastId, limit]);
+  }
+
+  @override
+  Future<List<TaskTemplateEntity>> findAllFavsPaged(
+      int lastId, int limit) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM TaskTemplateEntity WHERE favorite = 1 AND id < ?1 ORDER BY id DESC LIMIT ?2',
+        mapper: (Map<String, Object?> row) => TaskTemplateEntity(row['id'] as int?, row['taskGroupId'] as int, row['title'] as String, row['description'] as String?, row['startedAt'] as int?, row['aroundStartedAt'] as int?, row['duration'] as int?, row['aroundDuration'] as int?, row['severity'] as int?, (row['favorite'] as int) != 0),
+        arguments: [lastId, limit]);
+  }
+
+  @override
+  Stream<TaskTemplateEntity?> findById(int id) {
+    return _queryAdapter.queryStream(
+        'SELECT * FROM TaskTemplateEntity WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => TaskTemplateEntity(
+            row['id'] as int?,
+            row['taskGroupId'] as int,
+            row['title'] as String,
+            row['description'] as String?,
+            row['startedAt'] as int?,
+            row['aroundStartedAt'] as int?,
+            row['duration'] as int?,
+            row['aroundDuration'] as int?,
+            row['severity'] as int?,
+            (row['favorite'] as int) != 0),
+        arguments: [id],
+        queryableName: 'TaskTemplateEntity',
+        isView: false);
+  }
+
+  @override
+  Future<int> insertTaskTemplate(TaskTemplateEntity taskTemplate) {
+    return _taskTemplateEntityInsertionAdapter.insertAndReturnId(
+        taskTemplate, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> updateTaskTemplate(TaskTemplateEntity taskTemplate) {
+    return _taskTemplateEntityUpdateAdapter.updateAndReturnChangedRows(
+        taskTemplate, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> deleteTaskTemplate(TaskTemplateEntity taskTemplate) {
+    return _taskTemplateEntityDeletionAdapter
+        .deleteAndReturnChangedRows(taskTemplate);
+  }
+}
+
+class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
+  _$TaskTemplateVariantDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database, changeListener),
+        _taskTemplateVariantEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'TaskTemplateVariantEntity',
+            (TaskTemplateVariantEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'taskGroupId': item.taskGroupId,
+                  'taskTemplateId': item.taskTemplateId,
+                  'title': item.title,
+                  'description': item.description,
+                  'startedAt': item.startedAt,
+                  'aroundStartedAt': item.aroundStartedAt,
+                  'duration': item.duration,
+                  'aroundDuration': item.aroundDuration,
+                  'severity': item.severity,
+                  'favorite': item.favorite ? 1 : 0
+                },
+            changeListener),
+        _taskTemplateVariantEntityUpdateAdapter = UpdateAdapter(
+            database,
+            'TaskTemplateVariantEntity',
+            ['id'],
+            (TaskTemplateVariantEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'taskGroupId': item.taskGroupId,
+                  'taskTemplateId': item.taskTemplateId,
+                  'title': item.title,
+                  'description': item.description,
+                  'startedAt': item.startedAt,
+                  'aroundStartedAt': item.aroundStartedAt,
+                  'duration': item.duration,
+                  'aroundDuration': item.aroundDuration,
+                  'severity': item.severity,
+                  'favorite': item.favorite ? 1 : 0
+                },
+            changeListener),
+        _taskTemplateVariantEntityDeletionAdapter = DeletionAdapter(
+            database,
+            'TaskTemplateVariantEntity',
+            ['id'],
+            (TaskTemplateVariantEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'taskGroupId': item.taskGroupId,
+                  'taskTemplateId': item.taskTemplateId,
+                  'title': item.title,
+                  'description': item.description,
+                  'startedAt': item.startedAt,
+                  'aroundStartedAt': item.aroundStartedAt,
+                  'duration': item.duration,
+                  'aroundDuration': item.aroundDuration,
+                  'severity': item.severity,
+                  'favorite': item.favorite ? 1 : 0
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<TaskTemplateVariantEntity>
+      _taskTemplateVariantEntityInsertionAdapter;
+
+  final UpdateAdapter<TaskTemplateVariantEntity>
+      _taskTemplateVariantEntityUpdateAdapter;
+
+  final DeletionAdapter<TaskTemplateVariantEntity>
+      _taskTemplateVariantEntityDeletionAdapter;
+
+  @override
+  Future<List<TaskTemplateVariantEntity>> findAllPaged(
+      int lastId, int limit) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM TaskTemplateVariantEntity WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
+        mapper: (Map<String, Object?> row) => TaskTemplateVariantEntity(row['id'] as int?, row['taskGroupId'] as int, row['taskTemplateId'] as int, row['title'] as String, row['description'] as String?, row['startedAt'] as int?, row['aroundStartedAt'] as int?, row['duration'] as int?, row['aroundDuration'] as int?, row['severity'] as int?, (row['favorite'] as int) != 0),
+        arguments: [lastId, limit]);
+  }
+
+  @override
+  Stream<TaskTemplateVariantEntity?> findById(int id) {
+    return _queryAdapter.queryStream(
+        'SELECT * FROM TaskTemplateVariantEntity WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => TaskTemplateVariantEntity(
+            row['id'] as int?,
+            row['taskGroupId'] as int,
+            row['taskTemplateId'] as int,
+            row['title'] as String,
+            row['description'] as String?,
+            row['startedAt'] as int?,
+            row['aroundStartedAt'] as int?,
+            row['duration'] as int?,
+            row['aroundDuration'] as int?,
+            row['severity'] as int?,
+            (row['favorite'] as int) != 0),
+        arguments: [id],
+        queryableName: 'TaskTemplateVariantEntity',
+        isView: false);
+  }
+
+  @override
+  Future<int> insertTaskTemplateVariant(
+      TaskTemplateVariantEntity taskTemplateVariant) {
+    return _taskTemplateVariantEntityInsertionAdapter.insertAndReturnId(
+        taskTemplateVariant, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> updateTaskTemplateVariant(
+      TaskTemplateVariantEntity taskTemplateVariant) {
+    return _taskTemplateVariantEntityUpdateAdapter.updateAndReturnChangedRows(
+        taskTemplateVariant, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> deleteTaskTemplateVariant(
+      TaskTemplateVariantEntity taskTemplateVariant) {
+    return _taskTemplateVariantEntityDeletionAdapter
+        .deleteAndReturnChangedRows(taskTemplateVariant);
   }
 }
 
