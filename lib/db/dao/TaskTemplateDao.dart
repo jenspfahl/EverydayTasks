@@ -4,13 +4,11 @@ import 'package:personaltasklogger/db/entity/TaskTemplateEntity.dart';
 @dao
 abstract class TaskTemplateDao {
 
-  @Query('SELECT * FROM TaskTemplateEntity '
-      'WHERE id < :lastId ORDER BY id DESC LIMIT :limit')
-  Future<List<TaskTemplateEntity>> findAllPaged(int lastId, int limit);
+  @Query('SELECT * FROM TaskTemplateEntity ORDER BY id DESC')
+  Future<List<TaskTemplateEntity>> findAll();
 
-  @Query('SELECT * FROM TaskTemplateEntity '
-      'WHERE favorite = 1 AND id < :lastId ORDER BY id DESC LIMIT :limit')
-  Future<List<TaskTemplateEntity>> findAllFavsPaged(int lastId, int limit);
+  @Query('SELECT * FROM TaskTemplateEntity ORDER BY id DESC')
+  Future<List<TaskTemplateEntity>> findAllFavs();
 
   @Query('SELECT * FROM TaskTemplateEntity WHERE id = :id')
   Stream<TaskTemplateEntity?> findById(int id);

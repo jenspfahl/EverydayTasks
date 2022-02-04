@@ -56,7 +56,7 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
   }
 }
 
-class _ScheduledTaskListState extends State<ScheduledTaskList> {
+class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKeepAliveClientMixin<ScheduledTaskList> {
   List<ScheduledTask> _scheduledTasks = [];
   int _selectedTile = -1;
 
@@ -191,7 +191,6 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
                       cancelPressed: () =>
                           Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
                     );
-
                   },
                 ),
               ],
@@ -349,6 +348,9 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> {
         });
 
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
 }
 

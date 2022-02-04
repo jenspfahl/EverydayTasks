@@ -17,13 +17,13 @@ import '../forms/TaskEventForm.dart';
 
 class TaskEventList extends StatefulWidget implements PageScaffold {
   _TaskEventListState? _state;
-  ScheduledTaskList scheduledTaskList;
+  ScheduledTaskList _scheduledTaskList;
 
-  TaskEventList(this.scheduledTaskList);
+  TaskEventList(this._scheduledTaskList);
 
   @override
   State<StatefulWidget> createState() {
-    _state = _TaskEventListState(scheduledTaskList);
+    _state = _TaskEventListState(_scheduledTaskList);
     return _state!;
   }
 
@@ -58,16 +58,20 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
   void handleFABPressed(BuildContext context) {
     _state?._onFABPressed();
   }
+
+  void addTaskEvent(TaskEvent newTaskEvent) {
+    _state?._addTaskEvent(newTaskEvent);
+  }
 }
 
-class _TaskEventListState extends State<TaskEventList> {
+class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveClientMixin<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
   int _selectedTile = -1;
   Set<DateTime> _hiddenTiles = Set();
   Object? _selectedTemplateItem;
-  ScheduledTaskList scheduledTaskList;
+  ScheduledTaskList _scheduledTaskList;
 
-  _TaskEventListState(this.scheduledTaskList);
+  _TaskEventListState(this._scheduledTaskList);
 
   @override
   void initState() {
@@ -82,7 +86,6 @@ class _TaskEventListState extends State<TaskEventList> {
   }
 
   void _addTaskEvent(TaskEvent taskEvent) {
-    //TODO find corresponding TaskSchedule and update with ScheduledTask.executeSchedule and log into ScheduledTaskEvent
     if (taskEvent.originTemplateId != null) {
       ScheduledTaskRepository.getByTemplateId(taskEvent.originTemplateId!)
           .then((scheduledTasks) {
@@ -93,8 +96,8 @@ class _TaskEventListState extends State<TaskEventList> {
                   changedScheduledTask) {
                 debugPrint("schedule ${changedScheduledTask.id} notified");
                 PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-                debugPrint("found root $root target: $scheduledTaskList");
-                scheduledTaskList.updateScheduledTask(changedScheduledTask.id!);
+                debugPrint("found root $root target: $_scheduledTaskList");
+                _scheduledTaskList.updateScheduledTask(changedScheduledTask.id!);
               });
             });
       });
@@ -403,4 +406,7 @@ class _TaskEventListState extends State<TaskEventList> {
           );
         });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

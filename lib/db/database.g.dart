@@ -332,20 +332,37 @@ class _$TaskTemplateDao extends TaskTemplateDao {
   final DeletionAdapter<TaskTemplateEntity> _taskTemplateEntityDeletionAdapter;
 
   @override
-  Future<List<TaskTemplateEntity>> findAllPaged(int lastId, int limit) async {
+  Future<List<TaskTemplateEntity>> findAll() async {
     return _queryAdapter.queryList(
-        'SELECT * FROM TaskTemplateEntity WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
-        mapper: (Map<String, Object?> row) => TaskTemplateEntity(row['id'] as int?, row['taskGroupId'] as int, row['title'] as String, row['description'] as String?, row['startedAt'] as int?, row['aroundStartedAt'] as int?, row['duration'] as int?, row['aroundDuration'] as int?, row['severity'] as int?, (row['favorite'] as int) != 0),
-        arguments: [lastId, limit]);
+        'SELECT * FROM TaskTemplateEntity ORDER BY id DESC',
+        mapper: (Map<String, Object?> row) => TaskTemplateEntity(
+            row['id'] as int?,
+            row['taskGroupId'] as int,
+            row['title'] as String,
+            row['description'] as String?,
+            row['startedAt'] as int?,
+            row['aroundStartedAt'] as int?,
+            row['duration'] as int?,
+            row['aroundDuration'] as int?,
+            row['severity'] as int?,
+            (row['favorite'] as int) != 0));
   }
 
   @override
-  Future<List<TaskTemplateEntity>> findAllFavsPaged(
-      int lastId, int limit) async {
+  Future<List<TaskTemplateEntity>> findAllFavs() async {
     return _queryAdapter.queryList(
-        'SELECT * FROM TaskTemplateEntity WHERE favorite = 1 AND id < ?1 ORDER BY id DESC LIMIT ?2',
-        mapper: (Map<String, Object?> row) => TaskTemplateEntity(row['id'] as int?, row['taskGroupId'] as int, row['title'] as String, row['description'] as String?, row['startedAt'] as int?, row['aroundStartedAt'] as int?, row['duration'] as int?, row['aroundDuration'] as int?, row['severity'] as int?, (row['favorite'] as int) != 0),
-        arguments: [lastId, limit]);
+        'SELECT * FROM TaskTemplateEntity ORDER BY id DESC',
+        mapper: (Map<String, Object?> row) => TaskTemplateEntity(
+            row['id'] as int?,
+            row['taskGroupId'] as int,
+            row['title'] as String,
+            row['description'] as String?,
+            row['startedAt'] as int?,
+            row['aroundStartedAt'] as int?,
+            row['duration'] as int?,
+            row['aroundDuration'] as int?,
+            row['severity'] as int?,
+            (row['favorite'] as int) != 0));
   }
 
   @override
@@ -460,12 +477,39 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
       _taskTemplateVariantEntityDeletionAdapter;
 
   @override
-  Future<List<TaskTemplateVariantEntity>> findAllPaged(
-      int lastId, int limit) async {
+  Future<List<TaskTemplateVariantEntity>> findAll() async {
     return _queryAdapter.queryList(
-        'SELECT * FROM TaskTemplateVariantEntity WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
-        mapper: (Map<String, Object?> row) => TaskTemplateVariantEntity(row['id'] as int?, row['taskGroupId'] as int, row['taskTemplateId'] as int, row['title'] as String, row['description'] as String?, row['startedAt'] as int?, row['aroundStartedAt'] as int?, row['duration'] as int?, row['aroundDuration'] as int?, row['severity'] as int?, (row['favorite'] as int) != 0),
-        arguments: [lastId, limit]);
+        'SELECT * FROM TaskTemplateVariantEntity ORDER BY id DESC',
+        mapper: (Map<String, Object?> row) => TaskTemplateVariantEntity(
+            row['id'] as int?,
+            row['taskGroupId'] as int,
+            row['taskTemplateId'] as int,
+            row['title'] as String,
+            row['description'] as String?,
+            row['startedAt'] as int?,
+            row['aroundStartedAt'] as int?,
+            row['duration'] as int?,
+            row['aroundDuration'] as int?,
+            row['severity'] as int?,
+            (row['favorite'] as int) != 0));
+  }
+
+  @override
+  Future<List<TaskTemplateVariantEntity>> findAllFavs() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM TaskTemplateVariantEntity ORDER BY id DESC',
+        mapper: (Map<String, Object?> row) => TaskTemplateVariantEntity(
+            row['id'] as int?,
+            row['taskGroupId'] as int,
+            row['taskTemplateId'] as int,
+            row['title'] as String,
+            row['description'] as String?,
+            row['startedAt'] as int?,
+            row['aroundStartedAt'] as int?,
+            row['duration'] as int?,
+            row['aroundDuration'] as int?,
+            row['severity'] as int?,
+            (row['favorite'] as int) != 0));
   }
 
   @override

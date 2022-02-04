@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/IdPaging.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
-import 'package:personaltasklogger/db/repository/TaskTemplateRepository.dart';
+import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
-import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
+import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 
 class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   _QuickAddTaskEventPageState? _state;
+  TaskEventList _taskEventList;
+
+  QuickAddTaskEventPage(this._taskEventList);
 
   @override
   String getTitle() {
@@ -41,22 +44,25 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
 
   @override
   State<StatefulWidget> createState() {
-    _state = _QuickAddTaskEventPageState();
+    _state = _QuickAddTaskEventPageState(_taskEventList);
     return _state!;
   }
 }
 
-class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> {
+class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with AutomaticKeepAliveClientMixin<QuickAddTaskEventPage> {
+  TaskEventList _taskEventList;
   List<Template> _templates = [];
+
+  _QuickAddTaskEventPageState(this._taskEventList);
 
   @override
   void initState() {
     super.initState();
 
     final paging = IdPaging(IdPaging.maxId, 100);
-    TaskTemplateRepository.getAllFavsPaged(paging).then((taskTemplates) {
+    TemplateRepository.getAllFavorites().then((templates) {
       setState(() {
-        _templates = taskTemplates;
+        _templates = templates;
         _templates..sort();
       });
     });
@@ -78,12 +84,31 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> {
             final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
             return GestureDetector(
               onLongPressStart: (details) {
-                print("long pressing");
+                showConfirmationDialog(
+                  context,
+                  "Delete QuickAdd for \'${template.title}\'",
+                  "Are you sure to remove this QuickAdd? This will not affect the template itself.",
+                  okPressed: () {
+                    template.favorite = false;
+                    TemplateRepository.update(template).then((changedScheduledTask) {
+                      ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
+                          content: Text('Removed \'${template.title}\' from QuickAdd')));
+
+                      setState(() {
+                        _templates.remove(template);
+                        _templates..sort();
+                      });
+                    });
+                    Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                  },
+                  cancelPressed: () =>
+                      Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                );
               },
               onTap: () async {
                 TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return TaskEventForm(
-                      formTitle: "Create new event from quick",
+                      formTitle: "Create new event from QuickAdd",
                       template: template );
                 }));
 
@@ -91,7 +116,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> {
                   TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                     ScaffoldMessenger.of(super.context).showSnackBar(
                         SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
-                    //TODO add to ui in TaskEventList._addTaskEvent(newTaskEvent);
+                    _taskEventList.addTaskEvent(newTaskEvent);
                   });
                 }
               },
@@ -124,40 +149,44 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> {
         selectedTemplateItem = selectedItem;
       });
     }, okPressed: () async {
-      if (selectedTemplateItem is TaskTemplate) {
-        var taskTemplate = selectedTemplateItem as TaskTemplate;
+      if (selectedTemplateItem is Template) {
+        var template = selectedTemplateItem as Template;
         var addToState = false;
-        TaskTemplateRepository.findById(taskTemplate.tId!)
+        TemplateRepository.findById(template.tId!)
             .then((foundTaskTemplate) {
           debugPrint("found: $foundTaskTemplate");
           if (foundTaskTemplate != null) {
             addToState = foundTaskTemplate.favorite == false;
             foundTaskTemplate.favorite = true;
-            TaskTemplateRepository.update(foundTaskTemplate);
-            taskTemplate = foundTaskTemplate;
+            TemplateRepository.update(foundTaskTemplate);
+            template = foundTaskTemplate;
           } else {
-            taskTemplate.favorite = true;
-            TaskTemplateRepository.insert(taskTemplate);
+            template.favorite = true;
+            TemplateRepository.insert(template);
             addToState = true;
           }
           Navigator.pop(
               context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
           ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-              content: Text('Added \'${taskTemplate.title}\' to short cut')));
+              content: Text('Added \'${template.title}\' to QuickAdd')));
 
           if (addToState) {
             setState(() {
-              _templates.add(taskTemplate);
+              _templates.add(template);
               _templates..sort();
             });
           }
         });
-      } else {
+      }
+      else {
         SnackBar(content: Text("Please select a template or a variant"));
       }
     }, cancelPressed: () {
       Navigator.pop(super.context);
     });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

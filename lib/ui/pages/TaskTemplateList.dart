@@ -48,7 +48,7 @@ class TaskTemplateList extends StatefulWidget implements PageScaffold {
   }
 }
 
-class _TaskTemplateListState extends State<TaskTemplateList> {
+class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepAliveClientMixin<TaskTemplateList> {
 
   String? _selectedNode;
   List<Node> _nodes = [];
@@ -168,6 +168,9 @@ class _TaskTemplateListState extends State<TaskTemplateList> {
         });
       }
     }
+
+  @override
+  bool get wantKeepAlive => true;
   }
 
 

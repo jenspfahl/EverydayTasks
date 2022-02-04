@@ -16,16 +16,18 @@ class PersonalTaskLoggerScaffold extends StatefulWidget {
 
 class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> {
   int _selectedNavigationIndex = 1;
+  PageController _pageController = PageController(initialPage: 1);
 
   late List<PageScaffold> _pages;
 
   PersonalTaskLoggerScaffoldState() {
 
-    // ScheduledTaskList is dependent from TaskEventList. Tried to notify instead without that but failed.
+    // Pages are dependent on each other. Tried to notify instead without that but failed.
     var scheduledTaskList = ScheduledTaskList();
     var taskEventList = TaskEventList(scheduledTaskList);
+    var quickAddTaskEventPage = QuickAddTaskEventPage(taskEventList);
 
-    _pages = <PageScaffold>[QuickAddTaskEventPage(), taskEventList, TaskTemplateList(), scheduledTaskList];
+    _pages = <PageScaffold>[quickAddTaskEventPage, taskEventList, TaskTemplateList(), scheduledTaskList];
   }
 
   PageScaffold getSelectedPage() {
@@ -39,8 +41,13 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
         title: Text(getSelectedPage().getTitle()),
         actions: getSelectedPage().getActions(),
       ),
-      body: IndexedStack(
-        index: _selectedNavigationIndex,
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (newIndex) {
+          setState(() {
+            _selectedNavigationIndex = newIndex;
+          });
+        },
         children: _pages,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -55,7 +62,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline_outlined),
-            label: 'Add',
+            label: 'QuickAdd',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.event_available_rounded),
@@ -73,7 +80,9 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
         selectedItemColor: Colors.lime[800],
         unselectedItemColor: Colors.grey.shade600,
         currentIndex: _selectedNavigationIndex,
-        onTap: _onItemTapped,
+        onTap: (index) {
+          _pageController.animateToPage(index, duration: Duration(milliseconds: 300), curve: Curves.ease);
+        },
       ),
     );
   }
@@ -83,10 +92,5 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     notification..dispatch(context);
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedNavigationIndex = index;
-    });
-  }
 
 }
