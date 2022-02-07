@@ -1,7 +1,6 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
-
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
@@ -36,14 +35,8 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  List<Widget>? getActions() {
+  List<Widget>? getActions(BuildContext context) {
     return null;
-  }
-
-  @override
-  Function() handleActionPressed(int index) {
-    // TODO: implement handleActionPressed
-    throw UnimplementedError();
   }
 
   @override
@@ -217,7 +210,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                     });
                   }
                 },
-                child: const Text("Change"),
+                child: const Icon(Icons.edit),
               ),
               TextButton(
                 onPressed: () {
@@ -314,7 +307,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   void _onFABPressed() {
     Object? selectedTemplateItem;
 
-    showTemplateDialog(context, "Select a task template",
+    showTemplateDialog(context, "Select a task to be scheduled",
         selectedItem: (selectedItem) {
           setState(() {
             selectedTemplateItem = selectedItem;

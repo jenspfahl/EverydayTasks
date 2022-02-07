@@ -11,8 +11,21 @@ class PersonalTaskLoggerApp extends StatelessWidget {
     return MaterialApp(
       title: 'Personal Task Logger',
       theme: ThemeData(
+        brightness: Brightness.light,
         primaryColor: Colors.lime,
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: Colors.orangeAccent,
+        buttonColor: Colors.orange,
+        accentColor: Colors.orangeAccent,
+        /* dark theme settings */
+      ),
+      themeMode: ThemeMode.light,
+      /* ThemeMode.system to follow system theme,
+         ThemeMode.light for light theme,
+         ThemeMode.dark for dark theme
+      */
       home: PersonalTaskLoggerScaffold(),
     );
   }

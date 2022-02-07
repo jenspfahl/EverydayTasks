@@ -17,6 +17,10 @@ abstract class Template extends Comparable {
 
   @override
   int compareTo(other) {
+    final result = taskGroupId.compareTo(other.taskGroupId);
+    if (result != 0) {
+      return result;
+    }
     return title.compareTo(other.title);
   }
 }

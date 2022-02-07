@@ -39,7 +39,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     return Scaffold(
       appBar: AppBar(
         title: Text(getSelectedPage().getTitle()),
-        actions: getSelectedPage().getActions(),
+        actions: getSelectedPage().getActions(context),
       ),
       body: PageView(
         controller: _pageController,

@@ -27,14 +27,8 @@ class TaskTemplateList extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  List<Widget>? getActions() {
+  List<Widget>? getActions(BuildContext context) {
     return null;
-  }
-
-  @override
-  Function() handleActionPressed(int index) {
-    // TODO: implement handleActionPressed
-    throw UnimplementedError();
   }
 
   @override

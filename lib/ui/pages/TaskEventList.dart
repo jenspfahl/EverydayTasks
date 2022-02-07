@@ -6,6 +6,7 @@ import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
@@ -16,6 +17,7 @@ import '../PersonalTaskLoggerScaffold.dart';
 import '../forms/TaskEventForm.dart';
 
 class TaskEventList extends StatefulWidget implements PageScaffold {
+
   _TaskEventListState? _state;
   ScheduledTaskList _scheduledTaskList;
 
@@ -38,20 +40,47 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  List<Widget>? getActions() {
+  List<Widget>? getActions(BuildContext context) {
+    final favoriteFilterIcon = ToggleActionIcon(Icons.favorite, Icons.favorite_border, false);
+    final taskGroupOrTemplateFilterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, false);
     return [
       IconButton(
-        icon: const Icon(Icons.list),
-        onPressed: () {}, //_pushFavorite,
-        tooltip: 'Saved Favorites',
+        icon: favoriteFilterIcon,
+        onPressed: () {
+          _state?._filterByFavorites = !_state!._filterByFavorites;
+          _state?._doFilter();
+          favoriteFilterIcon.refresh(_state?._filterByFavorites??false);
+        },
+        tooltip: 'Filter favorites',
+      ),
+      IconButton(
+        icon: taskGroupOrTemplateFilterIcon,
+        onPressed: () {
+          if (_state?._filterByTaskOrTemplate == null) {
+            Object? selectedItem = null;
+            showTemplateDialog(context, "Select a group or task to filter by",
+              selectedItem: (item) {
+                selectedItem = item;
+              },
+              okPressed: () {
+                Navigator.pop(context);
+                _state?._filterByTaskOrTemplate = selectedItem;
+                _state?._doFilter();
+                taskGroupOrTemplateFilterIcon.refresh(true);
+              },
+              cancelPressed: () =>
+                  Navigator.pop(context), // dis
+                );
+          }
+          else {
+            _state?._filterByTaskOrTemplate = null;
+            _state?._doFilter();
+            taskGroupOrTemplateFilterIcon.refresh(false);
+          }
+        },
+        tooltip: 'Filter by group or task',
       ),
     ];
-  }
-
-  @override
-  Function() handleActionPressed(int index) {
-    // TODO: implement handleActionPressed
-    throw UnimplementedError();
   }
 
   @override
@@ -66,12 +95,18 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
 
 class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveClientMixin<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
+  List<TaskEvent>? _filteredTaskEvents = null;
   int _selectedTile = -1;
   Set<DateTime> _hiddenTiles = Set();
+
   Object? _selectedTemplateItem;
   ScheduledTaskList _scheduledTaskList;
 
+  bool _filterByFavorites = false;
+  Object? _filterByTaskOrTemplate = null;
+
   _TaskEventListState(this._scheduledTaskList);
+
 
   @override
   void initState() {
@@ -82,6 +117,37 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
       setState(() {
         _taskEvents = taskEvents;
       });
+    });
+  }
+  
+  void _doFilter() {
+    setState(() {
+
+      if (_filterByTaskOrTemplate != null || _filterByFavorites) {
+        _filteredTaskEvents = List.of(_taskEvents);
+
+        _filteredTaskEvents?..removeWhere((taskEvent) {
+          if (_filterByFavorites && !taskEvent.favorite) {
+            return true; // remove non favorites
+          }
+          if (_filterByTaskOrTemplate is TaskGroup) {
+            final _taskGroup = _filterByTaskOrTemplate as TaskGroup;
+            if (taskEvent.taskGroupId != _taskGroup.id) {
+              return true; // remove remove not in group items
+            }
+          }
+          if (_filterByTaskOrTemplate is Template) {
+            final _template = _filterByTaskOrTemplate as Template;
+            if (taskEvent.originTemplateId != _template.tId) {
+              return true; // remove not associated with template items
+            }
+          }
+          return false; // fallback filter nothing
+        });
+      }
+      else {
+        _filteredTaskEvents = null;
+      }
     });
   }
 
@@ -138,8 +204,10 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
   Widget _buildList() {
     DateTime? dateHeading;
     List<DateTime?> dateHeadings = [];
-    for (var i = 0; i < _taskEvents.length; i++) {
-      var taskEvent = _taskEvents[i];
+    var list = _filteredTaskEvents != null ? _filteredTaskEvents! : _taskEvents;
+
+    for (var i = 0; i < list.length; i++) {
+      var taskEvent = list[i];
       var taskEventDate = truncToDate(taskEvent.startedAt);
       DateTime? usedDateHeading;
 
@@ -152,21 +220,20 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
       dateHeading = taskEventDate;
       dateHeadings.add(usedDateHeading);
     }
-
     return ListView.builder(
-        itemCount: _taskEvents.length,
+        itemCount: list.length,
         itemBuilder: (context, index) {
-          var taskEvent = _taskEvents[index];
+          var taskEvent = list[index];
           var taskEventDate = truncToDate(taskEvent.startedAt);
           return Visibility(
             visible: dateHeadings[index] != null || !_hiddenTiles.contains(taskEventDate),
-            child: _buildRow(index, dateHeadings),
+            child: _buildRow(list, index, dateHeadings),
           );
         });
   }
 
-  Widget _buildRow(int index, List<DateTime?> dateHeadings) {
-    final taskEvent = _taskEvents[index];
+  Widget _buildRow(List<TaskEvent> list, int index, List<DateTime?> dateHeadings) {
+    final taskEvent = list[index];
     final dateHeading = dateHeadings[index];
     var taskEventDate = truncToDate(taskEvent.startedAt);
 
@@ -274,7 +341,11 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
             alignment: MainAxisAlignment.start,
             children: [
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  taskEvent.favorite = !taskEvent.favorite;
+                  TaskEventRepository.update(taskEvent);
+                  _updateTaskEvent(taskEvent, taskEvent);
+                },
                 child: Icon(taskEvent.favorite ? Icons.favorite : Icons.favorite_border),
               ),
             ],
@@ -298,7 +369,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                     });
                   }
                 },
-                child: const Text("Change"),
+                child: const Icon(Icons.edit),
               ),
               TextButton(
                 onPressed: () {
@@ -360,10 +431,10 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                     },
                   ),
                   ElevatedButton(
-                    child: const Text('From task template'),
+                    child: const Text('From group or task'),
                     onPressed: () {
                       Navigator.pop(context);
-                      showTemplateDialog(context, "Select a task template",
+                      showTemplateDialog(context, "Select a group or task",
                           selectedItem: (selectedItem) {
                             setState(() {
                               _selectedTemplateItem = selectedItem;
@@ -374,12 +445,12 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                             TaskEvent? newTaskEvent = await Navigator.push(super.context, MaterialPageRoute(builder: (context) {
                               if (_selectedTemplateItem is TaskGroup) {
                                 return TaskEventForm(
-                                  formTitle: "Create new event from task group",
+                                  formTitle: "Create new event from group",
                                   taskGroup: _selectedTemplateItem as TaskGroup,);
                               }
                               else if (_selectedTemplateItem is Template) {
                                 return TaskEventForm(
-                                  formTitle: "Create new event from task template",
+                                  formTitle: "Create new event from task",
                                   template: _selectedTemplateItem as Template,);
                               }
                               else {
@@ -409,4 +480,5 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
 
   @override
   bool get wantKeepAlive => true;
+  
 }

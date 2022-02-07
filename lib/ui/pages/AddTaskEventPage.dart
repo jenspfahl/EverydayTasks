@@ -10,6 +10,8 @@ import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 
+import '../PersonalTaskLoggerScaffold.dart';
+
 class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   _QuickAddTaskEventPageState? _state;
   TaskEventList _taskEventList;
@@ -18,7 +20,7 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
 
   @override
   String getTitle() {
-    return 'Add Task Event';
+    return 'QuickAdd Task Events';
   }
 
   @override
@@ -27,14 +29,8 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  List<Widget>? getActions() {
+  List<Widget>? getActions(BuildContext context) {
     return null;
-  }
-
-  @override
-  Function() handleActionPressed(int index) {
-    // TODO: implement handleActionPressed
-    throw UnimplementedError();
   }
 
   @override
@@ -72,78 +68,82 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(16.0),
-      child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 150,
-              childAspectRatio: 7 / 6,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10),
-          itemCount: _templates.length,
-          itemBuilder: (BuildContext ctx, index) {
-            final template = _templates[index];
-            final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
-            return GestureDetector(
-              onLongPressStart: (details) {
-                showConfirmationDialog(
-                  context,
-                  "Delete QuickAdd for \'${template.title}\'",
-                  "Are you sure to remove this QuickAdd? This will not affect the template itself.",
-                  okPressed: () {
-                    template.favorite = false;
-                    TemplateRepository.update(template).then((changedScheduledTask) {
-                      ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-                          content: Text('Removed \'${template.title}\' from QuickAdd')));
+      child: OrientationBuilder(
+        builder: (context, orientation) {
+          return GridView.builder(
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 150,
+                  childAspectRatio: (orientation == Orientation.landscape ? 12 : 7) / 6,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10),
+              itemCount: _templates.length,
+              itemBuilder: (BuildContext ctx, index) {
+                final template = _templates[index];
+                final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
+                return GestureDetector(
+                  onLongPressStart: (details) {
+                    showConfirmationDialog(
+                      context,
+                      "Delete QuickAdd for \'${template.title}\'",
+                      "Are you sure to remove this QuickAdd? This will not affect the template itself.",
+                      okPressed: () {
+                        template.favorite = false;
+                        TemplateRepository.update(template).then((changedScheduledTask) {
+                          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
+                              content: Text('Removed \'${template.title}\' from QuickAdd')));
 
-                      setState(() {
-                        _templates.remove(template);
-                        _templates..sort();
-                      });
-                    });
-                    Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                          setState(() {
+                            _templates.remove(template);
+                            _templates..sort();
+                          });
+                        });
+                        Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                      },
+                      cancelPressed: () =>
+                          Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                    );
                   },
-                  cancelPressed: () =>
-                      Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
-                );
-              },
-              onTap: () async {
-                TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return TaskEventForm(
-                      formTitle: "Create new event from QuickAdd",
-                      template: template );
-                }));
+                  onTap: () async {
+                    TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return TaskEventForm(
+                          formTitle: "Create new event from QuickAdd",
+                          template: template );
+                    }));
 
-                if (newTaskEvent != null) {
-                  TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                    ScaffoldMessenger.of(super.context).showSnackBar(
-                        SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
-                    _taskEventList.addTaskEvent(newTaskEvent);
-                  });
-                }
-              },
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: taskGroup.backgroundColor,
-                    borderRadius: BorderRadius.circular(15)),
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      taskGroup.getIcon(true),
-                      Text(template.title, textAlign: TextAlign.center),
-                    ],
+                    if (newTaskEvent != null) {
+                      TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+                        ScaffoldMessenger.of(super.context).showSnackBar(
+                            SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
+                        _taskEventList.addTaskEvent(newTaskEvent);
+                      });
+                    }
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: taskGroup.backgroundColor,
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          taskGroup.getIcon(true),
+                          Text(template.title, textAlign: TextAlign.center),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            );
-          }),
+                );
+              });
+        }
+      ),
     );
   }
 
   void _onFABPressed() {
     Object? selectedTemplateItem;
 
-    showTemplateDialog(context, "Select a task template",
+    showTemplateDialog(context, "Select a task to be added to QuickAdd",
         selectedItem: (selectedItem) {
       setState(() {
         selectedTemplateItem = selectedItem;
