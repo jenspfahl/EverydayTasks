@@ -41,9 +41,35 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
 
   @override
   List<Widget>? getActions(BuildContext context) {
+    final timeRangeFilterIcon = ToggleActionIcon(Icons.calendar_today, Icons.calendar_today_outlined, false);
     final favoriteFilterIcon = ToggleActionIcon(Icons.favorite, Icons.favorite_border, false);
     final taskGroupOrTemplateFilterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, false);
     return [
+      IconButton(
+        icon: timeRangeFilterIcon,
+        onPressed: () {
+          if (_state?._filterByDateRange == null) {
+            showDateRangePicker(
+              context: context,
+              firstDate: DateTime.now().subtract(Duration(days: 365)),
+              lastDate: DateTime.now().add(Duration(days: 365)),
+              currentDate: DateTime.now(),
+            ).then((dateRange) {
+              if (dateRange != null) {
+                _state?._filterByDateRange = dateRange;
+                _state?._doFilter();
+                timeRangeFilterIcon.refresh(true);
+              }
+            });
+          }
+          else {
+            _state?._filterByDateRange = null;
+            _state?._doFilter();
+            timeRangeFilterIcon.refresh(false);
+          }
+        },
+        tooltip: 'Show range',
+      ),
       IconButton(
         icon: favoriteFilterIcon,
         onPressed: () {
@@ -102,6 +128,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
   Object? _selectedTemplateItem;
   ScheduledTaskList _scheduledTaskList;
 
+  DateTimeRange? _filterByDateRange = null;
   bool _filterByFavorites = false;
   Object? _filterByTaskOrTemplate = null;
 
@@ -112,7 +139,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
   void initState() {
     super.initState();
 
-    final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 100);
+    final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 500);
     TaskEventRepository.getAllPaged(paging).then((taskEvents) {
       setState(() {
         _taskEvents = taskEvents;
@@ -123,10 +150,19 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
   void _doFilter() {
     setState(() {
 
-      if (_filterByTaskOrTemplate != null || _filterByFavorites) {
+      if (_filterByTaskOrTemplate != null
+          || _filterByFavorites
+          || _filterByDateRange != null) {
+
         _filteredTaskEvents = List.of(_taskEvents);
 
         _filteredTaskEvents?..removeWhere((taskEvent) {
+          if (_filterByDateRange != null && taskEvent.startedAt.isBefore(_filterByDateRange!.start)) {
+            return true; // remove events before dateFrom
+          }
+          if (_filterByDateRange != null && taskEvent.startedAt.isAfter(_filterByDateRange!.end)) {
+            return true; // remove events after dateTo
+          }
           if (_filterByFavorites && !taskEvent.favorite) {
             return true; // remove non favorites
           }
