@@ -143,3 +143,17 @@ void showTemplateDialog(BuildContext context, String title,
     },
   );
 }
+
+Future<dynamic> showPopUpMenuAtTapDown(BuildContext context, TapDownDetails tapDown, List<PopupMenuEntry> items) {
+  return showMenu(
+    context: context,
+    position: RelativeRect.fromLTRB(
+      tapDown.globalPosition.dx,
+      tapDown.globalPosition.dy,
+      tapDown.globalPosition.dx,
+      tapDown.globalPosition.dy,
+    ),
+    items: items,
+    elevation: 8.0,
+  );
+}

@@ -41,70 +41,130 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
 
   @override
   List<Widget>? getActions(BuildContext context) {
-    final timeRangeFilterIcon = ToggleActionIcon(Icons.calendar_today, Icons.calendar_today_outlined, false);
-    final favoriteFilterIcon = ToggleActionIcon(Icons.favorite, Icons.favorite_border, false);
-    final taskGroupOrTemplateFilterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, false);
+    final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, false);
     return [
-      IconButton(
-        icon: timeRangeFilterIcon,
-        onPressed: () {
-          if (_state?._filterByDateRange == null) {
-            showDateRangePicker(
-              context: context,
-              firstDate: DateTime.now().subtract(Duration(days: 365)),
-              lastDate: DateTime.now().add(Duration(days: 365)),
-              currentDate: DateTime.now(),
-            ).then((dateRange) {
-              if (dateRange != null) {
-                _state?._filterByDateRange = dateRange;
-                _state?._doFilter();
-                timeRangeFilterIcon.refresh(true);
+      GestureDetector(
+        child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
+        child: filterIcon),
+        onTapDown: (details) {
+          showPopUpMenuAtTapDown(
+            context,
+            details,
+              [
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          Icon(
+                            _state?._filterByDateRange != null ? Icons.calendar_today : Icons.calendar_today_outlined,
+                            color: _state?._filterByDateRange != null ? Colors.blueAccent : null,
+                          ),
+                          const Spacer(),
+                          const Text("Filter by date range"),
+                        ]
+                    ),
+                    value: '1'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          Icon(
+                              _state?._filterByFavorites??false ? Icons.favorite : Icons.favorite_border,
+                              color: _state?._filterByFavorites??false ? Colors.blueAccent : null,
+                          ),
+                          const Spacer(),
+                          const Text("Filter favorites"),
+                        ]
+                    ),
+                    value: '2'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          Icon(
+                            _state?._filterByTaskOrTemplate != null ? Icons.task_alt : Icons.task_alt_outlined,
+                            color: _state?._filterByTaskOrTemplate != null ? Colors.blueAccent : null,
+                          ),
+                          const Spacer(),
+                          const Text("Filter by task"),
+                        ]
+                    ),
+                    value: '3'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          Icon(
+                            _state?.isFilterActive()??false ? Icons.clear : Icons.clear_outlined,
+                            color: _state?.isFilterActive()??false ? Colors.blueAccent : null,
+                          ),
+                          const Spacer(),
+                          const Text("Clear filters"),
+                        ]
+                    ),
+                    value: '4'),
+              ]
+          ).then((selected) {
+            switch (selected) {
+              case '1' : {
+                if (_state?._filterByDateRange == null) {
+                  showDateRangePicker(
+                    context: context,
+                    firstDate: DateTime.now().subtract(Duration(days: 365)),
+                    lastDate: DateTime.now().add(Duration(days: 365)),
+                    currentDate: DateTime.now(),
+                  ).then((dateRange) {
+                    if (dateRange != null) {
+                      _state?._filterByDateRange = dateRange;
+                      _state?._doFilter();
+                      filterIcon.refresh(_state?.isFilterActive()??false);
+                    }
+                  });
+                }
+                else {
+                  _state?._filterByDateRange = null;
+                  _state?._doFilter();
+                  filterIcon.refresh(_state?.isFilterActive()??false);
+                }
+                break;
               }
-            });
-          }
-          else {
-            _state?._filterByDateRange = null;
-            _state?._doFilter();
-            timeRangeFilterIcon.refresh(false);
-          }
-        },
-        tooltip: 'Show range',
-      ),
-      IconButton(
-        icon: favoriteFilterIcon,
-        onPressed: () {
-          _state?._filterByFavorites = !_state!._filterByFavorites;
-          _state?._doFilter();
-          favoriteFilterIcon.refresh(_state?._filterByFavorites??false);
-        },
-        tooltip: 'Filter favorites',
-      ),
-      IconButton(
-        icon: taskGroupOrTemplateFilterIcon,
-        onPressed: () {
-          if (_state?._filterByTaskOrTemplate == null) {
-            Object? selectedItem = null;
-            showTemplateDialog(context, "Select a group or task to filter by",
-              selectedItem: (item) {
-                selectedItem = item;
-              },
-              okPressed: () {
-                Navigator.pop(context);
-                _state?._filterByTaskOrTemplate = selectedItem;
+
+              case '2' : {
+                _state?._filterByFavorites = !_state!._filterByFavorites;
                 _state?._doFilter();
-                taskGroupOrTemplateFilterIcon.refresh(true);
-              },
-              cancelPressed: () =>
-                  Navigator.pop(context), // dis
-                );
-          }
-          else {
-            _state?._filterByTaskOrTemplate = null;
-            _state?._doFilter();
-            taskGroupOrTemplateFilterIcon.refresh(false);
-          }
+                filterIcon.refresh(_state?.isFilterActive()??false);
+                break;
+              }
+
+              case '3' : {
+                if (_state?._filterByTaskOrTemplate == null) {
+                  Object? selectedItem = null;
+                  showTemplateDialog(context, "Select a task to filter by",
+                    selectedItem: (item) {
+                      selectedItem = item;
+                    },
+                    okPressed: () {
+                      Navigator.pop(context);
+                      _state?._filterByTaskOrTemplate = selectedItem;
+                      _state?._doFilter();
+                      filterIcon.refresh(_state?.isFilterActive()??false);
+                    },
+                    cancelPressed: () =>
+                        Navigator.pop(context), // dis
+                  );
+                }
+                else {
+                  _state?._filterByTaskOrTemplate = null;
+                  _state?._doFilter();
+                  filterIcon.refresh(_state?.isFilterActive()??false);
+                }
+                break;
+              }
+              case '4' : {
+                _state?.clearFilters();
+                _state?._doFilter();
+                filterIcon.refresh(_state?.isFilterActive()??false);
+                break;
+              }
+            }
+          });
         },
-        tooltip: 'Filter by group or task',
       ),
     ];
   }
@@ -150,10 +210,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
   void _doFilter() {
     setState(() {
 
-      if (_filterByTaskOrTemplate != null
-          || _filterByFavorites
-          || _filterByDateRange != null) {
-
+      if (isFilterActive()) {
         _filteredTaskEvents = List.of(_taskEvents);
 
         _filteredTaskEvents?..removeWhere((taskEvent) {
@@ -467,10 +524,10 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                     },
                   ),
                   ElevatedButton(
-                    child: const Text('From group or task'),
+                    child: const Text('From task'),
                     onPressed: () {
                       Navigator.pop(context);
-                      showTemplateDialog(context, "Select a group or task",
+                      showTemplateDialog(context, "Select a task",
                           selectedItem: (selectedItem) {
                             setState(() {
                               _selectedTemplateItem = selectedItem;
@@ -516,5 +573,13 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
 
   @override
   bool get wantKeepAlive => true;
+
+  bool isFilterActive() => _filterByDateRange != null || _filterByFavorites || _filterByTaskOrTemplate != null;
+
+  void clearFilters() {
+    _filterByDateRange = null;
+    _filterByFavorites = false;
+    _filterByTaskOrTemplate = null;
+  }
   
 }
