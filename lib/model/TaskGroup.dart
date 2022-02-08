@@ -40,6 +40,11 @@ class TaskGroup implements Comparable {
     return icon;
   }
 
+  @override
+  String toString() {
+    return name;
+  }
+
 }
 
 

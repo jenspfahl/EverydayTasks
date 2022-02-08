@@ -1,3 +1,6 @@
+import 'package:flutter/cupertino.dart';
+import 'package:personaltasklogger/model/TaskGroup.dart';
+
 import 'Severity.dart';
 import 'TemplateId.dart';
 import 'When.dart';
@@ -22,5 +25,16 @@ abstract class Template extends Comparable {
       return result;
     }
     return title.compareTo(other.title);
+  }
+
+
+  @override
+  String toString() {
+    return title;
+  }
+
+  Icon getIcon(bool useColor) {
+    final taskGroup = findPredefinedTaskGroupById(taskGroupId);
+    return taskGroup!.getIcon(useColor);
   }
 }

@@ -41,7 +41,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
 
   @override
   List<Widget>? getActions(BuildContext context) {
-    final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, false);
+    final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, _state?.isFilterActive()??false);
     return [
       GestureDetector(
         child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
@@ -59,7 +59,9 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                             color: _state?._filterByDateRange != null ? Colors.blueAccent : null,
                           ),
                           const Spacer(),
-                          const Text("Filter by date range"),
+                          Text(_state?._filterByDateRange != null
+                              ?  "${formatToDateOrWord(_state!._filterByDateRange!.start)} to ${formatToDateOrWord(_state!._filterByDateRange!.end).toLowerCase()}"
+                              : "Filter by date range"),
                         ]
                     ),
                     value: '1'),
@@ -78,12 +80,15 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                 PopupMenuItem<String>(
                     child: Row(
                         children: [
-                          Icon(
-                            _state?._filterByTaskOrTemplate != null ? Icons.task_alt : Icons.task_alt_outlined,
-                            color: _state?._filterByTaskOrTemplate != null ? Colors.blueAccent : null,
-                          ),
+                          _state?._filterByTaskOrTemplate != null
+                              ? _state!._filterByTaskOrTemplate is TaskGroup
+                                ? (_state!._filterByTaskOrTemplate as TaskGroup).getIcon(true)
+                                : (_state!._filterByTaskOrTemplate as Template).getIcon(true)
+                              : const Icon(Icons.task_alt),
                           const Spacer(),
-                          const Text("Filter by task"),
+                          Text(_state?._filterByTaskOrTemplate != null
+                              ? _state!._filterByTaskOrTemplate.toString()
+                              : "Filter by task"),
                         ]
                     ),
                     value: '3'),
