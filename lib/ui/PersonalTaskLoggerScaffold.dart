@@ -18,6 +18,9 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   int _selectedNavigationIndex = 1;
   PageController _pageController = PageController(initialPage: 1);
 
+  TextEditingController _searchQueryController = TextEditingController();
+  String? _searchString;
+
   late List<PageScaffold> _pages;
 
   PersonalTaskLoggerScaffoldState() {
@@ -36,16 +39,19 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(getSelectedPage().getTitle()),
-        actions: getSelectedPage().getActions(context),
+    //    leading: _searchString != null ? const BackButton() : null,
+        title: _searchString != null ? _buildSearchField() : getSelectedPage().getTitle(),
+        actions: _buildActions(context),
       ),
       body: PageView(
         controller: _pageController,
         onPageChanged: (newIndex) {
           setState(() {
             _selectedNavigationIndex = newIndex;
+            _clearOrCloseSearchBar(context, true);
           });
         },
         children: _pages,
@@ -87,10 +93,100 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     );
   }
 
+
   void dispatch(Notification notification) {
     debugPrint("dispatch to context $context");
     notification..dispatch(context);
   }
 
+
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchQueryController,
+      autofocus: true,
+      decoration: InputDecoration(
+        hintText: "Search ...",
+        border: InputBorder.none,
+      ),
+      style: TextStyle(fontSize: 16.0),
+      onChanged: (query) => updateSearchQuery(query),
+    );
+  }
+
+
+  List<Widget>? _buildActions(BuildContext context) {
+    final definedActions = getSelectedPage().getActions(context);
+
+    if (getSelectedPage().withSearchBar() == false && definedActions == null) {
+      return null;
+    }
+    List<Widget> actions = [];
+
+    if (_searchString != null) {
+      //actions.add(
+       return [IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () {
+            _clearOrCloseSearchBar(context, false);
+          },
+        )];
+    //  );
+    }
+    else if (getSelectedPage().withSearchBar()) {
+      actions.add(IconButton(
+        icon: const Icon(Icons.search),
+        onPressed: _startSearch,
+      ));
+    }
+    if (definedActions != null) {
+      actions.addAll(definedActions);
+    }
+
+    return actions;
+  }
+
+  void _clearOrCloseSearchBar(BuildContext context, bool immediately) {
+    if (immediately || _searchQueryController.text.isEmpty) {
+      _searchString = null;
+      getSelectedPage().searchQueryUpdated(null);
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+    }
+    else {
+      _clearSearchQuery();
+    }
+  }
+
+  void _startSearch() {
+    ModalRoute.of(context)!
+        .addLocalHistoryEntry(LocalHistoryEntry(onRemove: _stopSearching));
+
+    setState(() {
+      _searchString = "";
+    });
+  }
+
+  void updateSearchQuery(String? newQuery) {
+    setState(() {
+      _searchString = newQuery;
+      getSelectedPage().searchQueryUpdated(newQuery);
+    });
+  }
+
+  void _stopSearching() {
+    _clearSearchQuery();
+
+    setState(() {
+      _searchString = null;
+    });
+  }
+
+  void _clearSearchQuery() {
+    setState(() {
+      _searchQueryController.clear();
+      updateSearchQuery("");
+    });
+  }
 
 }

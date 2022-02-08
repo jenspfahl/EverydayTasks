@@ -30,8 +30,8 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  String getTitle() {
-    return 'Personal Task Logger';
+  Widget getTitle() {
+    return const Text('Personal Task Logger');
   }
 
   @override
@@ -182,6 +182,17 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
   void addTaskEvent(TaskEvent newTaskEvent) {
     _state?._addTaskEvent(newTaskEvent);
   }
+
+  @override
+  bool withSearchBar() {
+    return true;
+  }
+
+  @override
+  void searchQueryUpdated(String? searchQuery) {
+    _state?._updateSearchQuery(searchQuery);
+    _state?._doFilter();
+  }
 }
 
 class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveClientMixin<TaskEventList> {
@@ -195,7 +206,9 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
 
   DateTimeRange? _filterByDateRange = null;
   bool _filterByFavorites = false;
-  Object? _filterByTaskOrTemplate = null;
+  Object? _filterByTaskOrTemplate;
+
+  String? _searchQuery;
 
   _TaskEventListState(this._scheduledTaskList);
 
@@ -211,14 +224,21 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
       });
     });
   }
-  
+
+  void _updateSearchQuery(String? searchQuery) {
+    _searchQuery = searchQuery;
+  }
+
   void _doFilter() {
     setState(() {
 
-      if (isFilterActive()) {
+      if (isFilterActive() || _searchQuery != null) {
         _filteredTaskEvents = List.of(_taskEvents);
 
         _filteredTaskEvents?..removeWhere((taskEvent) {
+          if (_searchQuery != null && !taskEvent.title.contains(_searchQuery!)) {
+            return true; // remove events not containing search string
+          }
           if (_filterByDateRange != null && taskEvent.startedAt.isBefore(_filterByDateRange!.start)) {
             return true; // remove events before dateFrom
           }

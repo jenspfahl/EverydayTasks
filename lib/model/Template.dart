@@ -35,6 +35,6 @@ abstract class Template extends Comparable {
 
   Icon getIcon(bool useColor) {
     final taskGroup = findPredefinedTaskGroupById(taskGroupId);
-    return taskGroup!.getIcon(useColor);
+    return taskGroup.getIcon(useColor);
   }
 }

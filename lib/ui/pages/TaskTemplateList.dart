@@ -17,8 +17,8 @@ class TaskTemplateList extends StatefulWidget implements PageScaffold {
 
 
   @override
-  String getTitle() {
-    return 'Tasks';
+  Widget getTitle() {
+    return Text('Tasks');
   }
 
   @override
@@ -39,6 +39,15 @@ class TaskTemplateList extends StatefulWidget implements PageScaffold {
   @override
   State<StatefulWidget> createState() {
     return _TaskTemplateListState(_selectedItem);
+  }
+
+  @override
+  bool withSearchBar() {
+    return false;
+  }
+
+  @override
+  void searchQueryUpdated(String? searchQuery) {
   }
 }
 

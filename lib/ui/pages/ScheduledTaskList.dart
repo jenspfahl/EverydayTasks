@@ -25,8 +25,8 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  String getTitle() {
-    return 'Schedules';
+  Widget getTitle() {
+    return Text('Schedules');
   }
 
   @override
@@ -46,6 +46,15 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
 
   void updateScheduledTask(int scheduledTaskId) {
     _state?.updateScheduledTask(scheduledTaskId);
+  }
+
+  @override
+  bool withSearchBar() {
+    return false;
+  }
+
+  @override
+  void searchQueryUpdated(String? searchQuery) {
   }
 }
 

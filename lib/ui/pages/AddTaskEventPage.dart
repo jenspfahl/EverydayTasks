@@ -19,8 +19,8 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   QuickAddTaskEventPage(this._taskEventList);
 
   @override
-  String getTitle() {
-    return 'QuickAdd Task Events';
+  Widget getTitle() {
+    return Text('QuickAdd Task Events');
   }
 
   @override
@@ -42,6 +42,15 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   State<StatefulWidget> createState() {
     _state = _QuickAddTaskEventPageState(_taskEventList);
     return _state!;
+  }
+
+  @override
+  bool withSearchBar() {
+    return false;
+  }
+
+  @override
+  void searchQueryUpdated(String? searchQuery) {
   }
 }
 
