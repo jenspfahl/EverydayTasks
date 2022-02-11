@@ -41,6 +41,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
 
   @override
   List<Widget>? getActions(BuildContext context) {
+    final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, _state?.isAllExpanded()??true); //TODO should be updated when hiddenTiles is updated
     final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, _state?.isFilterActive()??false);
     return [
       GestureDetector(
@@ -171,6 +172,19 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
           });
         },
       ),
+      IconButton(
+        icon: expandIcon,
+        onPressed: () {
+          if (_state?.isAllExpanded()??false) {
+            _state?.collapseAll();
+            expandIcon.refresh(false);
+          }
+          else {
+            _state?.expandAll();
+            expandIcon.refresh(true);
+          }
+        },
+      ),
     ];
   }
 
@@ -197,7 +211,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
 
 class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveClientMixin<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
-  List<TaskEvent>? _filteredTaskEvents = null;
+  List<TaskEvent>? _filteredTaskEvents;
   int _selectedTile = -1;
   Set<DateTime> _hiddenTiles = Set();
 
@@ -236,7 +250,9 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
         _filteredTaskEvents = List.of(_taskEvents);
 
         _filteredTaskEvents?..removeWhere((taskEvent) {
-          if (_searchQuery != null && !taskEvent.title.contains(_searchQuery!)) {
+          if (_searchQuery != null &&
+              !(taskEvent.title.toLowerCase().contains(_searchQuery!.toLowerCase())
+                  || (taskEvent.description != null && taskEvent.description!.toLowerCase().contains(_searchQuery!.toLowerCase())))) {
             return true; // remove events not containing search string
           }
           if (_filterByDateRange != null && taskEvent.startedAt.isBefore(_filterByDateRange!.start)) {
@@ -605,6 +621,21 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
     _filterByDateRange = null;
     _filterByFavorites = false;
     _filterByTaskOrTemplate = null;
+  }
+
+  bool isAllExpanded() => _hiddenTiles.isEmpty;
+
+  void expandAll() {
+    setState(() {
+      _hiddenTiles.clear();
+    });
+  }
+
+  void collapseAll() {
+    setState(() {
+      final allDates = _taskEvents.map((e) => truncToDate(e.startedAt));
+      _hiddenTiles.addAll(allDates);
+    });
   }
   
 }
