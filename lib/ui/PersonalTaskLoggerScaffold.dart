@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/ui/pages/AddTaskEventPage.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
@@ -22,6 +23,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   String? _searchString;
 
   late List<PageScaffold> _pages;
+  final _notificationService = LocalNotificationService();
 
   PersonalTaskLoggerScaffoldState() {
 
@@ -31,6 +33,12 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     var quickAddTaskEventPage = QuickAddTaskEventPage(taskEventList);
 
     _pages = <PageScaffold>[quickAddTaskEventPage, taskEventList, TaskTemplateList(), scheduledTaskList];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationService.addHandler(handleNotificationClicked);
   }
 
   PageScaffold getSelectedPage() {
@@ -92,6 +100,11 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     );
   }
 
+  @override
+  void deactivate() {
+    _notificationService.removeHandler(handleNotificationClicked);
+    super.deactivate();
+  }
 
   void dispatch(Notification notification) {
     debugPrint("dispatch to context $context");
@@ -188,4 +201,14 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     });
   }
 
+  handleNotificationClicked(String receiverKey, String id) {
+    final index = _pages.indexWhere((page) => page.getKey() == receiverKey);
+    if (index != -1) {
+      _pageController.jumpToPage(index);
+      setState(() {
+        _selectedNavigationIndex = index;
+        _clearOrCloseSearchBar(context, true);
+      });
+    }
+  }
 }

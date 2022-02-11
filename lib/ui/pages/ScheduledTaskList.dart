@@ -7,6 +7,7 @@ import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
@@ -56,15 +57,23 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
   @override
   void searchQueryUpdated(String? searchQuery) {
   }
+
+  @override
+  String getKey() {
+    return "ScheduledTasks";
+  }
 }
 
 class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKeepAliveClientMixin<ScheduledTaskList> {
   List<ScheduledTask> _scheduledTasks = [];
   int _selectedTile = -1;
+  final _notificationService = LocalNotificationService();
 
   @override
   void initState() {
     super.initState();
+    _notificationService.addHandler(handleNotificationClicked);
+
 
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 100);
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
@@ -78,6 +87,12 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   @override
   Widget build(BuildContext context) {
     return _buildList();
+  }
+  
+  @override
+  void deactivate() {
+    _notificationService.removeHandler(handleNotificationClicked);
+    super.deactivate();
   }
 
   void updateScheduledTask(int scheduledTaskId) {
@@ -102,7 +117,6 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   }
 
   Widget _buildList() {
-
     return Padding(
         padding: EdgeInsets.all(8.0),
         child: ListView.builder(
@@ -113,6 +127,15 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
               return _buildRow(index, scheduledTask, taskGroup);
             }),
     );
+  }
+
+  handleNotificationClicked(String receiverKey, String id) {
+    if (receiverKey == widget.getKey()) {
+      setState(() {
+        final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == id);
+        _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
+      });
+    }
   }
 
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
@@ -188,7 +211,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                               SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' reset done')));
                           _updateScheduledTask(scheduledTask, changedScheduledTask);
                         });
-                        Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                        Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
                       },
                       cancelPressed: () =>
                           Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
@@ -291,6 +314,8 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
       _scheduledTasks..sort();
       _selectedTile = _scheduledTasks.indexOf(scheduledTask);
     });
+
+    _rescheduleNotification(scheduledTask);
   }
 
   void _updateScheduledTask(ScheduledTask origin, ScheduledTask updated) {
@@ -303,6 +328,8 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
       _scheduledTasks..sort();
       _selectedTile = _scheduledTasks.indexOf(updated);
     });
+
+    _rescheduleNotification(updated);
   }
 
   void _removeScheduledTask(ScheduledTask scheduledTask) {
@@ -310,6 +337,8 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
       _scheduledTasks.remove(scheduledTask);
       _selectedTile = -1;
     });
+
+    _cancelNotification(scheduledTask);
   }
 
 
@@ -353,6 +382,25 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
 
   @override
   bool get wantKeepAlive => true;
+
+
+  void _rescheduleNotification(ScheduledTask scheduledTask) {
+    _cancelNotification(scheduledTask);
+    final missingDuration = scheduledTask.getMissingDuration();
+    if (scheduledTask.active && missingDuration != null) {
+      _notificationService.scheduleNotifications(
+          widget.getKey(),
+          scheduledTask.id!,
+          "Due scheduled task",
+          "Scheduled task '${scheduledTask.title}' is due!",
+          missingDuration);
+    }
+  }
+
+  void _cancelNotification(ScheduledTask scheduledTask) {
+    _notificationService.cancelNotifications(scheduledTask.id!);
+  }
+
 
 }
 

@@ -10,8 +10,6 @@ import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 
-import '../PersonalTaskLoggerScaffold.dart';
-
 class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   _QuickAddTaskEventPageState? _state;
   TaskEventList _taskEventList;
@@ -51,6 +49,11 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
 
   @override
   void searchQueryUpdated(String? searchQuery) {
+  }
+
+  @override
+  String getKey() {
+    return "QuickAdd";
   }
 }
 

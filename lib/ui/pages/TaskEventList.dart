@@ -209,6 +209,11 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
     _state?._updateSearchQuery(searchQuery);
     _state?._doFilter();
   }
+
+  @override
+  String getKey() {
+    return "TaskEvents";
+  }
 }
 
 class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveClientMixin<TaskEventList> {

@@ -49,6 +49,11 @@ class TaskTemplateList extends StatefulWidget implements PageScaffold {
   @override
   void searchQueryUpdated(String? searchQuery) {
   }
+
+  @override
+  String getKey() {
+    return "TaskTemplates";
+  }
 }
 
 class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepAliveClientMixin<TaskTemplateList> {
