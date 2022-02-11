@@ -56,6 +56,7 @@ class ScheduledTask implements Comparable {
     if (lastScheduledEventOn != null) {
       var nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
       return nextRepetition.difference(truncToSeconds(DateTime.now()));
+        //  .subtract(Duration(minutes: 1))); // subtract leap minute
     }
   }
 
@@ -81,15 +82,31 @@ class ScheduledTask implements Comparable {
   }
 
   int _getRoundedDurationValue(Duration duration) {
-    if (schedule.customRepetition?.repetitionUnit == RepetitionUnit.HOURS) {
-      return duration.inMinutes;
-    }
-    else if (schedule.repetitionStep == RepetitionStep.DAILY
-        || schedule.repetitionStep == RepetitionStep.EVERY_OTHER_DAY) {
+      if (schedule.repetitionStep == RepetitionStep.DAILY
+        || schedule.repetitionStep == RepetitionStep.EVERY_OTHER_DAY
+        || schedule.customRepetition?.repetitionUnit == RepetitionUnit.DAYS
+      ) {
       return duration.inHours;
-    } else {
-      return duration.inDays;
-    }
+    } else if (schedule.repetitionStep == RepetitionStep.WEEKLY
+          || schedule.repetitionStep == RepetitionStep.EVERY_OTHER_WEEK
+          || schedule.repetitionStep == RepetitionStep.MONTHLY
+          || schedule.repetitionStep == RepetitionStep.EVERY_OTHER_MONTH
+          || schedule.customRepetition?.repetitionUnit == RepetitionUnit.WEEKS
+          || schedule.customRepetition?.repetitionUnit == RepetitionUnit.MONTHS
+      ) {
+        return duration.inDays;
+      }
+      else if (schedule.repetitionStep == RepetitionStep.QUARTERLY
+          || schedule.repetitionStep == RepetitionStep.HALF_YEARLY
+          || schedule.repetitionStep == RepetitionStep.YEARLY
+          || schedule.customRepetition?.repetitionUnit == RepetitionUnit.YEARS
+      ) {
+        return duration.inDays ~/ 7;
+      } else {
+        // default if we miss something
+        return duration.inMinutes;
+
+      }
   }
 
   double? getNextRepetitionIndicatorValue() {

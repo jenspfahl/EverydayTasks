@@ -47,8 +47,8 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
     _state?._onFABPressed();
   }
 
-  void updateScheduledTask(int scheduledTaskId) {
-    _state?.updateScheduledTask(scheduledTaskId);
+  void updateScheduledTask(ScheduledTask scheduledTask) {
+    _state?.updateScheduledTask(scheduledTask);
   }
 
   @override
@@ -77,9 +77,10 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
     super.initState();
     _notificationService.addHandler(handleNotificationClicked);
 
-    _timer = Timer.periodic(Duration(seconds: 30), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 20), (timer) {
       setState(() {
         // update all
+        _scheduledTasks..sort();
         debugPrint(".. timer refresh #${_timer.tick} ..");
       });
     });
@@ -105,22 +106,19 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
     super.deactivate();
   }
 
-  void updateScheduledTask(int scheduledTaskId) {
-    debugPrint("received scheduledTaskId:" + scheduledTaskId.toString());
+  void updateScheduledTask(ScheduledTask scheduledTask) {
+    debugPrint("received scheduledTaskId:" + scheduledTask.id.toString());
     setState(() {
-      final found = _scheduledTasks.firstWhereOrNull((element) => element.id == scheduledTaskId);
+      final found = _scheduledTasks.firstWhereOrNull((element) => element.id == scheduledTask.id);
       debugPrint("found in list: " + found.toString());
       if (found != null) {
         var index = _scheduledTasks.indexOf(found);
         debugPrint("index in list: " + index.toString());
         if (index != -1) {
-          ScheduledTaskRepository.getById(scheduledTaskId)
-              .then((freshScheduledTask) {
-            _scheduledTasks.removeAt(index);
-            _scheduledTasks.insert(index, freshScheduledTask);
-            debugPrint("exchanged: " + freshScheduledTask.toString());
-            _scheduledTasks..sort();
-          });
+          _scheduledTasks.removeAt(index);
+          _scheduledTasks.insert(index, scheduledTask);
+          debugPrint("exchanged: " + scheduledTask.lastScheduledEventOn.toString());
+          _scheduledTasks..sort();
         }
       }
     });
@@ -164,12 +162,13 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                 Visibility(
                   visible: scheduledTask.active,
                   child: LinearProgressIndicator(
-                    value: scheduledTask.getNextRepetitionIndicatorValue(),
+                    value: scheduledTask.isNextScheduleOverdue(true) ? null : scheduledTask.getNextRepetitionIndicatorValue(),
                     color: scheduledTask.isNextScheduleOverdue(false)
                         ? Colors.red[500]
                         : (scheduledTask.isNextScheduleReached()
-                          ? Colors.orange[500]
-                        : null),
+                          ? Color(0xFF770C0C)
+                          : null),
+                    backgroundColor: scheduledTask.isNextScheduleOverdue(true) ? Color(0xFF770C0C) : null,
                   ),
                 ),
               ],
@@ -296,20 +295,17 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
         return debug +
             "Overdue ${formatToDateOrWord(
             scheduledTask.getNextSchedule()!, true).toLowerCase()} "
-            "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} ";
+            "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} !";
       }
       debugPrint(scheduledTask.schedule.customRepetition?.toString());
-      if (scheduledTask.schedule.repetitionStep == RepetitionStep.CUSTOM
-          && scheduledTask.schedule.customRepetition!.repetitionUnit == RepetitionUnit.HOURS) {
+      final nextSchedule = scheduledTask.getNextSchedule()!;
+      if (truncToSeconds(nextSchedule) == truncToSeconds(DateTime.now())) {
         return debug +
-            "Due ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true)
-                .toLowerCase()} "
-                "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
-                "at ${formatToTime(scheduledTask.getNextSchedule()!)}";
+            "Due now!";
       }
       else {
         return debug +
-            "Due ${formatToDateOrWord(scheduledTask.getNextSchedule()!, true)
+            "Due ${formatToDateOrWord(nextSchedule, true)
                 .toLowerCase()} "
                 "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
                 "${scheduledTask.schedule.toStartAtAsString().toLowerCase()}";

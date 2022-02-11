@@ -7,8 +7,7 @@ DateTime truncToDate(DateTime dateTime) {
 }
 
 DateTime truncToSeconds(DateTime dateTime) {
-  return DateTime(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute, dateTime.second)
-      .subtract(Duration(minutes: 1)); // subtract leap minute
+  return DateTime(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
 }
 
 String formatToDateOrWord(DateTime dateTime, [bool? withPreposition]) {

@@ -298,13 +298,13 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
           .then((scheduledTasks) {
             scheduledTasks.forEach((scheduledTask) {
               scheduledTask.executeSchedule(taskEvent);
-              debugPrint("schedule ${scheduledTask.id} executed");
+              debugPrint("schedule ${scheduledTask.id} executed: ${scheduledTask.lastScheduledEventOn}");
               ScheduledTaskRepository.update(scheduledTask).then((
                   changedScheduledTask) {
-                debugPrint("schedule ${changedScheduledTask.id} notified");
+                debugPrint("schedule ${changedScheduledTask.id} notified: ${changedScheduledTask.lastScheduledEventOn}");
                 PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
                 debugPrint("found root $root target: $_scheduledTaskList");
-                _scheduledTaskList.updateScheduledTask(changedScheduledTask.id!);
+                _scheduledTaskList.updateScheduledTask(changedScheduledTask);
               });
             });
       });
