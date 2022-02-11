@@ -42,7 +42,6 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
     return Scaffold(
       appBar: AppBar(
-    //    leading: _searchString != null ? const BackButton() : null,
         title: _searchString != null ? _buildSearchField() : getSelectedPage().getTitle(),
         actions: _buildActions(context),
       ),

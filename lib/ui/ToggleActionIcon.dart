@@ -7,11 +7,11 @@ class ToggleActionIcon extends StatefulWidget {
 
   _ToggleActionIconState? _state;
 
-  ToggleActionIcon(this._onIcon, this._offIcon, this._toggled);
+  ToggleActionIcon(this._onIcon, this._offIcon, this._toggled, [Key? key]) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    _state = _ToggleActionIconState(_onIcon, _offIcon, _toggled);
+    _state = _ToggleActionIconState(_toggled);
     return _state!;
   }
 
@@ -21,15 +21,13 @@ class ToggleActionIcon extends StatefulWidget {
 }
 
 class _ToggleActionIconState extends State<ToggleActionIcon> {
-  late IconData _onIcon;
-  late IconData _offIcon;
   late bool _toggled;
 
-  _ToggleActionIconState(this._onIcon, this._offIcon, this._toggled);
+  _ToggleActionIconState(this._toggled);
 
   @override
   Widget build(BuildContext context) {
-    return Icon(_toggled ? _onIcon : _offIcon);
+    return Icon(_toggled ? widget._onIcon : widget._offIcon);
   }
 
   void refresh(bool isToggled) {

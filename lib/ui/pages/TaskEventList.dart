@@ -16,6 +16,8 @@ import 'package:personaltasklogger/util/dates.dart';
 import '../PersonalTaskLoggerScaffold.dart';
 import '../forms/TaskEventForm.dart';
 
+final expandIconKey = new GlobalKey<_TaskEventListState>();
+
 class TaskEventList extends StatefulWidget implements PageScaffold {
 
   _TaskEventListState? _state;
@@ -41,7 +43,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
 
   @override
   List<Widget>? getActions(BuildContext context) {
-    final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, _state?.isAllExpanded()??true); //TODO should be updated when hiddenTiles is updated
+    final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, _state?.isAllExpanded()??true, expandIconKey);
     final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, _state?.isFilterActive()??false);
     return [
       GestureDetector(
@@ -402,6 +404,13 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                     _hiddenTiles.remove(taskEventDate);
                   } else {
                     _hiddenTiles.add(taskEventDate);
+                  }
+                  debugPrint("curr ${expandIconKey.currentWidget}");
+
+                  if (expandIconKey.currentWidget is ToggleActionIcon) {
+                    final expandIcon = expandIconKey.currentWidget as ToggleActionIcon;
+                    expandIcon.refresh(isAllExpanded());
+                    debugPrint("refresh expand icon with ${isAllExpanded()}");
                   }
                 });
               },
