@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -68,12 +70,19 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   List<ScheduledTask> _scheduledTasks = [];
   int _selectedTile = -1;
   final _notificationService = LocalNotificationService();
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
     _notificationService.addHandler(handleNotificationClicked);
 
+    _timer = Timer.periodic(Duration(seconds: 30), (timer) {
+      setState(() {
+        // update all
+        debugPrint(".. timer refresh #${_timer.tick} ..");
+      });
+    });
 
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 100);
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
@@ -92,6 +101,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   @override
   void deactivate() {
     _notificationService.removeHandler(handleNotificationClicked);
+    _timer.cancel();
     super.deactivate();
   }
 
@@ -155,7 +165,11 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                   visible: scheduledTask.active,
                   child: LinearProgressIndicator(
                     value: scheduledTask.getNextRepetitionIndicatorValue(),
-                    color: scheduledTask.isNextScheduleReached() ? Colors.red[500] : null,
+                    color: scheduledTask.isNextScheduleOverdue(false)
+                        ? Colors.red[500]
+                        : (scheduledTask.isNextScheduleReached()
+                          ? Colors.orange[500]
+                        : null),
                   ),
                 ),
               ],
@@ -278,7 +292,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   String getDetailsMessage(ScheduledTask scheduledTask) {
     var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}\n";
     if (scheduledTask.active) {
-      if (scheduledTask.isNextScheduleReached()) {
+      if (scheduledTask.isNextScheduleOverdue(false)) {
         return debug +
             "Overdue ${formatToDateOrWord(
             scheduledTask.getNextSchedule()!, true).toLowerCase()} "
@@ -313,9 +327,10 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
       _scheduledTasks.add(scheduledTask);
       _scheduledTasks..sort();
       _selectedTile = _scheduledTasks.indexOf(scheduledTask);
+      _rescheduleNotification(scheduledTask);
+
     });
 
-    _rescheduleNotification(scheduledTask);
   }
 
   void _updateScheduledTask(ScheduledTask origin, ScheduledTask updated) {
@@ -327,18 +342,20 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
       }
       _scheduledTasks..sort();
       _selectedTile = _scheduledTasks.indexOf(updated);
+      _rescheduleNotification(updated);
+
     });
 
-    _rescheduleNotification(updated);
   }
 
   void _removeScheduledTask(ScheduledTask scheduledTask) {
     setState(() {
       _scheduledTasks.remove(scheduledTask);
       _selectedTile = -1;
+      _cancelNotification(scheduledTask);
+
     });
 
-    _cancelNotification(scheduledTask);
   }
 
 
@@ -387,7 +404,8 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   void _rescheduleNotification(ScheduledTask scheduledTask) {
     _cancelNotification(scheduledTask);
     final missingDuration = scheduledTask.getMissingDuration();
-    if (scheduledTask.active && missingDuration != null) {
+    debugPrint("missing duration: $missingDuration");
+    if (scheduledTask.active && missingDuration != null && !missingDuration.isNegative) {
       _notificationService.scheduleNotifications(
           widget.getKey(),
           scheduledTask.id!,

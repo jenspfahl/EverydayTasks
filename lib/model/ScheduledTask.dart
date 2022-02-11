@@ -1,4 +1,5 @@
 import 'package:personaltasklogger/model/TaskEvent.dart';
+import 'package:personaltasklogger/util/dates.dart';
 
 import 'Schedule.dart';
 import 'Template.dart';
@@ -54,16 +55,41 @@ class ScheduledTask implements Comparable {
   Duration? getMissingDuration() {
     if (lastScheduledEventOn != null) {
       var nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
-      return nextRepetition.difference(DateTime.now());
+      return nextRepetition.difference(truncToSeconds(DateTime.now()));
     }
   }
 
   bool isNextScheduleReached() {
     var duration = getMissingDuration();
     if (duration != null) {
-      return duration.inMinutes.isNegative;
+      return _getRoundedDurationValue(duration) == 0;
     }
     return false;
+  }
+
+  bool isNextScheduleOverdue(bool roundedDuration) {
+    var duration = getMissingDuration();
+    if (duration != null) {
+      if (roundedDuration) {
+        return _getRoundedDurationValue(duration).isNegative;
+      }
+      else {
+        return duration.isNegative;
+      }
+    }
+    return false;
+  }
+
+  int _getRoundedDurationValue(Duration duration) {
+    if (schedule.customRepetition?.repetitionUnit == RepetitionUnit.HOURS) {
+      return duration.inMinutes;
+    }
+    else if (schedule.repetitionStep == RepetitionStep.DAILY
+        || schedule.repetitionStep == RepetitionStep.EVERY_OTHER_DAY) {
+      return duration.inHours;
+    } else {
+      return duration.inDays;
+    }
   }
 
   double? getNextRepetitionIndicatorValue() {

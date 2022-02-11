@@ -203,7 +203,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
   handleNotificationClicked(String receiverKey, String id) {
     final index = _pages.indexWhere((page) => page.getKey() == receiverKey);
-    if (index != -1) {
+    if (index != -1 && index != _selectedNavigationIndex) {
       _pageController.jumpToPage(index);
       setState(() {
         _selectedNavigationIndex = index;
