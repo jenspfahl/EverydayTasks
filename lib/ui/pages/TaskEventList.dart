@@ -13,6 +13,7 @@ import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../../main.dart';
 import '../PersonalTaskLoggerScaffold.dart';
 import '../forms/TaskEventForm.dart';
 
@@ -33,7 +34,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
 
   @override
   Widget getTitle() {
-    return const Text('Personal Task Logger');
+    return const Text(APP_NAME);
   }
 
   @override

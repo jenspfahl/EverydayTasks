@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 
+import '../main.dart';
 import 'pages/TaskEventList.dart';
 
 class PersonalTaskLoggerApp extends StatelessWidget {
@@ -9,7 +10,7 @@ class PersonalTaskLoggerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Personal Task Logger',
+      title: APP_NAME,
       theme: ThemeData(
         brightness: Brightness.light,
         primaryColor: Colors.lime,

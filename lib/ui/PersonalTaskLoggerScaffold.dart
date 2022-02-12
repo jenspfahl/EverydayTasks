@@ -39,9 +39,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   void initState() {
     super.initState();
     _notificationService.addHandler(handleNotificationClicked);
-    setState(() {
-      _notificationService.handleQueue();
-    });
+    _notificationService.handleAppLaunchNotification();
   }
 
   PageScaffold getSelectedPage() {
@@ -106,7 +104,6 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   @override
   void deactivate() {
     _notificationService.removeHandler(handleNotificationClicked);
-    _notificationService.clearQueue();
     super.deactivate();
   }
 

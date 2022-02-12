@@ -1,8 +1,11 @@
 import 'dart:collection';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+
+import '../main.dart';
 
 // stolen from https://github.com/iloveteajay/flutter_local_notification/https://github.com/iloveteajay/flutter_local_notification/
 class LocalNotificationService {
@@ -11,7 +14,6 @@ class LocalNotificationService {
   LocalNotificationService._internal();
 
   static late List<Function(String receiverKey, String id)> _handler = [];
-  static Queue<String> _queuedPayloads = Queue();
 
   factory LocalNotificationService() {
     return _notificationService;
@@ -34,7 +36,7 @@ class LocalNotificationService {
 
   Future<void> init() async {
     final AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('ic_launcher');
+    AndroidInitializationSettings('@mipmap/ic_launcher_notif');
 
     final IOSInitializationSettings initializationSettingsIOS =
     IOSInitializationSettings(
@@ -58,43 +60,30 @@ class LocalNotificationService {
             if (_handler.isNotEmpty) {
               _handlePayload(payload);
             }
-            else {
-              _queuedPayloads.add(payload);
-            }
           }
         });
   }
 
-  AndroidNotificationDetails _androidNotificationDetails =
-  AndroidNotificationDetails(
-    channelId,
-    'Personal Task Logger',
-    'Notifications about due scheduled tasks',
-    playSound: true,
-    priority: Priority.high,
-    importance: Importance.high,
-  );
-
-  Future<void> showNotifications(int id, String title, String message) async {
+  Future<void> showNotifications(int id, String title, String message, [Color? color]) async {
     await _flutterLocalNotificationsPlugin.show(
       id,
       title, 
       message,
-      NotificationDetails(android: _androidNotificationDetails),
+      NotificationDetails(android: _createNotificationDetails(color)),
       payload: id.toString(),
     );
   }
 
-  Future<void> scheduleNotifications(String receiverKey, int id, String title, message, Duration duration) async {
+  Future<void> scheduleNotifications(String receiverKey, int id, String title, message, Duration duration, [Color? color]) async {
+    final when = tz.TZDateTime.now(tz.local).add(duration);
     await _flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         title,
         message,
-        tz.TZDateTime.now(tz.local).add(duration),
-        NotificationDetails(android: _androidNotificationDetails),
+        when.subtract(Duration(seconds: when.second)), // trunc seconds
+        NotificationDetails(android: _createNotificationDetails(color)),
         androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         payload: receiverKey + "-" + id.toString());
   }
 
@@ -106,12 +95,14 @@ class LocalNotificationService {
     await _flutterLocalNotificationsPlugin.cancelAll();
   }
 
-  void handleQueue() {
-    _queuedPayloads.forEach((payload) => _handlePayload(payload));
-  }
-
-  void clearQueue() {
-    _queuedPayloads.clear();
+  void handleAppLaunchNotification() {
+    _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails()
+        .then((notification) {
+          final payload = notification?.payload;
+          if (payload != null) {
+            _handlePayload(payload);
+          }
+    });
   }
 
   void _handlePayload(String payload) {
@@ -119,5 +110,17 @@ class LocalNotificationService {
     _handler.forEach((h) => h.call(splitted[0], splitted[1]));
   }
 
+
+  AndroidNotificationDetails _createNotificationDetails(Color? color) {
+    return AndroidNotificationDetails(
+      channelId,
+      APP_NAME,
+      'Notifications about due scheduled tasks',
+      color: color,
+      playSound: true,
+      priority: Priority.high,
+      importance: Importance.high,
+    );
+  }
 }
 

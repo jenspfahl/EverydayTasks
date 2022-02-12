@@ -91,7 +91,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
       setState(() {
         _scheduledTasks = scheduledTasks;
         _scheduledTasks..sort();
-        _notificationService.handleQueue();
+        _notificationService.handleAppLaunchNotification();
       });
     });
   }
@@ -104,7 +104,6 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   @override
   void deactivate() {
     _notificationService.removeHandler(handleNotificationClicked);
-    _notificationService.clearQueue();
     _timer.cancel();
     super.deactivate();
   }
@@ -300,7 +299,6 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
             scheduledTask.getNextSchedule()!, true).toLowerCase()} "
             "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} !";
       }
-      debugPrint(scheduledTask.schedule.customRepetition?.toString());
       final nextSchedule = scheduledTask.getNextSchedule()!;
       if (truncToSeconds(nextSchedule) == truncToSeconds(DateTime.now())) {
         return debug +
@@ -405,12 +403,14 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
     final missingDuration = scheduledTask.getMissingDuration();
     debugPrint("missing duration: $missingDuration");
     if (scheduledTask.active && missingDuration != null && !missingDuration.isNegative) {
+      final taskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
       _notificationService.scheduleNotifications(
           widget.getKey(),
           scheduledTask.id!,
-          "Due scheduled task",
+          "Due scheduled task (${taskGroup.name})",
           "Scheduled task '${scheduledTask.title}' is due!",
-          missingDuration);
+          missingDuration,
+          taskGroup.backgroundColor);
     }
   }
 
