@@ -75,7 +75,6 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   @override
   void initState() {
     super.initState();
-    _notificationService.addHandler(handleNotificationClicked);
 
     _timer = Timer.periodic(Duration(seconds: 20), (timer) {
       setState(() {
@@ -85,11 +84,14 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
       });
     });
 
+    _notificationService.addHandler(handleNotificationClicked);
+
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 100);
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
       setState(() {
         _scheduledTasks = scheduledTasks;
         _scheduledTasks..sort();
+        _notificationService.handleQueue();
       });
     });
   }
@@ -102,6 +104,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   @override
   void deactivate() {
     _notificationService.removeHandler(handleNotificationClicked);
+    _notificationService.clearQueue();
     _timer.cancel();
     super.deactivate();
   }
@@ -168,7 +171,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                         : (scheduledTask.isNextScheduleReached()
                           ? Color(0xFF770C0C)
                           : null),
-                    backgroundColor: scheduledTask.isNextScheduleOverdue(true) ? Color(0xFF770C0C) : null,
+                    backgroundColor: scheduledTask.isNextScheduleOverdue(true) ? Colors.red[300] : null,
                   ),
                 ),
               ],

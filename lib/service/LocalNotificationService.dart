@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -9,6 +11,7 @@ class LocalNotificationService {
   LocalNotificationService._internal();
 
   static late List<Function(String receiverKey, String id)> _handler = [];
+  static Queue<String> _queuedPayloads = Queue();
 
   factory LocalNotificationService() {
     return _notificationService;
@@ -50,9 +53,14 @@ class LocalNotificationService {
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (String? payload) async {
+          // TODO seems not be invoked when the app was closed before
           if (payload != null) {
-            var splitted = payload.split("-");
-            _handler.forEach((h) => h.call(splitted[0], splitted[1]));
+            if (_handler.isNotEmpty) {
+              _handlePayload(payload);
+            }
+            else {
+              _queuedPayloads.add(payload);
+            }
           }
         });
   }
@@ -97,5 +105,19 @@ class LocalNotificationService {
   Future<void> cancelAllNotifications() async {
     await _flutterLocalNotificationsPlugin.cancelAll();
   }
+
+  void handleQueue() {
+    _queuedPayloads.forEach((payload) => _handlePayload(payload));
+  }
+
+  void clearQueue() {
+    _queuedPayloads.clear();
+  }
+
+  void _handlePayload(String payload) {
+    var splitted = payload.split("-");
+    _handler.forEach((h) => h.call(splitted[0], splitted[1]));
+  }
+
 }
 
