@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:personaltasklogger/model/When.dart';
 
+DateTime fillToWholeDate(DateTime dateTime) {
+  return DateTime(dateTime.year, dateTime.month, dateTime.day, 23, 59, 59, 9999);
+}
+
 DateTime truncToDate(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day);
 }

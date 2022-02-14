@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
@@ -263,10 +265,10 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                   || (taskEvent.description != null && taskEvent.description!.toLowerCase().contains(_searchQuery!.toLowerCase())))) {
             return true; // remove events not containing search string
           }
-          if (_filterByDateRange != null && taskEvent.startedAt.isBefore(_filterByDateRange!.start)) {
+          if (_filterByDateRange != null && taskEvent.startedAt.isBefore(truncToDate(_filterByDateRange!.start))) {
             return true; // remove events before dateFrom
           }
-          if (_filterByDateRange != null && taskEvent.startedAt.isAfter(_filterByDateRange!.end)) {
+          if (_filterByDateRange != null && taskEvent.startedAt.isAfter(fillToWholeDate(_filterByDateRange!.end))) {
             return true; // remove events after dateTo
           }
           if (_filterByFavorites && !taskEvent.favorite) {
@@ -346,6 +348,8 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
   Widget _buildList() {
     DateTime? dateHeading;
     List<DateTime?> dateHeadings = [];
+    Map<DateTime, int> dateCounts = HashMap();
+    Map<DateTime, Duration> dateDurations = HashMap();
     var list = _filteredTaskEvents != null ? _filteredTaskEvents! : _taskEvents;
 
     for (var i = 0; i < list.length; i++) {
@@ -361,6 +365,16 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
       }
       dateHeading = taskEventDate;
       dateHeadings.add(usedDateHeading);
+
+      if (dateHeading != null) {
+        final dateCount = dateCounts[dateHeading];
+        dateCounts[dateHeading] = dateCount != null ? dateCount + 1 : 1;
+
+        final dateDuration = dateDurations[dateHeading];
+        dateDurations[dateHeading] = dateDuration != null
+            ? dateDuration + taskEvent.duration
+            : taskEvent.duration;
+      }
     }
     return ListView.builder(
         itemCount: list.length,
@@ -369,14 +383,17 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
           var taskEventDate = truncToDate(taskEvent.startedAt);
           return Visibility(
             visible: dateHeadings[index] != null || !_hiddenTiles.contains(taskEventDate),
-            child: _buildRow(list, index, dateHeadings),
+            child: _buildRow(list, index, dateHeadings, dateCounts, dateDurations),
           );
         });
   }
 
-  Widget _buildRow(List<TaskEvent> list, int index, List<DateTime?> dateHeadings) {
+  Widget _buildRow(List<TaskEvent> list, int index, List<DateTime?> dateHeadings, 
+      Map<DateTime, int> dateCounts, Map<DateTime, Duration> dateDurations) {
     final taskEvent = list[index];
     final dateHeading = dateHeadings[index];
+    final dateCount = dateCounts[dateHeading];
+    final dateDuration = dateDurations[dateHeading];
     var taskEventDate = truncToDate(taskEvent.startedAt);
 
     final expansionWidgets = _createExpansionWidgets(taskEvent);
@@ -392,7 +409,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
               child: Row(
                 children: [
                   Text(
-                    formatToDateOrWord(dateHeading),
+                    "${formatToDateOrWord(dateHeading)} ($dateCount items, ${dateDuration != null ? formatDuration(dateDuration) : ""})",
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 10.0,
