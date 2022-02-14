@@ -366,13 +366,16 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
           });
         },
         okPressed: () async {
-          if (selectedTemplateItem is Template) {
             Navigator.pop(context);
             ScheduledTask? newScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
               return ScheduledTaskForm(
                 formTitle: "Create new schedule ",
-                taskGroup: findPredefinedTaskGroupById((selectedTemplateItem as Template).taskGroupId),
-                template: selectedTemplateItem as Template,
+                taskGroup: selectedTemplateItem is Template
+                  ? findPredefinedTaskGroupById((selectedTemplateItem as Template).taskGroupId)
+                  : selectedTemplateItem as TaskGroup,
+                template: selectedTemplateItem is Template
+                  ? selectedTemplateItem as Template
+                  : null,
               );
             }));
 
@@ -383,10 +386,6 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                 _addScheduledTask(newScheduledTask);
               });
             }
-          }
-          else {
-            SnackBar(content: Text( "Please select a template or a variant"));
-          }
         },
         cancelPressed: () {
           Navigator.pop(super.context);

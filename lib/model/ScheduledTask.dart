@@ -8,7 +8,7 @@ import 'TemplateId.dart';
 class ScheduledTask implements Comparable {
   int? id;
   int taskGroupId;
-  TemplateId templateId;
+  TemplateId? templateId;
 
   String title;
   String? description;
@@ -20,7 +20,7 @@ class ScheduledTask implements Comparable {
   ScheduledTask({
     this.id,
     required this.taskGroupId,
-    required this.templateId,
+    this.templateId,
     required this.title,
     this.description,
     required this.createdAt,
@@ -125,7 +125,7 @@ class ScheduledTask implements Comparable {
   }
 
   executeSchedule(TaskEvent? taskEvent) {
-    if (taskEvent?.originTemplateId == templateId && taskEvent != null) {
+    if (taskEvent != null && templateId != null && taskEvent.originTemplateId == templateId) {
       lastScheduledEventOn = taskEvent.startedAt;
     }
     else {

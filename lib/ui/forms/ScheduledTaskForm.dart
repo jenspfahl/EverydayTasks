@@ -74,6 +74,13 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       _customStartAt = _template?.when?.startAtExactly;
       _isActive = true;
     }
+    else {
+      // is taskGroup
+      titleController.text = "";
+      descriptionController.text = "";
+
+      _isActive = true;
+    }
 
   }
 
@@ -319,12 +326,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                             ),
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
-                                /*final startedAtTimeOfDay =
-                                    When.fromWhenAtDayToTimeOfDay(_selectedStartAtDay!, _customStartAt);
-                                final date = When.fromWhenOnDateToDate(_selectedWhenOnDate!, _customWhenOn);
-                                final startedAt = DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour,
-                                    startedAtTimeOfDay.minute);
-                        */
+
                                 var scheduleFrom = When.fromWhenOnDateToDate(_selectedScheduleFrom!, _customScheduleFrom);
                                 if (_selectedStartAt == AroundWhenAtDay.NOW) {
                                   _selectedStartAt = AroundWhenAtDay.CUSTOM;
@@ -339,7 +341,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 var scheduledTask = ScheduledTask(
                                   id: _scheduledTask?.id,
                                   taskGroupId: _taskGroup.id!,
-                                  templateId: _scheduledTask?.templateId ?? _template!.tId!,
+                                  templateId: _scheduledTask?.templateId ?? _template?.tId,
                                   title: titleController.text,
                                   description: descriptionController.text,
                                   createdAt: _scheduledTask?.createdAt ?? DateTime.now(),

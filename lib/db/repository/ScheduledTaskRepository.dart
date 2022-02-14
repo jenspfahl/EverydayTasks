@@ -81,8 +81,8 @@ class ScheduledTaskRepository {
     ScheduledTaskEntity(
         scheduledTask.id,
         scheduledTask.taskGroupId,
-        scheduledTask.templateId.taskTemplateId,
-        scheduledTask.templateId.taskTemplateVariantId,
+        scheduledTask.templateId?.taskTemplateId,
+        scheduledTask.templateId?.taskTemplateVariantId,
         scheduledTask.title,
         scheduledTask.description,
         dateTimeToEntity(scheduledTask.createdAt),
@@ -100,7 +100,9 @@ class ScheduledTaskRepository {
         taskGroupId: entity.taskGroupId,
         templateId: entity.taskTemplateId != null
             ? new TemplateId.forTaskTemplate(entity.taskTemplateId!)
-            : new TemplateId.forTaskTemplateVariant(entity.taskTemplateVariantId!),
+            : entity.taskTemplateVariantId != null
+                ? new TemplateId.forTaskTemplateVariant(entity.taskTemplateVariantId!)
+                : null,
         title: entity.title,
         description: entity.description,
         createdAt: dateTimeFromEntity(entity.createdAt),
