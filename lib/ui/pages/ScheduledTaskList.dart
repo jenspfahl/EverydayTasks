@@ -5,13 +5,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
-import 'package:personaltasklogger/model/Schedule.dart';
+import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
+import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
+import 'package:personaltasklogger/model/TaskTemplate.dart';
+import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
+import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
+import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
@@ -20,6 +25,9 @@ import '../utils.dart';
 class ScheduledTaskList extends StatefulWidget implements PageScaffold {
 
   _ScheduledTaskListState? _state;
+  PagesHolder _pagesHolder;
+
+  ScheduledTaskList(this._pagesHolder);
 
   @override
   State<StatefulWidget> createState() {
@@ -80,7 +88,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
       setState(() {
         // update all
         _scheduledTasks..sort();
-        debugPrint(".. timer refresh #${_timer.tick} ..");
+        debugPrint(".. ST timer refresh #${_timer.tick} ..");
       });
     });
 
@@ -91,6 +99,10 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
       setState(() {
         _scheduledTasks = scheduledTasks;
         _scheduledTasks..sort();
+
+        // refresh scheduled notifications. Could be lost if phone was reseted.
+        _scheduledTasks.forEach((scheduledTask) => _rescheduleNotification(scheduledTask));
+
         _notificationService.handleAppLaunchNotification();
       });
     });
@@ -212,6 +224,48 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
             child: ButtonBar(
               alignment: MainAxisAlignment.start,
               children: [
+                TextButton(
+                  child: Icon(Icons.check),
+                  onPressed: () async {
+                    TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      final templateId = scheduledTask.templateId;
+                      TaskGroup? taskGroup;
+                      Template? template;
+                      String title = scheduledTask.title;
+                      if (templateId != null) {
+                        if (templateId.isVariant) {
+                          template = findPredefinedTaskTemplateVariantById(templateId.id);
+                        }
+                        else {
+                          template = findPredefinedTaskTemplateById(templateId.id);
+                        }
+                      }
+                      else {
+                        taskGroup = findPredefinedTaskGroupById(
+                            scheduledTask.taskGroupId);
+                      }
+                    //  scheduledTask.templateId
+                      return TaskEventForm(
+                          formTitle: "Create new event from schedule",
+                          taskGroup: taskGroup,
+                          template: template,
+                          title: title);
+                    }));
+
+                    if (newTaskEvent != null) {
+                      TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+                        ScaffoldMessenger.of(super.context).showSnackBar(
+                            SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
+                        widget._pagesHolder.taskEventList?.addTaskEvent(newTaskEvent);
+
+                        scheduledTask.executeSchedule(null);
+                        ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+                          _updateScheduledTask(scheduledTask, changedScheduledTask);
+                        });
+                      });
+                    }
+                  },
+                ),
                 TextButton(
                   child: Icon(Icons.replay),
                   onPressed: () {
@@ -366,6 +420,9 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
           });
         },
         okPressed: () async {
+            if (selectedTemplateItem == null) {
+              return;
+            }
             Navigator.pop(context);
             ScheduledTask? newScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
               return ScheduledTaskForm(

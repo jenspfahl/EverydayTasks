@@ -5,6 +5,7 @@ import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
@@ -12,9 +13,9 @@ import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 
 class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   _QuickAddTaskEventPageState? _state;
-  TaskEventList _taskEventList;
+  PagesHolder _pagesHolder;
 
-  QuickAddTaskEventPage(this._taskEventList);
+  QuickAddTaskEventPage(this._pagesHolder);
 
   @override
   Widget getTitle() {
@@ -38,7 +39,7 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
 
   @override
   State<StatefulWidget> createState() {
-    _state = _QuickAddTaskEventPageState(_taskEventList);
+    _state = _QuickAddTaskEventPageState();
     return _state!;
   }
 
@@ -58,11 +59,8 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
 }
 
 class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with AutomaticKeepAliveClientMixin<QuickAddTaskEventPage> {
-  TaskEventList _taskEventList;
   List<Template> _templates = [];
-
-  _QuickAddTaskEventPageState(this._taskEventList);
-
+  
   @override
   void initState() {
     super.initState();
@@ -126,7 +124,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
                       TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                         ScaffoldMessenger.of(super.context).showSnackBar(
                             SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
-                        _taskEventList.addTaskEvent(newTaskEvent);
+                        widget._pagesHolder.taskEventList?.addTaskEvent(newTaskEvent);
                       });
                     }
                   },

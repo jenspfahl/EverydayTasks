@@ -15,6 +15,24 @@ class PersonalTaskLoggerScaffold extends StatefulWidget {
   }
 }
 
+class PagesHolder {
+  QuickAddTaskEventPage? quickAddTaskEventPage;
+  TaskEventList? taskEventList;
+  TaskTemplateList? taskTemplateList;
+  ScheduledTaskList? scheduledTaskList;
+
+  void init (
+      QuickAddTaskEventPage quickAddTaskEventPage,
+      TaskEventList taskEventList,
+      TaskTemplateList taskTemplateList,
+      ScheduledTaskList scheduledTaskList) {
+    this.quickAddTaskEventPage = quickAddTaskEventPage;
+    this.taskEventList = taskEventList;
+    this.taskTemplateList = taskTemplateList;
+    this.scheduledTaskList = scheduledTaskList;
+  }
+}
+
 class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> {
   int _selectedNavigationIndex = 1;
   PageController _pageController = PageController(initialPage: 1);
@@ -27,12 +45,14 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
   PersonalTaskLoggerScaffoldState() {
 
-    // Pages are dependent on each other. Tried to notify instead without that but failed.
-    var scheduledTaskList = ScheduledTaskList();
-    var taskEventList = TaskEventList(scheduledTaskList);
-    var quickAddTaskEventPage = QuickAddTaskEventPage(taskEventList);
+    final pagesHolder = PagesHolder();
+    final quickAddTaskEventPage = QuickAddTaskEventPage(pagesHolder);
+    final taskEventList = TaskEventList(pagesHolder);
+    final taskTemplateList = TaskTemplateList(pagesHolder);
+    final scheduledTaskList = ScheduledTaskList(pagesHolder);
+    pagesHolder.init(quickAddTaskEventPage, taskEventList, taskTemplateList, scheduledTaskList);
 
-    _pages = <PageScaffold>[quickAddTaskEventPage, taskEventList, TaskTemplateList(), scheduledTaskList];
+    _pages = <PageScaffold>[quickAddTaskEventPage, taskEventList, taskTemplateList, scheduledTaskList];
   }
 
   @override

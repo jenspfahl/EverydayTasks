@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
@@ -24,13 +25,13 @@ final expandIconKey = new GlobalKey<_TaskEventListState>();
 class TaskEventList extends StatefulWidget implements PageScaffold {
 
   _TaskEventListState? _state;
-  ScheduledTaskList _scheduledTaskList;
+  PagesHolder _pagesHolder;
 
-  TaskEventList(this._scheduledTaskList);
+  TaskEventList(this._pagesHolder);
 
   @override
   State<StatefulWidget> createState() {
-    _state = _TaskEventListState(_scheduledTaskList);
+    _state = _TaskEventListState();
     return _state!;
   }
 
@@ -226,20 +227,25 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
   Set<DateTime> _hiddenTiles = Set();
 
   Object? _selectedTemplateItem;
-  ScheduledTaskList _scheduledTaskList;
 
   DateTimeRange? _filterByDateRange = null;
   bool _filterByFavorites = false;
   Object? _filterByTaskOrTemplate;
 
   String? _searchQuery;
-
-  _TaskEventListState(this._scheduledTaskList);
+  late Timer _timer;
 
 
   @override
   void initState() {
     super.initState();
+
+    _timer = Timer.periodic(Duration(minutes: 1), (timer) {
+      setState(() {
+        // update all
+        debugPrint(".. ET timer refresh #${_timer.tick} ..");
+      });
+    });
 
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 500);
     TaskEventRepository.getAllPaged(paging).then((taskEvents) {
@@ -306,8 +312,8 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                   changedScheduledTask) {
                 debugPrint("schedule ${changedScheduledTask.id} notified: ${changedScheduledTask.lastScheduledEventOn}");
                 PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-                debugPrint("found root $root target: $_scheduledTaskList");
-                _scheduledTaskList.updateScheduledTask(changedScheduledTask);
+                debugPrint("found root $root");
+                widget._pagesHolder.scheduledTaskList?.updateScheduledTask(changedScheduledTask);
               });
             });
       });
@@ -339,6 +345,13 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
       _selectedTile = -1;
     });
   }
+
+  @override
+  void deactivate() {
+    _timer.cancel();
+    super.deactivate();
+  }
+
 
   @override
   Widget build(BuildContext context) {

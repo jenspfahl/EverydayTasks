@@ -13,13 +13,14 @@ class TaskEventForm extends StatefulWidget {
   final TaskEvent? taskEvent;
   final TaskGroup? taskGroup;
   final Template? template;
+  final String? title;
 
   TaskEventForm({required this.formTitle, this.taskEvent, 
-    this.taskGroup, this.template});
+    this.taskGroup, this.template, this.title});
 
   @override
   State<StatefulWidget> createState() {
-    return _TaskEventFormState(taskEvent, taskGroup, template);
+    return _TaskEventFormState(taskEvent, taskGroup, template, title);
   }
 }
 
@@ -31,6 +32,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
   final TaskEvent? _taskEvent;
   final TaskGroup? _taskGroup;
   final Template? _template;
+  final String? _title;
 
   TaskGroup? _selectedTaskGroup;
 
@@ -47,7 +49,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
   WhenOnDate? _selectedWhenOnDate;
   DateTime? _customWhenOn;
 
-  _TaskEventFormState([this._taskEvent, this._taskGroup, this._template]) {
+  _TaskEventFormState([this._taskEvent, this._taskGroup, this._template, this._title]) {
 
     int? selectedTaskGroupId;
     Severity severity = Severity.MEDIUM;
@@ -98,6 +100,10 @@ class _TaskEventFormState extends State<TaskEventForm> {
       startedAt = _template!.when?.startAtExactly;
 
       startedOn = DateTime.now();
+    }
+
+    if (_title != null) {
+      titleController.text = _title!;
     }
 
 

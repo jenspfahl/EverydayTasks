@@ -4,6 +4,7 @@ import 'package:flutter_treeview/flutter_treeview.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
+import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 
@@ -11,8 +12,9 @@ import '../utils.dart';
 
 class TaskTemplateList extends StatefulWidget implements PageScaffold {
   Function(Object)? _selectedItem;
+  PagesHolder? _pagesHolder;
 
-  TaskTemplateList();
+  TaskTemplateList(this._pagesHolder);
   TaskTemplateList.withSelectionCallback(this._selectedItem);
 
 
