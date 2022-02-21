@@ -1,4 +1,5 @@
 import 'package:jiffy/jiffy.dart';
+import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/util/dates.dart';
@@ -20,4 +21,14 @@ class ScheduledTaskEvent {
       this.scheduledTaskId,
       this.createdAt,
       );
+
+  ScheduledTaskEvent.fromEvent(TaskEvent taskEvent, ScheduledTask scheduledTask):
+    this.taskEventId = taskEvent.id!,
+    this.scheduledTaskId = scheduledTask.id!,
+    this.createdAt = taskEvent.createdAt;
+
+  @override
+  String toString() {
+    return 'ScheduledTaskEvent{id: $id, taskEventId: $taskEventId, scheduledTaskId: $scheduledTaskId, createdAt: $createdAt}';
+  }
 }

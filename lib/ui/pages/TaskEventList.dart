@@ -4,8 +4,10 @@ import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
+import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
+import 'package:personaltasklogger/model/ScheduledTaskEvent.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
@@ -218,6 +220,10 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
   String getKey() {
     return "TaskEvents";
   }
+
+  void filterByTaskEventIds(Iterable<int> taskEventIds) {
+    _state?..clearFilters()..expandAll()..filterByTaskEventIds(taskEventIds).._doFilter();
+  }
 }
 
 class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveClientMixin<TaskEventList> {
@@ -231,6 +237,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
   DateTimeRange? _filterByDateRange = null;
   bool _filterByFavorites = false;
   Object? _filterByTaskOrTemplate;
+  List<int>? _filterByTaskEventIds;
 
   String? _searchQuery;
   late Timer _timer;
@@ -270,6 +277,9 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
               !(taskEvent.title.toLowerCase().contains(_searchQuery!.toLowerCase())
                   || (taskEvent.description != null && taskEvent.description!.toLowerCase().contains(_searchQuery!.toLowerCase())))) {
             return true; // remove events not containing search string
+          }
+          if (_filterByTaskEventIds != null && !_filterByTaskEventIds!.contains(taskEvent.id!)) {
+            return true;  // remove not explicitly requested events
           }
           if (_filterByDateRange != null && taskEvent.startedAt.isBefore(truncToDate(_filterByDateRange!.start))) {
             return true; // remove events before dateFrom
@@ -311,9 +321,10 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
               ScheduledTaskRepository.update(scheduledTask).then((
                   changedScheduledTask) {
                 debugPrint("schedule ${changedScheduledTask.id} notified: ${changedScheduledTask.lastScheduledEventOn}");
-                PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-                debugPrint("found root $root");
                 widget._pagesHolder.scheduledTaskList?.updateScheduledTask(changedScheduledTask);
+
+                final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(taskEvent, changedScheduledTask);
+                ScheduledTaskEventRepository.insert(scheduledTaskEvent).then((value) => debugPrint(value.toString()));
               });
             });
       });
@@ -559,6 +570,13 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                     okPressed: () {
                       TaskEventRepository.delete(taskEvent).then(
                         (_) {
+                          ScheduledTaskEventRepository
+                              .getByTaskEventIdPaged(taskEvent.id!, ChronologicalPaging.start(100))
+                              .then((scheduledTaskEvents) {
+                                scheduledTaskEvents.forEach((scheduledTaskEvent) {
+                                  ScheduledTaskEventRepository.delete(scheduledTaskEvent);
+                                });
+                          });
                           ScaffoldMessenger.of(context)
                               .showSnackBar(SnackBar(content: Text('Task event \'${taskEvent.title}\' deleted')));
                           _removeTaskEvent(taskEvent);
@@ -660,12 +678,17 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
   @override
   bool get wantKeepAlive => true;
 
-  bool isFilterActive() => _filterByDateRange != null || _filterByFavorites || _filterByTaskOrTemplate != null;
+  bool isFilterActive() => _filterByTaskEventIds != null || _filterByDateRange != null || _filterByFavorites || _filterByTaskOrTemplate != null;
 
   void clearFilters() {
+    _filterByTaskEventIds = null;
     _filterByDateRange = null;
     _filterByFavorites = false;
     _filterByTaskOrTemplate = null;
+  }
+
+  void filterByTaskEventIds(Iterable<int> taskEventIds) {
+    _filterByTaskEventIds = taskEventIds.toList();
   }
 
   bool isAllExpanded() => _hiddenTiles.isEmpty;

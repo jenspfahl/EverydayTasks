@@ -772,7 +772,7 @@ class _$ScheduledTaskEventDao extends ScheduledTaskEventDao {
   Future<List<ScheduledTaskEventEntity>> findByScheduledTaskId(
       int scheduledTaskId, int lastId, int limit) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM ScheduledTaskEventEntity WHERE scheduledTaskId = ?1 AND id > ?2 ORDER BY createdAt DESC, id DESC LIMIT ?3',
+        'SELECT * FROM ScheduledTaskEventEntity WHERE scheduledTaskId = ?1 AND id < ?2 ORDER BY createdAt DESC, id DESC LIMIT ?3',
         mapper: (Map<String, Object?> row) => ScheduledTaskEventEntity(row['id'] as int?, row['taskEventId'] as int, row['scheduledTaskId'] as int, row['createdAt'] as int),
         arguments: [scheduledTaskId, lastId, limit]);
   }
@@ -781,7 +781,7 @@ class _$ScheduledTaskEventDao extends ScheduledTaskEventDao {
   Future<List<ScheduledTaskEventEntity>> findByTaskEventId(
       int taskEventId, int lastId, int limit) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM ScheduledTaskEventEntity WHERE taskEventId = ?1 AND id > ?2 ORDER BY createdAt DESC, id DESC LIMIT ?3',
+        'SELECT * FROM ScheduledTaskEventEntity WHERE taskEventId = ?1 AND id < ?2 ORDER BY createdAt DESC, id DESC LIMIT ?3',
         mapper: (Map<String, Object?> row) => ScheduledTaskEventEntity(row['id'] as int?, row['taskEventId'] as int, row['scheduledTaskId'] as int, row['createdAt'] as int),
         arguments: [taskEventId, lastId, limit]);
   }

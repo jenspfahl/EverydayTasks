@@ -8,12 +8,6 @@ import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 
 import 'pages/TaskEventList.dart';
 
-class PersonalTaskLoggerScaffold extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return PersonalTaskLoggerScaffoldState();
-  }
-}
 
 class PagesHolder {
   QuickAddTaskEventPage? quickAddTaskEventPage;
@@ -30,6 +24,17 @@ class PagesHolder {
     this.taskEventList = taskEventList;
     this.taskTemplateList = taskTemplateList;
     this.scheduledTaskList = scheduledTaskList;
+  }
+}
+
+class PersonalTaskLoggerScaffold extends StatefulWidget {
+
+  PersonalTaskLoggerScaffoldState? _state;
+
+  @override
+  State<StatefulWidget> createState() {
+    _state = PersonalTaskLoggerScaffoldState();
+    return _state!;
   }
 }
 
@@ -58,7 +63,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   @override
   void initState() {
     super.initState();
-    _notificationService.addHandler(handleNotificationClicked);
+    _notificationService.addHandler(sendEvent);
     _notificationService.handleAppLaunchNotification();
   }
 
@@ -123,7 +128,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
   @override
   void deactivate() {
-    _notificationService.removeHandler(handleNotificationClicked);
+    _notificationService.removeHandler(sendEvent);
     super.deactivate();
   }
 
@@ -222,7 +227,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     });
   }
 
-  handleNotificationClicked(String receiverKey, String id) {
+  sendEvent(String receiverKey, String id) {
     final index = _pages.indexWhere((page) => page.getKey() == receiverKey);
     if (index != -1 && index != _selectedNavigationIndex) {
       _pageController.jumpToPage(index);

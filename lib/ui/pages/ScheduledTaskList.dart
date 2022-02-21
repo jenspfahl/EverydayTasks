@@ -4,9 +4,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
+import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
+import 'package:personaltasklogger/model/ScheduledTaskEvent.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
@@ -223,6 +225,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
             visible: scheduledTask.active,
             child: ButtonBar(
               alignment: MainAxisAlignment.start,
+              buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
               children: [
                 TextButton(
                   child: Icon(Icons.check),
@@ -262,6 +265,9 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                         ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
                           _updateScheduledTask(scheduledTask, changedScheduledTask);
                         });
+
+                        final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(newTaskEvent, scheduledTask);
+                        ScheduledTaskEventRepository.insert(scheduledTaskEvent);
                       });
                     }
                   },
@@ -272,7 +278,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                     showConfirmationDialog(
                       context,
                       "Reset schedule",
-                      "Are you sure to reset \'${scheduledTask.title}\' ? This will change the due date to the origin.",
+                      "Are you sure to reset \'${scheduledTask.title}\' ? This will reset the progress to the beginning.",
                       okPressed: () {
                         scheduledTask.executeSchedule(null);
                         ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
@@ -290,8 +296,32 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
               ],
             ),
           ),
+          TextButton(
+            child: const Icon(Icons.checklist),
+            onPressed: () {
+              ScheduledTaskEventRepository
+                  .getByScheduledTaskIdPaged(scheduledTask.id, ChronologicalPaging.start(100))
+                  .then((scheduledTaskEvents) {
+                    if (scheduledTaskEvents.isNotEmpty) {
+                      final lastEvent = scheduledTaskEvents.last;
+                      final receiverKey = widget._pagesHolder.taskEventList?.getKey();
+                      PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
+                      if (receiverKey != null && root != null) {
+                        root.sendEvent(receiverKey, lastEvent.taskEventId.toString());
+                        widget._pagesHolder.taskEventList?.filterByTaskEventIds(
+                            scheduledTaskEvents.map((e) => e.taskEventId));
+                      }
+                    }
+                    else {
+                      ScaffoldMessenger.of(super.context).showSnackBar(
+                          SnackBar(content: Text('No events for that schedule found')));
+                    }
+              });
+            },
+          ),
           ButtonBar(
             alignment: MainAxisAlignment.end,
+            buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
             children: [
               TextButton(
                 onPressed: () async {
@@ -322,9 +352,17 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                     okPressed: () {
                       ScheduledTaskRepository.delete(scheduledTask).then(
                             (_) {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text('Schedule \'${scheduledTask.title}\' deleted')));
-                          _removeScheduledTask(scheduledTask);
+                              ScheduledTaskEventRepository
+                                  .getByScheduledTaskIdPaged(scheduledTask.id!, ChronologicalPaging.start(100))
+                                  .then((scheduledTaskEvents) {
+                                scheduledTaskEvents.forEach((scheduledTaskEvent) {
+                                  ScheduledTaskEventRepository.delete(scheduledTaskEvent);
+                                });
+                              });
+
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(content: Text('Schedule \'${scheduledTask.title}\' deleted')));
+                            _removeScheduledTask(scheduledTask);
                         },
                       );
                       Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
@@ -359,11 +397,20 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
             "Due now!";
       }
       else {
-        return debug +
+        final msg = debug +
             "Due ${formatToDateOrWord(nextSchedule, true)
                 .toLowerCase()} "
                 "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
                 "${scheduledTask.schedule.toStartAtAsString().toLowerCase()}";
+        if (scheduledTask.lastScheduledEventOn != null) {
+          return "$msg"
+              "\n\n"
+              "Scheduled from ${formatToDateOrWord(
+              scheduledTask.lastScheduledEventOn!).toLowerCase()}";
+        }
+        else {
+          return "$msg";
+        }
       }
     }
     else {
@@ -455,18 +502,22 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
 
 
   void _rescheduleNotification(ScheduledTask scheduledTask) {
-    _cancelNotification(scheduledTask);
     final missingDuration = scheduledTask.getMissingDuration();
     debugPrint("missing duration: $missingDuration");
-    if (scheduledTask.active && missingDuration != null && !missingDuration.isNegative) {
-      final taskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
-      _notificationService.scheduleNotifications(
-          widget.getKey(),
-          scheduledTask.id!,
-          "Due scheduled task (${taskGroup.name})",
-          "Scheduled task '${scheduledTask.title}' is due!",
-          missingDuration,
-          taskGroup.backgroundColor);
+    if (missingDuration != null && !missingDuration.isNegative) {
+      _cancelNotification(scheduledTask);
+
+      if (scheduledTask.active) {
+        final taskGroup = findPredefinedTaskGroupById(
+            scheduledTask.taskGroupId);
+        _notificationService.scheduleNotifications(
+            widget.getKey(),
+            scheduledTask.id!,
+            "Due scheduled task (${taskGroup.name})",
+            "Scheduled task '${scheduledTask.title}' is due!",
+            missingDuration,
+            taskGroup.backgroundColor);
+      }
     }
   }
 

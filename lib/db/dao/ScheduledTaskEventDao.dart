@@ -6,11 +6,11 @@ import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 abstract class ScheduledTaskEventDao {
 
   @Query('SELECT * FROM ScheduledTaskEventEntity '
-      'WHERE scheduledTaskId = :scheduledTaskId AND id > :lastId ORDER BY createdAt DESC, id DESC LIMIT :limit')
+      'WHERE scheduledTaskId = :scheduledTaskId AND id < :lastId ORDER BY createdAt DESC, id DESC LIMIT :limit')
   Future<List<ScheduledTaskEventEntity>> findByScheduledTaskId(int scheduledTaskId, int lastId, int limit);
 
   @Query('SELECT * FROM ScheduledTaskEventEntity '
-      'WHERE taskEventId = :taskEventId AND id > :lastId ORDER BY createdAt DESC, id DESC LIMIT :limit')
+      'WHERE taskEventId = :taskEventId AND id < :lastId ORDER BY createdAt DESC, id DESC LIMIT :limit')
   Future<List<ScheduledTaskEventEntity>> findByTaskEventId(int taskEventId, int lastId, int limit);
 
   @Query('SELECT * FROM ScheduledTaskEventEntity WHERE id = :id')

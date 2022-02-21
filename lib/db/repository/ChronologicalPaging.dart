@@ -8,4 +8,9 @@ class ChronologicalPaging extends IdPaging {
   final DateTime lastDateTime;
 
   ChronologicalPaging(this.lastDateTime, int lastId, int size): super(lastId, size);
+
+  ChronologicalPaging.start(int size) :
+    this.lastDateTime = maxDateTime,
+    super(maxId, size);
+
 }
