@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 enum AroundWhenAtDay {NOW, MORNING, FORENOON, NOON, AFTERNOON, EVENING, NIGHT, CUSTOM}
-enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM}
+enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES}
 
 enum WhenOnDate {TODAY, YESTERDAY, BEFORE_YESTERDAY, CUSTOM}
 
@@ -78,6 +78,8 @@ class When {
 
   static Duration fromDurationHoursToDuration(AroundDurationHours durationHours, Duration? customDuration) {
     switch(durationHours) {
+      case AroundDurationHours.FIVE_MINUTES: return Duration(minutes: 5);
+      case AroundDurationHours.TEN_MINUTES: return Duration(minutes: 10);
       case AroundDurationHours.QUARTER: return Duration(minutes: 15);
       case AroundDurationHours.HALF: return Duration(minutes: 30);
       case AroundDurationHours.ONE: return Duration(hours: 1);
@@ -89,12 +91,14 @@ class When {
   }
   static String fromDurationHoursToString(AroundDurationHours durationHours) {
     switch(durationHours) {
-      case AroundDurationHours.QUARTER: return "Around a quarter of an hour";
+      case AroundDurationHours.FIVE_MINUTES: return "Around 5 minutes";
+      case AroundDurationHours.TEN_MINUTES: return "Around 10 minutes";
+      case AroundDurationHours.QUARTER: return "Around 15 minutes";
       case AroundDurationHours.HALF: return "Around half an hour";
       case AroundDurationHours.ONE: return "Around an hour";
-      case AroundDurationHours.TWO: return "Around two hours";
-      case AroundDurationHours.THREE: return "Around three hours";
-      case AroundDurationHours.FOUR: return "Around four hours";
+      case AroundDurationHours.TWO: return "Around 2 hours";
+      case AroundDurationHours.THREE: return "Around 3 hours";
+      case AroundDurationHours.FOUR: return "Around 4 hours";
       case AroundDurationHours.CUSTOM: return "Custom...";
     }
   }

@@ -384,34 +384,32 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
 
   String getDetailsMessage(ScheduledTask scheduledTask) {
     var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}\n";
-    if (scheduledTask.active) {
+    final nextSchedule = scheduledTask.getNextSchedule()!;
+
+    if (scheduledTask.active && scheduledTask.lastScheduledEventOn != null) {
+      var msg = "";
       if (scheduledTask.isNextScheduleOverdue(false)) {
-        return debug +
+        msg = debug +
             "Overdue ${formatToDateOrWord(
             scheduledTask.getNextSchedule()!, true).toLowerCase()} "
             "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} !";
       }
-      final nextSchedule = scheduledTask.getNextSchedule()!;
-      if (truncToSeconds(nextSchedule) == truncToSeconds(DateTime.now())) {
-        return debug +
+      else if (truncToSeconds(nextSchedule) == truncToSeconds(DateTime.now())) {
+        msg = debug +
             "Due now!";
       }
       else {
-        final msg = debug +
+        msg = debug +
             "Due ${formatToDateOrWord(nextSchedule, true)
                 .toLowerCase()} "
                 "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
                 "${scheduledTask.schedule.toStartAtAsString().toLowerCase()}";
-        if (scheduledTask.lastScheduledEventOn != null) {
-          return "$msg"
-              "\n\n"
-              "Scheduled from ${formatToDateOrWord(
-              scheduledTask.lastScheduledEventOn!).toLowerCase()}";
-        }
-        else {
-          return "$msg";
-        }
       }
+
+      return "$msg"
+          "\n\n"
+          "Scheduled from ${formatToDateOrWord(
+          scheduledTask.lastScheduledEventOn!).toLowerCase()}";
     }
     else {
       return debug +

@@ -302,7 +302,11 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                     : When.fromDurationHoursToString(durationHour),
                               ),
                             );
-                          }).toList(),
+                          }).toList()..sort((d1, d2) {
+                            final duration1 = When.fromDurationHoursToDuration(d1.value!, Duration(days: 10000));
+                            final duration2 = When.fromDurationHoursToDuration(d2.value!, Duration(days: 10000));
+                            return duration1.compareTo(duration2);
+                          }),
                         ),
                       ),
                       Padding(

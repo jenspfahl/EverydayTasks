@@ -99,6 +99,11 @@ List<TaskTemplate> predefinedTaskTemplates = [
   TaskTemplate.data(subId: -1, title: "Organize vacation", taskGroupId: -10),
   TaskTemplate.data(subId: -2, title: "Shop gifts", taskGroupId: -10),
 
+  // Car
+  TaskTemplate.data(subId: -1, title: "Regular inspection", taskGroupId: -11),
+  TaskTemplate.data(subId: -3, title: "Change tires", taskGroupId: -11),
+  TaskTemplate.data(subId: -2, title: "Change windshield wipers", taskGroupId: -11),
+
 ];
 
 TaskTemplate findPredefinedTaskTemplateById(int id) => predefinedTaskTemplates.firstWhere((element) => element.tId?.id == id);
