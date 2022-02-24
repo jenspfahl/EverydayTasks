@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
+import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/ui/DurationPicker.dart';
+import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 
 import 'RepetitionPicker.dart';
@@ -136,6 +138,32 @@ void showTemplateDialog(BuildContext context, String title,
       okButton,
     ],
   );  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
+
+void showSeverityPicker(BuildContext context, Severity? initialSeverity,
+    bool showText, Function(Severity?)? selectedSeverityHandler) {
+
+  Widget clearButton = TextButton(
+    child: Text("Clear"),
+    onPressed: () {
+      if (selectedSeverityHandler != null) {
+        selectedSeverityHandler(null);
+      }
+    },
+  );
+  AlertDialog alert = AlertDialog(
+    content: SeverityPicker(initialSeverity, selectedSeverityHandler,
+        showText: showText,
+        singleButtonWidth: 75
+    ),
+    actions: [clearButton],
+  );
   showDialog(
     context: context,
     builder: (BuildContext context) {

@@ -8,13 +8,13 @@ import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.da
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTaskEvent.dart';
+import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
-import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
@@ -77,6 +77,19 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                 PopupMenuItem<String>(
                     child: Row(
                         children: [
+                          _state?._filterBySeverity != null
+                              ? severityToIcon(_state!._filterBySeverity!, Colors.blueAccent)
+                              : Icon(Icons.fitness_center_rounded),
+                          const Spacer(),
+                          Text(_state?._filterBySeverity != null
+                              ? severityToString(_state!._filterBySeverity!)
+                              : "Filter by severity"),
+                        ]
+                    ),
+                    value: '2'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
                           Icon(
                               _state?._filterByFavorites??false ? Icons.favorite : Icons.favorite_border,
                               color: _state?._filterByFavorites??false ? Colors.blueAccent : null,
@@ -85,7 +98,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                           const Text("Filter favorites"),
                         ]
                     ),
-                    value: '2'),
+                    value: '3'),
                 PopupMenuItem<String>(
                     child: Row(
                         children: [
@@ -100,7 +113,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                               : "Filter by task"),
                         ]
                     ),
-                    value: '3'),
+                    value: '4'),
                 PopupMenuItem<String>(
                     child: Row(
                         children: [
@@ -112,7 +125,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                           const Text("Clear filters"),
                         ]
                     ),
-                    value: '4'),
+                    value: '5'),
               ]
           ).then((selected) {
             switch (selected) {
@@ -140,13 +153,24 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
               }
 
               case '2' : {
+                showSeverityPicker(
+                    context, _state?._filterBySeverity, true, (selected) {
+                  _state?._filterBySeverity = selected;
+                  _state?._doFilter();
+                  filterIcon.refresh(_state?.isFilterActive() ?? false);
+                  Navigator.pop(context);
+                });
+                break;
+              }
+
+              case '3' : {
                 _state?._filterByFavorites = !_state!._filterByFavorites;
                 _state?._doFilter();
                 filterIcon.refresh(_state?.isFilterActive()??false);
                 break;
               }
 
-              case '3' : {
+              case '4' : {
                 if (_state?._filterByTaskOrTemplate == null) {
                   Object? selectedItem = null;
                   showTemplateDialog(context, "Select a task to filter by",
@@ -170,7 +194,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                 }
                 break;
               }
-              case '4' : {
+              case '5' : {
                 _state?.clearFilters();
                 _state?._doFilter();
                 filterIcon.refresh(_state?.isFilterActive()??false);
@@ -234,7 +258,8 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
 
   Object? _selectedTemplateItem;
 
-  DateTimeRange? _filterByDateRange = null;
+  DateTimeRange? _filterByDateRange;
+  Severity? _filterBySeverity;
   bool _filterByFavorites = false;
   Object? _filterByTaskOrTemplate;
   List<int>? _filterByTaskEventIds;
@@ -284,8 +309,8 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
           if (_filterByDateRange != null && taskEvent.startedAt.isBefore(truncToDate(_filterByDateRange!.start))) {
             return true; // remove events before dateFrom
           }
-          if (_filterByDateRange != null && taskEvent.startedAt.isAfter(fillToWholeDate(_filterByDateRange!.end))) {
-            return true; // remove events after dateTo
+          if (_filterBySeverity != null && taskEvent.severity != _filterBySeverity) {
+            return true; // remove events don't match given severity
           }
           if (_filterByFavorites && !taskEvent.favorite) {
             return true; // remove non favorites
@@ -678,11 +703,16 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
   @override
   bool get wantKeepAlive => true;
 
-  bool isFilterActive() => _filterByTaskEventIds != null || _filterByDateRange != null || _filterByFavorites || _filterByTaskOrTemplate != null;
+  bool isFilterActive() => _filterByTaskEventIds != null
+      || _filterByDateRange != null
+      || _filterBySeverity != null
+      || _filterByFavorites
+      || _filterByTaskOrTemplate != null;
 
   void clearFilters() {
     _filterByTaskEventIds = null;
     _filterByDateRange = null;
+    _filterBySeverity = null;
     _filterByFavorites = false;
     _filterByTaskOrTemplate = null;
   }
@@ -705,5 +735,6 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
       _hiddenTiles.addAll(allDates);
     });
   }
-  
+
+
 }

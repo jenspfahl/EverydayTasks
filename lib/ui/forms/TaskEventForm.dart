@@ -4,8 +4,8 @@ import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/When.dart';
+import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
-import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 class TaskEventForm extends StatefulWidget {
@@ -36,8 +36,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   TaskGroup? _selectedTaskGroup;
 
-  late List<bool> _severitySelection;
-  late int _severityIndex;
+  Severity _severity = Severity.MEDIUM;
 
   AroundDurationHours? _selectedDurationHours;
   Duration? _customDuration;
@@ -52,7 +51,6 @@ class _TaskEventFormState extends State<TaskEventForm> {
   _TaskEventFormState([this._taskEvent, this._taskGroup, this._template, this._title]) {
 
     int? selectedTaskGroupId;
-    Severity severity = Severity.MEDIUM;
 
     AroundDurationHours? aroundDuration;
     Duration? duration;
@@ -65,7 +63,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
     if (_taskEvent != null) {
       selectedTaskGroupId = _taskEvent!.taskGroupId;
 
-      severity = _taskEvent!.severity;
+      _severity = _taskEvent!.severity;
 
       titleController.text = _taskEvent!.title;
       descriptionController.text = _taskEvent!.description ?? "";
@@ -87,7 +85,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
       selectedTaskGroupId = _template?.taskGroupId;
 
       if (_template!.severity != null) {
-        severity = _template!.severity!;
+        _severity = _template!.severity!;
       }
 
       titleController.text = _template!.title;
@@ -110,9 +108,6 @@ class _TaskEventFormState extends State<TaskEventForm> {
     if (selectedTaskGroupId != null) {
       _selectedTaskGroup = findPredefinedTaskGroupById(selectedTaskGroupId);
     }
-
-    this._severityIndex = severity.index;
-    this._severitySelection = List.generate(Severity.values.length, (index) => index == _severityIndex);
 
     _selectedDurationHours = aroundDuration;
     if (_selectedDurationHours == AroundDurationHours.CUSTOM) {
@@ -209,54 +204,13 @@ class _TaskEventFormState extends State<TaskEventForm> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 20.0),
-                        child: ToggleButtons(
-                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                          renderBorder: true,
-                          borderWidth: 1.5,
-                          borderColor: Colors.grey,
-                          color: Colors.grey.shade600,
-                          selectedBorderColor: Colors.blue,
-                          children: [
-                            SizedBox(
-                              width: 100,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  severityToIcon(Severity.EASY),
-                                  Text('Easy going'),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 100,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  severityToIcon(Severity.MEDIUM),
-                                  Text('As always ok'),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 100,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  severityToIcon(Severity.HARD),
-                                  Text('Exhausting'),
-                                ],
-                              ),
-                            ),
-                          ],
-                          isSelected: _severitySelection,
-                          onPressed: (int index) {
-                            FocusScope.of(context).unfocus();
+                        child: SeverityPicker(_severity, (selected) {
                             setState(() {
-                              _severitySelection[_severityIndex] = false;
-                              _severitySelection[index] = true;
-                              _severityIndex = index;
+                              _severity = selected;
                             });
                           },
+                          showText: true,
+                          singleButtonWidth: 100,
                         ),
                       ),
                       Padding(
@@ -447,7 +401,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   _selectedWhenAtDay!,
                                   duration,
                                   _selectedDurationHours!,
-                                  Severity.values.elementAt(_severityIndex),
+                                  _severity,
                                   _taskEvent?.favorite ?? false,
                                 );
                                 Navigator.pop(context, taskEvent);
@@ -467,4 +421,5 @@ class _TaskEventFormState extends State<TaskEventForm> {
       ),
     );
   }
+
 }
