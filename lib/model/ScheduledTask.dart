@@ -56,7 +56,6 @@ class ScheduledTask implements Comparable {
     if (lastScheduledEventOn != null) {
       var nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
       return nextRepetition.difference(truncToSeconds(DateTime.now()));
-        //  .subtract(Duration(minutes: 1))); // subtract leap minute
     }
   }
 

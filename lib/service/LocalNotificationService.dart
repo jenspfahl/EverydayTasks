@@ -9,9 +9,8 @@ import '../main.dart';
 
 // stolen from https://github.com/iloveteajay/flutter_local_notification/https://github.com/iloveteajay/flutter_local_notification/
 class LocalNotificationService {
-  //LocalNotificationService a singleton object
-  static final LocalNotificationService _notificationService =
-  LocalNotificationService._internal();
+
+  static final LocalNotificationService _notificationService = LocalNotificationService._internal();
 
   static late List<Function(String receiverKey, String id)> _handler = [];
 

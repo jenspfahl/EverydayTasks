@@ -15,6 +15,7 @@ import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
+import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
@@ -23,6 +24,8 @@ import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 import '../utils.dart';
+
+final String PREF_SORTED_BY = "scheduledTasks/sortedBy";
 
 class ScheduledTaskList extends StatefulWidget implements PageScaffold {
 
@@ -49,7 +52,87 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
 
   @override
   List<Widget>? getActions(BuildContext context) {
-    return null;
+    return [
+      GestureDetector(
+        child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
+            child: Icon(Icons.sort_outlined)),
+        onTapDown: (details) {
+          showPopUpMenuAtTapDown(
+              context,
+              details,
+              [
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          createSortIcon(SortBy.PROGRESS),
+                          const Spacer(),
+                          Text("Sort by progress"),
+                        ]
+                    ),
+                    value: '1'),
+                  PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          createSortIcon(SortBy.REMAINING_TIME),
+                          const Spacer(),
+                          Text("Sort by remaining time"),
+                        ]
+                    ),
+                    value: '2'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          createSortIcon(SortBy.GROUP),
+                          const Spacer(),
+                          Text("Sort by category"),
+                        ]
+                    ),
+                    value: '3'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          createSortIcon(SortBy.TITLE),
+                          const Spacer(),
+                          Text("Sort by title"),
+                        ]
+                    ),
+                    value: '4'),
+
+              ]
+          ).then((selected) {
+            switch (selected) {
+              case '1' :
+                {
+                  _state?._updateSortBy(SortBy.PROGRESS);
+                  break;
+                }
+              case '2' :
+                {
+                  _state?._updateSortBy(SortBy.REMAINING_TIME);
+                  break;
+                }
+              case '3' :
+                {
+                  _state?._updateSortBy(SortBy.GROUP);
+                  break;
+                }
+              case '4' :
+                {
+                  _state?._updateSortBy(SortBy.TITLE);
+                  break;
+                }
+            }
+          });
+        },
+      ),
+    ];
+  }
+
+  Icon createSortIcon(SortBy forSortBy) {
+    return Icon(
+      _state?._sortBy == forSortBy ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+      color: _state?._sortBy == forSortBy ? Colors.blueAccent : null,
+    );
   }
 
   @override
@@ -76,20 +159,33 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
   }
 }
 
+enum SortBy {PROGRESS, REMAINING_TIME, GROUP, TITLE,}
+
 class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKeepAliveClientMixin<ScheduledTaskList> {
   List<ScheduledTask> _scheduledTasks = [];
   int _selectedTile = -1;
+  SortBy _sortBy = SortBy.PROGRESS;
+
   final _notificationService = LocalNotificationService();
+  final _preferenceService = PreferenceService();
+
   late Timer _timer;
 
   @override
   void initState() {
     super.initState();
 
+    _preferenceService.getInt(PREF_SORTED_BY).then((value) {
+      if (value != null) {
+        setState(() {
+          _sortBy = SortBy.values.elementAt(value);
+        });
+      }
+    });
     _timer = Timer.periodic(Duration(seconds: 20), (timer) {
       setState(() {
         // update all
-        _scheduledTasks..sort();
+        _sortList();
         debugPrint(".. ST timer refresh #${_timer.tick} ..");
       });
     });
@@ -100,7 +196,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
       setState(() {
         _scheduledTasks = scheduledTasks;
-        _scheduledTasks..sort();
+        _sortList();
 
         // refresh scheduled notifications. Could be lost if phone was reseted.
         _scheduledTasks.forEach((scheduledTask) => _rescheduleNotification(scheduledTask));
@@ -134,7 +230,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
           _scheduledTasks.removeAt(index);
           _scheduledTasks.insert(index, scheduledTask);
           debugPrint("exchanged: " + scheduledTask.lastScheduledEventOn.toString());
-          _scheduledTasks..sort();
+          _sortList();
         }
       }
     });
@@ -249,7 +345,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                       }
                     //  scheduledTask.templateId
                       return TaskEventForm(
-                          formTitle: "Create new event from schedule",
+                          formTitle: "Create new journal entry from schedule",
                           taskGroup: taskGroup,
                           template: template,
                           title: title);
@@ -258,7 +354,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                     if (newTaskEvent != null) {
                       TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                         ScaffoldMessenger.of(super.context).showSnackBar(
-                            SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
+                            SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
                         widget._pagesHolder.taskEventList?.addTaskEvent(newTaskEvent);
 
                         scheduledTask.executeSchedule(null);
@@ -314,7 +410,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                     }
                     else {
                       ScaffoldMessenger.of(super.context).showSnackBar(
-                          SnackBar(content: Text('No events for that schedule found')));
+                          SnackBar(content: Text('No journal entries for that schedule found')));
                     }
               });
             },
@@ -327,7 +423,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                 onPressed: () async {
                   ScheduledTask? changedScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return ScheduledTaskForm(
-                        formTitle: "Change scheduledTask \'${scheduledTask.title}\'",
+                        formTitle: "Change schedule \'${scheduledTask.title}\'",
                         scheduledTask: scheduledTask,
                         taskGroup: findPredefinedTaskGroupById(scheduledTask.taskGroupId),
                     );
@@ -336,7 +432,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                   if (changedScheduledTask != null) {
                     ScheduledTaskRepository.update(changedScheduledTask).then((changedScheduledTask) {
                       ScaffoldMessenger.of(super.context).showSnackBar(
-                          SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' updated')));
+                          SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' changed')));
                       _updateScheduledTask(scheduledTask, changedScheduledTask);
                     });
                   }
@@ -421,7 +517,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   void _addScheduledTask(ScheduledTask scheduledTask) {
     setState(() {
       _scheduledTasks.add(scheduledTask);
-      _scheduledTasks..sort();
+      _sortList();
       _selectedTile = _scheduledTasks.indexOf(scheduledTask);
       _rescheduleNotification(scheduledTask);
 
@@ -436,12 +532,62 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
         _scheduledTasks.removeAt(index);
         _scheduledTasks.insert(index, updated);
       }
-      _scheduledTasks..sort();
+      _sortList();
       _selectedTile = _scheduledTasks.indexOf(updated);
       _rescheduleNotification(updated);
 
     });
 
+  }
+
+  void _sortList() {
+    _scheduledTasks..sort((t1, t2) {
+      if (_sortBy == SortBy.PROGRESS) {
+        final d1 = t1.active ? t1.getNextRepetitionIndicatorValue() : null;
+        final d2 = t2.active ? t2.getNextRepetitionIndicatorValue() : null;
+        if (d1 == null && d2 != null) {
+          return 1;
+        }
+        else if (d1 != null && d2 == null) {
+          return -1;
+        }
+        else if (d1 == null && d2 == null) {
+          return t1.title.toLowerCase().compareTo(t2.title.toLowerCase());
+        }
+        return d2!.compareTo(d1!); // reverse
+      }
+      else if (_sortBy == SortBy.REMAINING_TIME) {
+        final d1 = t1.active ? t1.getNextSchedule() : null;
+        final d2 = t2.active ? t2.getNextSchedule() : null;
+        if (d1 == null && d2 != null) {
+          return 1;
+        }
+        else if (d1 != null && d2 == null) {
+          return -1;
+        }
+        else if (d1 == null && d2 == null) {
+          return t1.title.toLowerCase().compareTo(t2.title.toLowerCase());
+        }
+        return d1!.compareTo(d2!); // reverse
+      }
+      else if (_sortBy == SortBy.GROUP) {
+        final d1 = t1.taskGroupId;
+        final d2 = t2.taskGroupId;
+        return d1.compareTo(d2);
+      }
+      else if (_sortBy == SortBy.TITLE) {
+        final d1 = t1.title.toLowerCase();
+        final d2 = t2.title.toLowerCase();
+        final c = d1.compareTo(d2);
+        if (c == 0) {
+          return t1.title.toLowerCase().compareTo(t2.title.toLowerCase());
+        }
+        return c;
+      }
+      else {
+        return t1.compareTo(t2);
+      }
+    });
   }
 
   void _removeScheduledTask(ScheduledTask scheduledTask) {
@@ -521,6 +667,14 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
 
   void _cancelNotification(ScheduledTask scheduledTask) {
     _notificationService.cancelNotifications(scheduledTask.id!);
+  }
+
+  void _updateSortBy(SortBy sortBy) {
+    _preferenceService.setInt(PREF_SORTED_BY, sortBy.index);
+    setState(() {
+      _sortBy = sortBy;
+      _sortList();
+    });
   }
 
 

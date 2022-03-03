@@ -1,6 +1,6 @@
-# Personal Task Logger
+# Everyday Tasks
 
-A task logger
+A fast task logger and scheduler for everyday tasks
 
 To run floor generator execute
 

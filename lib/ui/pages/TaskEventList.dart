@@ -39,7 +39,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
 
   @override
   Widget getTitle() {
-    return const Text(APP_NAME);
+    return const Text("Journal");
   }
 
   @override
@@ -572,14 +572,14 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                 onPressed: () async {
                   TaskEvent? changedTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return TaskEventForm(
-                        formTitle: "Change TaskEvent \'${taskEvent.title}\'", 
+                        formTitle: "Change journal entry \'${taskEvent.title}\'",
                         taskEvent: taskEvent);
                   }));
 
                   if (changedTaskEvent != null) {
                     TaskEventRepository.update(changedTaskEvent).then((updatedTaskEvent) {
                       ScaffoldMessenger.of(super.context).showSnackBar(
-                          SnackBar(content: Text('Task event with name \'${updatedTaskEvent.title}\' updated')));
+                          SnackBar(content: Text('Journal entry with name \'${updatedTaskEvent.title}\' changed')));
                       _updateTaskEvent(taskEvent, updatedTaskEvent);
                     });
                   }
@@ -590,7 +590,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                 onPressed: () {
                   showConfirmationDialog(
                     context,
-                    "Delete Task Event",
+                    "Delete journal entry",
                     "Are you sure to delete \'${taskEvent.title}\' ?",
                     okPressed: () {
                       TaskEventRepository.delete(taskEvent).then(
@@ -603,7 +603,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                                 });
                           });
                           ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text('Task event \'${taskEvent.title}\' deleted')));
+                              .showSnackBar(SnackBar(content: Text('Journal entry \'${taskEvent.title}\' deleted')));
                           _removeTaskEvent(taskEvent);
                         },
                       );
@@ -634,19 +634,19 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const Text('From what do you want to create a new task event?'),
+                  const Text('From what do you want to create a new journal entry?'),
                   OutlinedButton(
                     child: const Text('From scratch'),
                     onPressed: () async {
                       Navigator.pop(context);
                       TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                        return TaskEventForm(formTitle: "Create new TaskEvent ");
+                        return TaskEventForm(formTitle: "Create new journal entry ");
                       }));
 
                       if (newTaskEvent != null) {
                         TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                           ScaffoldMessenger.of(super.context).showSnackBar(
-                              SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
+                              SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
                           _addTaskEvent(newTaskEvent);
                         });
                       }
@@ -667,23 +667,23 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                             TaskEvent? newTaskEvent = await Navigator.push(super.context, MaterialPageRoute(builder: (context) {
                               if (_selectedTemplateItem is TaskGroup) {
                                 return TaskEventForm(
-                                  formTitle: "Create new event from group",
+                                  formTitle: "Create new journal entry",
                                   taskGroup: _selectedTemplateItem as TaskGroup,);
                               }
                               else if (_selectedTemplateItem is Template) {
                                 return TaskEventForm(
-                                  formTitle: "Create new event from task",
+                                  formTitle: "Create new journal entry",
                                   template: _selectedTemplateItem as Template,);
                               }
                               else {
-                                return TaskEventForm(formTitle: "Create new event from scratch");
+                                return TaskEventForm(formTitle: "Create new journal entry");
                               }
                             }));
 
                             if (newTaskEvent != null) {
                               TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                                 ScaffoldMessenger.of(super.context).showSnackBar(
-                                    SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
+                                    SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
                                 _addTaskEvent(newTaskEvent);
                               });
                             }

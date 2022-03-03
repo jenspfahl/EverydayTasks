@@ -55,10 +55,10 @@ List<TaskGroup> predefinedTaskGroups = [
   TaskGroup(id: -4, name: "Dishes", colorRGB: Color.fromARGB(100, 2, 23, 228), iconData: Icons.local_cafe_outlined),
   TaskGroup(id: -5, name: "Errands",colorRGB: Color.fromARGB(100, 183, 123, 8), iconData: Icons.shopping_basket_outlined),
   TaskGroup(id: -6, name: "Kids", colorRGB: Color.fromARGB(100, 223, 3, 128), iconData: Icons.child_friendly_outlined),
-  TaskGroup(id: -7, name: "Indoor plants", colorRGB: Color.fromARGB(100, 3, 228, 7), iconData: Icons.local_florist_outlined),
+  TaskGroup(id: -7, name: "Indoor plants", colorRGB: Color.fromARGB(100, 3, 208, 23), iconData: Icons.local_florist_outlined),
   TaskGroup(id: -8, name: "Garden", colorRGB: Color.fromARGB(100, 3, 155, 7), iconData: Icons.park_outlined),
-  TaskGroup(id: -9, name: "Maintenance", colorRGB: Color.fromARGB(100, 183, 3, 7), iconData: Icons.build_outlined),
-  TaskGroup(id: -10, name: "Organization",colorRGB: Color.fromARGB(100, 183, 123, 128), iconData: Icons.phone_in_talk_outlined),
+  TaskGroup(id: -9, name: "Maintenance", colorRGB: Color.fromARGB(100, 183, 3, 23), iconData: Icons.build_outlined),
+  TaskGroup(id: -10, name: "Organization",colorRGB: Color.fromARGB(100, 183, 100, 128), iconData: Icons.phone_in_talk_outlined),
   TaskGroup(id: -11, name: "Car",colorRGB: Color.fromARGB(100, 83, 123, 228), iconData: Icons.directions_car_outlined),
 
   //last one

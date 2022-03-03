@@ -15,7 +15,7 @@ Color getColorWithOpacity(Color? colorRGB, double opacity) {
 
 Color getSharpedColor(Color? colorRGB) {
   var color = colorRGB ?? Colors.lime.shade100;
-  return color.withAlpha((color.alpha*2).toInt());
+  return color.withAlpha((color.alpha * 2.5).toInt());
 }
 
 Color getShadedColor(Color? colorRGB, bool lessShaded) {
@@ -25,9 +25,9 @@ Color getShadedColor(Color? colorRGB, bool lessShaded) {
 
 Color shadeColor(bool lessShaded, Color color) {
   if (lessShaded) {
-    return color.withAlpha((color.alpha/2).toInt());
+    return color.withAlpha((color.alpha/2.5).toInt());
   }
   else {
-    return color;
+    return color.withAlpha((color.alpha/1.5).toInt());
   }
 }

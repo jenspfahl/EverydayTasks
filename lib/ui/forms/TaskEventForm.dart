@@ -158,7 +158,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                       TextFormField(
                         controller: titleController,
                         decoration: InputDecoration(
-                          hintText: "Enter an event title",
+                          hintText: "Enter a title",
                           icon: Icon(Icons.event_available),
                         ),
                         maxLength: 50,
@@ -295,7 +295,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                 },
                                 validator: (AroundWhenAtDay? value) {
                                   if (value == null || (value == AroundWhenAtDay.CUSTOM && _customWhenAt == null)) {
-                                    return "Please select when the event starts";
+                                    return "Please select when the task starts";
                                   } else {
                                     return null;
                                   }
@@ -352,7 +352,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                 },
                                 validator: (WhenOnDate? value) {
                                   if (value == null || (value == WhenOnDate.CUSTOM && _customWhenOn == null)) {
-                                    return "Please select which day the event starts";
+                                    return "Please select which day the task starts";
                                   } else {
                                     return null;
                                   }

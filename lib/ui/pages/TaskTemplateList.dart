@@ -35,7 +35,7 @@ class TaskTemplateList extends StatefulWidget implements PageScaffold {
 
   @override
   void handleFABPressed(BuildContext context) {
-    showConfirmationDialog(context, "Manage templates", "Managing templates is not yet supported. Stay tuned until it comes...");
+    showConfirmationDialog(context, "Manage tasks", "Managing tasks is not yet supported. Stay tuned until it comes...");
   }
 
   @override

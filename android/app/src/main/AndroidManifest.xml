@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.jepfa.personaltasklogger">
    <application
-        android:label="Personal Task Logger"
+        android:label="Everyday Tasks"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

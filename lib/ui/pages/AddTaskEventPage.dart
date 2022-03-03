@@ -9,7 +9,6 @@ import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
-import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 
 class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   _QuickAddTaskEventPageState? _state;
@@ -19,7 +18,7 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
 
   @override
   Widget getTitle() {
-    return Text('QuickAdd Task Events');
+    return Text('QuickAdd');
   }
 
   @override
@@ -95,7 +94,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
                     showConfirmationDialog(
                       context,
                       "Delete QuickAdd for \'${template.title}\'",
-                      "Are you sure to remove this QuickAdd? This will not affect the template itself.",
+                      "Are you sure to remove this QuickAdd? This will not affect the associated task.",
                       okPressed: () {
                         template.favorite = false;
                         TemplateRepository.update(template).then((changedScheduledTask) {
@@ -116,14 +115,14 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
                   onTap: () async {
                     TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                       return TaskEventForm(
-                          formTitle: "Create new event from QuickAdd",
+                          formTitle: "Create new journal entry",
                           template: template );
                     }));
 
                     if (newTaskEvent != null) {
                       TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                         ScaffoldMessenger.of(super.context).showSnackBar(
-                            SnackBar(content: Text('New task event with name \'${newTaskEvent.title}\' created')));
+                            SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
                         widget._pagesHolder.taskEventList?.addTaskEvent(newTaskEvent);
                       });
                     }
@@ -190,7 +189,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
         });
       }
       else {
-        SnackBar(content: Text("Please select a template or a variant"));
+        SnackBar(content: Text("Please select a task"));
       }
     }, cancelPressed: () {
       Navigator.pop(super.context);

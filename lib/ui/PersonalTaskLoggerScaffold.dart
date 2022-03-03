@@ -105,7 +105,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.event_available_rounded),
-            label: 'Events',
+            label: 'Journal',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.task_alt),

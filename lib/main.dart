@@ -3,7 +3,7 @@ import 'package:personaltasklogger/service/LocalNotificationService.dart';
 
 import 'ui/PersonalTaskLoggerApp.dart';
 
-const String APP_NAME = "Personal Task Logger";
+const String APP_NAME = "Everyday Tasks";
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
