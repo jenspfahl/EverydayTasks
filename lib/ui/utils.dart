@@ -31,3 +31,10 @@ Color shadeColor(bool lessShaded, Color color) {
     return color.withAlpha((color.alpha/1.5).toInt());
   }
 }
+
+Icon createCheckIcon(bool checked) {
+  return Icon(
+    checked ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
+    color: checked ? Colors.blueAccent : null,
+  );
+}

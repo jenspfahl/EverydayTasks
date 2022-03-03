@@ -5,10 +5,15 @@ import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
+
+import '../utils.dart';
+
+final String PREF_SORT_BY = "quickAdd/sortedBy";
 
 class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   _QuickAddTaskEventPageState? _state;
@@ -28,7 +33,52 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
 
   @override
   List<Widget>? getActions(BuildContext context) {
-    return null;
+    return [
+      GestureDetector(
+        child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
+            child: Icon(Icons.sort_outlined)),
+        onTapDown: (details) {
+          showPopUpMenuAtTapDown(
+              context,
+              details,
+              [
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          createCheckIcon(_state?._sortBy == SortBy.GROUP),
+                          const Spacer(),
+                          Text("Sort by category"),
+                        ]
+                    ),
+                    value: '1'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          createCheckIcon(_state?._sortBy == SortBy.TITLE),
+                          const Spacer(),
+                          Text("Sort by title"),
+                        ]
+                    ),
+                    value: '2'),
+
+              ]
+          ).then((selected) {
+            switch (selected) {
+              case '1' :
+                {
+                  _state?._updateSortBy(SortBy.GROUP);
+                  break;
+                }
+              case '2' :
+                {
+                  _state?._updateSortBy(SortBy.TITLE);
+                  break;
+                }
+            }
+          });
+        },
+      ),
+    ];
   }
 
   @override
@@ -57,18 +107,30 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   }
 }
 
+enum SortBy {GROUP, TITLE,}
+
 class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with AutomaticKeepAliveClientMixin<QuickAddTaskEventPage> {
   List<Template> _templates = [];
-  
+  SortBy _sortBy = SortBy.GROUP;
+  final _preferenceService = PreferenceService();
+
   @override
   void initState() {
     super.initState();
 
-    final paging = IdPaging(IdPaging.maxId, 100);
+    _preferenceService.getInt(PREF_SORT_BY).then((value) {
+      if (value != null) {
+        setState(() {
+          _sortBy = SortBy.values.elementAt(value);
+        });
+      }
+    });
+
+      final paging = IdPaging(IdPaging.maxId, 100);
     TemplateRepository.getAllFavorites().then((templates) {
       setState(() {
         _templates = templates;
-        _templates..sort();
+        _sortList();
       });
     });
   }
@@ -103,7 +165,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
 
                           setState(() {
                             _templates.remove(template);
-                            _templates..sort();
+                            _sortList();
                           });
                         });
                         Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
@@ -183,7 +245,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
           if (addToState) {
             setState(() {
               _templates.add(template);
-              _templates..sort();
+              _sortList();
             });
           }
         });
@@ -198,4 +260,36 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
 
   @override
   bool get wantKeepAlive => true;
+
+  void _updateSortBy(SortBy sortBy) {
+    _preferenceService.setInt(PREF_SORT_BY, sortBy.index);
+    setState(() {
+      _sortBy = sortBy;
+      _sortList();
+    });
+  }
+
+
+  void _sortList() {
+    _templates..sort((t1, t2) {
+      if (_sortBy == SortBy.GROUP) {
+        final d1 = t1.taskGroupId;
+        final d2 = t2.taskGroupId;
+        return d1.compareTo(d2);
+      }
+      else if (_sortBy == SortBy.TITLE) {
+        final d1 = t1.title.toLowerCase();
+        final d2 = t2.title.toLowerCase();
+        final c = d1.compareTo(d2);
+        if (c == 0) {
+          return t1.title.toLowerCase().compareTo(t2.title.toLowerCase());
+        }
+        return c;
+      }
+      else {
+        return t1.compareTo(t2);
+      }
+    });
+  }
+
 }

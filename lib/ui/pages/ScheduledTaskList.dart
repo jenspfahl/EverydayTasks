@@ -25,7 +25,7 @@ import 'package:personaltasklogger/util/dates.dart';
 
 import '../utils.dart';
 
-final String PREF_SORTED_BY = "scheduledTasks/sortedBy";
+final String PREF_SORT_BY = "scheduledTasks/sortedBy";
 
 class ScheduledTaskList extends StatefulWidget implements PageScaffold {
 
@@ -64,7 +64,7 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
                 PopupMenuItem<String>(
                     child: Row(
                         children: [
-                          createSortIcon(SortBy.PROGRESS),
+                          createCheckIcon(_state?._sortBy == SortBy.PROGRESS),
                           const Spacer(),
                           Text("Sort by progress"),
                         ]
@@ -73,7 +73,7 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
                   PopupMenuItem<String>(
                     child: Row(
                         children: [
-                          createSortIcon(SortBy.REMAINING_TIME),
+                          createCheckIcon(_state?._sortBy == SortBy.REMAINING_TIME),
                           const Spacer(),
                           Text("Sort by remaining time"),
                         ]
@@ -82,7 +82,7 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
                 PopupMenuItem<String>(
                     child: Row(
                         children: [
-                          createSortIcon(SortBy.GROUP),
+                          createCheckIcon(_state?._sortBy == SortBy.GROUP),
                           const Spacer(),
                           Text("Sort by category"),
                         ]
@@ -91,7 +91,7 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
                 PopupMenuItem<String>(
                     child: Row(
                         children: [
-                          createSortIcon(SortBy.TITLE),
+                          createCheckIcon(_state?._sortBy == SortBy.TITLE),
                           const Spacer(),
                           Text("Sort by title"),
                         ]
@@ -126,13 +126,6 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
         },
       ),
     ];
-  }
-
-  Icon createSortIcon(SortBy forSortBy) {
-    return Icon(
-      _state?._sortBy == forSortBy ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-      color: _state?._sortBy == forSortBy ? Colors.blueAccent : null,
-    );
   }
 
   @override
@@ -175,13 +168,14 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   void initState() {
     super.initState();
 
-    _preferenceService.getInt(PREF_SORTED_BY).then((value) {
+    _preferenceService.getInt(PREF_SORT_BY).then((value) {
       if (value != null) {
         setState(() {
           _sortBy = SortBy.values.elementAt(value);
         });
       }
     });
+
     _timer = Timer.periodic(Duration(seconds: 20), (timer) {
       setState(() {
         // update all
@@ -670,7 +664,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
   }
 
   void _updateSortBy(SortBy sortBy) {
-    _preferenceService.setInt(PREF_SORTED_BY, sortBy.index);
+    _preferenceService.setInt(PREF_SORT_BY, sortBy.index);
     setState(() {
       _sortBy = sortBy;
       _sortList();

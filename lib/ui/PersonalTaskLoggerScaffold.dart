@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
-import 'package:personaltasklogger/ui/pages/AddTaskEventPage.dart';
+import 'package:personaltasklogger/ui/pages/QuickAddTaskEventPage.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
