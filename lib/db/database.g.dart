@@ -348,22 +348,14 @@ class _$TaskTemplateDao extends TaskTemplateDao {
             (row['favorite'] as int) != 0));
   }
 
+  // !!!! this was generated wrong. Hard implemented !!!
   @override
-  Future<List<TaskTemplateEntity>> findAllFavs() async {
-    return _queryAdapter.queryList(
-        'SELECT * FROM TaskTemplateEntity ORDER BY id DESC',
-        mapper: (Map<String, Object?> row) => TaskTemplateEntity(
-            row['id'] as int?,
-            row['taskGroupId'] as int,
-            row['title'] as String,
-            row['description'] as String?,
-            row['startedAt'] as int?,
-            row['aroundStartedAt'] as int?,
-            row['duration'] as int?,
-            row['aroundDuration'] as int?,
-            row['severity'] as int?,
-            (row['favorite'] as int) != 0));
+  Future<int?> findMaxId() async {
+    return _queryAdapter.query(
+        'SELECT MAX(id) as MAX_ID FROM TaskTemplateEntity',
+        mapper: (Map<String, Object?> row) => row['MAX_ID'] as int);
   }
+  // !!!! this was generated wrong. Hard implemented !!!
 
   @override
   Stream<TaskTemplateEntity?> findById(int id) {
@@ -493,6 +485,15 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
             row['severity'] as int?,
             (row['favorite'] as int) != 0));
   }
+
+  // !!!! this was generated wrong. Hard implemented !!!
+  @override
+  Future<int?> findMaxId() async {
+    return _queryAdapter.query(
+        'SELECT MAX(id) as MAX_ID FROM TaskTemplateVariantEntity',
+    mapper: (Map<String, Object?> row) => row['MAX_ID'] as int);
+  }
+  // !!!! this was generated wrong. Hard implemented !!!
 
   @override
   Future<List<TaskTemplateVariantEntity>> findAllFavs() async {

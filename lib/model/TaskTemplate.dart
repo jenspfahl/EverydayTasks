@@ -40,6 +40,7 @@ class TaskTemplate extends Template {
     severity: severity,
   );
 
+
 }
 
 
@@ -54,10 +55,10 @@ List<TaskTemplate> predefinedTaskTemplates = [
   TaskTemplate.data(subId: -6, title: "Dispose old paper and waste glass", taskGroupId: -1),
 
   // Laundry
-  TaskTemplate.data(subId: -1, title: "Prepare washing machine", taskGroupId: -2),
-  TaskTemplate.data(subId: -2, title: "Empty washing machine", taskGroupId: -2),
-  TaskTemplate.data(subId: -3, title: "Put on laundry rack", taskGroupId: -2),
-  TaskTemplate.data(subId: -4, title: "Get from laundry rack to closet", taskGroupId: -2),
+  TaskTemplate.data(subId: -1, title: "Full washing machine", taskGroupId: -2),
+  TaskTemplate.data(subId: -2, title: "Empty washing machine & put on laundry rack", taskGroupId: -2),
+  TaskTemplate.data(subId: -3, title: "Get from laundry rack", taskGroupId: -2),
+  TaskTemplate.data(subId: -4, title: "Put to closet", taskGroupId: -2),
   TaskTemplate.data(subId: -5, title: "Ironing", taskGroupId: -2),
   TaskTemplate.data(subId: -6, title: "Change bed linen", taskGroupId: -2),
   TaskTemplate.data(subId: -7, title: "Change towels", taskGroupId: -2),
@@ -105,8 +106,3 @@ List<TaskTemplate> predefinedTaskTemplates = [
   TaskTemplate.data(subId: -2, title: "Change windshield wipers", taskGroupId: -11),
 
 ];
-
-TaskTemplate findPredefinedTaskTemplateById(int id) => predefinedTaskTemplates.firstWhere((element) => element.tId?.id == id);
-
-List<TaskTemplate >findPredefinedTaskTemplatesByTaskGroupId(int taskGroupId) =>
-    predefinedTaskTemplates.where((element) => element.taskGroupId == taskGroupId).toList();

@@ -1,16 +1,16 @@
-import 'dart:ui';
+import 'dart:collection';
 
+import 'package:flutter/cupertino.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateVariantEntity.dart';
-import 'package:personaltasklogger/db/repository/IdPaging.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/model/When.dart';
+
 import '../database.dart';
-import 'ChronologicalPaging.dart';
 import 'mapper.dart';
 
 class TemplateRepository {
@@ -21,6 +21,11 @@ class TemplateRepository {
 
     if (template is TaskTemplate) {
       final taskTemplateDao = database.taskTemplateDao;
+
+      int? maxId = await taskTemplateDao.findMaxId();
+      maxId = _incId(maxId);
+      template.tId = TemplateId.forTaskTemplate(maxId);
+
       final entity = _mapTemplateToEntity(template);
 
       final id = await taskTemplateDao.insertTaskTemplate(entity);
@@ -30,6 +35,11 @@ class TemplateRepository {
     }
     else if (template is TaskTemplateVariant) {
       final taskTemplateVariantDao = database.taskTemplateVariantDao;
+
+      int maxId = await taskTemplateVariantDao.findMaxId() ?? 0;
+      maxId = _incId(maxId);
+      template.tId = TemplateId.forTaskTemplateVariant(maxId);
+
       final entity = _mapTemplateVariantToEntity(template);
 
       final id = await taskTemplateVariantDao.insertTaskTemplateVariant(entity);
@@ -87,7 +97,15 @@ class TemplateRepository {
 
     final taskTemplateDao = database.taskTemplateDao;
     return taskTemplateDao.findAll()
-        .then((entities) => _mapTemplatesFromEntities(entities));
+        .then((entities) => _mapTemplatesFromEntities(entities))
+        .then((dbTemplates) {
+          Set<TaskTemplate> templates = HashSet();
+          templates.addAll(predefinedTaskTemplates);
+          templates.addAll(dbTemplates);
+          final templateList = templates.toList()..sort();
+    
+          return templateList;
+        });
   }
 
   static Future<List<TaskTemplateVariant>> getAllTaskTemplateVariants() async {
@@ -95,12 +113,23 @@ class TemplateRepository {
 
     final taskTemplateVariantDao = database.taskTemplateVariantDao;
     return taskTemplateVariantDao.findAll()
-        .then((entities) => _mapTemplateVariantsFromEntities(entities));
+        .then((entities) => _mapTemplateVariantsFromEntities(entities))
+        .then((dbTemplateVariants) {
+          Set<TaskTemplateVariant> templates = HashSet();
+          templates.addAll(predefinedTaskTemplateVariants);
+          templates.addAll(dbTemplateVariants);
+          final templateList = templates.toList()..sort();
+    
+          return templateList;
+        });
   }
 
   static Future<List<Template>> getAll() async {
-    final taskTemplates = await getAllTaskTemplates();
-    final taskTemplateVariants = await getAllTaskTemplateVariants();
+    final taskTemplatesFuture = getAllTaskTemplates();
+    final taskTemplateVariantsFuture = getAllTaskTemplateVariants();
+    final taskTemplates = await taskTemplatesFuture;
+    final taskTemplateVariants = await taskTemplateVariantsFuture;
+
     List<Template> templates = [];
     templates.addAll(taskTemplates);
     templates.addAll(taskTemplateVariants);
@@ -229,5 +258,13 @@ class TemplateRepository {
   static List<TaskTemplateVariant> _mapTemplateVariantsFromEntities(List<TaskTemplateVariantEntity> entities) =>
       entities.map(_mapTemplateVariantFromEntity).toList();
 
+
+
+  static int _incId(int? maxId) {
+    if (maxId == null || maxId < 0) {
+      maxId = 0;
+    }
+    return maxId + 1;
+  }
 
 }

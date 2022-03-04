@@ -35,7 +35,7 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   List<Widget>? getActions(BuildContext context) {
     return [
       GestureDetector(
-        child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
+        child: Padding(padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Icon(Icons.sort_outlined)),
         onTapDown: (details) {
           showPopUpMenuAtTapDown(

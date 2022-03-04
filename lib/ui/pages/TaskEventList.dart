@@ -634,7 +634,10 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const Text('From what do you want to create a new journal entry?'),
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: const Text('From what do you want to create a new journal entry?'),
+                  ),
                   OutlinedButton(
                     child: const Text('From scratch'),
                     onPressed: () async {

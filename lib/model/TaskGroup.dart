@@ -45,6 +45,8 @@ class TaskGroup implements Comparable {
     return name;
   }
 
+  getKey() => runtimeType.toString() +":"+ id.toString();
+
 }
 
 

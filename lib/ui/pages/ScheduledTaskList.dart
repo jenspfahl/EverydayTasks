@@ -7,12 +7,11 @@ import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
+import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/ScheduledTaskEvent.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
-import 'package:personaltasklogger/model/TaskTemplate.dart';
-import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
@@ -54,7 +53,7 @@ class ScheduledTaskList extends StatefulWidget implements PageScaffold {
   List<Widget>? getActions(BuildContext context) {
     return [
       GestureDetector(
-        child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
+        child: Padding(padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Icon(Icons.sort_outlined)),
         onTapDown: (details) {
           showPopUpMenuAtTapDown(
@@ -320,29 +319,28 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                 TextButton(
                   child: Icon(Icons.check),
                   onPressed: () async {
+                    final templateId = scheduledTask.templateId;
+                    Template? template;
+                    if (templateId != null) {
+                      template = await TemplateRepository.findById(templateId);
+                    }
+
                     TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      final templateId = scheduledTask.templateId;
-                      TaskGroup? taskGroup;
-                      Template? template;
                       String title = scheduledTask.title;
                       if (templateId != null) {
-                        if (templateId.isVariant) {
-                          template = findPredefinedTaskTemplateVariantById(templateId.id);
-                        }
-                        else {
-                          template = findPredefinedTaskTemplateById(templateId.id);
-                        }
+                        return TaskEventForm(
+                            formTitle: "Create new journal entry from schedule",
+                            template: template,
+                            title: title);
                       }
                       else {
-                        taskGroup = findPredefinedTaskGroupById(
+                        final taskGroup = findPredefinedTaskGroupById(
                             scheduledTask.taskGroupId);
+                        return TaskEventForm(
+                            formTitle: "Create new journal entry from schedule",
+                            taskGroup: taskGroup,
+                            title: title);
                       }
-                    //  scheduledTask.templateId
-                      return TaskEventForm(
-                          formTitle: "Create new journal entry from schedule",
-                          taskGroup: taskGroup,
-                          template: template,
-                          title: title);
                     }));
 
                     if (newTaskEvent != null) {
@@ -404,7 +402,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                     }
                     else {
                       ScaffoldMessenger.of(super.context).showSnackBar(
-                          SnackBar(content: Text('No journal entries for that schedule found')));
+                          SnackBar(content: Text('No journal entries for that schedule so far')));
                     }
               });
             },
@@ -492,8 +490,8 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
         msg = debug +
             "Due ${formatToDateOrWord(nextSchedule, true)
                 .toLowerCase()} "
-                "in ${formatDuration(scheduledTask.getMissingDuration()!)} "
-                "${scheduledTask.schedule.toStartAtAsString().toLowerCase()}";
+                "${scheduledTask.schedule.toStartAtAsString().toLowerCase()} "
+                "in ${formatDuration(scheduledTask.getMissingDuration()!)}";
       }
 
       return "$msg"

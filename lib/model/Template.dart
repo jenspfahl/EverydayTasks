@@ -18,13 +18,15 @@ abstract class Template extends Comparable {
   Template({this.tId, required this.taskGroupId,
       required this.title, this.description, this.when, this.severity, this.favorite});
 
+  isVariant() => tId!.isVariant;
+
   @override
   int compareTo(other) {
     final result = taskGroupId.compareTo(other.taskGroupId);
     if (result != 0) {
       return result;
     }
-    return title.compareTo(other.title);
+    return tId!.compareTo(other.tId);
   }
 
 
@@ -32,6 +34,17 @@ abstract class Template extends Comparable {
   String toString() {
     return title;
   }
+
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Template && runtimeType == other.runtimeType && tId == other.tId;
+
+  @override
+  int get hashCode => tId.hashCode;
+
+  getKey() => tId.toString();
 
   Icon getIcon(bool useColor) {
     final taskGroup = findPredefinedTaskGroupById(taskGroupId);

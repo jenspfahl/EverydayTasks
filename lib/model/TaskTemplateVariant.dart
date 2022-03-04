@@ -77,9 +77,3 @@ List<TaskTemplateVariant> predefinedTaskTemplateVariants = [
         when: When.startAtExactly(TimeOfDay(hour: 12, minute: 30), AroundDurationHours.QUARTER)),
 
 ];
-
-TaskTemplateVariant findPredefinedTaskTemplateVariantById(int id) =>
-    predefinedTaskTemplateVariants.firstWhere((element) => element.tId?.id == id);
-
-List<TaskTemplateVariant >findPredefinedTaskTemplateVariantsByTaskTemplateId(int taskTemplateId) =>
-    predefinedTaskTemplateVariants.where((element) => element.taskTemplateId == taskTemplateId).toList();

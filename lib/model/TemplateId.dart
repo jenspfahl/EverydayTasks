@@ -1,6 +1,6 @@
 
 
-class TemplateId {
+class TemplateId extends Comparable {
 
   int id;
   bool isVariant;
@@ -28,5 +28,18 @@ class TemplateId {
 
   @override
   int get hashCode => id.hashCode ^ isVariant.hashCode;
+
+  @override
+  int compareTo(other) {
+    final i = normalizeToOrderedId(id);
+    final oi = normalizeToOrderedId(other.id);
+    final c = i.compareTo(oi);
+    if (c != 0) {
+      return c;
+    }
+    return isVariant != other.isVariant ? -1 : 0;
+  }
+
+  int normalizeToOrderedId(int id) => id < 0 ? id.abs() : id * 100000;
 
 }
