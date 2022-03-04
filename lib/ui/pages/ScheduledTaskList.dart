@@ -322,7 +322,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                     final templateId = scheduledTask.templateId;
                     Template? template;
                     if (templateId != null) {
-                      template = await TemplateRepository.findById(templateId);
+                      template = await TemplateRepository.findByIdJustDb(templateId);
                     }
 
                     TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -402,7 +402,7 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                     }
                     else {
                       ScaffoldMessenger.of(super.context).showSnackBar(
-                          SnackBar(content: Text('No journal entries for that schedule so far')));
+                          SnackBar(content: Text('No journal entries for this schedule so far')));
                     }
               });
             },

@@ -338,17 +338,40 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                                     );
                                     Navigator.pop(context, taskTemplate);
                                   }
-                                  else if (widget.template?.isVariant()) {
+                                  else if (widget.template!.isVariant()) {
                                     // create new cloned variant
 
                                   }
-                                  else if (!widget.template?.isVariant()) {
+                                  else if (!widget.template!.isVariant()) {
                                     // create new variant under template
 
                                   }
                                 }
                                 else {
+                                  if (widget.template == null) {
+                                    // update taskGroup, not supported
+                                  }
+                                  else if (widget.template!.isVariant()) {
+                                    // update variant
+                                  }
+                                  else if (!widget.template!.isVariant()) {
+                                    // update task template
+                                    final when = When(
+                                        startAtExactly: startedAtTimeOfDay,
+                                        startAt: _selectedWhenAtDay,
+                                        durationExactly: duration,
+                                        durationHours: _selectedDurationHours);
 
+                                    final taskTemplate = TaskTemplate(
+                                      id: widget.template!.tId!.id,
+                                      taskGroupId: widget._taskGroup.id!,
+                                      title: titleController.text,
+                                      description: descriptionController.text,
+                                      when: when,
+                                      severity: _severity,
+                                    );
+                                    Navigator.pop(context, taskTemplate);
+                                  }
                                 }
 
                               }

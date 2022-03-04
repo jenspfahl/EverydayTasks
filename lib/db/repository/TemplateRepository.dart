@@ -22,10 +22,11 @@ class TemplateRepository {
     if (template is TaskTemplate) {
       final taskTemplateDao = database.taskTemplateDao;
 
-      int? maxId = await taskTemplateDao.findMaxId();
-      maxId = _incId(maxId);
-      template.tId = TemplateId.forTaskTemplate(maxId);
-
+      if (template.tId == null) {
+        int? maxId = await taskTemplateDao.findMaxId();
+        maxId = _incId(maxId);
+        template.tId = TemplateId.forTaskTemplate(maxId);
+      }
       final entity = _mapTemplateToEntity(template);
 
       final id = await taskTemplateDao.insertTaskTemplate(entity);
@@ -36,9 +37,11 @@ class TemplateRepository {
     else if (template is TaskTemplateVariant) {
       final taskTemplateVariantDao = database.taskTemplateVariantDao;
 
-      int maxId = await taskTemplateVariantDao.findMaxId() ?? 0;
-      maxId = _incId(maxId);
-      template.tId = TemplateId.forTaskTemplateVariant(maxId);
+      if (template.tId == null) {
+        int maxId = await taskTemplateVariantDao.findMaxId() ?? 0;
+        maxId = _incId(maxId);
+        template.tId = TemplateId.forTaskTemplateVariant(maxId);
+      }
 
       final entity = _mapTemplateVariantToEntity(template);
 
@@ -100,8 +103,8 @@ class TemplateRepository {
         .then((entities) => _mapTemplatesFromEntities(entities))
         .then((dbTemplates) {
           Set<TaskTemplate> templates = HashSet();
+          templates.addAll(dbTemplates); // must come first since it may override predefined
           templates.addAll(predefinedTaskTemplates);
-          templates.addAll(dbTemplates);
           final templateList = templates.toList()..sort();
     
           return templateList;
@@ -116,8 +119,8 @@ class TemplateRepository {
         .then((entities) => _mapTemplateVariantsFromEntities(entities))
         .then((dbTemplateVariants) {
           Set<TaskTemplateVariant> templates = HashSet();
+          templates.addAll(dbTemplateVariants); // must come first since it may override predefined
           templates.addAll(predefinedTaskTemplateVariants);
-          templates.addAll(dbTemplateVariants);
           final templateList = templates.toList()..sort();
     
           return templateList;
@@ -140,7 +143,7 @@ class TemplateRepository {
     return getAll().then((list) => list.where((template) => template.favorite ?? false).toList());
   }
 
-  static Future<Template?> findById(TemplateId tId) async {
+  static Future<Template?> findByIdJustDb(TemplateId tId) async {
     final database = await getDb();
 
     if (tId.isVariant) {

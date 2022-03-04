@@ -129,7 +129,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
 
   Node<TaskTemplate> createTaskTemplateNode(TaskTemplate template,
       TaskGroup group,
-      List<Node<TaskTemplateVariant>> templateVariants) {
+      List<Node<dynamic>> templateVariants) {
     return Node(
       key: template.getKey(),
       label: template.title,
@@ -160,7 +160,22 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
     });
   }
 
+  void _updateTaskTemplate(TaskTemplate template, TaskGroup taskGroup) {
+    setState(() {
+      final children = _treeViewController.getNode(template.getKey())?.children ?? [];
+      _treeViewController = _treeViewController.withUpdateNode(
+          template.getKey(),
+          createTaskTemplateNode(template, taskGroup, children)
+      );
+    });
+  }
+
   void _onFABPressed() {
+    if (_treeViewController.selectedKey == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please select an item first')));
+      return;
+    }
     Object? selectedItem = _treeViewController.selectedNode?.data;
     TaskGroup? taskGroup;
     Template? template;
@@ -171,7 +186,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
       taskGroup = selectedItem;
       message = "Add a new task underneath '${taskGroup.name}'.";
       action1 = ElevatedButton(
-        child: const Text('Create new'),
+        child: const Text('Create new task'),
         onPressed: () async {
           Navigator.pop(context);
           Template? newTemplate = await Navigator.push(
@@ -213,18 +228,47 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
         "Change the selected task or create a new variant underneath it.";
         action1 = OutlinedButton(
           child: const Text('Change current task'),
-          onPressed: () async {},
+          onPressed: () async {
+            Navigator.pop(context);
+            Template? changedTemplate = await Navigator.push(
+                context, MaterialPageRoute(builder: (context) {
+              return TaskTemplateForm(
+                taskGroup!,
+                formTitle: "Change task '${template?.title}'",
+                template: template,
+                createNew: false,
+              );
+            }));
+
+            if (changedTemplate != null) {
+              TemplateRepository.findByIdJustDb(changedTemplate.tId!)
+                  .then((foundTemplate) {
+                debugPrint(
+                    "found: ${foundTemplate?.tId} with title ${foundTemplate?.title}");
+                if (foundTemplate != null) {
+                  TemplateRepository.update(changedTemplate).then((changedTemplate) {
+                    ScaffoldMessenger.of(super.context).showSnackBar(
+                        SnackBar(content: Text(
+                            'Task with name \'${changedTemplate.title}\' changed')));
+                    _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
+                  });
+                } else {
+                  TemplateRepository.insert(changedTemplate).then((changedTemplate) {
+                    ScaffoldMessenger.of(super.context).showSnackBar(
+                        SnackBar(content: Text(
+                            'Task with name \'${changedTemplate.title}\' changed.')));
+                    _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
+                  });
+                }
+              });
+            }
+          },
         );
         action2 = ElevatedButton(
-          child: const Text('Create new task'),
+          child: const Text('Create new variant'),
           onPressed: () async {},
         );
       }
-    }
-    else {
-      ScaffoldMessenger.of(super.context).showSnackBar(
-          SnackBar(content: Text('Please select an item first')));
-      return;
     }
 
     showModalBottomSheet(

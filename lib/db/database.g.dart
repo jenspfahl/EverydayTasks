@@ -353,7 +353,7 @@ class _$TaskTemplateDao extends TaskTemplateDao {
   Future<int?> findMaxId() async {
     return _queryAdapter.query(
         'SELECT MAX(id) as MAX_ID FROM TaskTemplateEntity',
-        mapper: (Map<String, Object?> row) => row['MAX_ID'] as int);
+        mapper: (Map<String, Object?> row) => row['MAX_ID'] as int? ?? 0);
   }
   // !!!! this was generated wrong. Hard implemented !!!
 
@@ -491,7 +491,7 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
   Future<int?> findMaxId() async {
     return _queryAdapter.query(
         'SELECT MAX(id) as MAX_ID FROM TaskTemplateVariantEntity',
-    mapper: (Map<String, Object?> row) => row['MAX_ID'] as int);
+    mapper: (Map<String, Object?> row) => row['MAX_ID'] as int? ?? 0);
   }
   // !!!! this was generated wrong. Hard implemented !!!
 

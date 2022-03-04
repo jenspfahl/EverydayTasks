@@ -126,7 +126,6 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
       }
     });
 
-      final paging = IdPaging(IdPaging.maxId, 100);
     TemplateRepository.getAllFavorites().then((templates) {
       setState(() {
         _templates = templates;
@@ -223,14 +222,14 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
       if (selectedTemplateItem is Template) {
         var template = selectedTemplateItem as Template;
         var addToState = false;
-        TemplateRepository.findById(template.tId!)
-            .then((foundTaskTemplate) {
-          debugPrint("found: $foundTaskTemplate");
-          if (foundTaskTemplate != null) {
-            addToState = foundTaskTemplate.favorite == false;
-            foundTaskTemplate.favorite = true;
-            TemplateRepository.update(foundTaskTemplate);
-            template = foundTaskTemplate;
+        TemplateRepository.findByIdJustDb(template.tId!)
+            .then((foundTemplate) {
+          debugPrint("found: ${foundTemplate?.tId}, still fav? ${foundTemplate?.favorite}");
+          if (foundTemplate != null) {
+            addToState = foundTemplate.favorite == false;
+            foundTemplate.favorite = true;
+            TemplateRepository.update(foundTemplate);
+            template = foundTemplate;
           } else {
             template.favorite = true;
             TemplateRepository.insert(template);
