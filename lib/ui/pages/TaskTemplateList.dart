@@ -241,25 +241,12 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
             }));
 
             if (changedTemplate != null) {
-              TemplateRepository.findByIdJustDb(changedTemplate.tId!)
-                  .then((foundTemplate) {
-                debugPrint(
-                    "found: ${foundTemplate?.tId} with title ${foundTemplate?.title}");
-                if (foundTemplate != null) {
-                  TemplateRepository.update(changedTemplate).then((changedTemplate) {
-                    ScaffoldMessenger.of(super.context).showSnackBar(
-                        SnackBar(content: Text(
-                            'Task with name \'${changedTemplate.title}\' changed')));
-                    _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
-                  });
-                } else {
-                  TemplateRepository.insert(changedTemplate).then((changedTemplate) {
-                    ScaffoldMessenger.of(super.context).showSnackBar(
-                        SnackBar(content: Text(
-                            'Task with name \'${changedTemplate.title}\' changed.')));
-                    _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
-                  });
-                }
+              TemplateRepository.save(changedTemplate)
+                  .then((_) {
+                ScaffoldMessenger.of(super.context).showSnackBar(
+                    SnackBar(content: Text(
+                        'Task with name \'${changedTemplate.title}\' changed')));
+                _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
               });
             }
           },

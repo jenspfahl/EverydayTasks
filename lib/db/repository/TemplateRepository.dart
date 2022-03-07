@@ -15,6 +15,21 @@ import 'mapper.dart';
 
 class TemplateRepository {
 
+  static Future<Template> save(Template template) async {
+    if (template.tId != null) {
+      final foundTemplate = await findByIdJustDb(template.tId!);
+      if (foundTemplate != null) {
+        return update(template);
+      } else {
+        return insert(template);
+      }
+    }
+    else {
+      return insert(template);
+    }
+
+  }
+
   static Future<Template> insert(Template template) async {
 
     final database = await getDb();

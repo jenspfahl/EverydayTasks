@@ -18,7 +18,7 @@ abstract class Template extends Comparable {
   Template({this.tId, required this.taskGroupId,
       required this.title, this.description, this.when, this.severity, this.favorite});
 
-  isVariant() => tId!.isVariant;
+  isVariant() => tId != null && tId!.isVariant;
 
   @override
   int compareTo(other) {

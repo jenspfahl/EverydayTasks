@@ -59,6 +59,13 @@ class ScheduledTask implements Comparable {
     }
   }
 
+  Duration? getPassedDuration() {
+    if (lastScheduledEventOn != null) {
+      var now = DateTime.now();
+      return now.difference(truncToSeconds(lastScheduledEventOn!));
+    }
+  }
+
   bool isNextScheduleReached() {
     var duration = getMissingDuration();
     if (duration != null) {

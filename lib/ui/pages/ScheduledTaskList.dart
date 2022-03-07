@@ -497,7 +497,8 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
       return "$msg"
           "\n\n"
           "Scheduled from ${formatToDateOrWord(
-          scheduledTask.lastScheduledEventOn!).toLowerCase()}";
+          scheduledTask.lastScheduledEventOn!).toLowerCase()}"
+          " ${formatDuration(scheduledTask.getPassedDuration()!)} ago";
     }
     else {
       return debug +

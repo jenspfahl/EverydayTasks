@@ -158,7 +158,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
                       "Are you sure to remove this QuickAdd? This will not affect the associated task.",
                       okPressed: () {
                         template.favorite = false;
-                        TemplateRepository.update(template).then((changedScheduledTask) {
+                        TemplateRepository.save(template).then((_) {
                           ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
                               content: Text('Removed \'${template.title}\' from QuickAdd')));
 
@@ -221,27 +221,15 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
     }, okPressed: () async {
       if (selectedTemplateItem is Template) {
         var template = selectedTemplateItem as Template;
-        var addToState = false;
-        TemplateRepository.findByIdJustDb(template.tId!)
-            .then((foundTemplate) {
-          debugPrint("found: ${foundTemplate?.tId}, still fav? ${foundTemplate?.favorite}");
-          if (foundTemplate != null) {
-            addToState = foundTemplate.favorite == false;
-            foundTemplate.favorite = true;
-            TemplateRepository.update(foundTemplate);
-            template = foundTemplate;
-          } else {
-            template.favorite = true;
-            TemplateRepository.insert(template);
-            addToState = true;
-          }
+        template.favorite = true;
+        TemplateRepository.save(template).then((_) {
           Navigator.pop(
               context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
           ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
               content: Text('Added \'${template.title}\' to QuickAdd')));
 
-          if (addToState) {
+          if (!_templates.contains(template)) {
             setState(() {
               _templates.add(template);
               _sortList();
