@@ -107,7 +107,7 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
     return "QuickAdd";
   }
 
-  void updateTemplate(TaskTemplate template) {
+  void updateTemplate(Template template) {
     _state?._updateTemplate(template);
   }
 }
@@ -250,7 +250,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
     });
   }
 
-  void _updateTemplate(TaskTemplate template) {
+  void _updateTemplate(Template template) {
     setState(() {
       final index = _templates.indexOf(template);
       if (index != -1) {

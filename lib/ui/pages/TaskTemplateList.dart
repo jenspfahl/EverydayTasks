@@ -6,6 +6,7 @@ import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/forms/TaskTemplateForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
@@ -94,7 +95,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
                         group,
                         findTaskTemplateVariants(taskTemplateVariants, template)
                             .map((variant) =>
-                            createTemplateVariantNode(
+                            createTaskTemplateVariantNode(
                                 variant,
                                 group
                             )).toList()
@@ -140,7 +141,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
     );
   }
 
-  Node<TaskTemplateVariant> createTemplateVariantNode(
+  Node<TaskTemplateVariant> createTaskTemplateVariantNode(
       TaskTemplateVariant variant, TaskGroup group) {
     return Node(
       key: variant.getKey(),
@@ -151,11 +152,20 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
     );
   }
 
-  void _addTaskTemplate(TaskTemplate template, TaskGroup taskGroup) {
+  void _addTaskTemplate(TaskTemplate template, TaskGroup parent) {
     setState(() {
       _treeViewController = _treeViewController.withAddNode(
-          taskGroup.getKey(),
-          createTaskTemplateNode(template, taskGroup, [])
+          parent.getKey(),
+          createTaskTemplateNode(template, parent, [])
+      );
+    });
+  }  
+  
+  void _addTaskTemplateVariant(TaskTemplateVariant template, TaskGroup taskGroup, TaskTemplate parent) {
+    setState(() {
+      _treeViewController = _treeViewController.withAddNode(
+          parent.getKey(),
+          createTaskTemplateVariantNode(template, taskGroup)
       );
     });
   }
@@ -166,6 +176,16 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
       _treeViewController = _treeViewController.withUpdateNode(
           template.getKey(),
           createTaskTemplateNode(template, taskGroup, children)
+      );
+    });
+    widget._pagesHolder?.quickAddTaskEventPage?.updateTemplate(template);
+  }
+
+  void _updateTaskTemplateVariant(TaskTemplateVariant template, TaskGroup taskGroup) {
+    setState(() {
+      _treeViewController = _treeViewController.withUpdateNode(
+          template.getKey(),
+          createTaskTemplateVariantNode(template, taskGroup)
       );
     });
     widget._pagesHolder?.quickAddTaskEventPage?.updateTemplate(template);
@@ -217,11 +237,58 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
         message = "Change the selected variant or clone it as a new one.";
         action1 = OutlinedButton(
           child: const Text('Change current variant'),
-          onPressed: () async {},
+          onPressed: () async {
+            Navigator.pop(context);
+            Template? changedTemplate = await Navigator.push(
+                context, MaterialPageRoute(builder: (context) {
+              return TaskTemplateForm(
+                taskGroup!,
+                formTitle: "Change variant '${template?.title}'",
+                template: template,
+                createNew: false,
+              );
+            }));
+
+            if (changedTemplate != null) {
+              TemplateRepository.save(changedTemplate)
+                  .then((_) {
+                ScaffoldMessenger.of(super.context).showSnackBar(
+                    SnackBar(content: Text(
+                        'Variant with name \'${changedTemplate.title}\' changed')));
+                _updateTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!);
+              });
+            }
+          },
         );
         action2 = ElevatedButton(
           child: const Text('Clone new variant'),
-          onPressed: () async {},
+          onPressed: () async {
+            Navigator.pop(context);
+            Template? changedTemplate = await Navigator.push(
+                context, MaterialPageRoute(builder: (context) {
+              return TaskTemplateForm(
+                taskGroup!,
+                formTitle: "Create new variant",
+                template: template,
+                createNew: true,
+              );
+            }));
+
+            if (changedTemplate != null) {
+              TemplateRepository.save(changedTemplate)
+                  .then((changedTemplate) {
+                ScaffoldMessenger.of(super.context).showSnackBar(
+                    SnackBar(content: Text(
+                        'Variant with name \'${changedTemplate.title}\' cloned')));
+                final variant = changedTemplate as TaskTemplateVariant;
+                debugPrint("base variant: ${variant.taskTemplateId}");
+                TemplateRepository.getById(TemplateId.forTaskTemplate(variant.taskTemplateId)).then((foundTemplate) {
+                  debugPrint("foundTemplate: $foundTemplate");
+                  _addTaskTemplateVariant(variant, taskGroup!, foundTemplate as TaskTemplate);
+                }).catchError((error, stackTrace) => debugPrint("error $error $stackTrace"));
+              });
+            }
+          },
         );
       }
       else {
@@ -254,7 +321,28 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
         );
         action2 = ElevatedButton(
           child: const Text('Create new variant'),
-          onPressed: () async {},
+          onPressed: () async {
+            Navigator.pop(context);
+            Template? changedTemplate = await Navigator.push(
+                context, MaterialPageRoute(builder: (context) {
+              return TaskTemplateForm(
+                taskGroup!,
+                formTitle: "Create new variant",
+                template: template,
+                createNew: true,
+              );
+            }));
+
+            if (changedTemplate != null) {
+              TemplateRepository.save(changedTemplate)
+                  .then((_) {
+                ScaffoldMessenger.of(super.context).showSnackBar(
+                    SnackBar(content: Text(
+                        'Variant with name \'${changedTemplate.title}\' created')));
+                _addTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!, template as TaskTemplate);
+              });
+            }
+          },
         );
       }
     }

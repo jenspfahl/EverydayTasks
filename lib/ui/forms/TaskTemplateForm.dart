@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
+import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/ui/SeverityPicker.dart';
@@ -323,60 +324,42 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                                 if (widget.createNew) {
                                   if (widget.template == null) {
                                     // create new task template under given taskGroup
-                                    final when = When(
-                                        startAtExactly: startedAtTimeOfDay,
-                                        startAt: _selectedWhenAtDay,
-                                        durationExactly: duration,
-                                        durationHours: _selectedDurationHours);
-
-                                    final taskTemplate = TaskTemplate(
-                                      taskGroupId: widget._taskGroup.id!,
-                                      title: titleController.text,
-                                      description: descriptionController.text,
-                                      when: when,
-                                      severity: _severity,
-                                    );
+                                    final taskTemplate = _createTaskTemplate(
+                                        null, startedAtTimeOfDay, duration);
                                     Navigator.pop(context, taskTemplate);
                                   }
-                                  else if (widget.template!.isVariant()) {
-                                    // create new cloned variant
-
+                                  else if (widget.template!.isVariant() == false) {
+                                    // create new variant under given template
+                                    final taskTemplateVariant = _createTaskTemplateVariant(
+                                        null, widget.template!.tId!.id, startedAtTimeOfDay, duration);
+                                    Navigator.pop(context, taskTemplateVariant);
                                   }
-                                  else if (!widget.template!.isVariant()) {
-                                    // create new variant under template
-
+                                  else if (widget.template!.isVariant() == true) {
+                                    // clone existing variant to a new one
+                                    final variant = widget.template! as TaskTemplateVariant;
+                                    final taskTemplateVariant = _createTaskTemplateVariant(
+                                        null, variant.taskTemplateId, startedAtTimeOfDay, duration);
+                                    Navigator.pop(context, taskTemplateVariant);
                                   }
                                 }
                                 else {
                                   if (widget.template == null) {
                                     // update taskGroup, not supported
                                   }
-                                  else if (widget.template!.isVariant()) {
-                                    // update variant
-                                  }
-                                  else if (!widget.template!.isVariant()) {
+                                  else if (widget.template!.isVariant() == false) {
                                     // update task template
-                                    final when = When(
-                                        startAtExactly: startedAtTimeOfDay,
-                                        startAt: _selectedWhenAtDay,
-                                        durationExactly: duration,
-                                        durationHours: _selectedDurationHours);
-
-                                    final taskTemplate = TaskTemplate(
-                                      id: widget.template!.tId!.id,
-                                      taskGroupId: widget._taskGroup.id!,
-                                      title: titleController.text,
-                                      description: descriptionController.text,
-                                      when: when,
-                                      severity: _severity,
-                                    );
+                                    final taskTemplate = _createTaskTemplate(
+                                        widget.template!.tId!.id, startedAtTimeOfDay, duration);
                                     Navigator.pop(context, taskTemplate);
                                   }
+                                  else if (widget.template!.isVariant() == true) {
+                                    // update variant
+                                    final variant = widget.template! as TaskTemplateVariant;
+                                    final taskTemplateVariant = _createTaskTemplateVariant(
+                                        variant.tId!.id, variant.taskTemplateId, startedAtTimeOfDay, duration);
+                                    Navigator.pop(context, taskTemplateVariant);
+                                  }
                                 }
-
-                              }
-                              else {
-                                
                               }
                             },
                             child: Text('Save'),
@@ -392,6 +375,44 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
         ),
       ),
     );
+  }
+
+  TaskTemplate _createTaskTemplate(int? id, TimeOfDay? startedAtTimeOfDay, Duration? duration) {
+    final when = _createWhen(startedAtTimeOfDay, duration);
+    
+    final taskTemplate = TaskTemplate(
+      id: id,
+      taskGroupId: widget._taskGroup.id!,
+      title: titleController.text,
+      description: descriptionController.text,
+      when: when,
+      severity: _severity,
+    );
+    return taskTemplate;
+  }
+
+  TaskTemplateVariant _createTaskTemplateVariant(int? id, int taskTemplateId, TimeOfDay? startedAtTimeOfDay, Duration? duration) {
+    final when = _createWhen(startedAtTimeOfDay, duration);
+
+    final taskTemplateVariant = TaskTemplateVariant(
+      id: id,
+      taskGroupId: widget._taskGroup.id!,
+      taskTemplateId: taskTemplateId,
+      title: titleController.text,
+      description: descriptionController.text,
+      when: when,
+      severity: _severity,
+    );
+    return taskTemplateVariant;
+  }
+
+  When _createWhen(TimeOfDay? startedAtTimeOfDay, Duration? duration) {
+    final when = When(
+        startAtExactly: startedAtTimeOfDay,
+        startAt: _selectedWhenAtDay,
+        durationExactly: duration,
+        durationHours: _selectedDurationHours);
+    return when;
   }
 
 }

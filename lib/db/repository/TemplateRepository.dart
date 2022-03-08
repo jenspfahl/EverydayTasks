@@ -180,24 +180,18 @@ class TemplateRepository {
   static Future<Template> getById(TemplateId tId) async {
     final database = await getDb();
 
+    final foundInDb = await findByIdJustDb(tId);
+    if (foundInDb != null) {
+      return Future.value(foundInDb);
+    }
     if (tId.isVariant) {
-      final taskTemplateVariantDao = database.taskTemplateVariantDao;
-      return await taskTemplateVariantDao
-          .findById(tId.id)
-          .map((e) => _mapTemplateVariantFromEntity(e!))
-          .first;
+      return predefinedTaskTemplateVariants.firstWhere((variant) => variant.tId == tId);
     }
     else {
-      final taskTemplateDao = database.taskTemplateDao;
-      return await taskTemplateDao
-          .findById(tId.id)
-          .map((e) => _mapTemplateFromEntity(e!))
-          .first;
+      return predefinedTaskTemplates.firstWhere((template) => template.tId == tId);
     }
   }
-
-
-
+  
   static TaskTemplateEntity _mapTemplateToEntity(TaskTemplate taskTemplate) =>
     TaskTemplateEntity(
         taskTemplate.tId?.id,
