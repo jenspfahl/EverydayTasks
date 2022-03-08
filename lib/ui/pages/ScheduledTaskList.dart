@@ -494,11 +494,18 @@ class _ScheduledTaskListState extends State<ScheduledTaskList> with AutomaticKee
                 "in ${formatDuration(scheduledTask.getMissingDuration()!)}";
       }
 
+      final passedDuration = scheduledTask.getPassedDuration();
+      var passedString = "";
+      if (passedDuration != null) {
+        passedString = passedDuration.isNegative
+            ? "in " + formatDuration(passedDuration.abs())
+            : formatDuration(passedDuration.abs()) + " ago";
+      }
       return "$msg"
           "\n\n"
           "Scheduled from ${formatToDateOrWord(
           scheduledTask.lastScheduledEventOn!).toLowerCase()}"
-          " ${formatDuration(scheduledTask.getPassedDuration()!)} ago";
+          " $passedString";
     }
     else {
       return debug +

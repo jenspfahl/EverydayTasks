@@ -168,6 +168,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
           createTaskTemplateNode(template, taskGroup, children)
       );
     });
+    widget._pagesHolder?.quickAddTaskEventPage?.updateTemplate(template);
   }
 
   void _onFABPressed() {

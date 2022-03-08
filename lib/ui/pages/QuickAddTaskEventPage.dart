@@ -4,6 +4,7 @@ import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
+import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
@@ -104,6 +105,10 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   @override
   String getKey() {
     return "QuickAdd";
+  }
+
+  void updateTemplate(TaskTemplate template) {
+    _state?._updateTemplate(template);
   }
 }
 
@@ -242,6 +247,16 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
       }
     }, cancelPressed: () {
       Navigator.pop(super.context);
+    });
+  }
+
+  void _updateTemplate(TaskTemplate template) {
+    setState(() {
+      final index = _templates.indexOf(template);
+      if (index != -1) {
+        _templates.removeAt(index);
+        _templates.insert(index, template);
+      }
     });
   }
 
