@@ -147,20 +147,20 @@ void showTemplateDialog(BuildContext context, String title,
 }
 
 void showSeverityPicker(BuildContext context, Severity? initialSeverity,
-    bool showText, Function(Severity?)? selectedSeverityHandler) {
+    bool showText, ValueChanged<Severity?> onChanged) {
 
   Widget clearButton = TextButton(
     child: Text("Clear"),
     onPressed: () {
-      if (selectedSeverityHandler != null) {
-        selectedSeverityHandler(null);
-      }
+      onChanged(null);
     },
   );
   AlertDialog alert = AlertDialog(
-    content: SeverityPicker(initialSeverity, selectedSeverityHandler,
-        showText: showText,
-        singleButtonWidth: 75
+    content: SeverityPicker(
+      showText: showText,
+      singleButtonWidth: 75,
+      initialSeverity: initialSeverity,
+      onChanged: onChanged,
     ),
     actions: [clearButton],
   );

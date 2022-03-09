@@ -126,7 +126,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
           title: Text(widget.formTitle),
           actions: [
             Visibility(
-              visible: !widget.createNew && (template?.existsInDb ?? false),
+              visible: !widget.createNew,
               child: IconButton(
                 icon: Icon(template?.isPredefined() ?? false ? Icons.undo : Icons.delete),
                 onPressed: () {
@@ -217,13 +217,11 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 20.0),
-                        child: SeverityPicker(_severity, (selected) {
-                            setState(() {
-                              _severity = selected;
-                            });
-                          },
+                        child: SeverityPicker(
                           showText: true,
                           singleButtonWidth: 100,
+                          initialSeverity: _severity,
+                          onChanged: (severity) => _severity = severity,
                         ),
                       ),
                       Padding(

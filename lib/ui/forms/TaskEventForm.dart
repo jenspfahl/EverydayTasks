@@ -204,13 +204,11 @@ class _TaskEventFormState extends State<TaskEventForm> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 20.0),
-                        child: SeverityPicker(_severity, (selected) {
-                            setState(() {
-                              _severity = selected;
-                            });
-                          },
+                        child: SeverityPicker(
                           showText: true,
                           singleButtonWidth: 100,
+                          initialSeverity: _severity,
+                          onChanged: (severity) =>_severity = severity,
                         ),
                       ),
                       Padding(

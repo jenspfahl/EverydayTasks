@@ -3,18 +3,21 @@ import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 
 class SeverityPicker extends StatefulWidget {
-  late final Severity? _initialSeverity;
   final bool showText;
   final double singleButtonWidth;
-  final Function(Severity)? _selectedSeverityHandler;
+  final Severity? initialSeverity;
+  final ValueChanged<Severity> onChanged;
 
-  SeverityPicker(this._initialSeverity, this._selectedSeverityHandler,
-      {required this.showText, required this.singleButtonWidth});
+  const SeverityPicker({
+    Key? key,
+    required this.showText,
+    required this.singleButtonWidth,
+    this.initialSeverity, 
+    required this.onChanged,
+  });
   
   @override
-  _SeverityPickerState createState() {
-    return _SeverityPickerState();
-  }
+  _SeverityPickerState createState() => _SeverityPickerState();
 
 }
 
@@ -23,9 +26,24 @@ class _SeverityPickerState extends State<SeverityPicker> {
   int? _severityIndex;
 
   @override
-  Widget build(BuildContext context) {
-    _severityIndex = widget._initialSeverity?.index;
+  void initState() {
+    super.initState();
+    _initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant SeverityPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _initState();
+  }
+
+  void _initState() {
+    _severityIndex = widget.initialSeverity?.index;
     _severitySelection = List.generate(Severity.values.length, (index) => index == _severityIndex);
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return ToggleButtons(
       borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -75,15 +93,14 @@ class _SeverityPickerState extends State<SeverityPicker> {
       isSelected: _severitySelection,
       onPressed: (int index) {
         FocusScope.of(context).unfocus();
+        widget.onChanged(Severity.values.elementAt(index));
         setState(() {
           if (_severityIndex != null) {
             _severitySelection[_severityIndex!] = false;
           }
           _severitySelection[index] = true;
           _severityIndex = index;
-          if (widget._selectedSeverityHandler != null) {
-            widget._selectedSeverityHandler!(Severity.values.elementAt(index));
-          }
+          debugPrint("new index $_severityIndex");
         });
       },
     );
