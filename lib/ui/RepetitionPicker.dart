@@ -5,40 +5,44 @@ import 'package:personaltasklogger/model/Schedule.dart';
 
 class RepetitionPicker extends StatefulWidget {
   late final CustomRepetition _initialRepetition;
-  final Function(CustomRepetition) _selectedRepetition;
+  final ValueChanged<CustomRepetition> onChanged;
 
-  RepetitionPicker(CustomRepetition? initialRepetition, this._selectedRepetition) {
+  RepetitionPicker({
+    CustomRepetition? initialRepetition,
+    required this.onChanged
+  }) {
     this._initialRepetition = initialRepetition ?? CustomRepetition(1, RepetitionUnit.DAYS);
   }
   
   @override
   _RepetitionPickerState createState() {
-    return _RepetitionPickerState(_initialRepetition, _selectedRepetition);
+    return _RepetitionPickerState();
   }
 
 }
 
 class _RepetitionPickerState extends State<RepetitionPicker> {
-  late final CustomRepetition _customRepetition;
-  final Function(CustomRepetition) _onSelected;
+  late CustomRepetition _customRepetition;
 
-  late NumberPicker _valuePicker;
-  late DropdownButton<RepetitionUnit> _unitDropDown; //TODO use kind of array picker
+  @override
+  void initState() {
+    super.initState();
 
-  _RepetitionPickerState(this._customRepetition, this._onSelected);
-  
+    _customRepetition = widget._initialRepetition;
+  }
+
   @override
   Widget build(BuildContext context) {
-    _valuePicker = new NumberPicker(
+    final valuePicker = new NumberPicker(
       value: _customRepetition.repetitionValue,
       minValue: 1, //TODO control from outside
       maxValue: 10000, //TODO control this from outside
       onChanged: (value) => setState(() { 
         _customRepetition.repetitionValue = value;
-        _onSelected(_customRepetition);
+        widget.onChanged(_customRepetition);
       }),
     );
-    _unitDropDown = new DropdownButton<RepetitionUnit>(
+    final unitDropDown = new DropdownButton<RepetitionUnit>(
       value: _customRepetition.repetitionUnit,
       items: RepetitionUnit.values.map((RepetitionUnit unit) {
         return DropdownMenuItem(
@@ -49,7 +53,7 @@ class _RepetitionPickerState extends State<RepetitionPicker> {
       onChanged: (value) => setState(() { 
         if (value != null) {
           _customRepetition.repetitionUnit = value;
-          _onSelected(_customRepetition);
+          widget.onChanged(_customRepetition);
         }
       }),
     );
@@ -60,13 +64,13 @@ class _RepetitionPickerState extends State<RepetitionPicker> {
         Column(
           children: [
             Text("Value"),
-            _valuePicker
+            valuePicker
           ],
         ),
         Column(
           children: [
             Text("Unit"),
-            _unitDropDown,
+            unitDropDown,
           ],
         ),
       ],

@@ -154,10 +154,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                   if (value == RepetitionStep.CUSTOM) {
                                     CustomRepetition? tempSelectedRepetition;
                                     showRepetitionPickerDialog(
-                                        context,
-                                            (selectedRepetition) => setState(() => tempSelectedRepetition = selectedRepetition),
-                                        _customRepetition)
-                                        .then((okPressed) {
+                                      context: context,
+                                      initialRepetition: _customRepetition,
+                                      onChanged: (repetition) => tempSelectedRepetition = repetition,
+                                    ).then((okPressed) {
                                       if (okPressed ?? false) {
                                         setState(() {
                                           _selectedRepetitionStep = RepetitionStep.CUSTOM;

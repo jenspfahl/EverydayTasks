@@ -82,11 +82,16 @@ Future<bool?> showDurationPickerDialog({
   );
 }
 
-/// Returns if a duration was chosen
-Future<bool?> showRepetitionPickerDialog(BuildContext context, Function(CustomRepetition) _selectedRepetition,
-    [CustomRepetition? initialRepetition]) {
+Future<bool?> showRepetitionPickerDialog({
+  required BuildContext context,
+  CustomRepetition? initialRepetition,
+  required ValueChanged<CustomRepetition> onChanged,
+}) {
 
-  final repetitionPicker = RepetitionPicker(initialRepetition, _selectedRepetition);
+  final repetitionPicker = RepetitionPicker(
+    initialRepetition: initialRepetition,
+    onChanged: onChanged,
+  );
 
   Dialog dialog = Dialog(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)), //this right here
