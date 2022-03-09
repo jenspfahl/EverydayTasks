@@ -15,10 +15,14 @@ abstract class Template extends Comparable {
   Severity? severity;
   bool? favorite = false;
 
+  bool? existsInDb = false;
+
   Template({this.tId, required this.taskGroupId,
-      required this.title, this.description, this.when, this.severity, this.favorite});
+      required this.title, this.description, this.when, this.severity, this.favorite, this.existsInDb});
 
   isVariant() => tId != null && tId!.isVariant;
+
+  isPredefined() => tId != null && tId!.isPredefined();
 
   @override
   int compareTo(other) {

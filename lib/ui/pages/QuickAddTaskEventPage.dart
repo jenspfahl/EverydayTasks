@@ -163,7 +163,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
                       "Are you sure to remove this QuickAdd? This will not affect the associated task.",
                       okPressed: () {
                         template.favorite = false;
-                        TemplateRepository.save(template).then((_) {
+                        TemplateRepository.save(template).then((template) {
                           ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
                               content: Text('Removed \'${template.title}\' from QuickAdd')));
 
@@ -227,7 +227,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
       if (selectedTemplateItem is Template) {
         var template = selectedTemplateItem as Template;
         template.favorite = true;
-        TemplateRepository.save(template).then((_) {
+        TemplateRepository.save(template).then((template) {
           Navigator.pop(
               context); // dismiss dialog, should be moved in Dialogs.dart somehow
 

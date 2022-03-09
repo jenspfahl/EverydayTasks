@@ -14,6 +14,7 @@ class TaskTemplate extends Template {
     When? when, 
     Severity? severity, 
     bool? favorite,
+    bool? existsInDb,
   }) : super(
       tId: id != null ? new TemplateId.forTaskTemplate(id) : null,
       taskGroupId: taskGroupId, 
@@ -22,6 +23,7 @@ class TaskTemplate extends Template {
       when: when, 
       severity: severity, 
       favorite: favorite,
+      existsInDb: existsInDb
   );
 
   TaskTemplate.data({

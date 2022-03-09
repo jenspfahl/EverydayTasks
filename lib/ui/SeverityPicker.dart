@@ -4,28 +4,16 @@ import 'package:personaltasklogger/ui/utils.dart';
 
 class SeverityPicker extends StatefulWidget {
   late final Severity? _initialSeverity;
-  bool showText;
-  double singleButtonWidth;
+  final bool showText;
+  final double singleButtonWidth;
   final Function(Severity)? _selectedSeverityHandler;
-  _SeverityPickerState? _state;
 
   SeverityPicker(this._initialSeverity, this._selectedSeverityHandler,
       {required this.showText, required this.singleButtonWidth});
   
   @override
   _SeverityPickerState createState() {
-    _state = _SeverityPickerState();
-    return _state!;
-  }
-
-  Severity? getCurrentSelection() {
-    final index = _state?._severityIndex;
-    if (index != null) {
-      return Severity.values.elementAt(index);
-    }
-    else {
-      return null;
-    }
+    return _SeverityPickerState();
   }
 
 }
@@ -35,15 +23,10 @@ class _SeverityPickerState extends State<SeverityPicker> {
   int? _severityIndex;
 
   @override
-  void initState() {
-    super.initState();
-    this._severityIndex = widget._initialSeverity?.index;
-    this._severitySelection = List.generate(Severity.values.length, (index) => index == _severityIndex);
-  }
-
-
-  @override
   Widget build(BuildContext context) {
+    _severityIndex = widget._initialSeverity?.index;
+    _severitySelection = List.generate(Severity.values.length, (index) => index == _severityIndex);
+
     return ToggleButtons(
       borderRadius: BorderRadius.all(Radius.circular(5.0)),
       renderBorder: true,

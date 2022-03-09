@@ -46,6 +46,7 @@ class TemplateRepository {
 
       final id = await taskTemplateDao.insertTaskTemplate(entity);
       template.tId = TemplateId.forTaskTemplate(id);
+      template.existsInDb = true;
 
       return template;
     }
@@ -62,6 +63,7 @@ class TemplateRepository {
 
       final id = await taskTemplateVariantDao.insertTaskTemplateVariant(entity);
       template.tId = TemplateId.forTaskTemplateVariant(id);
+      template.existsInDb = true;
 
       return template;
     }
@@ -77,6 +79,8 @@ class TemplateRepository {
       final entity = _mapTemplateToEntity(template);
 
       await taskTemplateDao.updateTaskTemplate(entity);
+      template.existsInDb = true;
+
       return template;
     }
     else if (template is TaskTemplateVariant) {
@@ -84,6 +88,8 @@ class TemplateRepository {
       final entity = _mapTemplateVariantToEntity(template);
 
       await taskTemplateVariantDao.updateTaskTemplateVariant(entity);
+      template.existsInDb = true;
+
       return template;
     }
     throw Exception("unsupported template");
@@ -98,6 +104,8 @@ class TemplateRepository {
       final entity = _mapTemplateToEntity(template);
 
       await taskTemplateDao.deleteTaskTemplate(entity);
+      template.existsInDb = false;
+
       return template;
     }
     else if (template is TaskTemplateVariant) {
@@ -105,6 +113,8 @@ class TemplateRepository {
       final entity = _mapTemplateVariantToEntity(template);
 
       await taskTemplateVariantDao.deleteTaskTemplateVariant(entity);
+      template.existsInDb = false;
+
       return template;
     }
     throw Exception("unsupported template");
@@ -184,6 +194,10 @@ class TemplateRepository {
     if (foundInDb != null) {
       return Future.value(foundInDb);
     }
+    return findPredefinedTemplate(tId);
+  }
+
+  static Template findPredefinedTemplate(TemplateId tId) {
     if (tId.isVariant) {
       return predefinedTaskTemplateVariants.firstWhere((variant) => variant.tId == tId);
     }
@@ -191,7 +205,7 @@ class TemplateRepository {
       return predefinedTaskTemplates.firstWhere((template) => template.tId == tId);
     }
   }
-  
+
   static TaskTemplateEntity _mapTemplateToEntity(TaskTemplate taskTemplate) =>
     TaskTemplateEntity(
         taskTemplate.tId?.id,
@@ -203,7 +217,8 @@ class TemplateRepository {
         taskTemplate.when?.durationExactly != null ? durationToEntity(taskTemplate.when!.durationExactly!): null,
         taskTemplate.when?.durationHours?.index,
         taskTemplate.severity?.index,
-        taskTemplate.favorite ?? false);
+        taskTemplate.favorite ?? false,
+    );
 
   static TaskTemplate _mapTemplateFromEntity(TaskTemplateEntity entity) =>
     TaskTemplate(
@@ -223,7 +238,8 @@ class TemplateRepository {
               )
             : null,
         severity: entity.severity != null ? Severity.values.elementAt(entity.severity!) : null,
-        favorite: entity.favorite);
+        favorite: entity.favorite,
+        existsInDb: true);
 
 
   static List<TaskTemplate> _mapTemplatesFromEntities(List<TaskTemplateEntity> entities) =>
@@ -264,7 +280,8 @@ class TemplateRepository {
           )
               : null,
           severity: entity.severity != null ? Severity.values.elementAt(entity.severity!) : null,
-          favorite: entity.favorite);
+          favorite: entity.favorite,
+          existsInDb: true);
 
 
   static List<TaskTemplateVariant> _mapTemplateVariantsFromEntities(List<TaskTemplateVariantEntity> entities) =>

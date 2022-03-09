@@ -17,6 +17,7 @@ class TaskTemplateVariant extends Template {
     When? when,
     Severity? severity,
     bool? favorite,
+    bool? existsInDb,
   }) : super(
     tId: id != null ? new TemplateId.forTaskTemplateVariant(id) : null,
     taskGroupId: taskGroupId,
@@ -25,6 +26,7 @@ class TaskTemplateVariant extends Template {
     when: when,
     severity: severity,
     favorite: favorite,
+    existsInDb: existsInDb,
   );
 
   TaskTemplateVariant.data({

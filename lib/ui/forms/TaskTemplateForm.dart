@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
@@ -10,17 +11,17 @@ import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 class TaskTemplateForm extends StatefulWidget {
-  TaskGroup _taskGroup;
-  Template? template;
-  bool createNew;
-  String formTitle;
-  String? title;
+  final TaskGroup _taskGroup;
+  final Template? template;
+  final bool createNew;
+  final String formTitle;
+  final String? title;
 
   TaskTemplateForm(this._taskGroup, {this.template, required this.createNew, this.title, required this.formTitle});
 
   @override
   State<StatefulWidget> createState() {
-    return _TaskTemplateFormState();
+    return _TaskTemplateFormState(template);
   }
 }
 
@@ -28,6 +29,8 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
   final _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
+
+  Template? template;
   
   Severity _severity = Severity.MEDIUM;
 
@@ -41,58 +44,70 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
   WhenOnDate? _selectedWhenOnDate;
   DateTime? _customWhenOn;
 
+  _TaskTemplateFormState(Template? template) {
+    this.template = template;
+  }
+
   initState() {
     super.initState();
 
+    _initState();
+
+  }
+
+  void _initState() {
+    
     AroundDurationHours? aroundDuration;
     Duration? duration;
-
+    
     AroundWhenAtDay? aroundStartedAt;
     TimeOfDay? startedAt;
-
+    
     DateTime ? startedOn;
-
-    if (widget.template != null) {
-
-      if (widget.template!.severity != null) {
-        _severity = widget.template!.severity!;
+    
+    if (template != null) {
+    
+      if (template!.severity != null) {
+        _severity = template!.severity!;
       }
-
-      titleController.text = widget.template!.title;
-      descriptionController.text = widget.template!.description ?? "";
-
-      aroundDuration = widget.template!.when?.durationHours;
-      duration = widget.template!.when?.durationExactly;
-
-      aroundStartedAt = widget.template!.when?.startAt ?? AroundWhenAtDay.NOW;
-      startedAt = widget.template!.when?.startAtExactly;
-
+      else {
+        _severity = Severity.MEDIUM;
+      }
+    
+      titleController.text = template!.title;
+      descriptionController.text = template!.description ?? "";
+    
+      aroundDuration = template!.when?.durationHours;
+      duration = template!.when?.durationExactly;
+    
+      aroundStartedAt = template!.when?.startAt ?? AroundWhenAtDay.NOW;
+      startedAt = template!.when?.startAtExactly;
+    
       startedOn = DateTime.now();
     }
-
+    
     if (widget.title != null) {
       titleController.text = widget.title!;
     }
-
+    
     _selectedDurationHours = aroundDuration;
     if (_selectedDurationHours == AroundDurationHours.CUSTOM) {
       _customDuration = duration;
     }
-
+    
     _selectedWhenAtDay = aroundStartedAt;
     if (startedAt != null &&
         (_selectedWhenAtDay == AroundWhenAtDay.NOW || _selectedWhenAtDay == AroundWhenAtDay.CUSTOM)) {
       _selectedWhenAtDay = AroundWhenAtDay.CUSTOM; // Former NOW is now CUSTOM
       _customWhenAt = startedAt;
     }
-
+    
     if (startedOn != null) {
       _selectedWhenOnDate = fromDateTimeToWhenOnDate(startedOn);
       if (_selectedWhenOnDate == WhenOnDate.CUSTOM) {
         _customWhenOn = startedOn;
       }
     }
-
   }
 
   @override
@@ -109,6 +124,61 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.formTitle),
+          actions: [
+            Visibility(
+              visible: !widget.createNew && (template?.existsInDb ?? false),
+              child: IconButton(
+                icon: Icon(template?.isPredefined() ?? false ? Icons.undo : Icons.delete),
+                onPressed: () {
+                  String dialogTitle = "";
+                  String dialogMessage = "";
+                  if (template?.isPredefined()) {
+                    // reset to predefined
+                    dialogTitle = "Restore default";
+                    dialogMessage = "This will restore the current task '${template?.title}' to the predefined default.";
+                  }
+                  else {
+                    // delete
+                    dialogTitle = "Delete task '${template?.title}'";
+                    dialogMessage = "This will removed the current task.";
+                  }
+
+                  showConfirmationDialog(
+                    context,
+                    dialogTitle,
+                    dialogMessage,
+                    okPressed: () {
+                      Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+
+                      if (template?.isPredefined()) {
+                        final originFav = template?.favorite ?? false;
+                        template = TemplateRepository.findPredefinedTemplate(template!.tId!);
+                        template!.favorite = originFav;
+                        template = template;
+                        setState(() {
+                          _initState();
+                        });
+                      }
+                      else if (template?.existsInDb ?? false) {
+                        // delete custom
+                        TemplateRepository.delete(template!).then((template) {
+                          Navigator.pop(context); // pop current form
+
+                          ScaffoldMessenger.of(super.context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Task \'${template.title}\' deleted')));
+
+                        });
+                      }
+                    },
+                    cancelPressed: () =>
+                        Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                  );
+                },
+              ),
+            ),
+          ],
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -322,39 +392,39 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                                 }
 
                                 if (widget.createNew) {
-                                  if (widget.template == null) {
+                                  if (template == null) {
                                     // create new task template under given taskGroup
                                     final taskTemplate = _createTaskTemplate(
                                         null, startedAtTimeOfDay, duration);
                                     Navigator.pop(context, taskTemplate);
                                   }
-                                  else if (widget.template!.isVariant() == false) {
+                                  else if (template!.isVariant() == false) {
                                     // create new variant under given template
                                     final taskTemplateVariant = _createTaskTemplateVariant(
-                                        null, widget.template!.tId!.id, startedAtTimeOfDay, duration);
+                                        null, template!.tId!.id, startedAtTimeOfDay, duration);
                                     Navigator.pop(context, taskTemplateVariant);
                                   }
-                                  else if (widget.template!.isVariant() == true) {
+                                  else if (template!.isVariant() == true) {
                                     // clone existing variant to a new one
-                                    final variant = widget.template! as TaskTemplateVariant;
+                                    final variant = template! as TaskTemplateVariant;
                                     final taskTemplateVariant = _createTaskTemplateVariant(
                                         null, variant.taskTemplateId, startedAtTimeOfDay, duration);
                                     Navigator.pop(context, taskTemplateVariant);
                                   }
                                 }
                                 else {
-                                  if (widget.template == null) {
+                                  if (template == null) {
                                     // update taskGroup, not supported
                                   }
-                                  else if (widget.template!.isVariant() == false) {
+                                  else if (template!.isVariant() == false) {
                                     // update task template
                                     final taskTemplate = _createTaskTemplate(
-                                        widget.template!.tId!.id, startedAtTimeOfDay, duration);
+                                        template!.tId!.id, startedAtTimeOfDay, duration);
                                     Navigator.pop(context, taskTemplate);
                                   }
-                                  else if (widget.template!.isVariant() == true) {
+                                  else if (template!.isVariant() == true) {
                                     // update variant
-                                    final variant = widget.template! as TaskTemplateVariant;
+                                    final variant = template! as TaskTemplateVariant;
                                     final taskTemplateVariant = _createTaskTemplateVariant(
                                         variant.tId!.id, variant.taskTemplateId, startedAtTimeOfDay, duration);
                                     Navigator.pop(context, taskTemplateVariant);

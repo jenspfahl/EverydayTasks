@@ -42,4 +42,6 @@ class TemplateId extends Comparable {
 
   int normalizeToOrderedId(int id) => id < 0 ? id.abs() : id * 100000;
 
+  bool isPredefined() => id < 0;
+
 }

@@ -220,7 +220,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
           }));
 
           if (newTemplate != null) {
-            TemplateRepository.insert(newTemplate).then((newTemplate) {
+            TemplateRepository.save(newTemplate).then((newTemplate) {
               ScaffoldMessenger.of(super.context).showSnackBar(
                   SnackBar(content: Text(
                       'New task with name \'${newTemplate.title}\' created')));
@@ -251,7 +251,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
 
             if (changedTemplate != null) {
               TemplateRepository.save(changedTemplate)
-                  .then((_) {
+                  .then((changedTemplate) {
                 ScaffoldMessenger.of(super.context).showSnackBar(
                     SnackBar(content: Text(
                         'Variant with name \'${changedTemplate.title}\' changed')));
@@ -285,7 +285,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
                 TemplateRepository.getById(TemplateId.forTaskTemplate(variant.taskTemplateId)).then((foundTemplate) {
                   debugPrint("foundTemplate: $foundTemplate");
                   _addTaskTemplateVariant(variant, taskGroup!, foundTemplate as TaskTemplate);
-                }).catchError((error, stackTrace) => debugPrint("error $error $stackTrace"));
+                });
               });
             }
           },
@@ -310,7 +310,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
 
             if (changedTemplate != null) {
               TemplateRepository.save(changedTemplate)
-                  .then((_) {
+                  .then((changedTemplate) {
                 ScaffoldMessenger.of(super.context).showSnackBar(
                     SnackBar(content: Text(
                         'Task with name \'${changedTemplate.title}\' changed')));
@@ -335,7 +335,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
 
             if (changedTemplate != null) {
               TemplateRepository.save(changedTemplate)
-                  .then((_) {
+                  .then((changedTemplate) {
                 ScaffoldMessenger.of(super.context).showSnackBar(
                     SnackBar(content: Text(
                         'Variant with name \'${changedTemplate.title}\' created')));
