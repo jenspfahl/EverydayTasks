@@ -4,48 +4,52 @@ import 'package:numberpicker/numberpicker.dart';
 class DurationPicker extends StatefulWidget {
   late final int _initialHours;
   late final int _initialMinutes;
-  final Function(Duration) _selectedDuration;
+  final ValueChanged<Duration> onChanged;
 
-  DurationPicker(Duration? initialDuration, this._selectedDuration) {
+  DurationPicker({
+    Duration? initialDuration,
+    required this.onChanged
+  }) {
     this._initialHours = initialDuration?.inHours ?? 0;
     this._initialMinutes = (initialDuration?.inMinutes ?? 0) % 60;
   }
   
   @override
   _DurationPickerState createState() {
-    return _DurationPickerState(_initialHours, _initialMinutes, _selectedDuration);
+    return _DurationPickerState();
   }
 
 }
 
 class _DurationPickerState extends State<DurationPicker> {
-  int _initialHours;
-  int _initialMinutes;
-  final Function(Duration) _selectedDuration;
+  int _hours = 0;
+  int _minutes = 0;
 
-  late NumberPicker _hoursPicker;
-  late NumberPicker _minutesPicker;
+  @override
+  void initState() {
+    super.initState();
+    _hours = widget._initialHours;
+    _minutes = widget._initialMinutes;
+  }
 
-  _DurationPickerState(this._initialHours, this._initialMinutes, this._selectedDuration);
-  
   @override
   Widget build(BuildContext context) {
-    _hoursPicker = new NumberPicker(
-      value: _initialHours,
+    final hoursPicker = NumberPicker(
+      value: _hours,
       minValue: 0,
       maxValue: 10, //TODO control this from outside
       onChanged: (value) => setState(() { 
-        _initialHours = value;
-        _selectedDuration(_getSelectedDuration());
+        _hours = value;
+        widget.onChanged(_getSelectedDuration());
       }),
     );
-    _minutesPicker = new NumberPicker(
-      value: _initialMinutes,
+    final minutesPicker = NumberPicker(
+      value: _minutes,
       minValue: 0,
       maxValue: 59,
       onChanged: (value) => setState(() { 
-        _initialMinutes = value;
-        _selectedDuration(_getSelectedDuration());
+        _minutes = value;
+        widget.onChanged(_getSelectedDuration());
       }),
     );
     //scaffold the full homepage
@@ -55,13 +59,13 @@ class _DurationPickerState extends State<DurationPicker> {
         Column(
           children: [
             Text("Hours"),
-            _hoursPicker
+            hoursPicker
           ],
         ),
         Column(
           children: [
             Text("Minutes"),
-            _minutesPicker,
+            minutesPicker,
           ],
         ),
       ],
@@ -69,6 +73,6 @@ class _DurationPickerState extends State<DurationPicker> {
   }
 
   Duration _getSelectedDuration() {
-      return Duration(hours: _initialHours, minutes: _initialMinutes);
+      return Duration(hours: _hours, minutes: _minutes);
   }
 }

@@ -35,11 +35,16 @@ void showConfirmationDialog(BuildContext context, String title, String message,
   );
 }
 
-/// Returns if a duration was chosen
-Future<bool?> showDurationPickerDialog(BuildContext context, Function(Duration) _selectedDuration,
-    [Duration? initialDuration]) {
+Future<bool?> showDurationPickerDialog({
+  required BuildContext context,
+  Duration? initialDuration,
+  required ValueChanged<Duration> onChanged,
+}) {
 
-  final durationPicker = DurationPicker(initialDuration, _selectedDuration);
+  final durationPicker = DurationPicker(
+      initialDuration: initialDuration,
+      onChanged: onChanged,
+  );
 
   Dialog dialog = Dialog(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)), //this right here
@@ -119,7 +124,7 @@ Future<bool?> showRepetitionPickerDialog(BuildContext context, Function(CustomRe
   );
 }
 
-void showTemplateDialog(BuildContext context, String title,
+Future<bool?> showTemplateDialog(BuildContext context, String title,
     {Function()? okPressed, Function()? cancelPressed, required Function(Object) selectedItem,}) {
   Widget cancelButton = TextButton(
     child: Text("Cancel"),
@@ -138,7 +143,7 @@ void showTemplateDialog(BuildContext context, String title,
       okButton,
     ],
   );  // show the dialog
-  showDialog(
+  return showDialog(
     context: context,
     builder: (BuildContext context) {
       return alert;
@@ -146,7 +151,7 @@ void showTemplateDialog(BuildContext context, String title,
   );
 }
 
-void showSeverityPicker(BuildContext context, Severity? initialSeverity,
+Future<bool?> showSeverityPicker(BuildContext context, Severity? initialSeverity,
     bool showText, ValueChanged<Severity?> onChanged) {
 
   Widget clearButton = TextButton(
@@ -164,7 +169,7 @@ void showSeverityPicker(BuildContext context, Severity? initialSeverity,
     ),
     actions: [clearButton],
   );
-  showDialog(
+  return showDialog(
     context: context,
     builder: (BuildContext context) {
       return alert;

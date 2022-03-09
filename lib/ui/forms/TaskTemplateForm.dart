@@ -238,10 +238,10 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                             if (value == AroundDurationHours.CUSTOM) {
                               final initialDuration = _customDuration ?? Duration(minutes: 1);
                               showDurationPickerDialog(
-                                      context,
-                                      (selectedDuration) => setState(() => _tempSelectedDuration = selectedDuration),
-                                      initialDuration)
-                                  .then((okPressed) {
+                                context: context,
+                                initialDuration: initialDuration,
+                                onChanged: (duration) => _tempSelectedDuration = duration,
+                              ).then((okPressed) {
                                 if (okPressed ?? false) {
                                   setState(() => _customDuration = _tempSelectedDuration ?? initialDuration);
                                 }
