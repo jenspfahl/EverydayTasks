@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:personaltasklogger/db/repository/IdPaging.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
-import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
+import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
 
 import '../utils.dart';
+import 'PageScaffoldState.dart';
 
 final String PREF_SORT_BY = "quickAdd/sortedBy";
 
-class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
-  _QuickAddTaskEventPageState? _state;
-  PagesHolder _pagesHolder;
+@immutable
+class QuickAddTaskEventPage extends PageScaffold<QuickAddTaskEventPageState> {
+  final PagesHolder _pagesHolder;
 
   QuickAddTaskEventPage(this._pagesHolder);
 
@@ -33,65 +33,7 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  List<Widget>? getActions(BuildContext context) {
-    return [
-      GestureDetector(
-        child: Padding(padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Icon(Icons.sort_outlined)),
-        onTapDown: (details) {
-          showPopUpMenuAtTapDown(
-              context,
-              details,
-              [
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          createCheckIcon(_state?._sortBy == SortBy.GROUP),
-                          const Spacer(),
-                          Text("Sort by category"),
-                        ]
-                    ),
-                    value: '1'),
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          createCheckIcon(_state?._sortBy == SortBy.TITLE),
-                          const Spacer(),
-                          Text("Sort by title"),
-                        ]
-                    ),
-                    value: '2'),
-
-              ]
-          ).then((selected) {
-            switch (selected) {
-              case '1' :
-                {
-                  _state?._updateSortBy(SortBy.GROUP);
-                  break;
-                }
-              case '2' :
-                {
-                  _state?._updateSortBy(SortBy.TITLE);
-                  break;
-                }
-            }
-          });
-        },
-      ),
-    ];
-  }
-
-  @override
-  void handleFABPressed(BuildContext context) {
-    _state?._onFABPressed();
-  }
-
-  @override
-  State<StatefulWidget> createState() {
-    _state = _QuickAddTaskEventPageState();
-    return _state!;
-  }
+  State<StatefulWidget> createState() => QuickAddTaskEventPageState();
 
   @override
   bool withSearchBar() {
@@ -99,22 +41,15 @@ class QuickAddTaskEventPage extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  void searchQueryUpdated(String? searchQuery) {
-  }
-
-  @override
-  String getKey() {
+  String getRoutingKey() {
     return "QuickAdd";
   }
 
-  void updateTemplate(Template template) {
-    _state?._updateTemplate(template);
-  }
 }
 
 enum SortBy {GROUP, TITLE,}
 
-class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with AutomaticKeepAliveClientMixin<QuickAddTaskEventPage> {
+class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage> with AutomaticKeepAliveClientMixin<QuickAddTaskEventPage> {
   List<Template> _templates = [];
   SortBy _sortBy = SortBy.GROUP;
   final _preferenceService = PreferenceService();
@@ -137,6 +72,10 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
         _sortList();
       });
     });
+  }
+
+  @override
+  void searchQueryUpdated(String? searchQuery) {
   }
 
   @override
@@ -189,7 +128,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
                       TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                         ScaffoldMessenger.of(super.context).showSnackBar(
                             SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
-                        widget._pagesHolder.taskEventList?.addTaskEvent(newTaskEvent);
+                        widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.addTaskEvent(newTaskEvent);
                       });
                     }
                   },
@@ -213,6 +152,61 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
         }
       ),
     );
+  }
+
+  @override
+  List<Widget>? getActions(BuildContext context) {
+    return [
+      GestureDetector(
+        child: Padding(padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Icon(Icons.sort_outlined)),
+        onTapDown: (details) {
+          showPopUpMenuAtTapDown(
+              context,
+              details,
+              [
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          createCheckIcon(_sortBy == SortBy.GROUP),
+                          const Spacer(),
+                          Text("Sort by category"),
+                        ]
+                    ),
+                    value: '1'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          createCheckIcon(_sortBy == SortBy.TITLE),
+                          const Spacer(),
+                          Text("Sort by title"),
+                        ]
+                    ),
+                    value: '2'),
+
+              ]
+          ).then((selected) {
+            switch (selected) {
+              case '1' :
+                {
+                  _updateSortBy(SortBy.GROUP);
+                  break;
+                }
+              case '2' :
+                {
+                  _updateSortBy(SortBy.TITLE);
+                  break;
+                }
+            }
+          });
+        },
+      ),
+    ];
+  }
+
+  @override
+  void handleFABPressed(BuildContext context) {
+    _onFABPressed();
   }
 
   void _onFABPressed() {
@@ -250,7 +244,7 @@ class _QuickAddTaskEventPageState extends State<QuickAddTaskEventPage> with Auto
     });
   }
 
-  void _updateTemplate(Template template) {
+  void updateTemplate(Template template) {
     setState(() {
       final index = _templates.indexOf(template);
       if (index != -1) {

@@ -15,28 +15,25 @@ import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
+import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
-import '../../main.dart';
 import '../PersonalTaskLoggerScaffold.dart';
 import '../forms/TaskEventForm.dart';
 
 final filterIconKey = new GlobalKey<ToggleActionIconState>();
 final expandIconKey = new GlobalKey<ToggleActionIconState>();
 
-class TaskEventList extends StatefulWidget implements PageScaffold {
+@immutable
+class TaskEventList extends PageScaffold<TaskEventListState> {
 
-  _TaskEventListState? _state;
-  PagesHolder _pagesHolder;
+  final PagesHolder _pagesHolder;
 
-  TaskEventList(this._pagesHolder);
+  TaskEventList(this._pagesHolder) : super();
 
   @override
-  State<StatefulWidget> createState() {
-    _state = _TaskEventListState();
-    return _state!;
-  }
+  State<StatefulWidget> createState() => TaskEventListState();
 
   @override
   Widget getTitle() {
@@ -49,220 +46,18 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  List<Widget>? getActions(BuildContext context) {
-    final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, _state?.isAllExpanded()??true, expandIconKey);
-    final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, _state?.isFilterActive()??false, filterIconKey);
-    return [
-      GestureDetector(
-        child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
-        child: filterIcon),
-        onTapDown: (details) {
-          showPopUpMenuAtTapDown(
-            context,
-            details,
-              [
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          Icon(
-                            _state?._filterByDateRange != null ? Icons.calendar_today : Icons.calendar_today_outlined,
-                            color: _state?._filterByDateRange != null ? Colors.blueAccent : null,
-                          ),
-                          const Spacer(),
-                          Text(_state?._filterByDateRange != null
-                              ?  "${formatToDateOrWord(_state!._filterByDateRange!.start)} to ${formatToDateOrWord(_state!._filterByDateRange!.end).toLowerCase()}"
-                              : "Filter by date range"),
-                        ]
-                    ),
-                    value: '1'),
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          _state?._filterBySeverity != null
-                              ? severityToIcon(_state!._filterBySeverity!, Colors.blueAccent)
-                              : Icon(Icons.fitness_center_rounded),
-                          const Spacer(),
-                          Text(_state?._filterBySeverity != null
-                              ? severityToString(_state!._filterBySeverity!)
-                              : "Filter by severity"),
-                        ]
-                    ),
-                    value: '2'),
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          Icon(
-                              _state?._filterByFavorites??false ? Icons.favorite : Icons.favorite_border,
-                              color: _state?._filterByFavorites??false ? Colors.blueAccent : null,
-                          ),
-                          const Spacer(),
-                          const Text("Filter favorites"),
-                        ]
-                    ),
-                    value: '3'),
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          _state?._filterByTaskOrTemplate != null
-                              ? _state!._filterByTaskOrTemplate is TaskGroup
-                                ? (_state!._filterByTaskOrTemplate as TaskGroup).getIcon(true)
-                                : (_state!._filterByTaskOrTemplate as Template).getIcon(true)
-                              : const Icon(Icons.task_alt),
-                          const Spacer(),
-                          Text(_state?._filterByTaskOrTemplate != null
-                              ? _state!._filterByTaskOrTemplate.toString()
-                              : "Filter by task"),
-                        ]
-                    ),
-                    value: '4'),
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          Icon(
-                            _state?.isFilterActive()??false ? Icons.clear : Icons.clear_outlined,
-                            color: _state?.isFilterActive()??false ? Colors.blueAccent : null,
-                          ),
-                          const Spacer(),
-                          const Text("Clear filters"),
-                        ]
-                    ),
-                    value: '5'),
-              ]
-          ).then((selected) {
-            switch (selected) {
-              case '1' : {
-                if (_state?._filterByDateRange == null) {
-                  showDateRangePicker(
-                    context: context,
-                    firstDate: DateTime.now().subtract(Duration(days: 365)),
-                    lastDate: DateTime.now().add(Duration(days: 365)),
-                    currentDate: DateTime.now(),
-                      builder: (context, child) {
-                        return Theme(
-                          data: Theme.of(context).copyWith(
-                            colorScheme: ColorScheme.light(
-                              // TODO i don't know why but without that the app bar text id white here !!!
-                              onPrimary: Colors.black, // header text color
-                            ),
-
-                          ),
-                          child: child!,
-                        );},
-                  ).then((dateRange) {
-                    if (dateRange != null) {
-                      _state?._filterByDateRange = dateRange;
-                      _state?._doFilter();
-                      filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
-                    }
-                  });
-                }
-                else {
-                  _state?._filterByDateRange = null;
-                  _state?._doFilter();
-                  filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
-                }
-                break;
-              }
-
-              case '2' : {
-                showSeverityPicker(
-                    context, _state?._filterBySeverity, true, (selected) {
-                  _state?._filterBySeverity = selected;
-                  _state?._doFilter();
-                  filterIconKey.currentState?.refresh(_state?.isFilterActive() ?? false);
-                  Navigator.pop(context);
-                });
-                break;
-              }
-
-              case '3' : {
-                _state?._filterByFavorites = !_state!._filterByFavorites;
-                _state?._doFilter();
-                filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
-                break;
-              }
-
-              case '4' : {
-                if (_state?._filterByTaskOrTemplate == null) {
-                  Object? selectedItem = null;
-                  showTemplateDialog(context, "Select a task to filter by",
-                    selectedItem: (item) {
-                      selectedItem = item;
-                    },
-                    okPressed: () {
-                      Navigator.pop(context);
-                      _state?._filterByTaskOrTemplate = selectedItem;
-                      _state?._doFilter();
-                      filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
-                    },
-                    cancelPressed: () =>
-                        Navigator.pop(context), // dis
-                  );
-                }
-                else {
-                  _state?._filterByTaskOrTemplate = null;
-                  _state?._doFilter();
-                  filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
-                }
-                break;
-              }
-              case '5' : {
-                _state?.clearFilters();
-                _state?._doFilter();
-                filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
-                break;
-              }
-            }
-          });
-        },
-      ),
-      IconButton(
-        icon: expandIcon,
-        onPressed: () {
-          if (_state?.isAllExpanded()??false) {
-            _state?.collapseAll();
-            expandIconKey.currentState?.refresh(false);
-          }
-          else {
-            _state?.expandAll();
-            expandIconKey.currentState?.refresh(true);
-          }
-        },
-      ),
-    ];
-  }
-
-  @override
-  void handleFABPressed(BuildContext context) {
-    _state?._onFABPressed();
-  }
-
-  void addTaskEvent(TaskEvent newTaskEvent) {
-    _state?._addTaskEvent(newTaskEvent);
-  }
-
-  @override
   bool withSearchBar() {
     return true;
   }
-
+  
   @override
-  void searchQueryUpdated(String? searchQuery) {
-    _state?._updateSearchQuery(searchQuery);
-    _state?._doFilter();
-  }
-
-  @override
-  String getKey() {
+  String getRoutingKey() {
     return "TaskEvents";
   }
 
-  void filterByTaskEventIds(Iterable<int> taskEventIds) {
-    _state?..clearFilters()..expandAll()..filterByTaskEventIds(taskEventIds).._doFilter();
-  }
 }
 
-class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveClientMixin<TaskEventList> {
+class TaskEventListState extends PageScaffoldState<TaskEventList> with AutomaticKeepAliveClientMixin<TaskEventList> {
   List<TaskEvent> _taskEvents = [];
   List<TaskEvent>? _filteredTaskEvents;
   int _selectedTile = -1;
@@ -298,6 +93,203 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
       });
     });
   }
+
+
+  @override
+  List<Widget>? getActions(BuildContext context) {
+    final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, isAllExpanded(), expandIconKey);
+    final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, isFilterActive(), filterIconKey);
+    return [
+      GestureDetector(
+        child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
+            child: filterIcon),
+        onTapDown: (details) {
+          showPopUpMenuAtTapDown(
+              context,
+              details,
+              [
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          Icon(
+                            _filterByDateRange != null ? Icons.calendar_today : Icons.calendar_today_outlined,
+                            color: _filterByDateRange != null ? Colors.blueAccent : null,
+                          ),
+                          const Spacer(),
+                          Text(_filterByDateRange != null
+                              ?  "${formatToDateOrWord(_filterByDateRange!.start)} to ${formatToDateOrWord(_filterByDateRange!.end).toLowerCase()}"
+                              : "Filter by date range"),
+                        ]
+                    ),
+                    value: '1'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          _filterBySeverity != null
+                              ? severityToIcon(_filterBySeverity!, Colors.blueAccent)
+                              : Icon(Icons.fitness_center_rounded),
+                          const Spacer(),
+                          Text(_filterBySeverity != null
+                              ? severityToString(_filterBySeverity!)
+                              : "Filter by severity"),
+                        ]
+                    ),
+                    value: '2'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          Icon(
+                            _filterByFavorites ? Icons.favorite : Icons.favorite_border,
+                            color: _filterByFavorites ? Colors.blueAccent : null,
+                          ),
+                          const Spacer(),
+                          const Text("Filter favorites"),
+                        ]
+                    ),
+                    value: '3'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          _filterByTaskOrTemplate != null
+                              ? _filterByTaskOrTemplate is TaskGroup
+                              ? (_filterByTaskOrTemplate as TaskGroup).getIcon(true)
+                              : (_filterByTaskOrTemplate as Template).getIcon(true)
+                              : const Icon(Icons.task_alt),
+                          const Spacer(),
+                          Text(_filterByTaskOrTemplate != null
+                              ? _filterByTaskOrTemplate.toString()
+                              : "Filter by task"),
+                        ]
+                    ),
+                    value: '4'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          Icon(
+                            isFilterActive() ? Icons.clear : Icons.clear_outlined,
+                            color: isFilterActive() ? Colors.blueAccent : null,
+                          ),
+                          const Spacer(),
+                          const Text("Clear filters"),
+                        ]
+                    ),
+                    value: '5'),
+              ]
+          ).then((selected) {
+            switch (selected) {
+              case '1' : {
+                if (_filterByDateRange == null) {
+                  showDateRangePicker(
+                    context: context,
+                    firstDate: DateTime.now().subtract(Duration(days: 365)),
+                    lastDate: DateTime.now().add(Duration(days: 365)),
+                    currentDate: DateTime.now(),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: ColorScheme.light(
+                            // TODO i don't know why but without that the app bar text id white here !!!
+                            onPrimary: Colors.black, // header text color
+                          ),
+
+                        ),
+                        child: child!,
+                      );},
+                  ).then((dateRange) {
+                    if (dateRange != null) {
+                      _filterByDateRange = dateRange;
+                      _doFilter();
+                      filterIconKey.currentState?.refresh(isFilterActive());
+                    }
+                  });
+                }
+                else {
+                  _filterByDateRange = null;
+                  _doFilter();
+                  filterIconKey.currentState?.refresh(isFilterActive());
+                }
+                break;
+              }
+
+              case '2' : {
+                showSeverityPicker(
+                    context, _filterBySeverity, true, (selected) {
+                  _filterBySeverity = selected;
+                  _doFilter();
+                  filterIconKey.currentState?.refresh(isFilterActive());
+                  Navigator.pop(context);
+                });
+                break;
+              }
+
+              case '3' : {
+                _filterByFavorites = !_filterByFavorites;
+                _doFilter();
+                filterIconKey.currentState?.refresh(isFilterActive());
+                break;
+              }
+
+              case '4' : {
+                if (_filterByTaskOrTemplate == null) {
+                  Object? selectedItem = null;
+                  showTemplateDialog(context, "Select a task to filter by",
+                    selectedItem: (item) {
+                      selectedItem = item;
+                    },
+                    okPressed: () {
+                      Navigator.pop(context);
+                      _filterByTaskOrTemplate = selectedItem;
+                      _doFilter();
+                      filterIconKey.currentState?.refresh(isFilterActive());
+                    },
+                    cancelPressed: () =>
+                        Navigator.pop(context), // dis
+                  );
+                }
+                else {
+                  _filterByTaskOrTemplate = null;
+                  _doFilter();
+                  filterIconKey.currentState?.refresh(isFilterActive());
+                }
+                break;
+              }
+              case '5' : {
+                clearFilters();
+                _doFilter();
+                filterIconKey.currentState?.refresh(isFilterActive());
+                break;
+              }
+            }
+          });
+        },
+      ),
+      IconButton(
+        icon: expandIcon,
+        onPressed: () {
+          if (isAllExpanded()) {
+            collapseAll();
+            expandIconKey.currentState?.refresh(false);
+          }
+          else {
+            expandAll();
+            expandIconKey.currentState?.refresh(true);
+          }
+        },
+      ),
+    ];
+  }
+
+  @override
+  void handleFABPressed(BuildContext context) {
+    _onFABPressed();
+  }
+
+  @override
+  void searchQueryUpdated(String? searchQuery) {
+    _updateSearchQuery(searchQuery);
+    _doFilter();
+  }
+
 
   void _updateSearchQuery(String? searchQuery) {
     _searchQuery = searchQuery;
@@ -348,7 +340,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
     });
   }
 
-  void _addTaskEvent(TaskEvent taskEvent) {
+  void addTaskEvent(TaskEvent taskEvent) {
     if (taskEvent.originTemplateId != null) {
       ScheduledTaskRepository.getByTemplateId(taskEvent.originTemplateId!)
           .then((scheduledTasks) {
@@ -358,7 +350,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
               ScheduledTaskRepository.update(scheduledTask).then((
                   changedScheduledTask) {
                 debugPrint("schedule ${changedScheduledTask.id} notified: ${changedScheduledTask.lastScheduledEventOn}");
-                widget._pagesHolder.scheduledTaskList?.updateScheduledTask(changedScheduledTask);
+                widget._pagesHolder.scheduledTaskList?.getGlobalKey().currentState?.updateScheduledTask(changedScheduledTask);
 
                 final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(taskEvent, changedScheduledTask);
                 ScheduledTaskEventRepository.insert(scheduledTaskEvent).then((value) => debugPrint(value.toString()));
@@ -392,6 +384,13 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
       _taskEvents.remove(taskEvent);
       _selectedTile = -1;
     });
+  }
+
+  void doFilterByTaskEventIds(Iterable<int> taskEventIds) {
+    clearFilters();
+    expandAll();
+    filterByTaskEventIds(taskEventIds);
+    _doFilter();
   }
 
   @override
@@ -656,7 +655,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                         TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                           ScaffoldMessenger.of(super.context).showSnackBar(
                               SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
-                          _addTaskEvent(newTaskEvent);
+                          addTaskEvent(newTaskEvent);
                         });
                       }
                     },
@@ -693,7 +692,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                               TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                                 ScaffoldMessenger.of(super.context).showSnackBar(
                                     SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
-                                _addTaskEvent(newTaskEvent);
+                                addTaskEvent(newTaskEvent);
                               });
                             }
                           },

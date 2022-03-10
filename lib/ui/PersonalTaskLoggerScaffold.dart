@@ -91,7 +91,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => getSelectedPage().handleFABPressed(context),
+        onPressed: () => getSelectedPage().getGlobalKey().currentState?.handleFABPressed(context),
         child: getSelectedPage().getIcon(),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -153,7 +153,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
 
   List<Widget>? _buildActions(BuildContext context) {
-    final definedActions = getSelectedPage().getActions(context);
+    final definedActions = getSelectedPage().getGlobalKey().currentState?.getActions(context);
 
     if (getSelectedPage().withSearchBar() == false && definedActions == null) {
       return null;
@@ -186,7 +186,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   void _clearOrCloseSearchBar(BuildContext context, bool immediately) {
     if (immediately || _searchQueryController.text.isEmpty) {
       _searchString = null;
-      getSelectedPage().searchQueryUpdated(null);
+      getSelectedPage().getGlobalKey().currentState?.searchQueryUpdated(null);
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
       }
@@ -208,7 +208,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   void updateSearchQuery(String? newQuery) {
     setState(() {
       _searchString = newQuery;
-      getSelectedPage().searchQueryUpdated(newQuery);
+      getSelectedPage().getGlobalKey().currentState?.searchQueryUpdated(newQuery);
     });
   }
 
@@ -228,7 +228,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   }
 
   sendEvent(String receiverKey, String id) {
-    final index = _pages.indexWhere((page) => page.getKey() == receiverKey);
+    final index = _pages.indexWhere((page) => page.getRoutingKey() == receiverKey);
     if (index != -1 && index != _selectedNavigationIndex) {
       _pageController.jumpToPage(index);
       setState(() {

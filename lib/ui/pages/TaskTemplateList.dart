@@ -12,14 +12,16 @@ import 'package:personaltasklogger/ui/forms/TaskTemplateForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 
 import '../utils.dart';
+import 'PageScaffoldState.dart';
 
-class TaskTemplateList extends StatefulWidget implements PageScaffold {
-  _TaskTemplateListState? _state;
-  Function(Object)? _selectedItem;
-  PagesHolder? _pagesHolder;
+@immutable
+class TaskTemplateList extends PageScaffold<TaskTemplateListState> {
 
-  TaskTemplateList(this._pagesHolder);
-  TaskTemplateList.withSelectionCallback(this._selectedItem);
+  final Function(Object)? _selectedItem; //TODO to ValueChanged
+  final PagesHolder? _pagesHolder;
+
+  TaskTemplateList(this._pagesHolder): _selectedItem = null;
+  TaskTemplateList.withSelectionCallback(this._selectedItem): _pagesHolder = null;
 
 
   @override
@@ -33,20 +35,7 @@ class TaskTemplateList extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  List<Widget>? getActions(BuildContext context) {
-    return null;
-  }
-
-  @override
-  void handleFABPressed(BuildContext context) {
-    _state?._onFABPressed();
-  }
-
-  @override
-  State<StatefulWidget> createState() {
-    _state = _TaskTemplateListState(_selectedItem);
-    return _state!;
-  }
+  State<StatefulWidget> createState() => TaskTemplateListState();
 
   @override
   bool withSearchBar() {
@@ -54,23 +43,17 @@ class TaskTemplateList extends StatefulWidget implements PageScaffold {
   }
 
   @override
-  void searchQueryUpdated(String? searchQuery) {
-  }
-
-  @override
-  String getKey() {
+  String getRoutingKey() {
     return "TaskTemplates";
   }
+
 }
 
-class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepAliveClientMixin<TaskTemplateList> {
+class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with AutomaticKeepAliveClientMixin<TaskTemplateList> {
 
   String? _selectedNode;
   List<Node> _nodes = [];
   late TreeViewController _treeViewController;
-  Function(Object)? _itemSelectedHandler;
-
-  _TaskTemplateListState(this._itemSelectedHandler);
 
   @override
   void initState() {
@@ -128,6 +111,20 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
     );
   }
 
+  @override
+  void searchQueryUpdated(String? searchQuery) {
+  }
+
+  @override
+  List<Widget>? getActions(BuildContext context) {
+    return null;
+  }
+
+  @override
+  void handleFABPressed(BuildContext context) {
+    _onFABPressed();
+  }
+
   Node<TaskTemplate> createTaskTemplateNode(TaskTemplate template,
       TaskGroup group,
       List<Node<dynamic>> templateVariants) {
@@ -178,7 +175,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
           createTaskTemplateNode(template, taskGroup, children)
       );
     });
-    widget._pagesHolder?.quickAddTaskEventPage?.updateTemplate(template);
+    widget._pagesHolder?.quickAddTaskEventPage?.getGlobalKey().currentState?.updateTemplate(template);
   }
 
   void _updateTaskTemplateVariant(TaskTemplateVariant template, TaskGroup taskGroup) {
@@ -188,7 +185,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
           createTaskTemplateVariantNode(template, taskGroup)
       );
     });
-    widget._pagesHolder?.quickAddTaskEventPage?.updateTemplate(template);
+    widget._pagesHolder?.quickAddTaskEventPage?.getGlobalKey().currentState?.updateTemplate(template);
   }
 
   void _onFABPressed() {
@@ -221,7 +218,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
 
           if (newTemplate != null) {
             TemplateRepository.save(newTemplate).then((newTemplate) {
-              ScaffoldMessenger.of(super.context).showSnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(
                       'New task with name \'${newTemplate.title}\' created')));
               _addTaskTemplate(newTemplate as TaskTemplate, taskGroup!);
@@ -252,7 +249,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
             if (changedTemplate != null) {
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
-                ScaffoldMessenger.of(super.context).showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(
                         'Variant with name \'${changedTemplate.title}\' changed')));
                 _updateTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!);
@@ -277,7 +274,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
             if (changedTemplate != null) {
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
-                ScaffoldMessenger.of(super.context).showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(
                         'Variant with name \'${changedTemplate.title}\' cloned')));
                 final variant = changedTemplate as TaskTemplateVariant;
@@ -311,7 +308,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
             if (changedTemplate != null) {
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
-                ScaffoldMessenger.of(super.context).showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(
                         'Task with name \'${changedTemplate.title}\' changed')));
                 _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
@@ -336,7 +333,7 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
             if (changedTemplate != null) {
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
-                ScaffoldMessenger.of(super.context).showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(
                         'Variant with name \'${changedTemplate.title}\' created')));
                 _addTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!, template as TaskTemplate);
@@ -410,10 +407,10 @@ class _TaskTemplateListState extends State<TaskTemplateList> with AutomaticKeepA
             _selectedNode = key;
             _treeViewController =
                 _treeViewController.copyWith(selectedKey: key);
-            if (_itemSelectedHandler != null) {
+            if (widget._selectedItem != null) {
               Object? data = _treeViewController.selectedNode?.data;
               if (data != null) {
-                _itemSelectedHandler!(data);
+                widget._selectedItem!(data);
               }
             }
           });

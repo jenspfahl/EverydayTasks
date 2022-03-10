@@ -1,15 +1,14 @@
 
 import 'package:flutter/material.dart';
+import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
 
-abstract class PageScaffold extends StatefulWidget {
-  String getKey();
+abstract class PageScaffold<T extends PageScaffoldState> extends StatefulWidget {
+  PageScaffold() : super(key: new GlobalKey<T>());
+  GlobalKey<T> getGlobalKey() => key as GlobalKey<T>;
+
+  String getRoutingKey();
   Widget getTitle();
   Icon getIcon();
-  List<Widget>? getActions(BuildContext context);
-
   bool withSearchBar();
 
-  void handleFABPressed(BuildContext context);
-
-  void searchQueryUpdated(String? searchQuery);
 }
