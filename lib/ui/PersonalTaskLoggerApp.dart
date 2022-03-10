@@ -15,6 +15,7 @@ class PersonalTaskLoggerApp extends StatelessWidget {
         brightness: Brightness.light,
         primaryColor: Colors.green[50],
         primarySwatch: Colors.blue,
+
        // accentColor: Colors.green,
 
       ),

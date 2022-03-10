@@ -22,7 +22,8 @@ import '../../main.dart';
 import '../PersonalTaskLoggerScaffold.dart';
 import '../forms/TaskEventForm.dart';
 
-final expandIconKey = new GlobalKey<_TaskEventListState>();
+final filterIconKey = new GlobalKey<ToggleActionIconState>();
+final expandIconKey = new GlobalKey<ToggleActionIconState>();
 
 class TaskEventList extends StatefulWidget implements PageScaffold {
 
@@ -50,7 +51,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
   @override
   List<Widget>? getActions(BuildContext context) {
     final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, _state?.isAllExpanded()??true, expandIconKey);
-    final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, _state?.isFilterActive()??false);
+    final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, _state?.isFilterActive()??false, filterIconKey);
     return [
       GestureDetector(
         child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
@@ -136,18 +137,29 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                     firstDate: DateTime.now().subtract(Duration(days: 365)),
                     lastDate: DateTime.now().add(Duration(days: 365)),
                     currentDate: DateTime.now(),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: ColorScheme.light(
+                              // TODO i don't know why but without that the app bar text id white here !!!
+                              onPrimary: Colors.black, // header text color
+                            ),
+
+                          ),
+                          child: child!,
+                        );},
                   ).then((dateRange) {
                     if (dateRange != null) {
                       _state?._filterByDateRange = dateRange;
                       _state?._doFilter();
-                      filterIcon.refresh(_state?.isFilterActive()??false);
+                      filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
                     }
                   });
                 }
                 else {
                   _state?._filterByDateRange = null;
                   _state?._doFilter();
-                  filterIcon.refresh(_state?.isFilterActive()??false);
+                  filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
                 }
                 break;
               }
@@ -157,7 +169,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                     context, _state?._filterBySeverity, true, (selected) {
                   _state?._filterBySeverity = selected;
                   _state?._doFilter();
-                  filterIcon.refresh(_state?.isFilterActive() ?? false);
+                  filterIconKey.currentState?.refresh(_state?.isFilterActive() ?? false);
                   Navigator.pop(context);
                 });
                 break;
@@ -166,7 +178,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
               case '3' : {
                 _state?._filterByFavorites = !_state!._filterByFavorites;
                 _state?._doFilter();
-                filterIcon.refresh(_state?.isFilterActive()??false);
+                filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
                 break;
               }
 
@@ -181,7 +193,7 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                       Navigator.pop(context);
                       _state?._filterByTaskOrTemplate = selectedItem;
                       _state?._doFilter();
-                      filterIcon.refresh(_state?.isFilterActive()??false);
+                      filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
                     },
                     cancelPressed: () =>
                         Navigator.pop(context), // dis
@@ -190,14 +202,14 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
                 else {
                   _state?._filterByTaskOrTemplate = null;
                   _state?._doFilter();
-                  filterIcon.refresh(_state?.isFilterActive()??false);
+                  filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
                 }
                 break;
               }
               case '5' : {
                 _state?.clearFilters();
                 _state?._doFilter();
-                filterIcon.refresh(_state?.isFilterActive()??false);
+                filterIconKey.currentState?.refresh(_state?.isFilterActive()??false);
                 break;
               }
             }
@@ -209,11 +221,11 @@ class TaskEventList extends StatefulWidget implements PageScaffold {
         onPressed: () {
           if (_state?.isAllExpanded()??false) {
             _state?.collapseAll();
-            expandIcon.refresh(false);
+            expandIconKey.currentState?.refresh(false);
           }
           else {
             _state?.expandAll();
-            expandIcon.refresh(true);
+            expandIconKey.currentState?.refresh(true);
           }
         },
       ),
@@ -477,13 +489,7 @@ class _TaskEventListState extends State<TaskEventList> with AutomaticKeepAliveCl
                   } else {
                     _hiddenTiles.add(taskEventDate);
                   }
-                  debugPrint("curr ${expandIconKey.currentWidget}");
-
-                  if (expandIconKey.currentWidget is ToggleActionIcon) {
-                    final expandIcon = expandIconKey.currentWidget as ToggleActionIcon;
-                    expandIcon.refresh(isAllExpanded());
-                    debugPrint("refresh expand icon with ${isAllExpanded()}");
-                  }
+                  expandIconKey.currentState?.refresh(isAllExpanded());
                 });
               },
             )
