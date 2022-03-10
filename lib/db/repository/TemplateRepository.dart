@@ -46,7 +46,6 @@ class TemplateRepository {
 
       final id = await taskTemplateDao.insertTaskTemplate(entity);
       template.tId = TemplateId.forTaskTemplate(id);
-      template.existsInDb = true;
 
       return template;
     }
@@ -63,7 +62,6 @@ class TemplateRepository {
 
       final id = await taskTemplateVariantDao.insertTaskTemplateVariant(entity);
       template.tId = TemplateId.forTaskTemplateVariant(id);
-      template.existsInDb = true;
 
       return template;
     }
@@ -79,7 +77,6 @@ class TemplateRepository {
       final entity = _mapTemplateToEntity(template);
 
       await taskTemplateDao.updateTaskTemplate(entity);
-      template.existsInDb = true;
 
       return template;
     }
@@ -88,7 +85,6 @@ class TemplateRepository {
       final entity = _mapTemplateVariantToEntity(template);
 
       await taskTemplateVariantDao.updateTaskTemplateVariant(entity);
-      template.existsInDb = true;
 
       return template;
     }
@@ -104,7 +100,6 @@ class TemplateRepository {
       final entity = _mapTemplateToEntity(template);
 
       await taskTemplateDao.deleteTaskTemplate(entity);
-      template.existsInDb = false;
 
       return template;
     }
@@ -113,7 +108,6 @@ class TemplateRepository {
       final entity = _mapTemplateVariantToEntity(template);
 
       await taskTemplateVariantDao.deleteTaskTemplateVariant(entity);
-      template.existsInDb = false;
 
       return template;
     }
@@ -239,7 +233,7 @@ class TemplateRepository {
             : null,
         severity: entity.severity != null ? Severity.values.elementAt(entity.severity!) : null,
         favorite: entity.favorite,
-        existsInDb: true);
+    );
 
 
   static List<TaskTemplate> _mapTemplatesFromEntities(List<TaskTemplateEntity> entities) =>
@@ -281,7 +275,7 @@ class TemplateRepository {
               : null,
           severity: entity.severity != null ? Severity.values.elementAt(entity.severity!) : null,
           favorite: entity.favorite,
-          existsInDb: true);
+      );
 
 
   static List<TaskTemplateVariant> _mapTemplateVariantsFromEntities(List<TaskTemplateVariantEntity> entities) =>

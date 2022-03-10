@@ -188,6 +188,15 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     widget._pagesHolder?.quickAddTaskEventPage?.getGlobalKey().currentState?.updateTemplate(template);
   }
 
+  void _removeTemplate(Template template) {
+    setState(() {
+      _treeViewController = _treeViewController.withDeleteNode(
+          template.getKey(),
+      );
+    });
+    widget._pagesHolder?.quickAddTaskEventPage?.getGlobalKey().currentState?.removeTemplate(template);
+  }
+
   void _onFABPressed() {
     if (_treeViewController.selectedKey == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -195,6 +204,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       return;
     }
     Object? selectedItem = _treeViewController.selectedNode?.data;
+    bool hasChildren = _treeViewController.selectedNode?.children.isNotEmpty ?? false;
     TaskGroup? taskGroup;
     Template? template;
     late String message;
@@ -204,14 +214,14 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       taskGroup = selectedItem;
       message = "Add a new task underneath '${taskGroup.name}'.";
       action1 = ElevatedButton(
-        child: const Text('Create new task'),
+        child: const Text('Add new task'),
         onPressed: () async {
           Navigator.pop(context);
           Template? newTemplate = await Navigator.push(
               context, MaterialPageRoute(builder: (context) {
             return TaskTemplateForm(
               taskGroup!,
-              formTitle: "Create new task",
+              formTitle: "Add new task",
               createNew: true,
             );
           }));
@@ -220,7 +230,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             TemplateRepository.save(newTemplate).then((newTemplate) {
               ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(
-                      'New task with name \'${newTemplate.title}\' created')));
+                      'New task with name \'${newTemplate.title}\' added')));
               _addTaskTemplate(newTemplate as TaskTemplate, taskGroup!);
             });
           }
@@ -236,7 +246,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
           child: const Text('Change current variant'),
           onPressed: () async {
             Navigator.pop(context);
-            Template? changedTemplate = await Navigator.push(
+            Object? formResult = await Navigator.push(
                 context, MaterialPageRoute(builder: (context) {
               return TaskTemplateForm(
                 taskGroup!,
@@ -246,8 +256,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
               );
             }));
 
-            if (changedTemplate != null) {
-              TemplateRepository.save(changedTemplate)
+            if (formResult is Template) {
+              TemplateRepository.save(formResult)
                   .then((changedTemplate) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(
@@ -255,17 +265,29 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 _updateTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!);
               });
             }
+            else if (formResult is TemplateId) {
+              TemplateRepository.delete(template!).then((template) {
+
+                ScaffoldMessenger.of(super.context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            'Variant \'${template.title}\' deleted')));
+
+                _removeTemplate(template);
+              });
+            }
           },
         );
         action2 = ElevatedButton(
-          child: const Text('Clone new variant'),
+          child: const Text('Add cloned variant'),
           onPressed: () async {
             Navigator.pop(context);
             Template? changedTemplate = await Navigator.push(
                 context, MaterialPageRoute(builder: (context) {
               return TaskTemplateForm(
                 taskGroup!,
-                formTitle: "Create new variant",
+                formTitle: "Add cloned variant",
+                title: template!.title + " (cloned)",
                 template: template,
                 createNew: true,
               );
@@ -289,24 +311,24 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
         );
       }
       else {
-        message =
-        "Change the selected task or create a new variant underneath it.";
+        message = "Change the selected task or add a new variant underneath it.";
         action1 = OutlinedButton(
           child: const Text('Change current task'),
           onPressed: () async {
             Navigator.pop(context);
-            Template? changedTemplate = await Navigator.push(
+            Object? formResult = await Navigator.push(
                 context, MaterialPageRoute(builder: (context) {
               return TaskTemplateForm(
                 taskGroup!,
                 formTitle: "Change task '${template?.title}'",
                 template: template,
                 createNew: false,
+                hasVariants: hasChildren,
               );
             }));
 
-            if (changedTemplate != null) {
-              TemplateRepository.save(changedTemplate)
+            if (formResult is Template) {
+              TemplateRepository.save(formResult)
                   .then((changedTemplate) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(
@@ -314,17 +336,28 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
               });
             }
+            else if (formResult is TemplateId) {
+              TemplateRepository.delete(template!).then((template) {
+
+                ScaffoldMessenger.of(super.context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            'Variant \'${template.title}\' deleted')));
+
+                _removeTemplate(template);
+              });
+            }
           },
         );
         action2 = ElevatedButton(
-          child: const Text('Create new variant'),
+          child: const Text('Add new variant'),
           onPressed: () async {
             Navigator.pop(context);
             Template? changedTemplate = await Navigator.push(
                 context, MaterialPageRoute(builder: (context) {
               return TaskTemplateForm(
                 taskGroup!,
-                formTitle: "Create new variant",
+                formTitle: "Add new variant",
                 template: template,
                 createNew: true,
               );
@@ -335,7 +368,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                   .then((changedTemplate) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(
-                        'Variant with name \'${changedTemplate.title}\' created')));
+                        'Variant with name \'${changedTemplate.title}\' added')));
                 _addTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!, template as TaskTemplate);
               });
             }

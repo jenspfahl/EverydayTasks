@@ -254,6 +254,15 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
     });
   }
 
+  void removeTemplate(Template template) {
+    setState(() {
+      final index = _templates.indexOf(template);
+      if (index != -1) {
+        _templates.removeAt(index);
+      }
+    });
+  }
+
   @override
   bool get wantKeepAlive => true;
 

@@ -30,7 +30,7 @@ class TaskEventList extends PageScaffold<TaskEventListState> {
 
   final PagesHolder _pagesHolder;
 
-  TaskEventList(this._pagesHolder) : super();
+  TaskEventList(this._pagesHolder);
 
   @override
   State<StatefulWidget> createState() => TaskEventListState();

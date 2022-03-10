@@ -14,10 +14,11 @@ class TaskTemplateForm extends StatefulWidget {
   final TaskGroup _taskGroup;
   final Template? template;
   final bool createNew;
+  final bool? hasVariants;
   final String formTitle;
   final String? title;
 
-  TaskTemplateForm(this._taskGroup, {this.template, required this.createNew, this.title, required this.formTitle});
+  TaskTemplateForm(this._taskGroup, {this.template, required this.createNew, this.title, required this.formTitle, this.hasVariants});
 
   @override
   State<StatefulWidget> createState() {
@@ -132,15 +133,23 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                 onPressed: () {
                   String dialogTitle = "";
                   String dialogMessage = "";
+                  String taskOrVariant = template?.isVariant() ? "variant" : "task";
                   if (template?.isPredefined()) {
                     // reset to predefined
                     dialogTitle = "Restore default";
-                    dialogMessage = "This will restore the current task '${template?.title}' to the predefined default.";
+                    dialogMessage = "This will restore the current $taskOrVariant '${template?.title}' to the predefined default.";
                   }
                   else {
+                    if (widget.hasVariants == true) {
+                      ScaffoldMessenger.of(super.context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'Remove underneath variants first!')));
+                      return;
+                    }
                     // delete
-                    dialogTitle = "Delete task '${template?.title}'";
-                    dialogMessage = "This will removed the current task.";
+                    dialogTitle = "Delete $taskOrVariant '${template?.title}'";
+                    dialogMessage = "This will removed the current $taskOrVariant.";
                   }
 
                   showConfirmationDialog(
@@ -159,17 +168,8 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                           _initState();
                         });
                       }
-                      else if (template?.existsInDb ?? false) {
-                        // delete custom
-                        TemplateRepository.delete(template!).then((template) {
-                          Navigator.pop(context); // pop current form
-
-                          ScaffoldMessenger.of(super.context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      'Task \'${template.title}\' deleted')));
-
-                        });
+                      else  {
+                        Navigator.pop(context, template!.tId); // pop just the id to indicate deletion by the caller!
                       }
                     },
                     cancelPressed: () =>
