@@ -97,9 +97,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
     }
     
     _selectedWhenAtDay = aroundStartedAt;
-    if (startedAt != null &&
-        (_selectedWhenAtDay == AroundWhenAtDay.NOW || _selectedWhenAtDay == AroundWhenAtDay.CUSTOM)) {
-      _selectedWhenAtDay = AroundWhenAtDay.CUSTOM; // Former NOW is now CUSTOM
+    if (startedAt != null && _selectedWhenAtDay == AroundWhenAtDay.CUSTOM) {
       _customWhenAt = startedAt;
     }
     
