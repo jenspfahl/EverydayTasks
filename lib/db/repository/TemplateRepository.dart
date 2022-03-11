@@ -1,6 +1,5 @@
 import 'dart:collection';
 
-import 'package:flutter/cupertino.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateVariantEntity.dart';
 import 'package:personaltasklogger/model/Severity.dart';
@@ -92,26 +91,13 @@ class TemplateRepository {
   }
 
   static Future<Template> delete(Template template) async {
+    template.hidden = true;
+    return update(template);
+  }
 
-    final database = await getDb();
-
-    if (template is TaskTemplate) {
-      final taskTemplateDao = database.taskTemplateDao;
-      final entity = _mapTemplateToEntity(template);
-
-      await taskTemplateDao.deleteTaskTemplate(entity);
-
-      return template;
-    }
-    else if (template is TaskTemplateVariant) {
-      final taskTemplateVariantDao = database.taskTemplateVariantDao;
-      final entity = _mapTemplateVariantToEntity(template);
-
-      await taskTemplateVariantDao.deleteTaskTemplateVariant(entity);
-
-      return template;
-    }
-    throw Exception("unsupported template");
+  static Future<Template> undelete(Template template) async {
+    template.hidden = false;
+    return update(template);
   }
 
   static Future<List<TaskTemplate>> getAllTaskTemplates() async {
@@ -182,8 +168,6 @@ class TemplateRepository {
   }
 
   static Future<Template> getById(TemplateId tId) async {
-    final database = await getDb();
-
     final foundInDb = await findByIdJustDb(tId);
     if (foundInDb != null) {
       return Future.value(foundInDb);
@@ -212,6 +196,7 @@ class TemplateRepository {
         taskTemplate.when?.durationHours?.index,
         taskTemplate.severity?.index,
         taskTemplate.favorite ?? false,
+        taskTemplate.hidden,
     );
 
   static TaskTemplate _mapTemplateFromEntity(TaskTemplateEntity entity) =>
@@ -253,7 +238,9 @@ class TemplateRepository {
           taskTemplateVariant.when?.durationExactly != null ? durationToEntity(taskTemplateVariant.when!.durationExactly!): null,
           taskTemplateVariant.when?.durationHours?.index,
           taskTemplateVariant.severity?.index,
-          taskTemplateVariant.favorite ?? false);
+          taskTemplateVariant.favorite ?? false,
+          taskTemplateVariant.hidden,
+      );
 
   static TaskTemplateVariant _mapTemplateVariantFromEntity(TaskTemplateVariantEntity entity) =>
       TaskTemplateVariant(

@@ -14,9 +14,10 @@ abstract class Template extends Comparable {
   When? when;
   Severity? severity;
   bool? favorite = false;
+  bool? hidden = false;
 
   Template({this.tId, required this.taskGroupId,
-      required this.title, this.description, this.when, this.severity, this.favorite});
+      required this.title, this.description, this.when, this.severity, this.favorite, this.hidden});
 
   isVariant() => tId != null && tId!.isVariant;
 

@@ -15,8 +15,10 @@ class TaskTemplateVariantEntity {
   final int? aroundDuration;
   final int? severity;
   final bool favorite;
+  final bool? hidden;
+
 
   TaskTemplateVariantEntity(this.id, this.taskGroupId, this.taskTemplateId,
       this.title, this.description, this.startedAt, this.aroundStartedAt,
-      this.duration, this.aroundDuration, this.severity, this.favorite);
+      this.duration, this.aroundDuration, this.severity, this.favorite, this.hidden);
 }

@@ -39,6 +39,12 @@ final migration3To4 = new Migration(3, 4,
               'CREATE TABLE IF NOT EXISTS `TaskTemplateVariantEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `startedAt` INTEGER, `aroundStartedAt` INTEGER, `duration` INTEGER, `aroundDuration` INTEGER, `severity` INTEGER, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         });
 
+final migration4To5 = new Migration(4, 5,
+        (sqflite.Database database) async {
+      await database.execute("ALTER TABLE TaskTemplateEntity ADD COLUMN hidden INTEGER");
+      await database.execute("ALTER TABLE TaskTemplateVariantEntity ADD COLUMN hidden INTEGER");
+    });
+
 Future<AppDatabase> getDb() async => $FloorAppDatabase
     .databaseBuilder('app_database.db')
     .addMigrations([migration2To3])

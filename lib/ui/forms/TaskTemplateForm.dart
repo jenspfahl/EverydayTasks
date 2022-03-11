@@ -14,11 +14,10 @@ class TaskTemplateForm extends StatefulWidget {
   final TaskGroup _taskGroup;
   final Template? template;
   final bool createNew;
-  final bool? hasVariants;
   final String formTitle;
   final String? title;
 
-  TaskTemplateForm(this._taskGroup, {this.template, required this.createNew, this.title, required this.formTitle, this.hasVariants});
+  TaskTemplateForm(this._taskGroup, {this.template, required this.createNew, this.title, required this.formTitle});
 
   @override
   State<StatefulWidget> createState() {
@@ -125,50 +124,26 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
           title: Text(widget.formTitle),
           actions: [
             Visibility(
-              visible: !widget.createNew,
+              visible: !widget.createNew && template?.isPredefined(),
               child: IconButton(
-                icon: Icon(template?.isPredefined() ?? false ? Icons.undo : Icons.delete),
+                icon: const Icon(Icons.undo),
                 onPressed: () {
-                  String dialogTitle = "";
-                  String dialogMessage = "";
-                  String taskOrVariant = template?.isVariant() ? "variant" : "task";
-                  if (template?.isPredefined()) {
-                    // reset to predefined
-                    dialogTitle = "Restore default";
-                    dialogMessage = "This will restore the current $taskOrVariant '${template?.title}' to the predefined default.";
-                  }
-                  else {
-                    if (widget.hasVariants == true) {
-                      ScaffoldMessenger.of(super.context).showSnackBar(
-                          SnackBar(
-                              content: Text(
-                                  'Remove underneath variants first!')));
-                      return;
-                    }
-                    // delete
-                    dialogTitle = "Delete $taskOrVariant '${template?.title}'";
-                    dialogMessage = "This will removed the current $taskOrVariant.";
-                  }
+                  final taskOrVariant = template?.isVariant() ? "variant" : "task";
 
                   showConfirmationDialog(
                     context,
-                    dialogTitle,
-                    dialogMessage,
+                    "Restore default",
+                    "This will restore the current $taskOrVariant '${template?.title}' to the predefined default.",
                     okPressed: () {
                       Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
-                      if (template?.isPredefined()) {
-                        final originFav = template?.favorite ?? false;
-                        template = TemplateRepository.findPredefinedTemplate(template!.tId!);
-                        template!.favorite = originFav;
-                        template = template;
-                        setState(() {
-                          _initState();
-                        });
-                      }
-                      else  {
-                        Navigator.pop(context, template!.tId); // pop just the id to indicate deletion by the caller!
-                      }
+                      final originFav = template?.favorite ?? false;
+                      template = TemplateRepository.findPredefinedTemplate(template!.tId!);
+                      template!.favorite = originFav;
+                      template = template;
+                      setState(() {
+                        _initState();
+                      });
                     },
                     cancelPressed: () =>
                         Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow

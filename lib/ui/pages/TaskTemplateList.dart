@@ -11,6 +11,7 @@ import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/forms/TaskTemplateForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 
+import '../dialogs.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
 
@@ -208,12 +209,13 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     TaskGroup? taskGroup;
     Template? template;
     late String message;
-    Widget? action1;
-    Widget? action2;
+    Widget? createAction;
+    Widget? changeAction;
+    Widget? deleteAction;
     if (selectedItem is TaskGroup) {
       taskGroup = selectedItem;
       message = "Add a new task underneath '${taskGroup.name}'.";
-      action1 = ElevatedButton(
+      createAction = ElevatedButton(
         child: const Text('Add new task'),
         onPressed: () async {
           Navigator.pop(context);
@@ -241,44 +243,13 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       template = selectedItem as Template;
       taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
       if (template.isVariant()) {
-        message = "Change the selected variant or clone it as a new one.";
-        action1 = OutlinedButton(
-          child: const Text('Change current variant'),
-          onPressed: () async {
-            Navigator.pop(context);
-            Object? formResult = await Navigator.push(
-                context, MaterialPageRoute(builder: (context) {
-              return TaskTemplateForm(
-                taskGroup!,
-                formTitle: "Change variant '${template?.title}'",
-                template: template,
-                createNew: false,
-              );
-            }));
-
-            if (formResult is Template) {
-              TemplateRepository.save(formResult)
-                  .then((changedTemplate) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(
-                        'Variant with name \'${changedTemplate.title}\' changed')));
-                _updateTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!);
-              });
-            }
-            else if (formResult is TemplateId) {
-              TemplateRepository.delete(template!).then((template) {
-
-                ScaffoldMessenger.of(super.context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                            'Variant \'${template.title}\' deleted')));
-
-                _removeTemplate(template);
-              });
-            }
-          },
-        );
-        action2 = ElevatedButton(
+        if (template.isPredefined()) {
+          message = "Change the selected variant or clone it as a new one.";
+        }
+        else {
+          message = "Change or remove the selected variant or clone it as a new one.";
+        }
+        createAction = ElevatedButton(
           child: const Text('Add cloned variant'),
           onPressed: () async {
             Navigator.pop(context);
@@ -309,47 +280,68 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             }
           },
         );
-      }
-      else {
-        message = "Change the selected task or add a new variant underneath it.";
-        action1 = OutlinedButton(
-          child: const Text('Change current task'),
+        changeAction = TextButton(
+          child: const Icon(Icons.edit),
           onPressed: () async {
             Navigator.pop(context);
-            Object? formResult = await Navigator.push(
+            Template? changedTemplate = await Navigator.push(
                 context, MaterialPageRoute(builder: (context) {
               return TaskTemplateForm(
                 taskGroup!,
-                formTitle: "Change task '${template?.title}'",
+                formTitle: "Change variant '${template?.title}'",
                 template: template,
                 createNew: false,
-                hasVariants: hasChildren,
               );
             }));
 
-            if (formResult is Template) {
-              TemplateRepository.save(formResult)
+            if (changedTemplate is Template) {
+              TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(
-                        'Task with name \'${changedTemplate.title}\' changed')));
-                _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
-              });
-            }
-            else if (formResult is TemplateId) {
-              TemplateRepository.delete(template!).then((template) {
-
-                ScaffoldMessenger.of(super.context).showSnackBar(
-                    SnackBar(
-                        content: Text(
-                            'Variant \'${template.title}\' deleted')));
-
-                _removeTemplate(template);
+                        'Variant with name \'${changedTemplate.title}\' changed')));
+                _updateTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!);
               });
             }
           },
         );
-        action2 = ElevatedButton(
+        if (!template.isPredefined()) {
+          deleteAction = TextButton(
+            child: const Icon(Icons.delete),
+            onPressed: () {
+              showConfirmationDialog(
+                context,
+                "Delete variant '${template?.title}'",
+                "This will remove the current variant. This cannot be underdone!",
+                okPressed: () {
+                  Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                  Navigator.pop(context); // dismiss bottom sheet
+
+                  TemplateRepository.delete(template!).then((template) {
+
+                    ScaffoldMessenger.of(super.context).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                                'Variant \'${template.title}\' deleted')));
+
+                    _removeTemplate(template);
+                  });
+                },
+                cancelPressed: () =>
+                    Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+              );
+            },
+          );
+        }
+      }
+      else {
+        if (template.isPredefined()) {
+          message = "Change the selected task or add a new variant underneath it.";
+        }
+        else {
+          message = "Change or remove the selected task or add a new variant underneath it.";
+        }
+        createAction = ElevatedButton(
           child: const Text('Add new variant'),
           onPressed: () async {
             Navigator.pop(context);
@@ -374,20 +366,89 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             }
           },
         );
+        changeAction = TextButton(
+          child: const Icon(Icons.edit),
+          onPressed: () async {
+            Navigator.pop(context);
+            Template? changedTemplate = await Navigator.push(
+                context, MaterialPageRoute(builder: (context) {
+              return TaskTemplateForm(
+                taskGroup!,
+                formTitle: "Change task '${template?.title}'",
+                template: template,
+                createNew: false,
+              );
+            }));
+
+            if (changedTemplate is Template) {
+              TemplateRepository.save(changedTemplate)
+                  .then((changedTemplate) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(
+                        'Task with name \'${changedTemplate.title}\' changed')));
+                _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
+              });
+            }
+          },
+        );
+      }
+      if (!template.isPredefined()) {
+        deleteAction = TextButton(
+          child: const Icon(Icons.delete),
+          onPressed: () {
+            if (hasChildren) {
+              ScaffoldMessenger.of(super.context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          'Remove underneath variants first!')));
+            }
+            else {
+              showConfirmationDialog(
+                context,
+                "Delete task '${template?.title}'",
+                "This will remove the current task. This cannot be underdone!",
+                okPressed: () {
+                  Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                  Navigator.pop(context); // dismiss bottom sheet
+
+                  TemplateRepository.delete(template!).then((template) {
+
+                    ScaffoldMessenger.of(super.context).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                                'Variant \'${template.title}\' deleted')));
+
+                    _removeTemplate(template);
+                  });
+                },
+                cancelPressed: () =>
+                    Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+              );
+            }
+          },
+        );
       }
     }
 
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          var sheetChildren = <Widget>[
+          final buttonBarChildren = <Widget>[];
+          final sheetChildren = <Widget>[
             Padding(
               padding: EdgeInsets.all(16),
               child: Text(message),
             ),
           ];
-          if (action1 != null) sheetChildren.add(action1);
-          if (action2 != null) sheetChildren.add(action2);
+          if (createAction != null) sheetChildren.add(createAction);
+          if (changeAction != null) buttonBarChildren.add(changeAction);
+          if (deleteAction != null) buttonBarChildren.add(deleteAction);
+          sheetChildren.add(ButtonBar(
+
+            alignment: MainAxisAlignment.center,
+        //    buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
+            children: buttonBarChildren,
+          ));
           return Container(
             height: 200,
             child: Center(

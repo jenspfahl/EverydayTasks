@@ -91,9 +91,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `TaskEventEntity` (`id` INTEGER, `taskGroupId` INTEGER, `originTaskTemplateId` INTEGER, `originTaskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `startedAt` INTEGER NOT NULL, `aroundStartedAt` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `aroundDuration` INTEGER NOT NULL, `severity` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `TaskTemplateEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `startedAt` INTEGER, `aroundStartedAt` INTEGER, `duration` INTEGER, `aroundDuration` INTEGER, `severity` INTEGER, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `TaskTemplateEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `startedAt` INTEGER, `aroundStartedAt` INTEGER, `duration` INTEGER, `aroundDuration` INTEGER, `severity` INTEGER, `favorite` INTEGER NOT NULL, `hidden` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `TaskTemplateVariantEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `startedAt` INTEGER, `aroundStartedAt` INTEGER, `duration` INTEGER, `aroundDuration` INTEGER, `severity` INTEGER, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `TaskTemplateVariantEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `startedAt` INTEGER, `aroundStartedAt` INTEGER, `duration` INTEGER, `aroundDuration` INTEGER, `severity` INTEGER, `favorite` INTEGER NOT NULL, `hidden` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `ScheduledTaskEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER, `taskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `aroundStartAt` INTEGER NOT NULL, `startAt` INTEGER, `repetitionAfter` INTEGER NOT NULL, `exactRepetitionAfter` INTEGER, `exactRepetitionAfterUnit` INTEGER, `lastScheduledEventAt` INTEGER, `active` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
@@ -280,7 +280,8 @@ class _$TaskTemplateDao extends TaskTemplateDao {
                   'duration': item.duration,
                   'aroundDuration': item.aroundDuration,
                   'severity': item.severity,
-                  'favorite': item.favorite ? 1 : 0
+                  'favorite': item.favorite ? 1 : 0,
+                  'hidden': item.hidden == null ? null : (item.hidden! ? 1 : 0)
                 },
             changeListener),
         _taskTemplateEntityUpdateAdapter = UpdateAdapter(
@@ -297,7 +298,8 @@ class _$TaskTemplateDao extends TaskTemplateDao {
                   'duration': item.duration,
                   'aroundDuration': item.aroundDuration,
                   'severity': item.severity,
-                  'favorite': item.favorite ? 1 : 0
+                  'favorite': item.favorite ? 1 : 0,
+                  'hidden': item.hidden == null ? null : (item.hidden! ? 1 : 0)
                 },
             changeListener),
         _taskTemplateEntityDeletionAdapter = DeletionAdapter(
@@ -314,7 +316,8 @@ class _$TaskTemplateDao extends TaskTemplateDao {
                   'duration': item.duration,
                   'aroundDuration': item.aroundDuration,
                   'severity': item.severity,
-                  'favorite': item.favorite ? 1 : 0
+                  'favorite': item.favorite ? 1 : 0,
+                  'hidden': item.hidden == null ? null : (item.hidden! ? 1 : 0)
                 },
             changeListener);
 
@@ -345,7 +348,8 @@ class _$TaskTemplateDao extends TaskTemplateDao {
             row['duration'] as int?,
             row['aroundDuration'] as int?,
             row['severity'] as int?,
-            (row['favorite'] as int) != 0));
+            (row['favorite'] as int) != 0,
+            row['hidden'] == null ? null : (row['hidden'] as int) != 0));
   }
 
   // !!!! this was generated wrong. Hard implemented !!!
@@ -356,7 +360,6 @@ class _$TaskTemplateDao extends TaskTemplateDao {
         mapper: (Map<String, Object?> row) => row['MAX_ID'] as int? ?? 0);
   }
   // !!!! this was generated wrong. Hard implemented !!!
-
   @override
   Stream<TaskTemplateEntity?> findById(int id) {
     return _queryAdapter.queryStream(
@@ -371,7 +374,8 @@ class _$TaskTemplateDao extends TaskTemplateDao {
             row['duration'] as int?,
             row['aroundDuration'] as int?,
             row['severity'] as int?,
-            (row['favorite'] as int) != 0),
+            (row['favorite'] as int) != 0,
+            row['hidden'] == null ? null : (row['hidden'] as int) != 0),
         arguments: [id],
         queryableName: 'TaskTemplateEntity',
         isView: false);
@@ -413,7 +417,8 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
                   'duration': item.duration,
                   'aroundDuration': item.aroundDuration,
                   'severity': item.severity,
-                  'favorite': item.favorite ? 1 : 0
+                  'favorite': item.favorite ? 1 : 0,
+                  'hidden': item.hidden == null ? null : (item.hidden! ? 1 : 0)
                 },
             changeListener),
         _taskTemplateVariantEntityUpdateAdapter = UpdateAdapter(
@@ -431,7 +436,8 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
                   'duration': item.duration,
                   'aroundDuration': item.aroundDuration,
                   'severity': item.severity,
-                  'favorite': item.favorite ? 1 : 0
+                  'favorite': item.favorite ? 1 : 0,
+                  'hidden': item.hidden == null ? null : (item.hidden! ? 1 : 0)
                 },
             changeListener),
         _taskTemplateVariantEntityDeletionAdapter = DeletionAdapter(
@@ -449,7 +455,8 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
                   'duration': item.duration,
                   'aroundDuration': item.aroundDuration,
                   'severity': item.severity,
-                  'favorite': item.favorite ? 1 : 0
+                  'favorite': item.favorite ? 1 : 0,
+                  'hidden': item.hidden == null ? null : (item.hidden! ? 1 : 0)
                 },
             changeListener);
 
@@ -483,7 +490,8 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
             row['duration'] as int?,
             row['aroundDuration'] as int?,
             row['severity'] as int?,
-            (row['favorite'] as int) != 0));
+            (row['favorite'] as int) != 0,
+            row['hidden'] == null ? null : (row['hidden'] as int) != 0));
   }
 
   // !!!! this was generated wrong. Hard implemented !!!
@@ -491,7 +499,7 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
   Future<int?> findMaxId() async {
     return _queryAdapter.query(
         'SELECT MAX(id) as MAX_ID FROM TaskTemplateVariantEntity',
-    mapper: (Map<String, Object?> row) => row['MAX_ID'] as int? ?? 0);
+        mapper: (Map<String, Object?> row) => row['MAX_ID'] as int? ?? 0);
   }
   // !!!! this was generated wrong. Hard implemented !!!
 
@@ -510,7 +518,8 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
             row['duration'] as int?,
             row['aroundDuration'] as int?,
             row['severity'] as int?,
-            (row['favorite'] as int) != 0));
+            (row['favorite'] as int) != 0,
+            row['hidden'] == null ? null : (row['hidden'] as int) != 0));
   }
 
   @override
@@ -528,7 +537,8 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
             row['duration'] as int?,
             row['aroundDuration'] as int?,
             row['severity'] as int?,
-            (row['favorite'] as int) != 0),
+            (row['favorite'] as int) != 0,
+            row['hidden'] == null ? null : (row['hidden'] as int) != 0),
         arguments: [id],
         queryableName: 'TaskTemplateVariantEntity',
         isView: false);
