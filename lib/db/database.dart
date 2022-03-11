@@ -15,7 +15,7 @@ import 'entity/ScheduledTaskEventEntity.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 4, entities: [
+@Database(version: 5, entities: [
   TaskEventEntity, TaskTemplateEntity, TaskTemplateVariantEntity, ScheduledTaskEntity, ScheduledTaskEventEntity])
 abstract class AppDatabase extends FloorDatabase {
   TaskEventDao get taskEventDao;
@@ -41,12 +41,13 @@ final migration3To4 = new Migration(3, 4,
 
 final migration4To5 = new Migration(4, 5,
         (sqflite.Database database) async {
-      await database.execute("ALTER TABLE TaskTemplateEntity ADD COLUMN hidden INTEGER");
-      await database.execute("ALTER TABLE TaskTemplateVariantEntity ADD COLUMN hidden INTEGER");
+      await database.execute("ALTER TABLE TaskTemplateEntity ADD COLUMN `hidden` INTEGER");
+      await database.execute("ALTER TABLE TaskTemplateVariantEntity ADD COLUMN `hidden` INTEGER");
     });
 
 Future<AppDatabase> getDb() async => $FloorAppDatabase
     .databaseBuilder('app_database.db')
     .addMigrations([migration2To3])
     .addMigrations([migration3To4])
+    .addMigrations([migration4To5])
     .build();

@@ -73,7 +73,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 4,
+      version: 5,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -360,6 +360,7 @@ class _$TaskTemplateDao extends TaskTemplateDao {
         mapper: (Map<String, Object?> row) => row['MAX_ID'] as int? ?? 0);
   }
   // !!!! this was generated wrong. Hard implemented !!!
+
   @override
   Stream<TaskTemplateEntity?> findById(int id) {
     return _queryAdapter.queryStream(

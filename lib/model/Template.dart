@@ -35,9 +35,8 @@ abstract class Template extends Comparable {
 
   @override
   String toString() {
-    return title;
+    return 'Template{tId: $tId, taskGroupId: $taskGroupId, title: $title, description: $description, when: $when, severity: $severity, favorite: $favorite, hidden: $hidden}';
   }
-
 
   @override
   bool operator ==(Object other) =>

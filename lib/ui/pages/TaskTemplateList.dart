@@ -60,8 +60,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   void initState() {
     super.initState();
 
-    final taskTemplatesFuture = TemplateRepository.getAllTaskTemplates();
-    final taskTemplateVariantsFuture = TemplateRepository.getAllTaskTemplateVariants();
+    final taskTemplatesFuture = TemplateRepository.getAllTaskTemplates(false);
+    final taskTemplateVariantsFuture = TemplateRepository.getAllTaskTemplateVariants(false);
 
     _nodes = predefinedTaskGroups.map((group) => createTaskGroupNode(group, [])).toList();
 
@@ -129,6 +129,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   Node<TaskTemplate> createTaskTemplateNode(TaskTemplate template,
       TaskGroup group,
       List<Node<dynamic>> templateVariants) {
+    debugPrint("${template.tId} is hidden ${template.hidden}");
     return Node(
       key: template.getKey(),
       label: template.title,
@@ -243,12 +244,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       template = selectedItem as Template;
       taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
       if (template.isVariant()) {
-        if (template.isPredefined()) {
-          message = "Change the selected variant or clone it as a new one.";
-        }
-        else {
-          message = "Change or remove the selected variant or clone it as a new one.";
-        }
+        message = "Change or remove the selected variant or clone it as a new one.";
         createAction = ElevatedButton(
           child: const Text('Add cloned variant'),
           onPressed: () async {
@@ -305,42 +301,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             }
           },
         );
-        if (!template.isPredefined()) {
-          deleteAction = TextButton(
-            child: const Icon(Icons.delete),
-            onPressed: () {
-              showConfirmationDialog(
-                context,
-                "Delete variant '${template?.title}'",
-                "This will remove the current variant. This cannot be underdone!",
-                okPressed: () {
-                  Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
-                  Navigator.pop(context); // dismiss bottom sheet
-
-                  TemplateRepository.delete(template!).then((template) {
-
-                    ScaffoldMessenger.of(super.context).showSnackBar(
-                        SnackBar(
-                            content: Text(
-                                'Variant \'${template.title}\' deleted')));
-
-                    _removeTemplate(template);
-                  });
-                },
-                cancelPressed: () =>
-                    Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
-              );
-            },
-          );
-        }
+        deleteAction = _createRemoveTemplateAction(template, hasChildren);
       }
       else {
-        if (template.isPredefined()) {
-          message = "Change the selected task or add a new variant underneath it.";
-        }
-        else {
-          message = "Change or remove the selected task or add a new variant underneath it.";
-        }
+        message = "Change or remove the selected task or add a new variant underneath it.";
         createAction = ElevatedButton(
           child: const Text('Add new variant'),
           onPressed: () async {
@@ -392,42 +356,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
           },
         );
       }
-      if (!template.isPredefined()) {
-        deleteAction = TextButton(
-          child: const Icon(Icons.delete),
-          onPressed: () {
-            if (hasChildren) {
-              ScaffoldMessenger.of(super.context).showSnackBar(
-                  SnackBar(
-                      content: Text(
-                          'Remove underneath variants first!')));
-            }
-            else {
-              showConfirmationDialog(
-                context,
-                "Delete task '${template?.title}'",
-                "This will remove the current task. This cannot be underdone!",
-                okPressed: () {
-                  Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
-                  Navigator.pop(context); // dismiss bottom sheet
-
-                  TemplateRepository.delete(template!).then((template) {
-
-                    ScaffoldMessenger.of(super.context).showSnackBar(
-                        SnackBar(
-                            content: Text(
-                                'Variant \'${template.title}\' deleted')));
-
-                    _removeTemplate(template);
-                  });
-                },
-                cancelPressed: () =>
-                    Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
-              );
-            }
-          },
-        );
-      }
+      deleteAction = _createRemoveTemplateAction(template, hasChildren);
     }
 
     showModalBottomSheet(
@@ -460,6 +389,52 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             ),
           );
         });
+  }
+
+  Widget _createRemoveTemplateAction(Template template, bool hasChildren) {
+    final taskOrVariant = template.isVariant() ? "variant" : "task";
+    var message = "";
+    if (template.isPredefined()) {
+      message = "This will remove the current $taskOrVariant by hiding it. You can show it again by clicking on 'Show hidden tasks/variants'.";
+    }
+    else {
+      message = "This will remove the current $taskOrVariant. This cannot be underdone!";
+    }
+    return TextButton(
+      child: const Icon(Icons.delete),
+      onPressed: () {
+        if (hasChildren) {
+          ScaffoldMessenger.of(super.context).showSnackBar(
+              SnackBar(
+                  content: Text(
+                      'Remove underneath variants first!')));
+          Navigator.pop(context); // dismiss bottom sheet
+          return;
+        }
+
+        showConfirmationDialog(
+          context,
+          "Delete $taskOrVariant '${template.title}'",
+          message,
+          okPressed: () {
+            Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+            Navigator.pop(context); // dismiss bottom sheet
+
+            TemplateRepository.delete(template).then((template) {
+
+              ScaffoldMessenger.of(super.context).showSnackBar(
+                  SnackBar(
+                      content: Text(
+                          'The $taskOrVariant \'${template.title}\' has been deleted')));
+
+              _removeTemplate(template);
+            });
+          },
+          cancelPressed: () =>
+              Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+        );
+      },
+    );
   }
 
   @override
@@ -501,9 +476,13 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             _selectedNode = key;
             _treeViewController =
                 _treeViewController.copyWith(selectedKey: key);
+            Object? data = _treeViewController.selectedNode?.data;
+            debugPrint('Selected data: $data');
+
             if (widget._selectedItem != null) {
-              Object? data = _treeViewController.selectedNode?.data;
+       //       Object? data = _treeViewController.selectedNode?.data;
               if (data != null) {
+                debugPrint('Selected data: ${(data as Template).hidden}');
                 widget._selectedItem!(data);
               }
             }

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:flutter/cupertino.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateVariantEntity.dart';
 import 'package:personaltasklogger/model/Severity.dart';
@@ -74,7 +75,6 @@ class TemplateRepository {
     if (template is TaskTemplate) {
       final taskTemplateDao = database.taskTemplateDao;
       final entity = _mapTemplateToEntity(template);
-
       await taskTemplateDao.updateTaskTemplate(entity);
 
       return template;
@@ -91,16 +91,45 @@ class TemplateRepository {
   }
 
   static Future<Template> delete(Template template) async {
-    template.hidden = true;
-    return update(template);
+    if (template.isPredefined()) {
+      template.hidden = true;
+      final savedTemplate = save(template);
+      debugPrint("$template soft-deleted");
+      return savedTemplate;
+    }
+    else {
+      return _delete(template);
+    }
   }
 
   static Future<Template> undelete(Template template) async {
     template.hidden = false;
-    return update(template);
+    return save(template);
   }
 
-  static Future<List<TaskTemplate>> getAllTaskTemplates() async {
+
+  static Future<Template> _delete(Template template) async {
+
+    final database = await getDb();
+
+    if (template is TaskTemplate) {
+      final taskTemplateDao = database.taskTemplateDao;
+      final entity = _mapTemplateToEntity(template);
+
+      await taskTemplateDao.deleteTaskTemplate(entity);
+      return template;
+    }
+    else if (template is TaskTemplateVariant) {
+      final taskTemplateVariantDao = database.taskTemplateVariantDao;
+      final entity = _mapTemplateVariantToEntity(template);
+
+      await taskTemplateVariantDao.deleteTaskTemplateVariant(entity);
+      return template;
+    }
+    throw Exception("unsupported template");
+  }
+
+  static Future<List<TaskTemplate>> getAllTaskTemplates(bool showHidden) async {
     final database = await getDb();
 
     final taskTemplateDao = database.taskTemplateDao;
@@ -110,13 +139,15 @@ class TemplateRepository {
           Set<TaskTemplate> templates = HashSet();
           templates.addAll(dbTemplates); // must come first since it may override predefined
           templates.addAll(predefinedTaskTemplates);
-          final templateList = templates.toList()..sort();
+          final templateList = templates
+              .where((element) => showHidden ? true : !(element.hidden??false))
+              .toList()..sort();
     
           return templateList;
         });
   }
 
-  static Future<List<TaskTemplateVariant>> getAllTaskTemplateVariants() async {
+  static Future<List<TaskTemplateVariant>> getAllTaskTemplateVariants(bool showHidden) async {
     final database = await getDb();
 
     final taskTemplateVariantDao = database.taskTemplateVariantDao;
@@ -126,15 +157,17 @@ class TemplateRepository {
           Set<TaskTemplateVariant> templates = HashSet();
           templates.addAll(dbTemplateVariants); // must come first since it may override predefined
           templates.addAll(predefinedTaskTemplateVariants);
-          final templateList = templates.toList()..sort();
+          final templateList = templates
+              .where((element) => showHidden ? true : !(element.hidden??false))
+              .toList()..sort();
     
           return templateList;
         });
   }
 
-  static Future<List<Template>> getAll() async {
-    final taskTemplatesFuture = getAllTaskTemplates();
-    final taskTemplateVariantsFuture = getAllTaskTemplateVariants();
+  static Future<List<Template>> getAll(bool showHidden) async {
+    final taskTemplatesFuture = getAllTaskTemplates(showHidden);
+    final taskTemplateVariantsFuture = getAllTaskTemplateVariants(showHidden);
     final taskTemplates = await taskTemplatesFuture;
     final taskTemplateVariants = await taskTemplateVariantsFuture;
 
@@ -145,7 +178,10 @@ class TemplateRepository {
   }
 
   static Future<List<Template>> getAllFavorites() async {
-    return getAll().then((list) => list.where((template) => template.favorite ?? false).toList());
+    return getAll(false)
+        .then((list) => list
+          .where((template) => (template.favorite??false))
+        .toList());
   }
 
   static Future<Template?> findByIdJustDb(TemplateId tId) async {
@@ -218,12 +254,13 @@ class TemplateRepository {
             : null,
         severity: entity.severity != null ? Severity.values.elementAt(entity.severity!) : null,
         favorite: entity.favorite,
+        hidden: entity.hidden,
     );
+
 
 
   static List<TaskTemplate> _mapTemplatesFromEntities(List<TaskTemplateEntity> entities) =>
       entities.map(_mapTemplateFromEntity).toList();
-
 
 
   static TaskTemplateVariantEntity _mapTemplateVariantToEntity(TaskTemplateVariant taskTemplateVariant) =>
@@ -262,6 +299,7 @@ class TemplateRepository {
               : null,
           severity: entity.severity != null ? Severity.values.elementAt(entity.severity!) : null,
           favorite: entity.favorite,
+          hidden: entity.hidden,
       );
 
 
