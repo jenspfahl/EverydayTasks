@@ -7,9 +7,6 @@ abstract class TaskTemplateVariantDao {
   @Query('SELECT * FROM TaskTemplateVariantEntity ORDER BY id DESC')
   Future<List<TaskTemplateVariantEntity>> findAll();
 
-  @Query('SELECT MAX(id) as MAX_ID FROM TaskTemplateVariantEntity')
-  Future<int?> findMaxId();
-
   @Query('SELECT * FROM TaskTemplateVariantEntity ORDER BY id DESC')
   Future<List<TaskTemplateVariantEntity>> findAllFavs();
 

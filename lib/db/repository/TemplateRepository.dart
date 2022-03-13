@@ -38,9 +38,8 @@ class TemplateRepository {
       final taskTemplateDao = database.taskTemplateDao;
 
       if (template.tId == null) {
-        int? maxId = await taskTemplateDao.findMaxId();
-        maxId = _incId(maxId);
-        template.tId = TemplateId.forTaskTemplate(maxId);
+        int nextId = await nextSequenceId(database, "TaskTemplateEntity");
+        template.tId = TemplateId.forTaskTemplate(nextId);
       }
       final entity = _mapTemplateToEntity(template);
 
@@ -53,9 +52,8 @@ class TemplateRepository {
       final taskTemplateVariantDao = database.taskTemplateVariantDao;
 
       if (template.tId == null) {
-        int maxId = await taskTemplateVariantDao.findMaxId() ?? 0;
-        maxId = _incId(maxId);
-        template.tId = TemplateId.forTaskTemplateVariant(maxId);
+        int nextId = await nextSequenceId(database, "TaskTemplateVariantEntity");
+        template.tId = TemplateId.forTaskTemplateVariant(nextId);
       }
 
       final entity = _mapTemplateVariantToEntity(template);
@@ -92,6 +90,7 @@ class TemplateRepository {
 
   static Future<Template> delete(Template template) async {
     if (template.isPredefined()) {
+      template = findPredefinedTemplate(template.tId!);
       template.hidden = true;
       final savedTemplate = save(template);
       debugPrint("$template soft-deleted");
@@ -129,7 +128,7 @@ class TemplateRepository {
     throw Exception("unsupported template");
   }
 
-  static Future<List<TaskTemplate>> getAllTaskTemplates(bool showHidden) async {
+  static Future<List<TaskTemplate>> getAllTaskTemplates(bool hidden) async {
     final database = await getDb();
 
     final taskTemplateDao = database.taskTemplateDao;
@@ -140,14 +139,14 @@ class TemplateRepository {
           templates.addAll(dbTemplates); // must come first since it may override predefined
           templates.addAll(predefinedTaskTemplates);
           final templateList = templates
-              .where((element) => showHidden ? true : !(element.hidden??false))
+              .where((element) => (element.hidden??false) == hidden)
               .toList()..sort();
     
           return templateList;
         });
   }
 
-  static Future<List<TaskTemplateVariant>> getAllTaskTemplateVariants(bool showHidden) async {
+  static Future<List<TaskTemplateVariant>> getAllTaskTemplateVariants(bool hidden) async {
     final database = await getDb();
 
     final taskTemplateVariantDao = database.taskTemplateVariantDao;
@@ -158,7 +157,7 @@ class TemplateRepository {
           templates.addAll(dbTemplateVariants); // must come first since it may override predefined
           templates.addAll(predefinedTaskTemplateVariants);
           final templateList = templates
-              .where((element) => showHidden ? true : !(element.hidden??false))
+              .where((element) => (element.hidden??false) == hidden)
               .toList()..sort();
     
           return templateList;
@@ -306,13 +305,15 @@ class TemplateRepository {
   static List<TaskTemplateVariant> _mapTemplateVariantsFromEntities(List<TaskTemplateVariantEntity> entities) =>
       entities.map(_mapTemplateVariantFromEntity).toList();
 
-
-
-  static int _incId(int? maxId) {
-    if (maxId == null || maxId < 0) {
-      maxId = 0;
+  static Future<int> nextSequenceId(AppDatabase database, String entityName) async {
+    final sequencesDao = await database.sequencesDao;
+    final sequencesEntity = await sequencesDao.findByTable(entityName).first;
+    if (sequencesEntity == null) {
+      throw Exception("Sequence for $entityName not initialized");
     }
-    return maxId + 1;
-  }
+    sequencesEntity.lastId = sequencesEntity.lastId + 1;
+    sequencesDao.updateSequence(sequencesEntity);
 
+    return sequencesEntity.lastId;
+  }
 }

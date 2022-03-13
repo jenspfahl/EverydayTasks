@@ -1,6 +1,5 @@
 import 'package:floor/floor.dart';
 import 'package:personaltasklogger/db/entity/ScheduledTaskEntity.dart';
-import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 
 @dao
 abstract class ScheduledTaskDao {

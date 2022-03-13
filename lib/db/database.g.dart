@@ -70,10 +70,12 @@ class _$AppDatabase extends AppDatabase {
 
   ScheduledTaskEventDao? _scheduledTaskEventDaoInstance;
 
+  SequencesDao? _sequencesDaoInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 5,
+      version: 6,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -98,6 +100,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `ScheduledTaskEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER, `taskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `aroundStartAt` INTEGER NOT NULL, `startAt` INTEGER, `repetitionAfter` INTEGER NOT NULL, `exactRepetitionAfter` INTEGER, `exactRepetitionAfterUnit` INTEGER, `lastScheduledEventAt` INTEGER, `active` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `ScheduledTaskEventEntity` (`id` INTEGER, `taskEventId` INTEGER NOT NULL, `scheduledTaskId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `SequencesEntity` (`id` INTEGER, `table` TEXT NOT NULL, `lastId` INTEGER NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -132,6 +136,11 @@ class _$AppDatabase extends AppDatabase {
   ScheduledTaskEventDao get scheduledTaskEventDao {
     return _scheduledTaskEventDaoInstance ??=
         _$ScheduledTaskEventDao(database, changeListener);
+  }
+
+  @override
+  SequencesDao get sequencesDao {
+    return _sequencesDaoInstance ??= _$SequencesDao(database, changeListener);
   }
 }
 
@@ -352,15 +361,6 @@ class _$TaskTemplateDao extends TaskTemplateDao {
             row['hidden'] == null ? null : (row['hidden'] as int) != 0));
   }
 
-  // !!!! this was generated wrong. Hard implemented !!!
-  @override
-  Future<int?> findMaxId() async {
-    return _queryAdapter.query(
-        'SELECT MAX(id) as MAX_ID FROM TaskTemplateEntity',
-        mapper: (Map<String, Object?> row) => row['MAX_ID'] as int? ?? 0);
-  }
-  // !!!! this was generated wrong. Hard implemented !!!
-
   @override
   Stream<TaskTemplateEntity?> findById(int id) {
     return _queryAdapter.queryStream(
@@ -494,15 +494,6 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
             (row['favorite'] as int) != 0,
             row['hidden'] == null ? null : (row['hidden'] as int) != 0));
   }
-
-  // !!!! this was generated wrong. Hard implemented !!!
-  @override
-  Future<int?> findMaxId() async {
-    return _queryAdapter.query(
-        'SELECT MAX(id) as MAX_ID FROM TaskTemplateVariantEntity',
-        mapper: (Map<String, Object?> row) => row['MAX_ID'] as int? ?? 0);
-  }
-  // !!!! this was generated wrong. Hard implemented !!!
 
   @override
   Future<List<TaskTemplateVariantEntity>> findAllFavs() async {
@@ -831,5 +822,45 @@ class _$ScheduledTaskEventDao extends ScheduledTaskEventDao {
       ScheduledTaskEventEntity scheduledTaskEventEntity) {
     return _scheduledTaskEventEntityDeletionAdapter
         .deleteAndReturnChangedRows(scheduledTaskEventEntity);
+  }
+}
+
+class _$SequencesDao extends SequencesDao {
+  _$SequencesDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database, changeListener),
+        _sequencesEntityUpdateAdapter = UpdateAdapter(
+            database,
+            'SequencesEntity',
+            ['id'],
+            (SequencesEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'table': item.table,
+                  'lastId': item.lastId
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final UpdateAdapter<SequencesEntity> _sequencesEntityUpdateAdapter;
+
+  @override
+  Stream<SequencesEntity?> findByTable(String table) {
+    return _queryAdapter.queryStream(
+        'SELECT * FROM SequencesEntity WHERE `table` = ?1',
+        mapper: (Map<String, Object?> row) => SequencesEntity(
+            row['id'] as int?, row['table'] as String, row['lastId'] as int),
+        arguments: [table],
+        queryableName: 'SequencesEntity',
+        isView: false);
+  }
+
+  @override
+  Future<int> updateSequence(SequencesEntity sequence) {
+    return _sequencesEntityUpdateAdapter.updateAndReturnChangedRows(
+        sequence, OnConflictStrategy.abort);
   }
 }
