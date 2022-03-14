@@ -20,9 +20,12 @@ class TaskTemplateList extends PageScaffold<TaskTemplateListState> {
 
   final Function(Object)? _selectedItem; //TODO to ValueChanged
   final PagesHolder? _pagesHolder;
+  final bool? onlyHidden;
+  final bool? hideEmptyNodes;
+  final bool? expandAll;
 
-  TaskTemplateList(this._pagesHolder): _selectedItem = null;
-  TaskTemplateList.withSelectionCallback(this._selectedItem): _pagesHolder = null;
+  TaskTemplateList(this._pagesHolder): _selectedItem = null, onlyHidden = null, hideEmptyNodes = null, expandAll = null;
+  TaskTemplateList.withSelectionCallback(this._selectedItem, {this.onlyHidden, this.hideEmptyNodes, this.expandAll}): _pagesHolder = null;
 
 
   @override
@@ -60,33 +63,54 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   void initState() {
     super.initState();
 
-    final taskTemplatesFuture = TemplateRepository.getAllTaskTemplates(false);
-    final taskTemplateVariantsFuture = TemplateRepository.getAllTaskTemplateVariants(false);
+    final taskTemplatesFuture = TemplateRepository.getAllTaskTemplates(widget.onlyHidden??false);
+    final taskTemplateVariantsFuture = TemplateRepository.getAllTaskTemplateVariants(widget.onlyHidden??false);
 
     _nodes = predefinedTaskGroups.map((group) => createTaskGroupNode(group, [])).toList();
 
     Future.wait([taskTemplatesFuture, taskTemplateVariantsFuture]).then((allTemplates) {
+      
       setState(() {
+        // filter only hidden but non-hidden if have hidden leaves
+
         final taskTemplates = allTemplates[0] as List<TaskTemplate>;
         final taskTemplateVariants = allTemplates[1] as List<TaskTemplateVariant>;
 
         _nodes = predefinedTaskGroups.map((group) =>
             createTaskGroupNode(
                 group,
-                findTaskTemplates(taskTemplates, group).map((template) =>
+                findTaskTemplates(taskTemplates, group)
+                    .where((template) => (widget.onlyHidden??false)
+                      ? true // filter all to filter non-hidden with hidden children
+                      : (template.hidden??false)==false
+                    )
+                    .map((template) =>
                     createTaskTemplateNode(
                         template,
                         group,
                         findTaskTemplateVariants(taskTemplateVariants, template)
+                            .where((variant) => (widget.onlyHidden??false) 
+                              ? (variant.hidden??false)==true
+                              : (variant.hidden??false)==false
+                            )
                             .map((variant) =>
                             createTaskTemplateVariantNode(
                                 variant,
                                 group
-                            )).toList()
-                    )).toList()
-            )).toList();
+                            ))
+                            .toList()
+                    ))
+                    .where((templateNode) => (widget.onlyHidden??false)
+                      ? (templateNode.children.isNotEmpty || ((templateNode.data as Template).hidden??false))
+                      : true // bypass
+                    )
+                    .toList()
+            ))
+            .toList();
 
-
+        if (widget.hideEmptyNodes??false) {
+          _nodes.removeWhere((node) => node.children.isEmpty);
+        }
         _treeViewController = TreeViewController(
           children: _nodes,
           selectedKey: _selectedNode,
@@ -94,6 +118,9 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       });
     });
 
+    if (widget.hideEmptyNodes??false) {
+      _nodes.removeWhere((node) => node.children.isEmpty);
+    }
     _treeViewController = TreeViewController(
       children: _nodes,
     );
@@ -109,6 +136,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       parent: true,
       data: group,
       children: templates,
+      expanded: widget.expandAll??false,
     );
   }
 
@@ -118,7 +146,93 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
   @override
   List<Widget>? getActions(BuildContext context) {
-    return null;
+    return [
+      IconButton(
+          icon: const Icon(Icons.undo),
+          onPressed: () {
+            Object? selectedTemplate;
+            showTemplateDialog(context, "Restore a predefined removed task.",
+              selectedItem: (selected) {
+                selectedTemplate = selected;
+              },
+              onlyHidden: true,
+              hideEmptyNodes: true,
+              expandAll: true,
+                okPressed: () async {
+                  if (selectedTemplate is TaskTemplate) {
+                    // restore task
+                    final taskTemplate = selectedTemplate as TaskTemplate;
+
+                    if (_treeViewController.getNode(taskTemplate.getKey()) != null) {
+                      debugPrint("Node ${taskTemplate.getKey()} still exists");
+                      return;
+                    }
+
+                    TemplateRepository.undelete(taskTemplate).then((template) {
+                      Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              'Task \'${template.title}\' restored.')));
+
+                      final taskGroup = findPredefinedTaskGroupById(taskTemplate.taskGroupId);
+                      setState(() {
+                        _addTaskTemplate(template as TaskTemplate, taskGroup);
+                      });
+                    });
+                  }
+                  else if (selectedTemplate is TaskTemplateVariant) {
+                    final taskTemplateVariant = selectedTemplate as TaskTemplateVariant;
+                    // restore variant
+                    TemplateRepository.findByIdJustDb(TemplateId.forTaskTemplate(taskTemplateVariant.taskTemplateId))
+                    .then((foundParentInDb) {
+                      if (foundParentInDb != null && foundParentInDb.hidden == true) {
+                        // restore parent first
+                        TemplateRepository.undelete(foundParentInDb).then((template) {
+                          final taskGroup = findPredefinedTaskGroupById(foundParentInDb.taskGroupId);
+                          setState(() {
+                            _addTaskTemplate(template as TaskTemplate, taskGroup);
+                          });
+
+                          // now restore variant
+                          TemplateRepository.undelete(taskTemplateVariant).then((template) {
+                            Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text(
+                                    'Variant \'${template.title}\' and parent task restored.')));
+
+                            final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
+                            setState(() {
+                              _addTaskTemplateVariant(taskTemplateVariant, taskGroup, foundParentInDb as TaskTemplate);
+                            });
+                          });
+                        });
+                      }
+                      else {
+                        // actually restore it
+                        TemplateRepository.undelete(taskTemplateVariant).then((template) {
+                          Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  'Variant \'${template.title}\' restored.')));
+
+                          final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
+                          setState(() {
+                            _addTaskTemplateVariant(taskTemplateVariant, taskGroup, foundParentInDb as TaskTemplate);
+                          });
+                        });
+                      }
+                    });
+                  }
+                }, cancelPressed: () {
+                  Navigator.pop(context);
+                }
+            );
+          },
+      )
+    ];
   }
 
   @override
@@ -137,6 +251,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       iconColor: getShadedColor(group.colorRGB, false),
       data: template,
       children: templateVariants,
+      expanded: widget.expandAll??false,
     );
   }
 
@@ -148,10 +263,15 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       icon: group.iconData,
       iconColor: getShadedColor(group.colorRGB, true),
       data: variant,
+      expanded: widget.expandAll??false,
     );
   }
 
   void _addTaskTemplate(TaskTemplate template, TaskGroup parent) {
+    if (_treeViewController.getNode(template.getKey()) != null) {
+      debugPrint("Node ${template.getKey()} still exists");
+      return;
+    }
     setState(() {
       _treeViewController = _treeViewController.withAddNode(
           parent.getKey(),
@@ -161,6 +281,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   }  
   
   void _addTaskTemplateVariant(TaskTemplateVariant template, TaskGroup taskGroup, TaskTemplate parent) {
+    if (_treeViewController.getNode(template.getKey()) != null) {
+      debugPrint("Node ${template.getKey()} still exists");
+      return;
+    }
     setState(() {
       _treeViewController = _treeViewController.withAddNode(
           parent.getKey(),
@@ -395,7 +519,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     final taskOrVariant = template.isVariant() ? "variant" : "task";
     var message = "";
     if (template.isPredefined()) {
-      message = "This will remove the current $taskOrVariant by hiding it. You can show it again by clicking on 'Show hidden tasks/variants'.";
+      message = "This will remove the current $taskOrVariant by hiding it. You can restore it by clicking on the restore action icon.";
     }
     else {
       message = "This will remove the current $taskOrVariant. This cannot be underdone!";
@@ -476,13 +600,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             _selectedNode = key;
             _treeViewController =
                 _treeViewController.copyWith(selectedKey: key);
-            Object? data = _treeViewController.selectedNode?.data;
-            debugPrint('Selected data: $data');
 
             if (widget._selectedItem != null) {
-       //       Object? data = _treeViewController.selectedNode?.data;
+              Object? data = _treeViewController.selectedNode?.data;
               if (data != null) {
-                debugPrint('Selected data: ${(data as Template).hidden}');
                 widget._selectedItem!(data);
               }
             }

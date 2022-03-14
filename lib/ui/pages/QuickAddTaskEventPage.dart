@@ -236,9 +236,6 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
           }
         });
       }
-      else {
-        SnackBar(content: Text("Please select a task"));
-      }
     }, cancelPressed: () {
       Navigator.pop(super.context);
     });

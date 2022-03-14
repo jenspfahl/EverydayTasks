@@ -128,7 +128,7 @@ class TemplateRepository {
     throw Exception("unsupported template");
   }
 
-  static Future<List<TaskTemplate>> getAllTaskTemplates(bool hidden) async {
+  static Future<List<TaskTemplate>> getAllTaskTemplates(bool inclHidden) async {
     final database = await getDb();
 
     final taskTemplateDao = database.taskTemplateDao;
@@ -139,14 +139,14 @@ class TemplateRepository {
           templates.addAll(dbTemplates); // must come first since it may override predefined
           templates.addAll(predefinedTaskTemplates);
           final templateList = templates
-              .where((element) => (element.hidden??false) == hidden)
+              .where((element) => inclHidden || !(element.hidden??false))
               .toList()..sort();
     
           return templateList;
         });
   }
 
-  static Future<List<TaskTemplateVariant>> getAllTaskTemplateVariants(bool hidden) async {
+  static Future<List<TaskTemplateVariant>> getAllTaskTemplateVariants(bool inclHidden) async {
     final database = await getDb();
 
     final taskTemplateVariantDao = database.taskTemplateVariantDao;
@@ -157,16 +157,16 @@ class TemplateRepository {
           templates.addAll(dbTemplateVariants); // must come first since it may override predefined
           templates.addAll(predefinedTaskTemplateVariants);
           final templateList = templates
-              .where((element) => (element.hidden??false) == hidden)
+              .where((element) => inclHidden || !(element.hidden??false))
               .toList()..sort();
     
           return templateList;
         });
   }
 
-  static Future<List<Template>> getAll(bool showHidden) async {
-    final taskTemplatesFuture = getAllTaskTemplates(showHidden);
-    final taskTemplateVariantsFuture = getAllTaskTemplateVariants(showHidden);
+  static Future<List<Template>> getAll(bool inclHidden) async {
+    final taskTemplatesFuture = getAllTaskTemplates(inclHidden);
+    final taskTemplateVariantsFuture = getAllTaskTemplateVariants(inclHidden);
     final taskTemplates = await taskTemplatesFuture;
     final taskTemplateVariants = await taskTemplateVariantsFuture;
 

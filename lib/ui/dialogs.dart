@@ -130,7 +130,14 @@ Future<bool?> showRepetitionPickerDialog({
 }
 
 Future<bool?> showTemplateDialog(BuildContext context, String title,
-    {Function()? okPressed, Function()? cancelPressed, required Function(Object) selectedItem,}) {
+    {
+      Function()? okPressed,
+      Function()? cancelPressed,
+      required Function(Object) selectedItem,
+      bool? onlyHidden,
+      bool? hideEmptyNodes,
+      bool? expandAll,
+    }) {
   Widget cancelButton = TextButton(
     child: Text("Cancel"),
     onPressed:  cancelPressed,
@@ -142,7 +149,12 @@ Future<bool?> showTemplateDialog(BuildContext context, String title,
 
   AlertDialog alert = AlertDialog(
     title: Text(title),
-    content: TaskTemplateList.withSelectionCallback(selectedItem),
+    content: TaskTemplateList.withSelectionCallback(
+        selectedItem,
+        onlyHidden: onlyHidden,
+        hideEmptyNodes: hideEmptyNodes,
+        expandAll: expandAll,
+    ),
     actions: [
       cancelButton,
       okButton,
