@@ -1,12 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/When.dart';
+import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
+
+import '../ToggleActionIcon.dart';
+
+final trackIconKey = new GlobalKey<ToggleActionIconState>();
 
 class TaskEventForm extends StatefulWidget {
   final String formTitle;
@@ -26,8 +33,8 @@ class TaskEventForm extends StatefulWidget {
 
 class _TaskEventFormState extends State<TaskEventForm> {
   final _formKey = GlobalKey<FormState>();
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
   final TaskEvent? _taskEvent;
   final TaskGroup? _taskGroup;
@@ -48,8 +55,17 @@ class _TaskEventFormState extends State<TaskEventForm> {
   WhenOnDate? _selectedWhenOnDate;
   DateTime? _customWhenOn;
 
-  _TaskEventFormState([this._taskEvent, this._taskGroup, this._template, this._title]) {
+  DateTime? _trackingStart;
 
+  Timer? _timer;
+  final _notificationService = LocalNotificationService();
+
+  final TRACKING_NOTIFICATIOM_ID = 12345678;
+
+  _TaskEventFormState([this._taskEvent, this._taskGroup, this._template, this._title]);
+
+  @override
+  initState() {
     int? selectedTaskGroupId;
 
     AroundDurationHours? aroundDuration;
@@ -65,8 +81,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
       _severity = _taskEvent!.severity;
 
-      titleController.text = _taskEvent!.title;
-      descriptionController.text = _taskEvent!.description ?? "";
+      _titleController.text = _taskEvent!.title;
+      _descriptionController.text = _taskEvent!.description ?? "";
 
       aroundDuration = _taskEvent!.aroundDuration;
       duration = _taskEvent!.duration;
@@ -88,8 +104,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
         _severity = _template!.severity!;
       }
 
-      titleController.text = _template!.title;
-      descriptionController.text = _template!.description ?? "";
+      _titleController.text = _template!.title;
+      _descriptionController.text = _template!.description ?? "";
 
       aroundDuration = _template!.when?.durationHours;
       duration = _template!.when?.durationExactly;
@@ -101,7 +117,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
     }
 
     if (_title != null) {
-      titleController.text = _title!;
+      _titleController.text = _title!;
     }
 
 
@@ -128,17 +144,21 @@ class _TaskEventFormState extends State<TaskEventForm> {
       }
     }
 
+    _notificationService.addHandler(_handleNotificationClicked);
+
   }
 
   @override
   void dispose() {
-    titleController.dispose();
-    descriptionController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final trackIcon = ToggleActionIcon(Icons.stop_circle_outlined, Icons.not_started_outlined, false, trackIconKey);
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -156,7 +176,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       TextFormField(
-                        controller: titleController,
+                        controller: _titleController,
                         decoration: InputDecoration(
                           hintText: "Enter a title",
                           icon: Icon(Icons.event_available),
@@ -171,7 +191,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                         },
                       ),
                       TextFormField(
-                        controller: descriptionController,
+                        controller: _descriptionController,
                         decoration: InputDecoration(
                           hintText: "An optional description",
                           icon: Icon(Icons.info_outline),
@@ -220,8 +240,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
                             'Choose a duration',
                           ),
                           icon: Icon(Icons.timer),
+                          iconDisabledColor: _trackingStart != null ? Colors.redAccent : null,
                           isExpanded: true,
-                          onChanged: (value) {
+                          onChanged:  _trackingStart != null ? null : (value) {
                             if (value == AroundDurationHours.CUSTOM) {
                               final initialDuration = _customDuration ?? Duration(minutes: 1);
                               showDurationPickerDialog(
@@ -250,7 +271,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                               value: durationHour,
                               child: Text(
                                 durationHour == AroundDurationHours.CUSTOM && _customDuration != null
-                                    ? formatDuration(_customDuration!)
+                                    ? _formatDuration()
                                     : When.fromDurationHoursToString(durationHour),
                               ),
                             );
@@ -276,8 +297,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   'Choose when at',
                                 ),
                                 icon: Icon(Icons.watch_later_outlined),
+                                iconDisabledColor: _trackingStart != null ? Colors.redAccent : null,
                                 isExpanded: true,
-                                onChanged: (value) {
+                                onChanged:  _trackingStart != null ? null : (value) {
                                   if (value == AroundWhenAtDay.CUSTOM) {
                                     final initialWhenAt = _customWhenAt ?? TimeOfDay.now();
                                     showTimePicker(
@@ -320,8 +342,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   'Choose when on',
                                 ),
                                 icon: Icon(Icons.date_range),
+                                iconDisabledColor: _trackingStart != null ? Colors.redAccent : null,
                                 isExpanded: true,
-                                onChanged: (value) {
+                                onChanged: _trackingStart != null ? null : (value) {
                                   if (value == WhenOnDate.CUSTOM) {
                                     final initialWhenOn = _customWhenOn ?? truncToDate(DateTime.now());
                                     showDatePicker(
@@ -372,28 +395,65 @@ class _TaskEventFormState extends State<TaskEventForm> {
                       ),
                       Align(
                         alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 26.0),
-                          child: ElevatedButton(
+                        child: Column(children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: FloatingActionButton(
+                                child: trackIcon,
+                                backgroundColor: _trackingStart != null ? Colors.redAccent : null,
+                                onPressed: () {
+                                  setState(() {
+                                    if (_trackingStart == null) {
+                                      if (_customDuration != null || _customWhenAt != null || _customWhenOn != null) {
+                                        showConfirmationDialog(
+                                            context,
+                                            "Start tracking",
+                                            "There are some values which will be overwritten when starting the tracking. Continue?",
+                                            okPressed: () {
+                                              _startTracking();
+                                              Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                                            },
+                                            cancelPressed: () {
+                                              Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                                            },
+                                        );
+                                      }
+                                      else {
+                                        _startTracking();
+                                      }
+                                    }
+                                    else {
+                                      _stopTracking();
+                                    }
+                                  });
+                                }),
+                          ),
+                          ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               minimumSize:
-                                  Size(double.infinity, 40), // double.infinity is the width and 30 is the height
+                              Size(double.infinity, 40), // double.infinity is the width and 30 is the height
                             ),
                             onPressed: () {
+                              if (_trackingStart != null) {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content: Text('Please stop tracking first!')));
+
+                                return;
+                              }
                               if (_formKey.currentState!.validate()) {
                                 final startedAtTimeOfDay =
-                                    When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt);
+                                When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt);
                                 final date = When.fromWhenOnDateToDate(_selectedWhenOnDate!, _customWhenOn);
                                 final startedAt = DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour,
                                     startedAtTimeOfDay.minute);
                                 final duration =
-                                    When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration);
+                                When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration);
                                 var taskEvent = TaskEvent(
                                   _taskEvent?.id,
                                   _selectedTaskGroup?.id,
                                   _template?.tId,
-                                  titleController.text,
-                                  descriptionController.text,
+                                  _titleController.text,
+                                  _descriptionController.text,
                                   _taskEvent?.createdAt ?? DateTime.now(),
                                   startedAt,
                                   _selectedWhenAtDay!,
@@ -407,7 +467,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                             },
                             child: Text('Save'),
                           ),
-                        ),
+                        ],),
                       ),
                     ],
                   ),
@@ -420,4 +480,85 @@ class _TaskEventFormState extends State<TaskEventForm> {
     );
   }
 
+  String _formatDuration() {
+    if (_trackingStart != null && _timer != null) {
+      final clock = ['|','/', '--', '\\', ];
+      final ticker = _timer!.tick % clock.length;
+      final exact = formatTrackingDuration(_customDuration!);
+      final step = clock[ticker];
+      return "$step   $exact   $step";
+    }
+    else {
+      return formatDuration(_customDuration!);
+    }
+  }
+
+  void _startTracking() {
+
+    setState(() {
+      _trackingStart = DateTime.now();
+
+      _selectedWhenAtDay = AroundWhenAtDay.CUSTOM;
+      _customWhenAt = TimeOfDay.fromDateTime(_trackingStart!);
+
+      _selectedWhenOnDate = WhenOnDate.CUSTOM;
+      _customWhenOn = truncToDate(_trackingStart!);
+
+    });
+
+    _updateTracking();
+
+    trackIconKey.currentState?.refresh(true);
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _updateTracking();
+      });
+    });
+
+    final currentTitle = _titleController.text;
+    _notificationService.showNotification(
+        TRACKING_NOTIFICATIOM_ID,
+        "Tracking started",
+        currentTitle.isNotEmpty
+            ? "'$currentTitle' started at ${formatToTime(_trackingStart!)}"
+            : "Tracking started at ${formatToTime(_trackingStart!)}",
+        CHANNEL_ID_TRACKING,); //TODO payload: current content to be able to refill view
+  }
+
+  @override
+  void deactivate() {
+    _timer?.cancel();
+    if (_trackingStart != null) {
+      _notificationService.cancelNotification(TRACKING_NOTIFICATIOM_ID);
+    }
+    _notificationService.removeHandler(_handleNotificationClicked);
+    super.deactivate();
+  }
+
+
+  void _updateTracking() {
+    _selectedDurationHours = AroundDurationHours.CUSTOM;
+    final now = DateTime.now();
+    _customDuration = now.difference(_trackingStart!);
+  }
+
+
+  void _stopTracking() {
+    if (_trackingStart != null) {
+      _notificationService.cancelNotification(TRACKING_NOTIFICATIOM_ID);
+    }
+    _trackingStart = null;
+    trackIconKey.currentState?.refresh(false);
+    _timer?.cancel();
+  }
+
+  _handleNotificationClicked(String receiverKey, String id) {
+  /*  if (receiverKey == widget.getRoutingKey()) {
+      setState(() {
+        final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == id);
+        _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
+      });
+    }*/
+  }
 }

@@ -123,6 +123,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       if (value != null) {
         _updateDisableNotifications(value, withSnackMsg: false);
       }
+      else {
+        disableNotificationIconKey.currentState?.refresh(_disableNotification);
+      }
     });
     
     return [
@@ -693,7 +696,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       if (scheduledTask.active) {
         final taskGroup = findPredefinedTaskGroupById(
             scheduledTask.taskGroupId);
-        _notificationService.scheduleNotifications(
+        _notificationService.scheduleNotification(
             widget.getRoutingKey(),
             scheduledTask.id!,
             "Due scheduled task (${taskGroup.name})",
@@ -706,7 +709,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
   void _cancelNotification(ScheduledTask scheduledTask) {
-    _notificationService.cancelNotifications(scheduledTask.id!);
+    _notificationService.cancelNotification(scheduledTask.id!);
   }
 
   void _updateSortBy(SortBy sortBy) {

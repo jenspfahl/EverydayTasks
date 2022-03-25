@@ -51,6 +51,22 @@ String formatToTime(DateTime dateTime) {
   return formatter.format(dateTime);
 }
 
+String formatTrackingDuration(Duration duration) {
+  var hours = duration.inHours  % (24 * 24 * 60);
+  var minutes = duration.inMinutes % (24 * 60);
+  var seconds = duration.inSeconds % 60;
+
+  if (hours > 0 && minutes > 0) {
+    return "$hours hours $minutes minutes $seconds seconds";
+  }
+  else if (minutes > 0) {
+    return "$minutes minutes $seconds seconds";
+  }
+  else {
+    return "$seconds seconds";
+  }
+}
+
 String formatToDateTimeRange(
     AroundWhenAtDay aroundStartedAt,
     DateTime startedAt,

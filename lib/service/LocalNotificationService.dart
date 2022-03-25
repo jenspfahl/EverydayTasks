@@ -63,7 +63,7 @@ class LocalNotificationService {
         });
   }
 
-  Future<void> showNotifications(int id, String title, String message, String channelId, [Color? color]) async {
+  Future<void> showNotification(int id, String title, String message, String channelId, [Color? color]) async {
     await _flutterLocalNotificationsPlugin.show(
       id,
       title, 
@@ -73,7 +73,7 @@ class LocalNotificationService {
     );
   }
 
-  Future<void> scheduleNotifications(String receiverKey, int id, String title, message, Duration duration, String channelId, [Color? color]) async {
+  Future<void> scheduleNotification(String receiverKey, int id, String title, message, Duration duration, String channelId, [Color? color]) async {
     final when = tz.TZDateTime.now(tz.local).add(duration);
     await _flutterLocalNotificationsPlugin.zonedSchedule(
         id,
@@ -86,7 +86,7 @@ class LocalNotificationService {
         payload: receiverKey + "-" + id.toString());
   }
 
-  Future<void> cancelNotifications(int id) async {
+  Future<void> cancelNotification(int id) async {
     await _flutterLocalNotificationsPlugin.cancel(id);
   }
 
