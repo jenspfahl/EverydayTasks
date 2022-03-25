@@ -206,10 +206,82 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
 
   @override
   void handleFABPressed(BuildContext context) {
-    _onFABPressed();
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            height: 200,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: const Text('What do you want to create?'),
+                  ),
+                  OutlinedButton(
+                    child: const Text('New QuickAdd'),
+                    onPressed: () {
+                      Navigator.pop(super.context);
+
+                      _onCreateQuickAddPressed();
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('New journal entry'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _onCreateTaskEventPressed(context);
+                    },
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 
-  void _onFABPressed() {
+  void _onCreateTaskEventPressed(BuildContext context) async {
+    Object? _selectedTemplateItem;
+    showTemplateDialog(context, "Select a task",
+        selectedItem: (selectedItem) {
+          setState(() {
+            _selectedTemplateItem = selectedItem;
+          });
+        },
+        okPressed: () async {
+          Navigator.pop(super.context);
+          TaskEvent? newTaskEvent = await Navigator.push(super.context, MaterialPageRoute(builder: (context) {
+            if (_selectedTemplateItem is TaskGroup) {
+              return TaskEventForm(
+                formTitle: "Create new journal entry",
+                taskGroup: _selectedTemplateItem as TaskGroup,);
+            }
+            else if (_selectedTemplateItem is Template) {
+              return TaskEventForm(
+                formTitle: "Create new journal entry",
+                template: _selectedTemplateItem as Template,);
+            }
+            else {
+              return TaskEventForm(formTitle: "Create new journal entry");
+            }
+          }));
+    
+          if (newTaskEvent != null) {
+            TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+              ScaffoldMessenger.of(super.context).showSnackBar(
+                  SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
+              widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.addTaskEvent(newTaskEvent);
+            });
+          }
+        },
+        cancelPressed: () {
+          Navigator.pop(super.context);
+        });
+  }
+
+  void _onCreateQuickAddPressed() {
     Object? selectedTemplateItem;
 
     showTemplateDialog(context, "Select a task to be added to QuickAdd",
