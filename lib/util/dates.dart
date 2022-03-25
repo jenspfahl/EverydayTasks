@@ -93,7 +93,22 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString]) {
   var hours = duration.inHours;
   var minutes = duration.inMinutes;
   var durationText = "$minutes minutes";
-  if (hours.abs() >= 24) {
+  if (days.abs() >= 62) {
+    var months = days ~/ 31;
+    durationText = "$months months";
+
+  }
+  else if (days.abs() >= 7) {
+    var remainingDays = days % 7;
+    var weeks = days ~/ 7;
+    if (remainingDays != 0) {
+      durationText = "$weeks weeks and $remainingDays days";
+    }
+    else {
+      durationText = "$weeks weeks";
+    }
+  }
+  else if (hours.abs() >= 24) {
     var remainingHours = hours % 24;
     if (remainingHours != 0) {
       durationText = "$days days and $remainingHours hours";

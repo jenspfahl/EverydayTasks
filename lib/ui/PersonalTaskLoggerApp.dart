@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 
 import '../main.dart';
-import 'pages/TaskEventList.dart';
 
 class PersonalTaskLoggerApp extends StatelessWidget {
 

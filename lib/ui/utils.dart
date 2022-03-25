@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 
 Color getTaskGroupColor(int? taskGroupId, bool lessShaded) {

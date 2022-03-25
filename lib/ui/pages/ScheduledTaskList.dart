@@ -22,11 +22,15 @@ import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
 
 
+final String PREF_DISABLE_NOTIFICATIONS = "scheduledTasks/disableNotifications";
 final String PREF_SORT_BY = "scheduledTasks/sortedBy";
+
+final disableNotificationIconKey = new GlobalKey<ToggleActionIconState>();
 
 @immutable
 class ScheduledTaskList extends PageScaffold<ScheduledTaskListState> {
@@ -64,6 +68,7 @@ enum SortBy {PROGRESS, REMAINING_TIME, GROUP, TITLE,}
 class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with AutomaticKeepAliveClientMixin<ScheduledTaskList> {
   List<ScheduledTask> _scheduledTasks = [];
   int _selectedTile = -1;
+  bool _disableNotification = false;
   SortBy _sortBy = SortBy.PROGRESS;
 
   final _notificationService = LocalNotificationService();
@@ -113,7 +118,20 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   @override
   List<Widget>? getActions(BuildContext context) {
+    final disableNotificationIcon = ToggleActionIcon(Icons.notifications_on_outlined, Icons.notifications_off_outlined, false, disableNotificationIconKey);
+    _preferenceService.getBool(PREF_DISABLE_NOTIFICATIONS).then((value) {
+      if (value != null) {
+        _updateDisableNotifications(value, withSnackMsg: false);
+      }
+    });
+    
     return [
+      IconButton(
+          icon: disableNotificationIcon,
+          onPressed: () {
+            _disableNotification = !_disableNotification;
+            _updateDisableNotifications(_disableNotification, withSnackMsg: true);
+          }),
       GestureDetector(
         child: Padding(padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Icon(Icons.sort_outlined)),
@@ -187,6 +205,29 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         },
       ),
     ];
+  }
+
+  void _updateDisableNotifications(bool value, {required bool withSnackMsg}) {
+    setState(() {
+      _disableNotification = value;
+      disableNotificationIconKey.currentState?.refresh(!_disableNotification);
+      if (_disableNotification) {
+        _notificationService.cancelAllNotifications();
+        if (withSnackMsg) {
+          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
+              content: Text('Schedule notifications disabled')));
+        }
+
+      }
+      else {
+        _scheduledTasks.forEach((scheduledTask) => _rescheduleNotification(scheduledTask));
+        if (withSnackMsg) {
+          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
+              content: Text('Schedule notifications enabled')));
+        }
+      }
+      _preferenceService.setBool(PREF_DISABLE_NOTIFICATIONS, _disableNotification);
+    });
   }
 
   @override
@@ -658,6 +699,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             "Due scheduled task (${taskGroup.name})",
             "Scheduled task '${scheduledTask.title}' is due!",
             missingDuration,
+            CHANNEL_ID_SCHEDULES,
             taskGroup.backgroundColor);
       }
     }

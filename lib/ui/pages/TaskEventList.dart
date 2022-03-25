@@ -157,7 +157,9 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                               : const Icon(Icons.task_alt),
                           const Spacer(),
                           Text(_filterByTaskOrTemplate != null
-                              ? _filterByTaskOrTemplate.toString()
+                              ? _filterByTaskOrTemplate is TaskGroup
+                              ? (_filterByTaskOrTemplate as TaskGroup).name
+                              : (_filterByTaskOrTemplate as Template).title
                               : "Filter by task"),
                         ]
                     ),

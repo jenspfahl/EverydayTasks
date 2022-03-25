@@ -29,12 +29,9 @@ class PagesHolder {
 
 class PersonalTaskLoggerScaffold extends StatefulWidget {
 
-  PersonalTaskLoggerScaffoldState? _state;
-
   @override
   State<StatefulWidget> createState() {
-    _state = PersonalTaskLoggerScaffoldState();
-    return _state!;
+    return PersonalTaskLoggerScaffoldState();
   }
 }
 

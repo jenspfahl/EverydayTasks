@@ -1,11 +1,13 @@
-import 'dart:collection';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../main.dart';
+
+const CHANNEL_ID_SCHEDULES = 'de.jepfa.ptl.notifications.schedules';
+const CHANNEL_ID_TRACKING = 'de.jepfa.ptl.notifications.tracking';
+
 
 // stolen from https://github.com/iloveteajay/flutter_local_notification/https://github.com/iloveteajay/flutter_local_notification/
 class LocalNotificationService {
@@ -19,9 +21,7 @@ class LocalNotificationService {
   }
 
   LocalNotificationService._internal();
-
-  static const channelId = 'de.jepfa.ptl.notifications';
-
+  
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
 
@@ -63,24 +63,24 @@ class LocalNotificationService {
         });
   }
 
-  Future<void> showNotifications(int id, String title, String message, [Color? color]) async {
+  Future<void> showNotifications(int id, String title, String message, String channelId, [Color? color]) async {
     await _flutterLocalNotificationsPlugin.show(
       id,
       title, 
       message,
-      NotificationDetails(android: _createNotificationDetails(color)),
+      NotificationDetails(android: _createNotificationDetails(color, channelId)),
       payload: id.toString(),
     );
   }
 
-  Future<void> scheduleNotifications(String receiverKey, int id, String title, message, Duration duration, [Color? color]) async {
+  Future<void> scheduleNotifications(String receiverKey, int id, String title, message, Duration duration, String channelId, [Color? color]) async {
     final when = tz.TZDateTime.now(tz.local).add(duration);
     await _flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         title,
         message,
         when.subtract(Duration(seconds: when.second)), // trunc seconds
-        NotificationDetails(android: _createNotificationDetails(color)),
+        NotificationDetails(android: _createNotificationDetails(color, channelId)),
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         payload: receiverKey + "-" + id.toString());
@@ -110,7 +110,7 @@ class LocalNotificationService {
   }
 
 
-  AndroidNotificationDetails _createNotificationDetails(Color? color) {
+  AndroidNotificationDetails _createNotificationDetails(Color? color, String channelId) {
     return AndroidNotificationDetails(
       channelId,
       APP_NAME,
