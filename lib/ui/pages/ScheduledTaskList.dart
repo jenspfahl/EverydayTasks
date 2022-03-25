@@ -317,12 +317,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                     final templateId = scheduledTask.templateId;
                     Template? template;
                     if (templateId != null) {
-                      template = await TemplateRepository.findByIdJustDb(templateId);
+                      template = await TemplateRepository.getById(templateId);
                     }
 
                     TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                       String title = scheduledTask.title;
-                      if (templateId != null) {
+                      if (template != null) {
                         return TaskEventForm(
                             formTitle: "Create new journal entry from schedule",
                             template: template,
@@ -390,9 +390,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       final receiverKey = widget._pagesHolder.taskEventList?.getRoutingKey();
                       PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
                       if (receiverKey != null && root != null) {
-                        root.sendEvent(receiverKey, lastEvent.taskEventId.toString());
-                        widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.filterByTaskEventIds(
-                            scheduledTaskEvents.map((e) => e.taskEventId));
+                        final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
+                        if (taskEventListState != null) {
+                          taskEventListState.clearFilters();
+                          taskEventListState.filterByTaskEventIds(scheduledTaskEvents.map((e) => e.taskEventId));
+                          root.sendEvent(receiverKey, lastEvent.taskEventId.toString());
+                        }
                       }
                     }
                     else {

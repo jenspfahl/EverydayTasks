@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_treeview/flutter_treeview.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 
 class TaskGroup implements Comparable {
@@ -61,7 +60,7 @@ List<TaskGroup> predefinedTaskGroups = [
   TaskGroup(id: -8, name: "Garden", colorRGB: Color.fromARGB(100, 3, 155, 7), iconData: Icons.park_outlined),
   TaskGroup(id: -9, name: "Maintenance", colorRGB: Color.fromARGB(100, 183, 3, 23), iconData: Icons.build_outlined),
   TaskGroup(id: -10, name: "Organization",colorRGB: Color.fromARGB(100, 183, 100, 128), iconData: Icons.phone_in_talk_outlined),
-  TaskGroup(id: -11, name: "Car",colorRGB: Color.fromARGB(100, 83, 123, 228), iconData: Icons.directions_car_outlined),
+  TaskGroup(id: -11, name: "Car",colorRGB: Color.fromARGB(100, 123, 123, 228), iconData: Icons.directions_car_outlined),
 
   //last one
   TaskGroup(id: 0, name: "Others", colorRGB: Color.fromARGB(100, 128, 128, 128), iconData: Icons.lightbulb_outline),
