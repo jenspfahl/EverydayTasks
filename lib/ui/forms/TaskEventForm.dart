@@ -60,7 +60,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
   Timer? _timer;
   final _notificationService = LocalNotificationService();
 
-  final TRACKING_NOTIFICATIOM_ID = 12345678;
+  final TRACKING_NOTIFICATIOM_ID = -12345678;
 
   _TaskEventFormState([this._taskEvent, this._taskGroup, this._template, this._title]);
 
@@ -516,14 +516,19 @@ class _TaskEventFormState extends State<TaskEventForm> {
       });
     });
 
+    final payload = "";
+
     final currentTitle = _titleController.text;
     _notificationService.showNotification(
+        "receiverKey", //TODO
         TRACKING_NOTIFICATIOM_ID,
         "Tracking started",
         currentTitle.isNotEmpty
             ? "'$currentTitle' started at ${formatToTime(_trackingStart!)}"
             : "Tracking started at ${formatToTime(_trackingStart!)}",
-        CHANNEL_ID_TRACKING,); //TODO payload: current content to be able to refill view
+        CHANNEL_ID_TRACKING,
+        true,
+        payload);
   }
 
   @override

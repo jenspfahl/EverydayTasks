@@ -8,4 +8,6 @@ abstract class PageScaffoldState<T extends StatefulWidget> extends State<T> {
   void handleFABPressed(BuildContext context);
 
   void searchQueryUpdated(String? searchQuery);
+
+  handleNotificationClicked(String receiverKey, String payload);
 }

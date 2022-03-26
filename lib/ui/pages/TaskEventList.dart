@@ -746,5 +746,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     });
   }
 
+  @override
+  handleNotificationClicked(String receiverKey, String payload) {
+  }
 
 }

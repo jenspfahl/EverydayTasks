@@ -366,4 +366,8 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
     });
   }
 
+  @override
+  handleNotificationClicked(String receiverKey, String payload) {
+  }
+
 }

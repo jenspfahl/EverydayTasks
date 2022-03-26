@@ -281,10 +281,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     );
   }
 
-  handleNotificationClicked(String receiverKey, String id) {
+  handleNotificationClicked(String receiverKey, String payload) {
     if (receiverKey == widget.getRoutingKey()) {
       setState(() {
-        final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == id);
+        final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == payload);
         _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
       });
     }
@@ -693,7 +693,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     if (missingDuration != null && !missingDuration.isNegative) {
       _cancelNotification(scheduledTask);
 
-      if (scheduledTask.active) {
+      if (scheduledTask.active && _disableNotification == false) {
         final taskGroup = findPredefinedTaskGroupById(
             scheduledTask.taskGroupId);
         _notificationService.scheduleNotification(

@@ -52,8 +52,8 @@ String formatToTime(DateTime dateTime) {
 }
 
 String formatTrackingDuration(Duration duration) {
-  var hours = duration.inHours  % (24 * 24 * 60);
-  var minutes = duration.inMinutes % (24 * 60);
+  var hours = duration.inHours;
+  var minutes = duration.inMinutes % 60;
   var seconds = duration.inSeconds % 60;
 
   if (hours > 0 && minutes > 0) {

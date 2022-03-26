@@ -14,7 +14,7 @@ class LocalNotificationService {
 
   static final LocalNotificationService _notificationService = LocalNotificationService._internal();
 
-  static late List<Function(String receiverKey, String id)> _handler = [];
+  static late List<Function(String receiverKey, String payload)> _handler = [];
 
   factory LocalNotificationService() {
     return _notificationService;
@@ -25,11 +25,11 @@ class LocalNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
 
-  void addHandler(Function(String receiverKey, String id) handler) {
+  void addHandler(Function(String receiverKey, String payload) handler) {
     _handler.add(handler);
   }
 
-  void removeHandler(Function(String receiverKey, String id) handler) {
+  void removeHandler(Function(String receiverKey, String payload) handler) {
     _handler.remove(handler);
   }
 
@@ -54,7 +54,6 @@ class LocalNotificationService {
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (String? payload) async {
-          // TODO seems not be invoked when the app was closed before
           if (payload != null) {
             if (_handler.isNotEmpty) {
               _handlePayload(payload);
@@ -63,13 +62,13 @@ class LocalNotificationService {
         });
   }
 
-  Future<void> showNotification(int id, String title, String message, String channelId, [Color? color]) async {
+  Future<void> showNotification(String receiverKey, int id, String title, String message, String channelId, bool keepAsProgress, String payload, [Color? color]) async {
     await _flutterLocalNotificationsPlugin.show(
       id,
       title, 
       message,
-      NotificationDetails(android: _createNotificationDetails(color, channelId)),
-      payload: id.toString(),
+      NotificationDetails(android: _createNotificationDetails(color, channelId, keepAsProgress)),
+      payload: receiverKey + "-" + payload,
     );
   }
 
@@ -80,7 +79,7 @@ class LocalNotificationService {
         title,
         message,
         when.subtract(Duration(seconds: when.second)), // trunc seconds
-        NotificationDetails(android: _createNotificationDetails(color, channelId)),
+        NotificationDetails(android: _createNotificationDetails(color, channelId, false)),
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         payload: receiverKey + "-" + id.toString());
@@ -110,13 +109,21 @@ class LocalNotificationService {
   }
 
 
-  AndroidNotificationDetails _createNotificationDetails(Color? color, String channelId) {
+  AndroidNotificationDetails _createNotificationDetails(Color? color, String channelId, bool keepAsProgress) {
     return AndroidNotificationDetails(
       channelId,
       APP_NAME,
-      'Notifications about due scheduled tasks',
+      channelId == CHANNEL_ID_SCHEDULES
+          ? 'Notifications about due scheduled tasks'
+          : channelId == CHANNEL_ID_TRACKING
+          ? 'Tracking notifications'
+          : "Common notifications",
       color: color,
-      playSound: true,
+      playSound: !keepAsProgress,
+      indeterminate: keepAsProgress,
+      usesChronometer: keepAsProgress,
+      showProgress: keepAsProgress,
+      autoCancel: !keepAsProgress,
       priority: Priority.high,
       importance: Importance.high,
     );

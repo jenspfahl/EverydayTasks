@@ -630,6 +630,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   @override
   bool get wantKeepAlive => true;
 
+  @override
+  handleNotificationClicked(String receiverKey, String payload) {
+  }
+
   Iterable<TaskTemplate> findTaskTemplates(List<TaskTemplate> taskTemplates,
       TaskGroup group) {
     return taskTemplates.where((template) => template.taskGroupId == group.id);
@@ -639,6 +643,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       TaskTemplate taskTemplate) {
     return taskTemplateVariants.where((variant) => variant.taskTemplateId == taskTemplate.tId!.id);
   }
+
 
 }
 

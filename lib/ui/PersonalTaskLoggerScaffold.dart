@@ -1,4 +1,6 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/ui/pages/QuickAddTaskEventPage.dart';
@@ -150,7 +152,18 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
 
   List<Widget>? _buildActions(BuildContext context) {
-    final definedActions = getSelectedPage().getGlobalKey().currentState?.getActions(context);
+    var selectedPageState = getSelectedPage().getGlobalKey().currentState;
+    if (selectedPageState == null) {
+      // page state not yet initialized, trigger it for later
+      Timer(Duration(seconds: 1), () {
+        setState(() {
+          debugPrint("refresh ui state ${getSelectedPage().key}");
+          // refresh
+        });
+      });
+      return null;
+    }
+    final definedActions = selectedPageState.getActions(context);
 
     if (getSelectedPage().withSearchBar() == false && definedActions == null) {
       return null;
@@ -224,13 +237,24 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     });
   }
 
-  sendEvent(String receiverKey, String id) {
+  sendEvent(String receiverKey, String payload) {
     final index = _pages.indexWhere((page) => page.getRoutingKey() == receiverKey);
     if (index != -1 && index != _selectedNavigationIndex) {
       _pageController.jumpToPage(index);
       setState(() {
         _selectedNavigationIndex = index;
         _clearOrCloseSearchBar(context, true);
+
+        if (getSelectedPage().getGlobalKey().currentState == null) {
+          // If the destination page state is not initialized yet we need to call the handler callback later manually
+          Timer(Duration(seconds: 1), () {
+            final selectedPageState = getSelectedPage().getGlobalKey().currentState;
+            if (selectedPageState != null) {
+              debugPrint("explicit call notification handler on $selectedPageState");
+              selectedPageState.handleNotificationClicked(receiverKey, payload);
+            }
+          });
+        }
       });
     }
   }
