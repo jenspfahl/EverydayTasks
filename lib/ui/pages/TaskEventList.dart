@@ -747,7 +747,27 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   }
 
   @override
-  handleNotificationClicked(String receiverKey, String payload) {
+  handleNotificationClickRouted(bool isAppLaunch, String payload) async {
+    debugPrint("_handle TaskEventList: payload=$payload $isAppLaunch");
+
+    if (payload.startsWith("TaskEventForm")) {
+      //open new form with payload content
+      final title = payload.split("-")[1];
+      TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return TaskEventForm(
+            formTitle: "Create new journal entry ",
+            title: title,
+        );
+      }));
+
+      if (newTaskEvent != null) {
+        TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+          ScaffoldMessenger.of(super.context).showSnackBar(
+              SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
+          addTaskEvent(newTaskEvent);
+        });
+      }
+    }
   }
 
 }

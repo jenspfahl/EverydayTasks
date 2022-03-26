@@ -237,21 +237,28 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     });
   }
 
-  sendEvent(String receiverKey, String payload) {
+  sendEvent(String receiverKey, bool isAppLaunch, String payload) {
+    debugPrint("sendEvent $receiverKey $payload");
+    final justReactivate = payload.endsWith("-x"); //TODO use JSON and an explicit flag to indicate that
     final index = _pages.indexWhere((page) => page.getRoutingKey() == receiverKey);
-    if (index != -1 && index != _selectedNavigationIndex) {
+    if (!justReactivate && index != -1 && index != _selectedNavigationIndex) {
       _pageController.jumpToPage(index);
       setState(() {
         _selectedNavigationIndex = index;
         _clearOrCloseSearchBar(context, true);
 
-        if (getSelectedPage().getGlobalKey().currentState == null) {
+        final selectedPageState = getSelectedPage().getGlobalKey().currentState;
+        if (selectedPageState != null) {
+          debugPrint("explicit call notification handler on $selectedPageState");
+          selectedPageState.handleNotificationClickRouted(isAppLaunch, payload);
+        }
+        else {
           // If the destination page state is not initialized yet we need to call the handler callback later manually
-          Timer(Duration(seconds: 1), () {
+          Timer(Duration(milliseconds: 500), () {
             final selectedPageState = getSelectedPage().getGlobalKey().currentState;
             if (selectedPageState != null) {
-              debugPrint("explicit call notification handler on $selectedPageState");
-              selectedPageState.handleNotificationClicked(receiverKey, payload);
+              debugPrint("delayed call notification handler on $selectedPageState");
+              selectedPageState.handleNotificationClickRouted(isAppLaunch, payload);
             }
           });
         }

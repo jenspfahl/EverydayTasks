@@ -14,7 +14,7 @@ class LocalNotificationService {
 
   static final LocalNotificationService _notificationService = LocalNotificationService._internal();
 
-  static late List<Function(String receiverKey, String payload)> _handler = [];
+  static late List<Function(String receiverKey, bool isAppLaunch, String payload)> _handler = [];
 
   factory LocalNotificationService() {
     return _notificationService;
@@ -25,11 +25,11 @@ class LocalNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
 
-  void addHandler(Function(String receiverKey, String payload) handler) {
+  void addHandler(Function(String receiverKey, bool isAppLaunch, String payload) handler) {
     _handler.add(handler);
   }
 
-  void removeHandler(Function(String receiverKey, String payload) handler) {
+  void removeHandler(Function(String receiverKey, bool isAppLaunch, String payload) handler) {
     _handler.remove(handler);
   }
 
@@ -56,7 +56,7 @@ class LocalNotificationService {
         onSelectNotification: (String? payload) async {
           if (payload != null) {
             if (_handler.isNotEmpty) {
-              _handlePayload(payload);
+              _handlePayload(false, payload);
             }
           }
         });
@@ -98,14 +98,20 @@ class LocalNotificationService {
         .then((notification) {
           final payload = notification?.payload;
           if (payload != null) {
-            _handlePayload(payload);
+            _handlePayload(true, payload);
           }
     });
   }
 
-  void _handlePayload(String payload) {
-    var splitted = payload.split("-");
-    _handler.forEach((h) => h.call(splitted[0], splitted[1]));
+  void _handlePayload(bool isAppLaunch, String payload) {
+    debugPrint("_handlePayload=$payload $isAppLaunch");
+
+    var index = payload.indexOf("-");
+    if (index != -1) {
+      final receiverKey = payload.substring(0, index);
+      final actualPayload = payload.substring(index + 1);
+      _handler.forEach((h) => h.call(receiverKey, isAppLaunch, actualPayload));
+    }
   }
 
 

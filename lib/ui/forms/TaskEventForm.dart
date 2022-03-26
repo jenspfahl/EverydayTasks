@@ -144,8 +144,6 @@ class _TaskEventFormState extends State<TaskEventForm> {
       }
     }
 
-    _notificationService.addHandler(_handleNotificationClicked);
-
   }
 
   @override
@@ -516,11 +514,12 @@ class _TaskEventFormState extends State<TaskEventForm> {
       });
     });
 
-    final payload = "";
-
     final currentTitle = _titleController.text;
+
+    final payload = "TaskEventForm-$currentTitle-x";
+
     _notificationService.showNotification(
-        "receiverKey", //TODO
+        "TaskEvents", //we route to task events and there it will be rerouted to here
         TRACKING_NOTIFICATIOM_ID,
         "Tracking started",
         currentTitle.isNotEmpty
@@ -537,7 +536,6 @@ class _TaskEventFormState extends State<TaskEventForm> {
     if (_trackingStart != null) {
       _notificationService.cancelNotification(TRACKING_NOTIFICATIOM_ID);
     }
-    _notificationService.removeHandler(_handleNotificationClicked);
     super.deactivate();
   }
 
@@ -558,12 +556,4 @@ class _TaskEventFormState extends State<TaskEventForm> {
     _timer?.cancel();
   }
 
-  _handleNotificationClicked(String receiverKey, String id) {
-  /*  if (receiverKey == widget.getRoutingKey()) {
-      setState(() {
-        final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == id);
-        _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
-      });
-    }*/
-  }
 }

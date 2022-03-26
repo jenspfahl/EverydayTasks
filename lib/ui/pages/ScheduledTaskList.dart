@@ -96,8 +96,6 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       });
     });
 
-    _notificationService.addHandler(handleNotificationClicked);
-
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 100);
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
       setState(() {
@@ -245,7 +243,6 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   
   @override
   void deactivate() {
-    _notificationService.removeHandler(handleNotificationClicked);
     _timer.cancel();
     super.deactivate();
   }
@@ -281,13 +278,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     );
   }
 
-  handleNotificationClicked(String receiverKey, String payload) {
-    if (receiverKey == widget.getRoutingKey()) {
-      setState(() {
-        final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == payload);
-        _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
-      });
-    }
+  handleNotificationClickRouted(bool isAppLaunch, String payload) {
+    setState(() {
+      final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == payload);
+      _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
+    });
   }
 
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
@@ -438,7 +433,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         if (taskEventListState != null) {
                           taskEventListState.clearFilters();
                           taskEventListState.filterByTaskEventIds(scheduledTaskEvents.map((e) => e.taskEventId));
-                          root.sendEvent(receiverKey, lastEvent.taskEventId.toString());
+                          root.sendEvent(receiverKey, false, lastEvent.taskEventId.toString());
                         }
                       }
                     }

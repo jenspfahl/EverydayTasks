@@ -631,7 +631,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   bool get wantKeepAlive => true;
 
   @override
-  handleNotificationClicked(String receiverKey, String payload) {
+  handleNotificationClickRouted(bool isAppLaunch, String payload) {
   }
 
   Iterable<TaskTemplate> findTaskTemplates(List<TaskTemplate> taskTemplates,

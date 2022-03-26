@@ -367,7 +367,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   }
 
   @override
-  handleNotificationClicked(String receiverKey, String payload) {
+  handleNotificationClickRouted(bool isAppLaunch, String payload) {
   }
 
 }
