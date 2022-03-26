@@ -239,9 +239,9 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
   sendEvent(String receiverKey, bool isAppLaunch, String payload) {
     debugPrint("sendEvent $receiverKey $payload");
-    final justReactivate = payload.endsWith("-x"); //TODO use JSON and an explicit flag to indicate that
+    final onlyWhenAppLaunch = payload.endsWith("-x") ? isAppLaunch : true; //TODO
     final index = _pages.indexWhere((page) => page.getRoutingKey() == receiverKey);
-    if (!justReactivate && index != -1 && index != _selectedNavigationIndex) {
+    if (onlyWhenAppLaunch && index != -1) {
       _pageController.jumpToPage(index);
       setState(() {
         _selectedNavigationIndex = index;
@@ -254,7 +254,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
         }
         else {
           // If the destination page state is not initialized yet we need to call the handler callback later manually
-          Timer(Duration(milliseconds: 500), () {
+          Timer(Duration(seconds: 1), () { //TODO polling instead of constnt duration
             final selectedPageState = getSelectedPage().getGlobalKey().currentState;
             if (selectedPageState != null) {
               debugPrint("delayed call notification handler on $selectedPageState");

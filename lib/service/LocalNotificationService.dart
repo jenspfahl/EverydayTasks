@@ -130,6 +130,7 @@ class LocalNotificationService {
       usesChronometer: keepAsProgress,
       showProgress: keepAsProgress,
       autoCancel: !keepAsProgress,
+      ongoing: keepAsProgress,
       priority: Priority.high,
       importance: Importance.high,
     );

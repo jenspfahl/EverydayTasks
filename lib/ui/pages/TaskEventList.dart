@@ -752,11 +752,14 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
     if (payload.startsWith("TaskEventForm")) {
       //open new form with payload content
-      final title = payload.split("-")[1];
+      final splitted = payload.split("-");
+      final title = splitted[1];
+      final trackingStartedAt = DateTime.fromMillisecondsSinceEpoch(int.parse(splitted[2]));
       TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
         return TaskEventForm(
             formTitle: "Create new journal entry ",
             title: title,
+            trackingStarted: trackingStartedAt,
         );
       }));
 

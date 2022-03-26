@@ -21,9 +21,10 @@ class TaskEventForm extends StatefulWidget {
   final TaskGroup? taskGroup;
   final Template? template;
   final String? title;
+  final DateTime? trackingStarted;
 
   TaskEventForm({required this.formTitle, this.taskEvent, 
-    this.taskGroup, this.template, this.title});
+    this.taskGroup, this.template, this.title, this.trackingStarted});
 
   @override
   State<StatefulWidget> createState() {
@@ -142,6 +143,11 @@ class _TaskEventFormState extends State<TaskEventForm> {
       if (_selectedWhenOnDate == WhenOnDate.CUSTOM) {
         _customWhenOn = startedOn;
       }
+    }
+
+
+    if (widget.trackingStarted != null) {
+      _startTracking(trackingStart: widget.trackingStarted!);
     }
 
   }
@@ -408,7 +414,12 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                             "Start tracking",
                                             "There are some values which will be overwritten when starting the tracking. Continue?",
                                             okPressed: () {
-                                              _startTracking();
+                                              setState(() {
+                                                _startTracking();
+                                                _showPermanentNotification();
+                                                trackIconKey.currentState?.refresh(true);
+                                              });
+
                                               Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
                                             },
                                             cancelPressed: () {
@@ -417,11 +428,16 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                         );
                                       }
                                       else {
-                                        _startTracking();
+                                        setState(() {
+                                          _startTracking();
+                                          _showPermanentNotification();
+                                          trackIconKey.currentState?.refresh(true);
+                                        });
                                       }
                                     }
                                     else {
                                       _stopTracking();
+                                      trackIconKey.currentState?.refresh(false);
                                     }
                                   });
                                 }),
@@ -491,22 +507,17 @@ class _TaskEventFormState extends State<TaskEventForm> {
     }
   }
 
-  void _startTracking() {
+  void _startTracking({DateTime? trackingStart}) {
 
-    setState(() {
-      _trackingStart = DateTime.now();
+    _trackingStart = trackingStart ?? DateTime.now();
 
-      _selectedWhenAtDay = AroundWhenAtDay.CUSTOM;
-      _customWhenAt = TimeOfDay.fromDateTime(_trackingStart!);
+    _selectedWhenAtDay = AroundWhenAtDay.CUSTOM;
+    _customWhenAt = TimeOfDay.fromDateTime(_trackingStart!);
 
-      _selectedWhenOnDate = WhenOnDate.CUSTOM;
-      _customWhenOn = truncToDate(_trackingStart!);
-
-    });
+    _selectedWhenOnDate = WhenOnDate.CUSTOM;
+    _customWhenOn = truncToDate(_trackingStart!);
 
     _updateTracking();
-
-    trackIconKey.currentState?.refresh(true);
 
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
@@ -514,10 +525,13 @@ class _TaskEventFormState extends State<TaskEventForm> {
       });
     });
 
+  }
+
+  void _showPermanentNotification() {
     final currentTitle = _titleController.text;
-
-    final payload = "TaskEventForm-$currentTitle-x";
-
+    
+    final payload = "TaskEventForm-$currentTitle-${_trackingStart!.millisecondsSinceEpoch.toString()}-x";
+    
     _notificationService.showNotification(
         "TaskEvents", //we route to task events and there it will be rerouted to here
         TRACKING_NOTIFICATIOM_ID,
@@ -552,7 +566,6 @@ class _TaskEventFormState extends State<TaskEventForm> {
       _notificationService.cancelNotification(TRACKING_NOTIFICATIOM_ID);
     }
     _trackingStart = null;
-    trackIconKey.currentState?.refresh(false);
     _timer?.cancel();
   }
 
