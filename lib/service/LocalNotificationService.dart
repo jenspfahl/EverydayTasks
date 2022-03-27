@@ -101,6 +101,10 @@ class LocalNotificationService {
             _handlePayload(true, payload);
           }
     });
+    _flutterLocalNotificationsPlugin.pendingNotificationRequests().then((pendingNotifications) {
+      pendingNotifications.forEach((element) {debugPrint("pending notification: ${element.id} ${element.title} ${element.payload}");});
+    });
+
   }
 
   void _handlePayload(bool isAppLaunch, String payload) {

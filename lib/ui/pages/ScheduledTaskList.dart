@@ -67,6 +67,7 @@ enum SortBy {PROGRESS, REMAINING_TIME, GROUP, TITLE,}
 
 class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with AutomaticKeepAliveClientMixin<ScheduledTaskList> {
   List<ScheduledTask> _scheduledTasks = [];
+  bool _initialLoaded = false;
   int _selectedTile = -1;
   bool _disableNotification = false;
   SortBy _sortBy = SortBy.PROGRESS;
@@ -100,12 +101,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
       setState(() {
         _scheduledTasks = scheduledTasks;
+        _initialLoaded = true;
         _sortList();
 
         // refresh scheduled notifications. Could be lost if phone was reseted.
         _scheduledTasks.forEach((scheduledTask) => _rescheduleNotification(scheduledTask));
-
-        _notificationService.handleAppLaunchNotification();
       });
     });
   }
@@ -279,10 +279,25 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
   handleNotificationClickRouted(bool isAppLaunch, String payload) {
-    setState(() {
-      final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == payload);
-      _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
-    });
+    if (_initialLoaded) {
+      setState(() {
+        final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == payload);
+        _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
+      });
+    }
+    else {
+      Timer.periodic(Duration(milliseconds: 100), (timer) {
+        if (_initialLoaded) {
+          timer.cancel();
+          debugPrint("jump to schedule after initial load");
+          setState(() {
+            final clickedScheduledTask = _scheduledTasks.firstWhere((
+                scheduledTask) => scheduledTask.id.toString() == payload);
+            _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
+          });
+        }
+      });
+    }
   }
 
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {

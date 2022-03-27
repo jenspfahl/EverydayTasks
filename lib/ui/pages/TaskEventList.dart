@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -749,26 +750,44 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   @override
   handleNotificationClickRouted(bool isAppLaunch, String payload) async {
     debugPrint("_handle TaskEventList: payload=$payload $isAppLaunch");
+    final index = payload.indexOf("-");
+    if (index == -1) {
+      debugPrint("not proper formed payload");
+      return;
+    }
+    final subRoutingKey = payload.substring(0, index);
+    final stateAsJsonString = payload.substring(index + 1);
 
-    if (payload.startsWith("TaskEventForm")) {
+    if (subRoutingKey == "TaskEventForm" && stateAsJsonString.isNotEmpty) {
       //open new form with payload content
-      final splitted = payload.split("-");
-      final title = splitted[1];
-      final trackingStartedAt = DateTime.fromMillisecondsSinceEpoch(int.parse(splitted[2]));
-      TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      debugPrint("json to decode: $stateAsJsonString");
+
+      Map<String, dynamic> stateAsJson = jsonDecode(stateAsJsonString);
+      final isCreation = stateAsJson['taskEventId'] == null;
+      TaskEvent? taskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
         return TaskEventForm(
-            formTitle: "Create new journal entry ",
-            title: title,
-            trackingStarted: trackingStartedAt,
+            formTitle: isCreation ? "Create new journal entry" : "Change journal entry",
+            stateAsJson: stateAsJson,
         );
       }));
 
-      if (newTaskEvent != null) {
-        TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-          ScaffoldMessenger.of(super.context).showSnackBar(
-              SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
-          addTaskEvent(newTaskEvent);
-        });
+      if (taskEvent != null) {
+        if (isCreation) {
+          TaskEventRepository.insert(taskEvent).then((newTaskEvent) {
+            ScaffoldMessenger.of(super.context).showSnackBar(
+                SnackBar(content: Text(
+                    'Journal entry with name \'${newTaskEvent.title}\' created')));
+            addTaskEvent(newTaskEvent);
+          });
+        }
+        else {
+          TaskEventRepository.update(taskEvent).then((changedTaskEvent) {
+            ScaffoldMessenger.of(super.context).showSnackBar(
+                SnackBar(content: Text(
+                    'Journal entry with name \'${changedTaskEvent.title}\' changed')));
+            _updateTaskEvent(taskEvent, changedTaskEvent);
+          });
+        }
       }
     }
   }

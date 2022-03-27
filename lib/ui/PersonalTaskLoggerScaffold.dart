@@ -66,6 +66,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     _notificationService.handleAppLaunchNotification();
   }
 
+
+
   PageScaffold getSelectedPage() {
     return _pages.elementAt(_selectedNavigationIndex);
   }
@@ -155,11 +157,15 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     var selectedPageState = getSelectedPage().getGlobalKey().currentState;
     if (selectedPageState == null) {
       // page state not yet initialized, trigger it for later
-      Timer(Duration(seconds: 1), () {
-        setState(() {
-          debugPrint("refresh ui state ${getSelectedPage().key}");
-          // refresh
-        });
+      Timer.periodic(Duration(milliseconds: 100), (timer) {
+          var selectedPageState = getSelectedPage().getGlobalKey().currentState;
+          if (selectedPageState != null) {
+            timer.cancel();
+            debugPrint("refresh ui state $selectedPageState");
+            setState(() {
+              // refresh
+            });
+          }
       });
       return null;
     }
@@ -239,7 +245,17 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
   sendEvent(String receiverKey, bool isAppLaunch, String payload) {
     debugPrint("sendEvent $receiverKey $payload");
-    final onlyWhenAppLaunch = payload.endsWith("-x") ? isAppLaunch : true; //TODO
+
+    var onlyWhenAppLaunchIndicator = "";
+    if (payload.startsWith("onlyWhenAppLaunch")) {
+      final index = payload.indexOf("-");
+      if (index != -1) {
+        onlyWhenAppLaunchIndicator = payload.substring(0, index);
+        payload = payload.substring(index + 1);
+      }
+    }
+
+    final onlyWhenAppLaunch = onlyWhenAppLaunchIndicator == "onlyWhenAppLaunch:true" ? isAppLaunch : true;
     final index = _pages.indexWhere((page) => page.getRoutingKey() == receiverKey);
     if (onlyWhenAppLaunch && index != -1) {
       _pageController.jumpToPage(index);
@@ -254,9 +270,10 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
         }
         else {
           // If the destination page state is not initialized yet we need to call the handler callback later manually
-          Timer(Duration(seconds: 1), () { //TODO polling instead of constnt duration
+          Timer.periodic(Duration(milliseconds: 100), (timer) {
             final selectedPageState = getSelectedPage().getGlobalKey().currentState;
             if (selectedPageState != null) {
+              timer.cancel();
               debugPrint("delayed call notification handler on $selectedPageState");
               selectedPageState.handleNotificationClickRouted(isAppLaunch, payload);
             }

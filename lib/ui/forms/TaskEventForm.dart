@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
+import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/ui/SeverityPicker.dart';
@@ -21,10 +25,10 @@ class TaskEventForm extends StatefulWidget {
   final TaskGroup? taskGroup;
   final Template? template;
   final String? title;
-  final DateTime? trackingStarted;
+  final Map<String, dynamic>? stateAsJson;
 
   TaskEventForm({required this.formTitle, this.taskEvent, 
-    this.taskGroup, this.template, this.title, this.trackingStarted});
+    this.taskGroup, this.template, this.title, this.stateAsJson});
 
   @override
   State<StatefulWidget> createState() {
@@ -37,10 +41,11 @@ class _TaskEventFormState extends State<TaskEventForm> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  final TaskEvent? _taskEvent;
-  final TaskGroup? _taskGroup;
-  final Template? _template;
   final String? _title;
+
+  TaskEvent? _taskEvent;
+  TaskGroup? _taskGroup;
+  Template? _template;
 
   TaskGroup? _selectedTaskGroup;
 
@@ -121,7 +126,6 @@ class _TaskEventFormState extends State<TaskEventForm> {
       _titleController.text = _title!;
     }
 
-
     if (selectedTaskGroupId != null) {
       _selectedTaskGroup = findPredefinedTaskGroupById(selectedTaskGroupId);
     }
@@ -145,9 +149,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
       }
     }
 
-
-    if (widget.trackingStarted != null) {
-      _startTracking(trackingStart: widget.trackingStarted!);
+    if (widget.stateAsJson != null) {
+      _setStateFromJson(widget.stateAsJson!);
+      _startTracking(trackingStart: _trackingStart);
     }
 
   }
@@ -161,7 +165,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   @override
   Widget build(BuildContext context) {
-    final trackIcon = ToggleActionIcon(Icons.stop_circle_outlined, Icons.not_started_outlined, false, trackIconKey);
+    final trackIcon = ToggleActionIcon(Icons.stop_circle_outlined, Icons.not_started_outlined, _trackingStart != null, trackIconKey);
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -529,8 +533,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   void _showPermanentNotification() {
     final currentTitle = _titleController.text;
-    
-    final payload = "TaskEventForm-$currentTitle-${_trackingStart!.millisecondsSinceEpoch.toString()}-x";
+
+    final stateAsJson = jsonEncode(this);
+    final payload = "onlyWhenAppLaunch:true-TaskEventForm-$stateAsJson";
     
     _notificationService.showNotification(
         "TaskEvents", //we route to task events and there it will be rerouted to here
@@ -567,6 +572,46 @@ class _TaskEventFormState extends State<TaskEventForm> {
     }
     _trackingStart = null;
     _timer?.cancel();
+  }
+
+  Map<String, dynamic> toJson() => {
+    'trackingStart' : _trackingStart?.millisecondsSinceEpoch,
+    'title': _titleController.text,
+    'description': _descriptionController.text,
+    'severity': _severity.index,
+    'taskGroupId': _selectedTaskGroup?.id ?? _template?.taskGroupId,
+    'templateId': _template?.tId?.id,
+    'isVariant': _template?.isVariant(),
+    'taskEventId' : _taskEvent?.id,
+  };
+
+  void _setStateFromJson(Map<String, dynamic> jsonMap) {
+    _trackingStart = DateTime.fromMillisecondsSinceEpoch(jsonMap['trackingStart']);
+    _titleController.text = jsonMap['title'];
+    _descriptionController.text = jsonMap['description'];
+    _severity = Severity.values.elementAt(jsonMap['severity']);
+
+    int? taskGroupId = jsonMap['taskGroupId'];
+    if (taskGroupId != null) {
+      _selectedTaskGroup = findPredefinedTaskGroupById(taskGroupId);
+    }
+
+    int? templateId = jsonMap['templateId'];
+    bool? isVariant = jsonMap['isVariant'];
+    if (templateId != null && isVariant != null) {
+      TemplateRepository.getById(TemplateId(templateId, isVariant))
+          .then((foundTemplate) {
+            _template = foundTemplate;
+      });
+    }
+
+    int? taskEventId = jsonMap['taskEventId'];
+    if (taskEventId != null) {
+      TaskEventRepository.getById(taskEventId)
+          .then((foundTaskEvent) {
+            _taskEvent = foundTaskEvent;
+      });
+    }
   }
 
 }
