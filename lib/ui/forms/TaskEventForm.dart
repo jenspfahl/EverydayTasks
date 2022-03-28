@@ -11,6 +11,7 @@ import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
+import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
@@ -18,6 +19,7 @@ import 'package:personaltasklogger/util/dates.dart';
 import '../ToggleActionIcon.dart';
 
 final trackIconKey = new GlobalKey<ToggleActionIconState>();
+final TRACKING_NOTIFICATION_ID = -12345678;
 
 class TaskEventForm extends StatefulWidget {
   final String formTitle;
@@ -65,8 +67,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   Timer? _timer;
   final _notificationService = LocalNotificationService();
-
-  final TRACKING_NOTIFICATIOM_ID = -12345678;
+  final _preferenceService = PreferenceService();
 
   _TaskEventFormState([this._taskEvent, this._taskGroup, this._template, this._title]);
 
@@ -539,7 +540,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
     
     _notificationService.showNotification(
         "TaskEvents", //we route to task events and there it will be rerouted to here
-        TRACKING_NOTIFICATIOM_ID,
+        TRACKING_NOTIFICATION_ID,
         "Tracking started",
         currentTitle.isNotEmpty
             ? "'$currentTitle' started at ${formatToTime(_trackingStart!)}"
@@ -547,16 +548,21 @@ class _TaskEventFormState extends State<TaskEventForm> {
         CHANNEL_ID_TRACKING,
         true,
         payload);
+
+    _preferenceService.setString(getPrefKeyFromTrackingId(), payload);
   }
 
   @override
   void deactivate() {
     _timer?.cancel();
     if (_trackingStart != null) {
-      _notificationService.cancelNotification(TRACKING_NOTIFICATIOM_ID);
+      _notificationService.cancelNotification(TRACKING_NOTIFICATION_ID);
+      _preferenceService.remove(getPrefKeyFromTrackingId());
     }
     super.deactivate();
   }
+
+  String getPrefKeyFromTrackingId() => "payload_of_notification:$TRACKING_NOTIFICATION_ID";
 
 
   void _updateTracking() {
@@ -568,7 +574,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   void _stopTracking() {
     if (_trackingStart != null) {
-      _notificationService.cancelNotification(TRACKING_NOTIFICATIOM_ID);
+      _notificationService.cancelNotification(TRACKING_NOTIFICATION_ID);
+      _preferenceService.remove(getPrefKeyFromTrackingId());
     }
     _trackingStart = null;
     _timer?.cancel();

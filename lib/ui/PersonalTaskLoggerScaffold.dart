@@ -3,11 +3,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
+import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/pages/QuickAddTaskEventPage.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 
+import 'forms/TaskEventForm.dart';
 import 'pages/TaskEventList.dart';
 
 
@@ -46,6 +48,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
   late List<PageScaffold> _pages;
   final _notificationService = LocalNotificationService();
+  final _preferenceService = PreferenceService();
 
   PersonalTaskLoggerScaffoldState() {
 
@@ -62,7 +65,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   @override
   void initState() {
     super.initState();
-    _notificationService.addHandler(sendEvent);
+    _notificationService.addNotificationClickedHandler(sendEventFromClicked);
+    _notificationService.addActiveNotificationHandler(sendEventFromActiveNotification);
     _notificationService.handleAppLaunchNotification();
   }
 
@@ -129,7 +133,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
   @override
   void deactivate() {
-    _notificationService.removeHandler(sendEvent);
+    _notificationService.removeNotificationClickedHandler(sendEventFromClicked);
+    _notificationService.removeActiveNotificationHandler(sendEventFromActiveNotification);
     super.deactivate();
   }
 
@@ -243,8 +248,24 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     });
   }
 
-  sendEvent(String receiverKey, bool isAppLaunch, String payload) {
-    debugPrint("sendEvent $receiverKey $payload");
+  String getPrefKeyFromTrackingId() => "payload_of_notification:$TRACKING_NOTIFICATION_ID";
+
+  sendEventFromActiveNotification(int id, String? channelId) {
+    debugPrint("sendEventFromActiveNotification $id $channelId");
+
+    //this is a hack. The tracking specific code should not live here but it works for now.
+    if (id == TRACKING_NOTIFICATION_ID) {
+      _preferenceService.getString(getPrefKeyFromTrackingId()).then((payload) {
+        if (payload != null) {
+          // simulate click on notification
+          sendEventFromClicked("TaskEvents", true, payload);
+        }
+      });
+    }
+  }
+
+  sendEventFromClicked(String receiverKey, bool isAppLaunch, String payload) {
+    debugPrint("sendEventFromClicked $receiverKey $payload");
 
     var onlyWhenAppLaunchIndicator = "";
     if (payload.startsWith("onlyWhenAppLaunch")) {

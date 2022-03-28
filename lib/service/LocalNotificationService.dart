@@ -14,7 +14,8 @@ class LocalNotificationService {
 
   static final LocalNotificationService _notificationService = LocalNotificationService._internal();
 
-  static late List<Function(String receiverKey, bool isAppLaunch, String payload)> _handler = [];
+  static List<Function(String receiverKey, bool isAppLaunch, String payload)> _notificationClickedHandler = [];
+  static List<Function(int id, String? channelId)> _activeNotificationHandler = [];
 
   factory LocalNotificationService() {
     return _notificationService;
@@ -25,13 +26,22 @@ class LocalNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
 
-  void addHandler(Function(String receiverKey, bool isAppLaunch, String payload) handler) {
-    _handler.add(handler);
+  void addNotificationClickedHandler(Function(String receiverKey, bool isAppLaunch, String payload) handler) {
+    _notificationClickedHandler.add(handler);
   }
 
-  void removeHandler(Function(String receiverKey, bool isAppLaunch, String payload) handler) {
-    _handler.remove(handler);
+  void removeNotificationClickedHandler(Function(String receiverKey, bool isAppLaunch, String payload) handler) {
+    _notificationClickedHandler.remove(handler);
   }
+
+  void addActiveNotificationHandler(Function(int id, String? channelId) handler) {
+    _activeNotificationHandler.add(handler);
+  }
+
+  void removeActiveNotificationHandler(Function(int id, String? channelId) handler) {
+    _activeNotificationHandler.remove(handler);
+  }
+
 
   Future<void> init() async {
     final AndroidInitializationSettings initializationSettingsAndroid =
@@ -55,7 +65,7 @@ class LocalNotificationService {
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (String? payload) async {
           if (payload != null) {
-            if (_handler.isNotEmpty) {
+            if (_notificationClickedHandler.isNotEmpty) {
               _handlePayload(false, payload);
             }
           }
@@ -101,10 +111,18 @@ class LocalNotificationService {
             _handlePayload(true, payload);
           }
     });
+
     _flutterLocalNotificationsPlugin.pendingNotificationRequests().then((pendingNotifications) {
       pendingNotifications.forEach((element) {debugPrint("pending notification: ${element.id} ${element.title} ${element.payload}");});
     });
 
+    AndroidFlutterLocalNotificationsPlugin? nativePlugin = _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation();
+    nativePlugin?.getActiveNotifications().then((activeNotifications) {
+      activeNotifications?.forEach((element) {
+        _handleActiveNotification(element.id, element.channelId);
+      });
+
+    });
   }
 
   void _handlePayload(bool isAppLaunch, String payload) {
@@ -114,8 +132,13 @@ class LocalNotificationService {
     if (index != -1) {
       final receiverKey = payload.substring(0, index);
       final actualPayload = payload.substring(index + 1);
-      _handler.forEach((h) => h.call(receiverKey, isAppLaunch, actualPayload));
+      _notificationClickedHandler.forEach((h) => h.call(receiverKey, isAppLaunch, actualPayload));
     }
+  }
+  
+  void _handleActiveNotification(int id, String? channelId) {
+    debugPrint("active notification: $id $channelId");
+    _activeNotificationHandler.forEach((h) => h.call(id, channelId));
   }
 
 

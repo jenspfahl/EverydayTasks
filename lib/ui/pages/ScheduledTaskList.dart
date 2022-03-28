@@ -448,7 +448,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         if (taskEventListState != null) {
                           taskEventListState.clearFilters();
                           taskEventListState.filterByTaskEventIds(scheduledTaskEvents.map((e) => e.taskEventId));
-                          root.sendEvent(receiverKey, false, lastEvent.taskEventId.toString());
+                          root.sendEventFromClicked(receiverKey, false, lastEvent.taskEventId.toString());
                         }
                       }
                     }

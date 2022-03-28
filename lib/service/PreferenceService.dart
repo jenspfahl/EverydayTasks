@@ -47,5 +47,11 @@ class PreferenceService {
 
     return prefs.setBool(key, value);
   }
+
+  Future<bool> remove(String key) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    return prefs.remove(key);
+  }
 }
 
