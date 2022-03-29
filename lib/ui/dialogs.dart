@@ -148,7 +148,7 @@ Future<bool?> showTemplateDialog(BuildContext context, String title,
   );
 
   AlertDialog alert = AlertDialog(
-    title: Text(title),
+    title: Text(title), //TODO Row (Test,  ButtonBar (Search,Expand))
     content: TaskTemplateList.withSelectionCallback(
         selectedItem,
         onlyHidden: onlyHidden,

@@ -138,8 +138,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 .toList(),
                 expandAll
         ))
-        .where((templateNode) => (_searchQuery != null)
-          ? (templateNode.children.isNotEmpty || _filterSearchQuery(templateNode.label))
+        .where((taskGroupNode) => (_searchQuery != null)
+          ? (taskGroupNode.children.isNotEmpty || _filterSearchQuery(taskGroupNode.label))
           : true // bypass
         )
         .toList();
@@ -179,7 +179,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       _searchQuery = searchQuery;
       if (_searchQuery != null && _searchQuery!.isNotEmpty) {
         _selectedNodeKey = null;
-        _fillNodes(_allTemplates, true, true);
+        _forceExpandOrCollapseAll = null;
+        _fillNodes(_allTemplates, false, true);
       }
       else {
         _fillNodes(_allTemplates, false, false);
