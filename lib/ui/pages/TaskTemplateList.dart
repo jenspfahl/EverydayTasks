@@ -11,12 +11,15 @@ import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/forms/TaskTemplateForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 
+import '../ToggleActionIcon.dart';
 import '../dialogs.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
 
 @immutable
 class TaskTemplateList extends PageScaffold<TaskTemplateListState> {
+
+  final expandIconKey = new GlobalKey<ToggleActionIconState>();
 
   final Function(Object)? _selectedItem; //TODO to ValueChanged
   final PagesHolder? _pagesHolder;
@@ -59,6 +62,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   List<Node> _nodes = [];
   late TreeViewController _treeViewController;
   String? _searchQuery;
+  bool? _forceExpandOrCollapseAll;
 
   /**
    * index 0: TaskTemplates
@@ -159,7 +163,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       parent: true,
       data: group,
       children: templates,
-      expanded: expandAll || _containsSelectedNode(templates) || _containsExpandedChildren(templates),
+      expanded: _forceExpandOrCollapseAll != null
+          ? _forceExpandOrCollapseAll!
+          : (expandAll || _containsSelectedNode(templates) || _containsExpandedChildren(templates)),
+
     );
   }
 
@@ -182,6 +189,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
   @override
   List<Widget>? getActions(BuildContext context) {
+    final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, isAllExpanded(), widget.expandIconKey);
+
     return [
       IconButton(
           icon: const Icon(Icons.undo),
@@ -267,7 +276,20 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 }
             );
           },
-      )
+      ),
+      IconButton(
+        icon: expandIcon,
+        onPressed: () {
+          if (isAllExpanded()) {
+            collapseAll();
+            widget.expandIconKey.currentState?.refresh(false);
+          }
+          else {
+            expandAll();
+            widget.expandIconKey.currentState?.refresh(true);
+          }
+        },
+      ),
     ];
   }
 
@@ -287,7 +309,9 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       iconColor: getShadedColor(group.colorRGB, false),
       data: template,
       children: templateVariants,
-      expanded: expandAll || _containsSelectedNode(templateVariants),
+      expanded: _forceExpandOrCollapseAll != null
+          ? _forceExpandOrCollapseAll!
+          : (expandAll || _containsSelectedNode(templateVariants)),
     );
   }
 
@@ -657,6 +681,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
   void _updateSelection(String key) {
     _selectedNodeKey = key;
+    _forceExpandOrCollapseAll = null;
     _treeViewController =
         _treeViewController.copyWith(selectedKey: key);
     
@@ -710,6 +735,21 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     return templateNodes.where((templateNode) => templateNode.expanded).isNotEmpty;
   }
 
+  bool isAllExpanded() => _forceExpandOrCollapseAll == true;
+
+  void expandAll() {
+    setState(() {
+      _forceExpandOrCollapseAll = true;
+      _fillNodes(_allTemplates, true, true);
+    });
+  }
+
+  void collapseAll() {
+    setState(() {
+      _forceExpandOrCollapseAll = false;
+      _fillNodes(_allTemplates, true, false);
+    });
+  }
 }
 
 
