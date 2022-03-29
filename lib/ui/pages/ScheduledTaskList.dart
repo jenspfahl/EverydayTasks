@@ -116,7 +116,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   @override
   List<Widget>? getActions(BuildContext context) {
-    final disableNotificationIcon = ToggleActionIcon(Icons.notifications_on_outlined, Icons.notifications_off_outlined, false, disableNotificationIconKey);
+    final disableNotificationIcon = ToggleActionIcon(Icons.notifications_on_outlined, Icons.notifications_off_outlined, _disableNotification, disableNotificationIconKey);
     _preferenceService.getBool(PREF_DISABLE_NOTIFICATIONS).then((value) {
       if (value != null) {
         _updateDisableNotifications(value, withSnackMsg: false);

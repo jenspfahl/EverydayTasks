@@ -11,10 +11,14 @@ import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
 
+import '../ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
 
 final String PREF_SORT_BY = "quickAdd/sortedBy";
+final String PREF_PIN_QUICK_ADD = "quickAdd/pinPage";
+
+final pinQuickAddPageIconKey = new GlobalKey<ToggleActionIconState>();
 
 @immutable
 class QuickAddTaskEventPage extends PageScaffold<QuickAddTaskEventPageState> {
@@ -51,7 +55,11 @@ enum SortBy {GROUP, TITLE,}
 
 class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage> with AutomaticKeepAliveClientMixin<QuickAddTaskEventPage> {
   List<Template> _templates = [];
+
   SortBy _sortBy = SortBy.GROUP;
+  bool _pinQuickAddPage = false;
+
+
   final _preferenceService = PreferenceService();
 
   @override
@@ -156,7 +164,23 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
 
   @override
   List<Widget>? getActions(BuildContext context) {
+    final pinQuickAddPage = ToggleActionIcon(Icons.push_pin, Icons.push_pin_outlined, _pinQuickAddPage, pinQuickAddPageIconKey);
+    _preferenceService.getBool(PREF_PIN_QUICK_ADD).then((value) {
+      if (value != null) {
+        _updatePinQuickAddPage(value, withSnackMsg: false);
+      }
+      else {
+        pinQuickAddPageIconKey.currentState?.refresh(_pinQuickAddPage);
+      }
+    });
+
     return [
+      IconButton(
+          icon: pinQuickAddPage,
+          onPressed: () {
+            _pinQuickAddPage = !_pinQuickAddPage;
+            _updatePinQuickAddPage(_pinQuickAddPage, withSnackMsg: true);
+          }),
       GestureDetector(
         child: Padding(padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Icon(Icons.sort_outlined)),
@@ -370,4 +394,25 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   handleNotificationClickRouted(bool isAppLaunch, String payload) {
   }
 
+
+  void _updatePinQuickAddPage(bool value, {required bool withSnackMsg}) {
+    setState(() {
+      _pinQuickAddPage = value;
+      pinQuickAddPageIconKey.currentState?.refresh(_pinQuickAddPage);
+      if (_pinQuickAddPage) {
+        if (withSnackMsg) {
+          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
+              content: Text('QuickAdd page pinned from App start')));
+        }
+
+      }
+      else {
+        if (withSnackMsg) {
+          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
+              content: Text('QuickAdd page unpinned from App start')));
+        }
+      }
+      _preferenceService.setBool(PREF_PIN_QUICK_ADD, _pinQuickAddPage);
+    });
+  }
 }

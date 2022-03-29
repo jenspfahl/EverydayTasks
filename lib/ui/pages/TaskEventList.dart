@@ -25,6 +25,7 @@ import '../forms/TaskEventForm.dart';
 
 final filterIconKey = new GlobalKey<ToggleActionIconState>();
 final expandIconKey = new GlobalKey<ToggleActionIconState>();
+final TASK_EVENT_LIST_ROUTING_KEY = "TaskEvents";
 
 @immutable
 class TaskEventList extends PageScaffold<TaskEventListState> {
@@ -53,7 +54,7 @@ class TaskEventList extends PageScaffold<TaskEventListState> {
   
   @override
   String getRoutingKey() {
-    return "TaskEvents";
+    return TASK_EVENT_LIST_ROUTING_KEY;
   }
 
 }

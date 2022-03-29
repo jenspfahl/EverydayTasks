@@ -68,6 +68,16 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     _notificationService.addNotificationClickedHandler(sendEventFromClicked);
     _notificationService.addActiveNotificationHandler(sendEventFromActiveNotification);
     _notificationService.handleAppLaunchNotification();
+
+    //this is a hack since this is QuickAdd related code here
+    _preferenceService.getBool(PREF_PIN_QUICK_ADD).then((pinQuickAddPage) {
+      if (pinQuickAddPage == true) {
+        setState(() {
+          _selectedNavigationIndex = 0;
+          _pageController.jumpToPage(_selectedNavigationIndex);
+        });
+      }
+    });
   }
 
 
@@ -248,8 +258,6 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     });
   }
 
-  String getPrefKeyFromTrackingId() => "payload_of_notification:$TRACKING_NOTIFICATION_ID";
-
   sendEventFromActiveNotification(int id, String? channelId) {
     debugPrint("sendEventFromActiveNotification $id $channelId");
 
@@ -258,7 +266,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       _preferenceService.getString(getPrefKeyFromTrackingId()).then((payload) {
         if (payload != null) {
           // simulate click on notification
-          sendEventFromClicked("TaskEvents", true, payload);
+          sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, true, payload);
         }
       });
     }

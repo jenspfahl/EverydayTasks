@@ -14,12 +14,14 @@ import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
+import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 import '../ToggleActionIcon.dart';
 
 final trackIconKey = new GlobalKey<ToggleActionIconState>();
 final TRACKING_NOTIFICATION_ID = -12345678;
+String getPrefKeyFromTrackingId() => "payload_of_notification:$TRACKING_NOTIFICATION_ID";
 
 class TaskEventForm extends StatefulWidget {
   final String formTitle;
@@ -539,7 +541,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
     final payload = "onlyWhenAppLaunch:true-TaskEventForm-$stateAsJson";
     
     _notificationService.showNotification(
-        "TaskEvents", //we route to task events and there it will be rerouted to here
+        TASK_EVENT_LIST_ROUTING_KEY, //we route to task events and there it will be rerouted to here
         TRACKING_NOTIFICATION_ID,
         "Tracking started",
         currentTitle.isNotEmpty
@@ -561,8 +563,6 @@ class _TaskEventFormState extends State<TaskEventForm> {
     }
     super.deactivate();
   }
-
-  String getPrefKeyFromTrackingId() => "payload_of_notification:$TRACKING_NOTIFICATION_ID";
 
 
   void _updateTracking() {
