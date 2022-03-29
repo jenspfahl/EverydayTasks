@@ -43,7 +43,7 @@ class TaskTemplateList extends PageScaffold<TaskTemplateListState> {
 
   @override
   bool withSearchBar() {
-    return false;
+    return true;
   }
 
   @override
@@ -55,9 +55,16 @@ class TaskTemplateList extends PageScaffold<TaskTemplateListState> {
 
 class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with AutomaticKeepAliveClientMixin<TaskTemplateList> {
 
-  String? _selectedNode;
+  String? _selectedNodeKey;
   List<Node> _nodes = [];
   late TreeViewController _treeViewController;
+  String? _searchQuery;
+
+  /**
+   * index 0: TaskTemplates
+   * index 1: TaskTemplateVariants
+   */
+  List<List<Template>> _allTemplates = [];
 
   @override
   void initState() {
@@ -66,55 +73,14 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     final taskTemplatesFuture = TemplateRepository.getAllTaskTemplates(widget.onlyHidden??false);
     final taskTemplateVariantsFuture = TemplateRepository.getAllTaskTemplateVariants(widget.onlyHidden??false);
 
-    _nodes = predefinedTaskGroups.map((group) => createTaskGroupNode(group, [])).toList();
+    _nodes = predefinedTaskGroups.map((group) => createTaskGroupNode(group, [], widget.expandAll??false)).toList();
 
     Future.wait([taskTemplatesFuture, taskTemplateVariantsFuture]).then((allTemplates) {
       
       setState(() {
+        _allTemplates = allTemplates;
         // filter only hidden but non-hidden if have hidden leaves
-
-        final taskTemplates = allTemplates[0] as List<TaskTemplate>;
-        final taskTemplateVariants = allTemplates[1] as List<TaskTemplateVariant>;
-
-        _nodes = predefinedTaskGroups.map((group) =>
-            createTaskGroupNode(
-                group,
-                findTaskTemplates(taskTemplates, group)
-                    .where((template) => (widget.onlyHidden??false)
-                      ? true // filter all to filter non-hidden with hidden children
-                      : (template.hidden??false)==false
-                    )
-                    .map((template) =>
-                    createTaskTemplateNode(
-                        template,
-                        group,
-                        findTaskTemplateVariants(taskTemplateVariants, template)
-                            .where((variant) => (widget.onlyHidden??false) 
-                              ? (variant.hidden??false)==true
-                              : (variant.hidden??false)==false
-                            )
-                            .map((variant) =>
-                            createTaskTemplateVariantNode(
-                                variant,
-                                group
-                            ))
-                            .toList()
-                    ))
-                    .where((templateNode) => (widget.onlyHidden??false)
-                      ? (templateNode.children.isNotEmpty || ((templateNode.data as Template).hidden??false))
-                      : true // bypass
-                    )
-                    .toList()
-            ))
-            .toList();
-
-        if (widget.hideEmptyNodes??false) {
-          _nodes.removeWhere((node) => node.children.isEmpty);
-        }
-        _treeViewController = TreeViewController(
-          children: _nodes,
-          selectedKey: _selectedNode,
-        );
+        _fillNodes(allTemplates, widget.hideEmptyNodes??false, widget.expandAll??false);
       });
     });
 
@@ -126,8 +92,65 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     );
   }
 
+  void _fillNodes(List<List<Template>> allTemplates, bool hideEmptyNodes, bool expandAll) {
+    final taskTemplates = allTemplates[0] as List<TaskTemplate>;
+    final taskTemplateVariants = allTemplates[1] as List<TaskTemplateVariant>;
+    
+    _nodes = predefinedTaskGroups
+        .map((group) =>
+        createTaskGroupNode(
+            group,
+            findTaskTemplates(taskTemplates, group)
+                .where((template) => (widget.onlyHidden??false)
+                  ? true // filter all to filter non-hidden with hidden children
+                  : (template.hidden??false)==false
+                )
+                .map((template) =>
+                createTaskTemplateNode(
+                    template,
+                    group,
+                    findTaskTemplateVariants(taskTemplateVariants, template)
+                        .where((variant) => _filterSearchQuery(variant.title))
+                        .where((variant) => (widget.onlyHidden??false)
+                          ? (variant.hidden??false)==true
+                          : (variant.hidden??false)==false
+                        )
+                        .map((variant) =>
+                        createTaskTemplateVariantNode(
+                            variant,
+                            group,
+                        ))
+                        .toList(),
+                        expandAll
+                ))
+                .where((templateNode) => (widget.onlyHidden??false)
+                  ? (templateNode.children.isNotEmpty || ((templateNode.data as Template).hidden??false))
+                  : true // bypass
+                )
+                .where((templateNode) => (_searchQuery != null)
+                  ? (templateNode.children.isNotEmpty || _filterSearchQuery(templateNode.label))
+                  : true // bypass
+                )
+                .toList(),
+                expandAll
+        ))
+        .where((templateNode) => (_searchQuery != null)
+          ? (templateNode.children.isNotEmpty || _filterSearchQuery(templateNode.label))
+          : true // bypass
+        )
+        .toList();
+    
+    if (hideEmptyNodes) {
+      _nodes.removeWhere((taskGroupNode) => taskGroupNode.children.isEmpty);
+    }
+    _treeViewController = TreeViewController(
+      children: _nodes,
+      selectedKey: _selectedNodeKey,
+    );
+  }
+
   Node<TaskGroup> createTaskGroupNode(TaskGroup group,
-      List<Node<TaskTemplate>> templates) {
+      List<Node<TaskTemplate>> templates, bool expandAll) {
     return Node(
       key: group.getKey(),
       label: group.name,
@@ -136,12 +159,25 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       parent: true,
       data: group,
       children: templates,
-      expanded: widget.expandAll??false,
+      expanded: expandAll || _containsSelectedNode(templates) || _containsExpandedChildren(templates),
     );
   }
 
   @override
   void searchQueryUpdated(String? searchQuery) {
+    if (_searchQuery == searchQuery) {
+      return;
+    }
+    setState(() {
+      _searchQuery = searchQuery;
+      if (_searchQuery != null && _searchQuery!.isNotEmpty) {
+        _selectedNodeKey = null;
+        _fillNodes(_allTemplates, true, true);
+      }
+      else {
+        _fillNodes(_allTemplates, false, false);
+      }
+    });
   }
 
   @override
@@ -242,7 +278,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
   Node<TaskTemplate> createTaskTemplateNode(TaskTemplate template,
       TaskGroup group,
-      List<Node<dynamic>> templateVariants) {
+      List<Node<dynamic>> templateVariants, bool expandAll) {
     debugPrint("${template.tId} is hidden ${template.hidden}");
     return Node(
       key: template.getKey(),
@@ -251,7 +287,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       iconColor: getShadedColor(group.colorRGB, false),
       data: template,
       children: templateVariants,
-      expanded: widget.expandAll??false,
+      expanded: expandAll || _containsSelectedNode(templateVariants),
     );
   }
 
@@ -262,8 +298,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       label: variant.title,
       icon: group.iconData,
       iconColor: getShadedColor(group.colorRGB, true),
-      data: variant,
-      expanded: widget.expandAll??false,
+      data: variant
     );
   }
 
@@ -272,10 +307,11 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       debugPrint("Node ${template.getKey()} still exists");
       return;
     }
+    _allTemplates[0].add(template);
     setState(() {
       _treeViewController = _treeViewController.withAddNode(
           parent.getKey(),
-          createTaskTemplateNode(template, parent, [])
+          createTaskTemplateNode(template, parent, [], widget.expandAll??false)
       );
     });
   }  
@@ -285,6 +321,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       debugPrint("Node ${template.getKey()} still exists");
       return;
     }
+
+    _allTemplates[1].add(template);
     setState(() {
       _treeViewController = _treeViewController.withAddNode(
           parent.getKey(),
@@ -294,17 +332,23 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   }
 
   void _updateTaskTemplate(TaskTemplate template, TaskGroup taskGroup) {
+    _allTemplates[0].remove(template);
+    _allTemplates[0].add(template);
+
     setState(() {
       final children = _treeViewController.getNode(template.getKey())?.children ?? [];
       _treeViewController = _treeViewController.withUpdateNode(
           template.getKey(),
-          createTaskTemplateNode(template, taskGroup, children)
+          createTaskTemplateNode(template, taskGroup, children, widget.expandAll??false)
       );
     });
     widget._pagesHolder?.quickAddTaskEventPage?.getGlobalKey().currentState?.updateTemplate(template);
   }
 
   void _updateTaskTemplateVariant(TaskTemplateVariant template, TaskGroup taskGroup) {
+    _allTemplates[1].remove(template);
+    _allTemplates[1].add(template);
+
     setState(() {
       _treeViewController = _treeViewController.withUpdateNode(
           template.getKey(),
@@ -315,6 +359,12 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   }
 
   void _removeTemplate(Template template) {
+    if (template.isVariant()) {
+      _allTemplates[1].remove(template);
+    }
+    else {
+      _allTemplates[0].remove(template);
+    }
     setState(() {
       _treeViewController = _treeViewController.withDeleteNode(
           template.getKey(),
@@ -597,21 +647,25 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
         onNodeTap: (key) {
           debugPrint('Selected: $key');
           setState(() {
-            _selectedNode = key;
-            _treeViewController =
-                _treeViewController.copyWith(selectedKey: key);
-
-            if (widget._selectedItem != null) {
-              Object? data = _treeViewController.selectedNode?.data;
-              if (data != null) {
-                widget._selectedItem!(data);
-              }
-            }
+            _updateSelection(key);
           });
         },
         theme: _treeViewTheme,
       ),
     );
+  }
+
+  void _updateSelection(String key) {
+    _selectedNodeKey = key;
+    _treeViewController =
+        _treeViewController.copyWith(selectedKey: key);
+    
+    if (widget._selectedItem != null) {
+      Object? data = _treeViewController.selectedNode?.data;
+      if (data != null) {
+        widget._selectedItem!(data);
+      }
+    }
   }
 
   _expandNode(String key, bool expanded) {
@@ -644,6 +698,19 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     return taskTemplateVariants.where((variant) => variant.taskTemplateId == taskTemplate.tId!.id);
   }
 
+  bool _filterSearchQuery(String string) {
+    return _searchQuery == null || _searchQuery!.isEmpty || string.toLowerCase().contains(_searchQuery!.toLowerCase());
+  }
+
+  bool _containsSelectedNode(List<Node<dynamic>> templateNodes) {
+    return templateNodes.where((templateNode) => templateNode.key == _selectedNodeKey).isNotEmpty;
+  }
+
+  bool _containsExpandedChildren(List<Node<dynamic>> templateNodes) {
+    return templateNodes.where((templateNode) => templateNode.expanded).isNotEmpty;
+  }
 
 }
+
+
 
