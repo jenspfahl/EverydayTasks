@@ -25,6 +25,7 @@ import 'package:personaltasklogger/util/dates.dart';
 import '../ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
+import 'TaskEventList.dart';
 
 
 final String PREF_DISABLE_NOTIFICATIONS = "scheduledTasks/disableNotifications";
@@ -405,6 +406,15 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                         final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(newTaskEvent, scheduledTask);
                         ScheduledTaskEventRepository.insert(scheduledTaskEvent);
+
+                        PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
+                        if (root != null) {
+                          final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
+                          if (taskEventListState != null) {
+                            taskEventListState.clearFilters();
+                            root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString());
+                          }
+                        }
                       });
                     }
                   },
@@ -441,14 +451,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   .then((scheduledTaskEvents) {
                     if (scheduledTaskEvents.isNotEmpty) {
                       final lastEvent = scheduledTaskEvents.last;
-                      final receiverKey = widget._pagesHolder.taskEventList?.getRoutingKey();
                       PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-                      if (receiverKey != null && root != null) {
+                      if (root != null) {
                         final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
                         if (taskEventListState != null) {
                           taskEventListState.clearFilters();
                           taskEventListState.filterByTaskEventIds(scheduledTaskEvents.map((e) => e.taskEventId));
-                          root.sendEventFromClicked(receiverKey, false, lastEvent.taskEventId.toString());
+                          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, lastEvent.taskEventId.toString());
                         }
                       }
                     }

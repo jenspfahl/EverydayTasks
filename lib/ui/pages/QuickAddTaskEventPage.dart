@@ -14,6 +14,7 @@ import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
 import '../ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
+import 'TaskEventList.dart';
 
 final String PREF_SORT_BY = "quickAdd/sortedBy";
 final String PREF_PIN_QUICK_ADD = "quickAdd/pinPage";
@@ -136,7 +137,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                       TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                         ScaffoldMessenger.of(super.context).showSnackBar(
                             SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
-                        widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.addTaskEvent(newTaskEvent);
+                        _handleNewTaskEvent(newTaskEvent);
                       });
                     }
                   },
@@ -296,13 +297,30 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
             TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
               ScaffoldMessenger.of(super.context).showSnackBar(
                   SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
-              widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.addTaskEvent(newTaskEvent);
+              _handleNewTaskEvent(newTaskEvent);
             });
           }
         },
         cancelPressed: () {
           Navigator.pop(super.context);
         });
+  }
+
+  void _handleNewTaskEvent(TaskEvent newTaskEvent) {
+    widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.addTaskEvent(newTaskEvent);
+
+    if (_pinQuickAddPage != true) {
+      PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
+      if (root != null) {
+        final taskEventListState = widget._pagesHolder.taskEventList
+            ?.getGlobalKey()
+            .currentState;
+        if (taskEventListState != null) {
+          taskEventListState.clearFilters();
+          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString());
+        }
+      }
+    }
   }
 
   void _onCreateQuickAddPressed() {
@@ -402,14 +420,14 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
       if (_pinQuickAddPage) {
         if (withSnackMsg) {
           ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-              content: Text('QuickAdd page pinned from App start')));
+              content: Text('QuickAdd page pinned')));
         }
 
       }
       else {
         if (withSnackMsg) {
           ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-              content: Text('QuickAdd page unpinned from App start')));
+              content: Text('QuickAdd page unpinned')));
         }
       }
       _preferenceService.setBool(PREF_PIN_QUICK_ADD, _pinQuickAddPage);
