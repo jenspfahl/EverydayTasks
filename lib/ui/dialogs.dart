@@ -147,21 +147,15 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
     onPressed:  okPressed,
   );
 
+  final taskTemplateListStateKey = new GlobalKey<TaskTemplateListState>();
+  final templateDialogDescriptionStateKey = new GlobalKey<TemplateDialogDescriptionState>();
+
   AlertDialog alert = AlertDialog(
-    title: Row(children: [
-      Text(title),
-      Spacer(),
-      ButtonBar(children: [
-        Icon(Icons.search),
-        Icon(Icons.unfold_less),
-      ],)]), //TODO Row (Test,  ButtonBar (Search,Expand))
+    title: TemplateDialogBar(title, taskTemplateListStateKey, templateDialogDescriptionStateKey),
     content: Container(
       child: Column(
         children: [
-          Expanded(
-            flex: 10,
-            child: Text(description),
-          ),
+          TemplateDialogDescription(description, templateDialogDescriptionStateKey),
           Expanded(
             flex: 100,
             child: TaskTemplateList.withSelectionCallback(
@@ -169,6 +163,7 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
               onlyHidden: onlyHidden,
               hideEmptyNodes: hideEmptyNodes,
               expandAll: expandAll,
+              key: taskTemplateListStateKey,
             ),
           ),
         ],
@@ -226,3 +221,155 @@ Future<dynamic> showPopUpMenuAtTapDown(BuildContext context, TapDownDetails tapD
     elevation: 8.0,
   );
 }
+
+
+@immutable
+class TemplateDialogBar extends StatefulWidget {
+  final String title;
+  final GlobalKey<TaskTemplateListState> taskTemplateListStateKey;
+  final GlobalKey<TemplateDialogDescriptionState> templateDialogDescriptionStateKey;
+
+  TemplateDialogBar(this.title, this.taskTemplateListStateKey, this.templateDialogDescriptionStateKey);
+
+  @override
+  State<StatefulWidget> createState() => TemplateDialogBarState();
+}
+
+class TemplateDialogBarState extends State<TemplateDialogBar> {
+
+  TextEditingController _searchQueryController = TextEditingController();
+  String? _searchString;
+
+  @override
+  Widget build(BuildContext context) {
+
+    return _searchString != null
+        ? _buildSearchField()
+        : _buildBar();
+  }
+
+  Widget _buildBar() {
+    return Row(
+        children: [
+          Text(widget.title),
+          Spacer(),
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.search),
+                onPressed: _startSearch,
+              ),
+              Icon(Icons.unfold_less),
+            ],
+          )]
+    );
+  }
+
+  Widget _buildSearchField() {
+    return Row(children: [
+      IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          _stopSearching();
+        },
+      ),
+      Flexible(
+        child:
+        TextField(
+          controller: _searchQueryController,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: "Search ...",
+            border: InputBorder.none,
+          ),
+          style: TextStyle(fontSize: 16.0),
+          onChanged: (query) {
+            widget.taskTemplateListStateKey.currentState?.searchQueryUpdated(query);
+          },
+        ),
+      ),
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+        _clearOrCloseSearchBar(context);
+        },
+      )
+    ],);
+  }
+
+
+  void _startSearch() {
+    setState(() {
+      _searchString = "";
+      widget.templateDialogDescriptionStateKey.currentState?.update(false);
+    });
+  }
+
+
+  void _stopSearching() {
+    _clearSearchQuery();
+
+    setState(() {
+      _searchString = null;
+      widget.templateDialogDescriptionStateKey.currentState?.update(true);
+    });
+  }
+
+  void _clearSearchQuery() {
+    setState(() {
+      _searchQueryController.clear();
+      widget.taskTemplateListStateKey.currentState?.searchQueryUpdated("");
+
+    });
+  }
+
+  void _clearOrCloseSearchBar(BuildContext context) {
+    if (_searchQueryController.text.isEmpty) {
+      _searchString = null;
+      widget.taskTemplateListStateKey.currentState?.searchQueryUpdated(null);
+    }
+    else {
+      _clearSearchQuery();
+    }
+  }
+
+}
+
+
+@immutable
+class TemplateDialogDescription extends StatefulWidget {
+  final String description;
+
+  TemplateDialogDescription(
+      this.description,
+      GlobalKey<TemplateDialogDescriptionState> templateDialogDescriptionStateKey)
+      : super(key: templateDialogDescriptionStateKey);
+
+  @override
+  State<StatefulWidget> createState() => TemplateDialogDescriptionState();
+}
+
+class TemplateDialogDescriptionState extends State<TemplateDialogDescription> {
+
+  bool _showDescription = true;
+
+  @override
+  Widget build(BuildContext context) {
+
+    return _showDescription
+        ? Flexible(
+            flex: 11,
+            fit: FlexFit.loose,
+            child: Text(widget.description),
+          )
+        : Container();
+  }
+
+  update(bool showDescription) {
+    setState(() {
+      _showDescription = showDescription;
+    });
+  }
+
+}
+

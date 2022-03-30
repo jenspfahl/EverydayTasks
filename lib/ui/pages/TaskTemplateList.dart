@@ -26,9 +26,13 @@ class TaskTemplateList extends PageScaffold<TaskTemplateListState> {
   final bool? onlyHidden;
   final bool? hideEmptyNodes;
   final bool? expandAll;
+  bool isModal = false;
 
   TaskTemplateList(this._pagesHolder): _selectedItem = null, onlyHidden = null, hideEmptyNodes = null, expandAll = null;
-  TaskTemplateList.withSelectionCallback(this._selectedItem, {this.onlyHidden, this.hideEmptyNodes, this.expandAll}): _pagesHolder = null;
+  TaskTemplateList.withSelectionCallback(
+      this._selectedItem,
+      {this.onlyHidden, this.hideEmptyNodes, this.expandAll, Key? key})
+      :  _pagesHolder = null, isModal = true, super(key: key);
 
 
   @override
@@ -666,7 +670,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     );
 
     return Padding(
-      padding: EdgeInsets.all(16.0),
+      padding: widget.isModal ? EdgeInsets.fromLTRB(0, 8, 0, 0) : EdgeInsets.all(16.0),
       child: TreeView(
         controller: _treeViewController,
         allowParentSelect: true,
@@ -755,6 +759,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       _fillNodes(_allTemplates, true, false);
     });
   }
+
+  bool isSearchingActive() => _searchQuery != null;
 }
 
 
