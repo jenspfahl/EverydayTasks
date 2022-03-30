@@ -828,6 +828,15 @@ class _$ScheduledTaskEventDao extends ScheduledTaskEventDao {
 class _$SequencesDao extends SequencesDao {
   _$SequencesDao(this.database, this.changeListener)
       : _queryAdapter = QueryAdapter(database, changeListener),
+        _sequencesEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'SequencesEntity',
+            (SequencesEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'table': item.table,
+                  'lastId': item.lastId
+                },
+            changeListener),
         _sequencesEntityUpdateAdapter = UpdateAdapter(
             database,
             'SequencesEntity',
@@ -845,6 +854,8 @@ class _$SequencesDao extends SequencesDao {
 
   final QueryAdapter _queryAdapter;
 
+  final InsertionAdapter<SequencesEntity> _sequencesEntityInsertionAdapter;
+
   final UpdateAdapter<SequencesEntity> _sequencesEntityUpdateAdapter;
 
   @override
@@ -856,6 +867,12 @@ class _$SequencesDao extends SequencesDao {
         arguments: [table],
         queryableName: 'SequencesEntity',
         isView: false);
+  }
+
+  @override
+  Future<int> insertSequence(SequencesEntity sequence) {
+    return _sequencesEntityInsertionAdapter.insertAndReturnId(
+        sequence, OnConflictStrategy.abort);
   }
 
   @override

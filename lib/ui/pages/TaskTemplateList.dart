@@ -323,7 +323,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       label: variant.title,
       icon: group.iconData,
       iconColor: getShadedColor(group.colorRGB, true),
-      data: variant
+      data: variant,
     );
   }
 
@@ -336,23 +336,26 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     setState(() {
       _treeViewController = _treeViewController.withAddNode(
           parent.getKey(),
-          createTaskTemplateNode(template, parent, [], widget.expandAll??false)
+          createTaskTemplateNode(template, parent, [], widget.expandAll??false,
+          )
       );
+      _updateSelection(template.getKey());
     });
   }  
   
-  void _addTaskTemplateVariant(TaskTemplateVariant template, TaskGroup taskGroup, TaskTemplate parent) {
-    if (_treeViewController.getNode(template.getKey()) != null) {
-      debugPrint("Node ${template.getKey()} still exists");
+  void _addTaskTemplateVariant(TaskTemplateVariant variant, TaskGroup taskGroup, TaskTemplate parent) {
+    if (_treeViewController.getNode(variant.getKey()) != null) {
+      debugPrint("Node ${variant.getKey()} still exists");
       return;
     }
 
-    _allTemplates[1].add(template);
+    _allTemplates[1].add(variant);
     setState(() {
       _treeViewController = _treeViewController.withAddNode(
           parent.getKey(),
-          createTaskTemplateVariantNode(template, taskGroup)
+          createTaskTemplateVariantNode(variant, taskGroup)
       );
+      _updateSelection(variant.getKey());
     });
   }
 
@@ -508,18 +511,19 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
           child: const Text('Add new variant'),
           onPressed: () async {
             Navigator.pop(context);
-            Template? changedTemplate = await Navigator.push(
+            Template? newVariant = await Navigator.push(
                 context, MaterialPageRoute(builder: (context) {
               return TaskTemplateForm(
                 taskGroup!,
                 formTitle: "Add new variant",
                 template: template,
+                title: template!.title + " (variant)",
                 createNew: true,
               );
             }));
 
-            if (changedTemplate != null) {
-              TemplateRepository.save(changedTemplate)
+            if (newVariant != null) {
+              TemplateRepository.save(newVariant)
                   .then((changedTemplate) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(

@@ -41,9 +41,6 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
   AroundWhenAtDay? _selectedWhenAtDay;
   TimeOfDay? _customWhenAt;
 
-  WhenOnDate? _selectedWhenOnDate;
-  DateTime? _customWhenOn;
-
   _TaskTemplateFormState(Template? template) {
     this.template = template;
   }
@@ -62,9 +59,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
     
     AroundWhenAtDay? aroundStartedAt;
     TimeOfDay? startedAt;
-    
-    DateTime ? startedOn;
-    
+
     if (template != null) {
     
       if (template!.severity != null) {
@@ -83,7 +78,6 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
       aroundStartedAt = template!.when?.startAt ?? AroundWhenAtDay.NOW;
       startedAt = template!.when?.startAtExactly;
     
-      startedOn = DateTime.now();
     }
     
     if (widget.title != null) {
@@ -99,13 +93,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
     if (startedAt != null && _selectedWhenAtDay == AroundWhenAtDay.CUSTOM) {
       _customWhenAt = startedAt;
     }
-    
-    if (startedOn != null) {
-      _selectedWhenOnDate = fromDateTimeToWhenOnDate(startedOn);
-      if (_selectedWhenOnDate == WhenOnDate.CUSTOM) {
-        _customWhenOn = startedOn;
-      }
-    }
+
   }
 
   @override
@@ -242,97 +230,39 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 20.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              height: 64.0,
-                              width: (MediaQuery.of(context).size.width / 2) - 30,
-                              child: DropdownButtonFormField<AroundWhenAtDay?>(
-                                onTap: () => FocusScope.of(context).unfocus(),
-                                value: _selectedWhenAtDay,
-                                hint: Text(
-                                  'Choose when at',
-                                ),
-                                icon: Icon(Icons.watch_later_outlined),
-                                isExpanded: true,
-                                onChanged: (value) {
-                                  if (value == AroundWhenAtDay.CUSTOM) {
-                                    final initialWhenAt = _customWhenAt ?? TimeOfDay.now();
-                                    showTimePicker(
-                                      initialTime: initialWhenAt,
-                                      context: context,
-                                    ).then((selectedTimeOfDay) {
-                                      setState(() => _customWhenAt = selectedTimeOfDay ?? initialWhenAt);
-                                    });
-                                  }
-                                  setState(() {
-                                    _selectedWhenAtDay = value;
-                                  });
-                                },
-                                items: AroundWhenAtDay.values.map((AroundWhenAtDay whenAtDay) {
-                                  return DropdownMenuItem(
-                                    value: whenAtDay,
-                                    child: Text(
-                                      whenAtDay == AroundWhenAtDay.CUSTOM && _customWhenAt != null
-                                          ? formatTimeOfDay(_customWhenAt!)
-                                          : When.fromWhenAtDayToString(whenAtDay),
-                                    ),
-                                  );
-                                }).toList(),
+                        child:
+                        DropdownButtonFormField<AroundWhenAtDay?>(
+                          onTap: () => FocusScope.of(context).unfocus(),
+                          value: _selectedWhenAtDay,
+                          hint: Text(
+                            'Choose when at',
+                          ),
+                          icon: Icon(Icons.watch_later_outlined),
+                          isExpanded: true,
+                          onChanged: (value) {
+                            if (value == AroundWhenAtDay.CUSTOM) {
+                              final initialWhenAt = _customWhenAt ?? TimeOfDay.now();
+                              showTimePicker(
+                                initialTime: initialWhenAt,
+                                context: context,
+                              ).then((selectedTimeOfDay) {
+                                setState(() => _customWhenAt = selectedTimeOfDay ?? initialWhenAt);
+                              });
+                            }
+                            setState(() {
+                              _selectedWhenAtDay = value;
+                            });
+                          },
+                          items: AroundWhenAtDay.values.map((AroundWhenAtDay whenAtDay) {
+                            return DropdownMenuItem(
+                              value: whenAtDay,
+                              child: Text(
+                                whenAtDay == AroundWhenAtDay.CUSTOM && _customWhenAt != null
+                                    ? formatTimeOfDay(_customWhenAt!)
+                                    : When.fromWhenAtDayToString(whenAtDay),
                               ),
-                            ),
-                            Container(
-                              height: 64.0,
-                              width: (MediaQuery.of(context).size.width / 2) - 30,
-                              child: DropdownButtonFormField<WhenOnDate?>(
-                                onTap: () => FocusScope.of(context).unfocus(),
-                                value: _selectedWhenOnDate,
-                                hint: Text(
-                                  'Choose when on',
-                                ),
-                                icon: Icon(Icons.date_range),
-                                isExpanded: true,
-                                onChanged: (value) {
-                                  if (value == WhenOnDate.CUSTOM) {
-                                    final initialWhenOn = _customWhenOn ?? truncToDate(DateTime.now());
-                                    showDatePicker(
-                                      context: context,
-                                      initialDate: initialWhenOn,
-                                      firstDate: DateTime.now().subtract(Duration(days: 600)),
-                                      lastDate: DateTime.now(),
-                                    ).then((selectedDate) => setState(() {
-                                          if (isToday(selectedDate)) {
-                                            _selectedWhenOnDate = WhenOnDate.TODAY;
-                                            _customWhenOn = null;
-                                          } else if (isYesterday(selectedDate)) {
-                                            _selectedWhenOnDate = WhenOnDate.YESTERDAY;
-                                            _customWhenOn = null;
-                                          } else if (isBeforeYesterday(selectedDate)) {
-                                            _selectedWhenOnDate = WhenOnDate.BEFORE_YESTERDAY;
-                                            _customWhenOn = null;
-                                          } else {
-                                            _customWhenOn = selectedDate ?? initialWhenOn;
-                                          }
-                                        }));
-                                  }
-                                  setState(() {
-                                    _selectedWhenOnDate = value;
-                                  });
-                                },
-                                items: WhenOnDate.values.map((WhenOnDate whenOnDate) {
-                                  return DropdownMenuItem(
-                                    value: whenOnDate,
-                                    child: Text(
-                                      whenOnDate == WhenOnDate.CUSTOM && _customWhenOn != null
-                                          ? formatToDateOrWord(_customWhenOn!)
-                                          : When.fromWhenOnDateToString(whenOnDate),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ],
+                            );
+                          }).toList(),
                         ),
                       ),
                       Align(

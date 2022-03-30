@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
+import 'package:personaltasklogger/db/entity/SequencesEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateVariantEntity.dart';
 import 'package:personaltasklogger/model/Severity.dart';
@@ -307,9 +308,12 @@ class TemplateRepository {
 
   static Future<int> nextSequenceId(AppDatabase database, String entityName) async {
     final sequencesDao = await database.sequencesDao;
-    final sequencesEntity = await sequencesDao.findByTable(entityName).first;
+    var sequencesEntity = await sequencesDao.findByTable(entityName).first;
     if (sequencesEntity == null) {
-      throw Exception("Sequence for $entityName not initialized");
+      debugPrint("Sequence for $entityName not initialized, do it now");
+      sequencesEntity = SequencesEntity(null, entityName, 1000);
+      final sequencesEntityId = await sequencesDao.insertSequence(sequencesEntity);
+      sequencesEntity.id = sequencesEntityId;
     }
     sequencesEntity.lastId = sequencesEntity.lastId + 1;
     sequencesDao.updateSequence(sequencesEntity);
