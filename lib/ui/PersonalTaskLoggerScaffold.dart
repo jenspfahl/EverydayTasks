@@ -39,9 +39,11 @@ class PersonalTaskLoggerScaffold extends StatefulWidget {
   }
 }
 
+final DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX = 1;
+
 class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> {
-  int _selectedNavigationIndex = 1;
-  PageController _pageController = PageController(initialPage: 1);
+  int _selectedNavigationIndex = DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX;
+  PageController _pageController = PageController(initialPage: DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX);
 
   TextEditingController _searchQueryController = TextEditingController();
   String? _searchString;
@@ -71,7 +73,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
     //this is a hack since this is QuickAdd related code here
     _preferenceService.getBool(PREF_PIN_QUICK_ADD).then((pinQuickAddPage) {
-      if (pinQuickAddPage == true) {
+      if (pinQuickAddPage == true && _selectedNavigationIndex != 3) { // only if current is not the Schdule Page
         setState(() {
           _selectedNavigationIndex = 0;
           _pageController.jumpToPage(_selectedNavigationIndex);
