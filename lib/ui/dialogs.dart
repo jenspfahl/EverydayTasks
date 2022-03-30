@@ -129,7 +129,7 @@ Future<bool?> showRepetitionPickerDialog({
   );
 }
 
-Future<bool?> showTemplateDialog(BuildContext context, String title,
+Future<bool?> showTemplateDialog(BuildContext context, String title, String description,
     {
       Function()? okPressed,
       Function()? cancelPressed,
@@ -153,13 +153,26 @@ Future<bool?> showTemplateDialog(BuildContext context, String title,
       Spacer(),
       ButtonBar(children: [
         Icon(Icons.search),
-        Icon(Icons.expand),
+        Icon(Icons.unfold_less),
       ],)]), //TODO Row (Test,  ButtonBar (Search,Expand))
-    content: TaskTemplateList.withSelectionCallback(
-        selectedItem,
-        onlyHidden: onlyHidden,
-        hideEmptyNodes: hideEmptyNodes,
-        expandAll: expandAll,
+    content: Container(
+      child: Column(
+        children: [
+          Expanded(
+            flex: 10,
+            child: Text(description),
+          ),
+          Expanded(
+            flex: 100,
+            child: TaskTemplateList.withSelectionCallback(
+              selectedItem,
+              onlyHidden: onlyHidden,
+              hideEmptyNodes: hideEmptyNodes,
+              expandAll: expandAll,
+            ),
+          ),
+        ],
+      ),
     ),
     actions: [
       cancelButton,

@@ -269,7 +269,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
 
   void _onCreateTaskEventPressed(BuildContext context) async {
     Object? _selectedTemplateItem;
-    showTemplateDialog(context, "Select a task",
+    showTemplateDialog(context, "Select a task", "Select a task to be used for the journal entry.",
         selectedItem: (selectedItem) {
           setState(() {
             _selectedTemplateItem = selectedItem;
@@ -326,7 +326,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   void _onCreateQuickAddPressed() {
     Object? selectedTemplateItem;
 
-    showTemplateDialog(context, "Select a task to be added to QuickAdd",
+    showTemplateDialog(context, "Select a task", "Add a task to be added to QuickAdd.",
         selectedItem: (selectedItem) {
       setState(() {
         selectedTemplateItem = selectedItem;

@@ -665,7 +665,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   void _onFABPressed() {
     Object? selectedTemplateItem;
 
-    showTemplateDialog(context, "Select a task to be scheduled",
+    showTemplateDialog(context, "Select a task",  "Select a task to be repeatedly scheduled.",
         selectedItem: (selectedItem) {
           setState(() {
             selectedTemplateItem = selectedItem;
