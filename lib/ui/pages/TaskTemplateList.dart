@@ -285,17 +285,21 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       IconButton(
         icon: expandIcon,
         onPressed: () {
-          if (isAllExpanded()) {
-            collapseAll();
-            widget.expandIconKey.currentState?.refresh(false);
-          }
-          else {
-            expandAll();
-            widget.expandIconKey.currentState?.refresh(true);
-          }
+          updateExpanded(isAllExpanded());
         },
       ),
     ];
+  }
+
+  void updateExpanded(bool isAllExpanded) {
+    if (isAllExpanded) {
+      _collapseAll();
+      widget.expandIconKey.currentState?.refresh(false);
+    }
+    else {
+      _expandAll();
+      widget.expandIconKey.currentState?.refresh(true);
+    }
   }
 
   @override
@@ -746,14 +750,14 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
   bool isAllExpanded() => _forceExpandOrCollapseAll == true;
 
-  void expandAll() {
+  void _expandAll() {
     setState(() {
       _forceExpandOrCollapseAll = true;
       _fillNodes(_allTemplates, true, true);
     });
   }
 
-  void collapseAll() {
+  void _collapseAll() {
     setState(() {
       _forceExpandOrCollapseAll = false;
       _fillNodes(_allTemplates, true, false);

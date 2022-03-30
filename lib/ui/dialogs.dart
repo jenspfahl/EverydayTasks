@@ -7,6 +7,7 @@ import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 
 import 'RepetitionPicker.dart';
+import 'ToggleActionIcon.dart';
 
 void showConfirmationDialog(BuildContext context, String title, String message,
     {Function()? okPressed, Function()? cancelPressed}) {
@@ -151,7 +152,7 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
   final templateDialogDescriptionStateKey = new GlobalKey<TemplateDialogDescriptionState>();
 
   AlertDialog alert = AlertDialog(
-    title: TemplateDialogBar(title, taskTemplateListStateKey, templateDialogDescriptionStateKey),
+    title: TemplateDialogBar(title, expandAll??false, taskTemplateListStateKey, templateDialogDescriptionStateKey),
     content: Container(
       child: Column(
         children: [
@@ -228,8 +229,11 @@ class TemplateDialogBar extends StatefulWidget {
   final String title;
   final GlobalKey<TaskTemplateListState> taskTemplateListStateKey;
   final GlobalKey<TemplateDialogDescriptionState> templateDialogDescriptionStateKey;
+  final bool initialExpandAll;
 
-  TemplateDialogBar(this.title, this.taskTemplateListStateKey, this.templateDialogDescriptionStateKey);
+  final expandIconKey = new GlobalKey<ToggleActionIconState>();
+
+  TemplateDialogBar(this.title, this.initialExpandAll, this.taskTemplateListStateKey, this.templateDialogDescriptionStateKey);
 
   @override
   State<StatefulWidget> createState() => TemplateDialogBarState();
@@ -239,6 +243,13 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
 
   TextEditingController _searchQueryController = TextEditingController();
   String? _searchString;
+  bool _isAllExpanded = false;
+
+  @override
+  void initState() {
+    _isAllExpanded = widget.initialExpandAll;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -249,6 +260,8 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
   }
 
   Widget _buildBar() {
+    final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, _isAllExpanded, widget.expandIconKey);
+
     return Row(
         children: [
           Text(widget.title),
@@ -259,7 +272,16 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
                 icon: const Icon(Icons.search),
                 onPressed: _startSearch,
               ),
-              Icon(Icons.unfold_less),
+              IconButton(
+                icon: expandIcon,
+                onPressed: () {
+                  setState(() {
+                    widget.taskTemplateListStateKey.currentState?.updateExpanded(_isAllExpanded);
+                    _isAllExpanded = !_isAllExpanded;
+                    widget.expandIconKey.currentState?.refresh(_isAllExpanded);
+                  });
+                },
+              ),
             ],
           )]
     );
