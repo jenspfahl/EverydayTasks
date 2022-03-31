@@ -1,5 +1,5 @@
 name: personaltasklogger
-description: A task logger
+description: A task tracker, logger and scheduler
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -34,7 +34,6 @@ dependencies:
   flutter_treeview: ^1.0.6+1
   jiffy: ^5.0.0
   shared_preferences: ^2.0.0-nullsafety
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
