@@ -236,7 +236,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
               case '4' : {
                 if (_filterByTaskOrTemplate == null) {
                   Object? selectedItem = null;
-                  showTemplateDialog(context, "Select a task", "Select a task to filter by",
+                  showTemplateDialog(context, "Filter by task", "Select a category or task to filter by.",
                     selectedItem: (item) {
                       selectedItem = item;
                     },
@@ -668,7 +668,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                     child: const Text('From task'),
                     onPressed: () {
                       Navigator.pop(context);
-                      showTemplateDialog(context, "Select a task", "Select a task to be used for the journal entry.",
+                      showTemplateDialog(context, "New journal entry", "Select a category or task to be used for the journal entry.",
                           selectedItem: (selectedItem) {
                             setState(() {
                               _selectedTemplateItem = selectedItem;

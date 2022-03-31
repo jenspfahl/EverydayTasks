@@ -217,7 +217,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           onTap: () => FocusScope.of(context).unfocus(),
                           value: _selectedTaskGroup,
                           hint: Text(
-                            'Belongs to a group',
+                            'Belongs to a category',
                           ),
                           isExpanded: true,
                           onChanged: (value) {

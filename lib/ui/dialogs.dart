@@ -153,6 +153,7 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
 
   AlertDialog alert = AlertDialog(
     title: TemplateDialogBar(title, expandAll??false, taskTemplateListStateKey, templateDialogDescriptionStateKey),
+    titlePadding: EdgeInsets.fromLTRB(16, 16, 8, 8),
     content: Container(
       child: Column(
         children: [
@@ -267,6 +268,7 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
           Text(widget.title),
           Spacer(),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
                 icon: const Icon(Icons.search),

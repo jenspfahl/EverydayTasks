@@ -201,7 +201,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
           icon: const Icon(Icons.undo),
           onPressed: () {
             Object? selectedTemplate;
-            showTemplateDialog(context, "Select a task", "Restore a removed predefined task.",
+            showTemplateDialog(context, "Restore a task", "Select a previously removed predefined task to be restored.",
               selectedItem: (selected) {
                 selectedTemplate = selected;
               },
