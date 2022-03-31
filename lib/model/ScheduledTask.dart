@@ -16,6 +16,7 @@ class ScheduledTask implements Comparable {
   Schedule schedule;
   DateTime? lastScheduledEventOn;
   bool active = true;
+  DateTime? pausedAt;
 
   ScheduledTask({
     this.id,
@@ -27,6 +28,7 @@ class ScheduledTask implements Comparable {
     required this.schedule,
     this.lastScheduledEventOn,
     required this.active,
+    this.pausedAt,
   });
 
   ScheduledTask.forTemplate(
@@ -38,6 +40,8 @@ class ScheduledTask implements Comparable {
         title = template.title,
         description = template.description,
         schedule = schedule;
+
+  bool get isPaused => pausedAt != null;
 
   DateTime? getNextSchedule() {
     if (lastScheduledEventOn != null) {
@@ -54,14 +58,15 @@ class ScheduledTask implements Comparable {
 
   Duration? getMissingDuration() {
     if (lastScheduledEventOn != null) {
-      var nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
-      return nextRepetition.difference(truncToSeconds(DateTime.now()));
+      final nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
+      final now = pausedAt != null ? pausedAt! : DateTime.now();
+      return nextRepetition.difference(truncToSeconds(now));
     }
   }
 
   Duration? getPassedDuration() {
     if (lastScheduledEventOn != null) {
-      var now = DateTime.now();
+      final now = pausedAt != null ? pausedAt! : DateTime.now();
       return now.difference(truncToSeconds(lastScheduledEventOn!));
     }
   }
@@ -74,10 +79,10 @@ class ScheduledTask implements Comparable {
     return false;
   }
 
-  bool isNextScheduleOverdue(bool roundedDuration) {
+  bool isNextScheduleOverdue(bool withBuffer) {
     var duration = getMissingDuration();
     if (duration != null) {
-      if (roundedDuration) {
+      if (withBuffer) {
         return _getRoundedDurationValue(duration).isNegative;
       }
       else {
@@ -136,6 +141,23 @@ class ScheduledTask implements Comparable {
     }
     else {
       lastScheduledEventOn = DateTime.now();
+    }
+  }
+
+
+  void pause() {
+    if (active) {
+      pausedAt = DateTime.now();
+    }
+  }
+
+  void resume() {
+    if (active && pausedAt != null) {
+      final delta = DateTime.now().difference(pausedAt!);
+      pausedAt = null;
+      if (lastScheduledEventOn != null) {
+        lastScheduledEventOn = lastScheduledEventOn!.add(delta);
+      }
     }
   }
 

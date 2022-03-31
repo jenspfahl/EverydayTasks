@@ -268,21 +268,27 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
           Text(widget.title),
           Spacer(),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: _startSearch,
+              SizedBox(
+                width: 40,
+                child: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: _startSearch,
+                ),
               ),
-              IconButton(
-                icon: expandIcon,
-                onPressed: () {
-                  setState(() {
-                    widget.taskTemplateListStateKey.currentState?.updateExpanded(_isAllExpanded);
-                    _isAllExpanded = !_isAllExpanded;
-                    widget.expandIconKey.currentState?.refresh(_isAllExpanded);
-                  });
-                },
+              SizedBox(
+                width: 40,
+                child: IconButton(
+                  icon: expandIcon,
+                  onPressed: () {
+                    setState(() {
+                      widget.taskTemplateListStateKey.currentState?.updateExpanded(_isAllExpanded);
+                      _isAllExpanded = !_isAllExpanded;
+                      widget.expandIconKey.currentState?.refresh(_isAllExpanded);
+                    });
+                  },
+                ),
               ),
             ],
           )]

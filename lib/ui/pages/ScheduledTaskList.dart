@@ -316,14 +316,17 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 taskGroup.getTaskGroupRepresentation(useIconColor: true),
                 Visibility(
                   visible: scheduledTask.active,
-                  child: LinearProgressIndicator(
-                    value: scheduledTask.isNextScheduleOverdue(true) ? null : scheduledTask.getNextRepetitionIndicatorValue(),
-                    color: scheduledTask.isNextScheduleOverdue(false)
-                        ? Colors.red[500]
-                        : (scheduledTask.isNextScheduleReached()
-                          ? Color(0xFF770C0C)
-                          : null),
-                    backgroundColor: scheduledTask.isNextScheduleOverdue(true) ? Colors.red[300] : null,
+                  child: Opacity(
+                    opacity: scheduledTask.isPaused ? 0.3 : 1,
+                    child: LinearProgressIndicator(
+                      value: scheduledTask.isNextScheduleOverdue(true) ? null : scheduledTask.getNextRepetitionIndicatorValue(),
+                      color: scheduledTask.isNextScheduleOverdue(false)
+                          ? Colors.red[500]
+                          : (scheduledTask.isNextScheduleReached()
+                            ? Color(0xFF770C0C)
+                            : null),
+                      backgroundColor: scheduledTask.isNextScheduleOverdue(true) ? Colors.red[300] : null,
+                    ),
                   ),
                 ),
               ],
@@ -366,161 +369,211 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               alignment: MainAxisAlignment.start,
               buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
               children: [
-                TextButton(
-                  child: Icon(Icons.check),
-                  onPressed: () async {
-                    final templateId = scheduledTask.templateId;
-                    Template? template;
-                    if (templateId != null) {
-                      template = await TemplateRepository.getById(templateId);
-                    }
-
-                    TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      String title = scheduledTask.title;
-                      if (template != null) {
-                        return TaskEventForm(
-                            formTitle: "Create new journal entry from schedule",
-                            template: template,
-                            title: title);
+                SizedBox(
+                  width: 50,
+                  child: TextButton(
+                    child: Icon(Icons.check),
+                    onPressed: () async {
+                      final templateId = scheduledTask.templateId;
+                      Template? template;
+                      if (templateId != null) {
+                        template = await TemplateRepository.getById(templateId);
                       }
-                      else {
-                        final taskGroup = findPredefinedTaskGroupById(
-                            scheduledTask.taskGroupId);
-                        return TaskEventForm(
-                            formTitle: "Create new journal entry from schedule",
-                            taskGroup: taskGroup,
-                            title: title);
-                      }
-                    }));
 
-                    if (newTaskEvent != null) {
-                      TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                        ScaffoldMessenger.of(super.context).showSnackBar(
-                            SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
-                        widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.addTaskEvent(newTaskEvent);
+                      TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        String title = scheduledTask.title;
+                        if (template != null) {
+                          return TaskEventForm(
+                              formTitle: "Create new journal entry from schedule",
+                              template: template,
+                              title: title);
+                        }
+                        else {
+                          final taskGroup = findPredefinedTaskGroupById(
+                              scheduledTask.taskGroupId);
+                          return TaskEventForm(
+                              formTitle: "Create new journal entry from schedule",
+                              taskGroup: taskGroup,
+                              title: title);
+                        }
+                      }));
 
-                        scheduledTask.executeSchedule(null);
-                        ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-                          _updateScheduledTask(scheduledTask, changedScheduledTask);
+                      if (newTaskEvent != null) {
+                        TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+                          ScaffoldMessenger.of(super.context).showSnackBar(
+                              SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
+                          widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.addTaskEvent(newTaskEvent);
+
+                          scheduledTask.executeSchedule(null);
+                          ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+                            _updateScheduledTask(scheduledTask, changedScheduledTask);
+                          });
+
+                          final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(newTaskEvent, scheduledTask);
+                          ScheduledTaskEventRepository.insert(scheduledTaskEvent);
+
+                          PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
+                          if (root != null) {
+                            final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
+                            if (taskEventListState != null) {
+                              taskEventListState.clearFilters();
+                              root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString());
+                            }
+                          }
                         });
+                      }
+                    },
+                  ),
+                ),
+                SizedBox(
+                  width: 50,
+                  child: TextButton(
+                    child: Icon(Icons.replay),
+                    onPressed: () {
+                      showConfirmationDialog(
+                        context,
+                        "Reset schedule",
+                        "Are you sure to reset \'${scheduledTask.title}\' ? This will reset the progress to the beginning.",
+                        okPressed: () {
+                          scheduledTask.executeSchedule(null);
+                          ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+                            ScaffoldMessenger.of(super.context).showSnackBar(
+                                SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' reset done')));
+                            _updateScheduledTask(scheduledTask, changedScheduledTask);
+                          });
+                          Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
+                        },
+                        cancelPressed: () =>
+                            Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ButtonBar(
+            alignment: scheduledTask.active ? MainAxisAlignment.center : MainAxisAlignment.start,
+            buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
+            children: [
+              Visibility(
+                visible: scheduledTask.active 
+                    && !scheduledTask.isNextScheduleReached()
+                    && !scheduledTask.isNextScheduleOverdue(false),
+                child: SizedBox(
+                  width: 50,
+                  child: TextButton(
+                      child: Icon(scheduledTask.isPaused ? Icons.play_arrow : Icons.pause),
+                      onPressed: () {
+                        if (scheduledTask.isPaused) {
+                          scheduledTask.resume();
+                        }
+                        else {
+                          scheduledTask.pause();
+                        }
+                        ScheduledTaskRepository.update(scheduledTask)
+                            .then((changedScheduledTask) {
+                          _updateScheduledTask(scheduledTask, changedScheduledTask);
 
-                        final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(newTaskEvent, scheduledTask);
-                        ScheduledTaskEventRepository.insert(scheduledTaskEvent);
-
+                          var msg = changedScheduledTask.isPaused
+                              ? 'Scheduled task \'${changedScheduledTask.title}\' paused'
+                              : 'Scheduled task \'${changedScheduledTask.title}\' resumed';
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(msg)));
+                        });
+                      }
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 50,
+                child: TextButton(
+                  child: const Icon(Icons.checklist),
+                  onPressed: () {
+                    ScheduledTaskEventRepository
+                        .getByScheduledTaskIdPaged(scheduledTask.id, ChronologicalPaging.start(100))
+                        .then((scheduledTaskEvents) {
+                      if (scheduledTaskEvents.isNotEmpty) {
+                        final lastEvent = scheduledTaskEvents.last;
                         PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
                         if (root != null) {
                           final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
                           if (taskEventListState != null) {
                             taskEventListState.clearFilters();
-                            root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString());
+                            taskEventListState.filterByTaskEventIds(scheduledTaskEvents.map((e) => e.taskEventId));
+                            root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, lastEvent.taskEventId.toString());
                           }
                         }
-                      });
-                    }
-                  },
-                ),
-                TextButton(
-                  child: Icon(Icons.replay),
-                  onPressed: () {
-                    showConfirmationDialog(
-                      context,
-                      "Reset schedule",
-                      "Are you sure to reset \'${scheduledTask.title}\' ? This will reset the progress to the beginning.",
-                      okPressed: () {
-                        scheduledTask.executeSchedule(null);
-                        ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-                          ScaffoldMessenger.of(super.context).showSnackBar(
-                              SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' reset done')));
-                          _updateScheduledTask(scheduledTask, changedScheduledTask);
-                        });
-                        Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
-                      },
-                      cancelPressed: () =>
-                          Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            child: const Icon(Icons.checklist),
-            onPressed: () {
-              ScheduledTaskEventRepository
-                  .getByScheduledTaskIdPaged(scheduledTask.id, ChronologicalPaging.start(100))
-                  .then((scheduledTaskEvents) {
-                    if (scheduledTaskEvents.isNotEmpty) {
-                      final lastEvent = scheduledTaskEvents.last;
-                      PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-                      if (root != null) {
-                        final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
-                        if (taskEventListState != null) {
-                          taskEventListState.clearFilters();
-                          taskEventListState.filterByTaskEventIds(scheduledTaskEvents.map((e) => e.taskEventId));
-                          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, lastEvent.taskEventId.toString());
-                        }
                       }
-                    }
-                    else {
-                      ScaffoldMessenger.of(super.context).showSnackBar(
-                          SnackBar(content: Text('No journal entries for this schedule so far')));
-                    }
-              });
-            },
+                      else {
+                        ScaffoldMessenger.of(super.context).showSnackBar(
+                            SnackBar(content: Text('No journal entries for this schedule so far')));
+                      }
+                    });
+                  },
+                ),
+              ),
+            ],
           ),
           ButtonBar(
             alignment: MainAxisAlignment.end,
             buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
             children: [
-              TextButton(
-                onPressed: () async {
-                  ScheduledTask? changedScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return ScheduledTaskForm(
-                        formTitle: "Change schedule \'${scheduledTask.title}\'",
-                        scheduledTask: scheduledTask,
-                        taskGroup: findPredefinedTaskGroupById(scheduledTask.taskGroupId),
-                    );
-                  }));
-
-                  if (changedScheduledTask != null) {
-                    ScheduledTaskRepository.update(changedScheduledTask).then((changedScheduledTask) {
-                      ScaffoldMessenger.of(super.context).showSnackBar(
-                          SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' changed')));
-                      _updateScheduledTask(scheduledTask, changedScheduledTask);
-                    });
-                  }
-                },
-                child: const Icon(Icons.edit),
-              ),
-              TextButton(
-                onPressed: () {
-                  showConfirmationDialog(
-                    context,
-                    "Delete Schedule",
-                    "Are you sure to delete \'${scheduledTask.title}\' ?",
-                    okPressed: () {
-                      ScheduledTaskRepository.delete(scheduledTask).then(
-                            (_) {
-                              ScheduledTaskEventRepository
-                                  .getByScheduledTaskIdPaged(scheduledTask.id!, ChronologicalPaging.start(100))
-                                  .then((scheduledTaskEvents) {
-                                scheduledTaskEvents.forEach((scheduledTaskEvent) {
-                                  ScheduledTaskEventRepository.delete(scheduledTaskEvent);
-                                });
-                              });
-
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(SnackBar(content: Text('Schedule \'${scheduledTask.title}\' deleted')));
-                            _removeScheduledTask(scheduledTask);
-                        },
+              SizedBox(
+                width: 50,
+                child: TextButton(
+                  onPressed: () async {
+                    ScheduledTask? changedScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return ScheduledTaskForm(
+                          formTitle: "Change schedule \'${scheduledTask.title}\'",
+                          scheduledTask: scheduledTask,
+                          taskGroup: findPredefinedTaskGroupById(scheduledTask.taskGroupId),
                       );
-                      Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
-                    },
-                    cancelPressed: () =>
-                        Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
-                  );
-                },
-                child: const Icon(Icons.delete),
+                    }));
+
+                    if (changedScheduledTask != null) {
+                      ScheduledTaskRepository.update(changedScheduledTask).then((changedScheduledTask) {
+                        ScaffoldMessenger.of(super.context).showSnackBar(
+                            SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' changed')));
+                        _updateScheduledTask(scheduledTask, changedScheduledTask);
+                      });
+                    }
+                  },
+                  child: const Icon(Icons.edit),
+                ),
+              ),
+              SizedBox(
+                width: 50,
+                child: TextButton(
+                  onPressed: () {
+                    showConfirmationDialog(
+                      context,
+                      "Delete Schedule",
+                      "Are you sure to delete \'${scheduledTask.title}\' ?",
+                      okPressed: () {
+                        ScheduledTaskRepository.delete(scheduledTask).then(
+                              (_) {
+                                ScheduledTaskEventRepository
+                                    .getByScheduledTaskIdPaged(scheduledTask.id!, ChronologicalPaging.start(100))
+                                    .then((scheduledTaskEvents) {
+                                  scheduledTaskEvents.forEach((scheduledTaskEvent) {
+                                    ScheduledTaskEventRepository.delete(scheduledTaskEvent);
+                                  });
+                                });
+
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(content: Text('Schedule \'${scheduledTask.title}\' deleted')));
+                              _removeScheduledTask(scheduledTask);
+                          },
+                        );
+                        Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                      },
+                      cancelPressed: () =>
+                          Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                    );
+                  },
+                  child: const Icon(Icons.delete),
+                ),
               ),
             ],
           ),
@@ -546,6 +599,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       else if (truncToSeconds(nextSchedule) == truncToSeconds(DateTime.now())) {
         msg = debug +
             "Due now!";
+      }
+      else if (scheduledTask.isPaused) {
+        msg = debug + "Paused.";
       }
       else {
         msg = debug +
@@ -618,8 +674,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         return d2!.compareTo(d1!); // reverse
       }
       else if (_sortBy == SortBy.REMAINING_TIME) {
-        final d1 = t1.active ? t1.getNextSchedule() : null;
-        final d2 = t2.active ? t2.getNextSchedule() : null;
+        final d1 = t1.active && !t1.isPaused ? t1.getNextSchedule() : null;
+        final d2 = t2.active && !t1.isPaused ? t2.getNextSchedule() : null;
         if (d1 == null && d2 != null) {
           return 1;
         }

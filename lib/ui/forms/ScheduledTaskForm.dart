@@ -39,10 +39,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   RepetitionStep? _selectedRepetitionStep;
   CustomRepetition? _customRepetition;
 
-  AroundWhenAtDay? _selectedStartAt;
+  AroundWhenAtDay? _selectedStartAt = AroundWhenAtDay.NOW;
   TimeOfDay? _customStartAt;
 
-  WhenOnDate? _selectedScheduleFrom;
+  WhenOnDate? _selectedScheduleFrom = WhenOnDate.TODAY;
   DateTime? _customScheduleFrom;
 
 

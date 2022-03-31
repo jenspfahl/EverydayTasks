@@ -21,6 +21,7 @@ class ScheduledTaskEntity {
 
   final int? lastScheduledEventAt;
   final bool active;
+  final int? pausedAt;
 
   ScheduledTaskEntity(
       this.id,
@@ -37,5 +38,6 @@ class ScheduledTaskEntity {
       this.exactRepetitionAfterUnit,
       this.lastScheduledEventAt,
       this.active,
+      this.pausedAt,
       );
 }
