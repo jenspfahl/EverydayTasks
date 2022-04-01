@@ -37,3 +37,18 @@ Icon createCheckIcon(bool checked) {
     color: checked ? Colors.blueAccent : null,
   );
 }
+
+toastInfo(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          duration: Duration(milliseconds: message.length * 80),
+          content: Text(message)));
+}
+
+toastError(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 4),
+          content: Text(message)));
+}

@@ -107,13 +107,12 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                   onLongPressStart: (details) {
                     showConfirmationDialog(
                       context,
-                      "Delete QuickAdd for \'${template.title}\'",
+                      "Delete QuickAdd for '${template.title}'",
                       "Are you sure to remove this QuickAdd? This will not affect the associated task.",
                       okPressed: () {
                         template.favorite = false;
                         TemplateRepository.save(template).then((template) {
-                          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-                              content: Text('Removed \'${template.title}\' from QuickAdd')));
+                          toastInfo(context, "Removed '${template.title}' from QuickAdd");
 
                           setState(() {
                             _templates.remove(template);
@@ -135,8 +134,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
 
                     if (newTaskEvent != null) {
                       TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                        ScaffoldMessenger.of(super.context).showSnackBar(
-                            SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
+                        toastInfo(context, "New journal entry with name '${newTaskEvent.title}' created");
                         _handleNewTaskEvent(newTaskEvent);
                       });
                     }
@@ -295,8 +293,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
     
           if (newTaskEvent != null) {
             TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-              ScaffoldMessenger.of(super.context).showSnackBar(
-                  SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
+              toastInfo(super.context, "New journal entry with name '${newTaskEvent.title}' created");
               _handleNewTaskEvent(newTaskEvent);
             });
           }
@@ -336,14 +333,14 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
         var template = selectedTemplateItem as Template;
         template.favorite = true;
         TemplateRepository.save(template).then((template) {
-          Navigator.pop(
-              context); // dismiss dialog, should be moved in Dialogs.dart somehow
+          Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
-          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-              content: Text('Added \'${template.title}\' to QuickAdd')));
-
-          if (!_templates.contains(template)) {
+          if (_templates.contains(template)) {
+            toastInfo(context, "'${template.title}' still present");
+          }
+          else {
             setState(() {
+              toastInfo(context, "Added '${template.title}' to QuickAdd");
               _templates.add(template);
               _sortList();
             });
@@ -419,15 +416,13 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
       pinQuickAddPageIconKey.currentState?.refresh(_pinQuickAddPage);
       if (_pinQuickAddPage) {
         if (withSnackMsg) {
-          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-              content: Text('QuickAdd page pinned')));
+          toastInfo(context, "QuickAdd page pinned");
         }
 
       }
       else {
         if (withSnackMsg) {
-          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-              content: Text('QuickAdd page unpinned')));
+          toastInfo(context, "QuickAdd page unpinned");
         }
       }
       _preferenceService.setBool(PREF_PIN_QUICK_ADD, _pinQuickAddPage);

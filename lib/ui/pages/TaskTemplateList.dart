@@ -221,9 +221,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                     TemplateRepository.undelete(taskTemplate).then((template) {
                       Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(
-                              'Task \'${template.title}\' restored.')));
+                      toastInfo(context, "Task '${template.title}' restored.");
 
                       final taskGroup = findPredefinedTaskGroupById(taskTemplate.taskGroupId);
                       setState(() {
@@ -248,9 +246,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                           TemplateRepository.undelete(taskTemplateVariant).then((template) {
                             Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(
-                                    'Variant \'${template.title}\' and parent task restored.')));
+                            toastInfo(context, "Variant '${template.title}' and parent task restored.");
 
                             final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
                             setState(() {
@@ -264,9 +260,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                         TemplateRepository.undelete(taskTemplateVariant).then((template) {
                           Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(
-                                  'Variant \'${template.title}\' restored.')));
+                          toastInfo(context, "Variant '${template.title}' restored.");
 
                           final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
                           setState(() {
@@ -411,8 +405,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
   void _onFABPressed() {
     if (_treeViewController.selectedKey == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please select an item first')));
+      toastError(context, "Please select an item first!");
       return;
     }
     Object? selectedItem = _treeViewController.selectedNode?.data;
@@ -441,9 +434,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
           if (newTemplate != null) {
             TemplateRepository.save(newTemplate).then((newTemplate) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(
-                      'New task with name \'${newTemplate.title}\' added')));
+              toastInfo(context, "New task with name '${newTemplate.title}' added");
               _addTaskTemplate(newTemplate as TaskTemplate, taskGroup!);
             });
           }
@@ -473,9 +464,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             if (changedTemplate != null) {
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(
-                        'Variant with name \'${changedTemplate.title}\' cloned')));
+                toastInfo(context, "Variant with name '${changedTemplate.title}' cloned");
                 final variant = changedTemplate as TaskTemplateVariant;
                 debugPrint("base variant: ${variant.taskTemplateId}");
                 TemplateRepository.getById(TemplateId.forTaskTemplate(variant.taskTemplateId)).then((foundTemplate) {
@@ -503,9 +492,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             if (changedTemplate is Template) {
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(
-                        'Variant with name \'${changedTemplate.title}\' changed')));
+                toastInfo(context, "Variant with name '${changedTemplate.title}' changed");
                 _updateTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!);
               });
             }
@@ -533,9 +520,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             if (newVariant != null) {
               TemplateRepository.save(newVariant)
                   .then((changedTemplate) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(
-                        'Variant with name \'${changedTemplate.title}\' added')));
+                toastInfo(context, "Variant with name '${changedTemplate.title}' added");
                 _addTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!, template as TaskTemplate);
               });
             }
@@ -558,9 +543,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             if (changedTemplate is Template) {
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(
-                        'Task with name \'${changedTemplate.title}\' changed')));
+                toastInfo(context, "Task with name '${changedTemplate.title}' changed");
                 _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
               });
             }
@@ -615,10 +598,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       child: const Icon(Icons.delete),
       onPressed: () {
         if (hasChildren) {
-          ScaffoldMessenger.of(super.context).showSnackBar(
-              SnackBar(
-                  content: Text(
-                      'Remove underneath variants first!')));
+          toastError(context, "Remove underneath variants first!");
           Navigator.pop(context); // dismiss bottom sheet
           return;
         }
@@ -633,10 +613,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
             TemplateRepository.delete(template).then((template) {
 
-              ScaffoldMessenger.of(super.context).showSnackBar(
-                  SnackBar(
-                      content: Text(
-                          'The $taskOrVariant \'${template.title}\' has been deleted')));
+              toastInfo(context, "The $taskOrVariant '${template.title}' has been deleted");
 
               _removeTemplate(template);
             });

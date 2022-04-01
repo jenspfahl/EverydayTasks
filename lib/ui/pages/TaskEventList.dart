@@ -581,14 +581,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                 onPressed: () async {
                   TaskEvent? changedTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return TaskEventForm(
-                        formTitle: "Change journal entry \'${taskEvent.title}\'",
+                        formTitle: "Change journal entry '${taskEvent.title}'",
                         taskEvent: taskEvent);
                   }));
 
                   if (changedTaskEvent != null) {
                     TaskEventRepository.update(changedTaskEvent).then((updatedTaskEvent) {
-                      ScaffoldMessenger.of(super.context).showSnackBar(
-                          SnackBar(content: Text('Journal entry with name \'${updatedTaskEvent.title}\' changed')));
+                      toastInfo(context, "Journal entry with name '${updatedTaskEvent.title}' changed");
                       _updateTaskEvent(taskEvent, updatedTaskEvent);
                     });
                   }
@@ -600,7 +599,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                   showConfirmationDialog(
                     context,
                     "Delete journal entry",
-                    "Are you sure to delete \'${taskEvent.title}\' ?",
+                    "Are you sure to delete '${taskEvent.title}' ?",
                     okPressed: () {
                       TaskEventRepository.delete(taskEvent).then(
                         (_) {
@@ -611,8 +610,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                                   ScheduledTaskEventRepository.delete(scheduledTaskEvent);
                                 });
                           });
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text('Journal entry \'${taskEvent.title}\' deleted')));
+                          toastInfo(context, "Journal entry '${taskEvent.title}' deleted");
                           _removeTaskEvent(taskEvent);
                         },
                       );
@@ -657,8 +655,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
                       if (newTaskEvent != null) {
                         TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                          ScaffoldMessenger.of(super.context).showSnackBar(
-                              SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
+                          toastInfo(super.context, "New journal entry with name '${newTaskEvent.title}' created");
                           addTaskEvent(newTaskEvent);
                         });
                       }
@@ -694,8 +691,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
                             if (newTaskEvent != null) {
                               TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                                ScaffoldMessenger.of(super.context).showSnackBar(
-                                    SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
+                                toastInfo(super.context, "New journal entry with name '${newTaskEvent.title}' created");
                                 addTaskEvent(newTaskEvent);
                               });
                             }
@@ -775,17 +771,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       if (taskEvent != null) {
         if (isCreation) {
           TaskEventRepository.insert(taskEvent).then((newTaskEvent) {
-            ScaffoldMessenger.of(super.context).showSnackBar(
-                SnackBar(content: Text(
-                    'Journal entry with name \'${newTaskEvent.title}\' created')));
+            toastInfo(context, "Journal entry with name '${newTaskEvent.title}' created");
             addTaskEvent(newTaskEvent);
           });
         }
         else {
           TaskEventRepository.update(taskEvent).then((changedTaskEvent) {
-            ScaffoldMessenger.of(super.context).showSnackBar(
-                SnackBar(content: Text(
-                    'Journal entry with name \'${changedTaskEvent.title}\' changed')));
+            toastInfo(context, "Journal entry with name '${changedTaskEvent.title}' changed");
             _updateTaskEvent(taskEvent, changedTaskEvent);
           });
         }

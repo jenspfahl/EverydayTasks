@@ -15,6 +15,7 @@ import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
+import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 import '../ToggleActionIcon.dart';
@@ -456,9 +457,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                             ),
                             onPressed: () {
                               if (_trackingStart != null) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content: Text('Please stop tracking first!')));
-
+                                toastError(context, "Please stop tracking first!");
                                 return;
                               }
                               if (_formKey.currentState!.validate()) {

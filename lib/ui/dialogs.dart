@@ -348,6 +348,7 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
   void _clearSearchQuery() {
     setState(() {
       _searchQueryController.clear();
+      _searchString = "";
       widget.taskTemplateListStateKey.currentState?.searchQueryUpdated("");
 
     });
@@ -355,8 +356,7 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
 
   void _clearOrCloseSearchBar(BuildContext context) {
     if (_searchQueryController.text.isEmpty) {
-      _searchString = null;
-      widget.taskTemplateListStateKey.currentState?.searchQueryUpdated(null);
+      _stopSearching();
     }
     else {
       _clearSearchQuery();

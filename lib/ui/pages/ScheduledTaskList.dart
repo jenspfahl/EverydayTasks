@@ -216,16 +216,14 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       if (_disableNotification) {
         _notificationService.cancelAllNotifications();
         if (withSnackMsg) {
-          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-              content: Text('Schedule notifications disabled')));
+          toastInfo(context, "Schedule notifications disabled");
         }
 
       }
       else {
         _scheduledTasks.forEach((scheduledTask) => _rescheduleNotification(scheduledTask));
         if (withSnackMsg) {
-          ScaffoldMessenger.of(super.context).showSnackBar(SnackBar(
-              content: Text('Schedule notifications enabled')));
+          toastInfo(context, "Schedule notifications enabled");
         }
       }
       _preferenceService.setBool(PREF_DISABLE_NOTIFICATIONS, _disableNotification);
@@ -357,7 +355,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     expansionWidgets.addAll([
       Padding(
         padding: EdgeInsets.all(4.0),
-        child: Text(getDetailsMessage(scheduledTask)),
+        child: Text(getDetailsMessage(scheduledTask), textAlign: TextAlign.center,),
       ),
       Divider(),
       Row(
@@ -374,6 +372,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   child: TextButton(
                     child: Icon(Icons.check),
                     onPressed: () async {
+                      if (scheduledTask.isPaused) {
+                        toastError(context, "Cannot execute paused schedule! Resume it first!");
+                        return;
+                      }
                       final templateId = scheduledTask.templateId;
                       Template? template;
                       if (templateId != null) {
@@ -400,8 +402,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                       if (newTaskEvent != null) {
                         TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                          ScaffoldMessenger.of(super.context).showSnackBar(
-                              SnackBar(content: Text('New journal entry with name \'${newTaskEvent.title}\' created')));
+                          toastInfo(context, "New journal entry with name '${newTaskEvent.title}' created");
                           widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.addTaskEvent(newTaskEvent);
 
                           scheduledTask.executeSchedule(null);
@@ -430,15 +431,18 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   child: TextButton(
                     child: Icon(Icons.replay),
                     onPressed: () {
+                      if (scheduledTask.isPaused) {
+                        toastError(context, "Cannot reset paused schedule! Resume it first!");
+                        return;
+                      }
                       showConfirmationDialog(
                         context,
                         "Reset schedule",
-                        "Are you sure to reset \'${scheduledTask.title}\' ? This will reset the progress to the beginning.",
+                        "Are you sure to reset '${scheduledTask.title}' ? This will reset the progress to the beginning.",
                         okPressed: () {
                           scheduledTask.executeSchedule(null);
                           ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-                            ScaffoldMessenger.of(super.context).showSnackBar(
-                                SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' reset done')));
+                            toastInfo(context, "Schedule with name '${changedScheduledTask.title}' reset to now");
                             _updateScheduledTask(scheduledTask, changedScheduledTask);
                           });
                           Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
@@ -476,10 +480,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                           _updateScheduledTask(scheduledTask, changedScheduledTask);
 
                           var msg = changedScheduledTask.isPaused
-                              ? 'Scheduled task \'${changedScheduledTask.title}\' paused'
-                              : 'Scheduled task \'${changedScheduledTask.title}\' resumed';
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(msg)));
+                              ? "Scheduled task '${changedScheduledTask.title}' paused"
+                              : "Scheduled task '${changedScheduledTask.title}' resumed";
+                          toastInfo(context, msg);
                         });
                       }
                   ),
@@ -506,8 +509,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         }
                       }
                       else {
-                        ScaffoldMessenger.of(super.context).showSnackBar(
-                            SnackBar(content: Text('No journal entries for this schedule so far')));
+                        toastInfo(context, "No journal entries for this schedule so far");
                       }
                     });
                   },
@@ -523,9 +525,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 width: 50,
                 child: TextButton(
                   onPressed: () async {
+                    if (scheduledTask.isPaused) {
+                      toastError(context, "Cannot change paused schedule! Resume it first!");
+                      return;
+                    }
                     ScheduledTask? changedScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                       return ScheduledTaskForm(
-                          formTitle: "Change schedule \'${scheduledTask.title}\'",
+                          formTitle: "Change schedule '${scheduledTask.title}'",
                           scheduledTask: scheduledTask,
                           taskGroup: findPredefinedTaskGroupById(scheduledTask.taskGroupId),
                       );
@@ -533,8 +539,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                     if (changedScheduledTask != null) {
                       ScheduledTaskRepository.update(changedScheduledTask).then((changedScheduledTask) {
-                        ScaffoldMessenger.of(super.context).showSnackBar(
-                            SnackBar(content: Text('Schedule with name \'${changedScheduledTask.title}\' changed')));
+                        toastInfo(context, "Schedule with name '${changedScheduledTask.title}' changed");
                         _updateScheduledTask(scheduledTask, changedScheduledTask);
                       });
                     }
@@ -549,7 +554,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                     showConfirmationDialog(
                       context,
                       "Delete Schedule",
-                      "Are you sure to delete \'${scheduledTask.title}\' ?",
+                      "Are you sure to delete '${scheduledTask.title}' ?",
                       okPressed: () {
                         ScheduledTaskRepository.delete(scheduledTask).then(
                               (_) {
@@ -561,8 +566,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                                   });
                                 });
 
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(content: Text('Schedule \'${scheduledTask.title}\' deleted')));
+                                toastInfo(context, "Schedule '${scheduledTask.title}' deleted");
                               _removeScheduledTask(scheduledTask);
                           },
                         );
@@ -601,7 +605,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             "Due now!";
       }
       else if (scheduledTask.isPaused) {
-        msg = debug + "Paused.";
+        msg = debug + "- paused -";
       }
       else {
         msg = debug +
@@ -620,7 +624,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
       return "$msg"
           "\n\n"
-          "Scheduled from ${formatToDateOrWord(
+          "Scheduled ${formatToDateOrWord(
           scheduledTask.lastScheduledEventOn!).toLowerCase()}"
           " $passedString";
     }
@@ -746,8 +750,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
             if (newScheduledTask != null) {
               ScheduledTaskRepository.insert(newScheduledTask).then((newScheduledTask) {
-                ScaffoldMessenger.of(super.context).showSnackBar(
-                    SnackBar(content: Text('New schedule with name \'${newScheduledTask.title}\' created')));
+                toastInfo(context, "New schedule with name '${newScheduledTask.title}' created");
                 _addScheduledTask(newScheduledTask);
               });
             }
@@ -768,7 +771,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     if (missingDuration != null && !missingDuration.isNegative) {
       _cancelNotification(scheduledTask);
 
-      if (scheduledTask.active && _disableNotification == false) {
+      if (scheduledTask.active && !scheduledTask.isPaused && _disableNotification == false) {
         final taskGroup = findPredefinedTaskGroupById(
             scheduledTask.taskGroupId);
         _notificationService.scheduleNotification(
