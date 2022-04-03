@@ -9,6 +9,8 @@ import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 
+import '../main.dart';
+import 'dialogs.dart';
 import 'forms/TaskEventForm.dart';
 import 'pages/TaskEventList.dart';
 
@@ -92,6 +94,42 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   Widget build(BuildContext context) {
 
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+               color: Colors.green[50],
+              ),
+              child: Positioned(
+                  bottom: 12,
+                  left: 16,
+                  child: Text(APP_NAME,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.help_outline),
+              title: const Text('Help'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('About'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: _searchString != null ? _buildSearchField() : getSelectedPage().getTitle(),
         actions: _buildActions(context),

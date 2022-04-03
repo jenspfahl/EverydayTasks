@@ -21,6 +21,7 @@ import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 import '../PersonalTaskLoggerScaffold.dart';
+import '../TaskEventStats.dart';
 import '../forms/TaskEventForm.dart';
 
 final filterIconKey = new GlobalKey<ToggleActionIconState>();
@@ -266,6 +267,12 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
             }
           });
         },
+      ),
+      IconButton(
+        icon: Icon(Icons.bar_chart),
+        onPressed: () {
+          Navigator.push(super.context, MaterialPageRoute(builder: (context) => TaskEventStats()));
+        }
       ),
       IconButton(
         icon: expandIcon,

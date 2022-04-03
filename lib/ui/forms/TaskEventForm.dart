@@ -140,8 +140,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
     }
 
     _selectedWhenAtDay = aroundStartedAt;
-    if (startedAt != null &&
-        (_selectedWhenAtDay == AroundWhenAtDay.NOW || _selectedWhenAtDay == AroundWhenAtDay.CUSTOM)) {
+    if (startedAt != null && _selectedWhenAtDay == AroundWhenAtDay.CUSTOM) {
       _selectedWhenAtDay = AroundWhenAtDay.CUSTOM; // Former NOW is now CUSTOM
       _customWhenAt = startedAt;
     }
@@ -462,7 +461,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                               }
                               if (_formKey.currentState!.validate()) {
                                 final startedAtTimeOfDay =
-                                When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt);
+                                  When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt);
                                 final date = When.fromWhenOnDateToDate(_selectedWhenOnDate!, _customWhenOn);
                                 final startedAt = DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour,
                                     startedAtTimeOfDay.minute);
@@ -476,7 +475,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   _descriptionController.text,
                                   _taskEvent?.createdAt ?? DateTime.now(),
                                   startedAt,
-                                  _selectedWhenAtDay!,
+                                  _selectedWhenAtDay == AroundWhenAtDay.NOW ? AroundWhenAtDay.CUSTOM : _selectedWhenAtDay!,
                                   duration,
                                   _selectedDurationHours!,
                                   _severity,
