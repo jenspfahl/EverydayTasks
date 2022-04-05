@@ -193,7 +193,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                           hint: Text(
                             'Choose a duration',
                           ),
-                          icon: Icon(Icons.timer),
+                          icon: Icon(Icons.timer_outlined),
                           isExpanded: true,
                           onChanged: (value) {
                             if (value == AroundDurationHours.CUSTOM) {

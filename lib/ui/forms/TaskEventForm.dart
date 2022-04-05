@@ -250,7 +250,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           hint: Text(
                             'Choose a duration',
                           ),
-                          icon: Icon(Icons.timer),
+                          icon: Icon(Icons.timer_outlined),
                           iconDisabledColor: _trackingStart != null ? Colors.redAccent : null,
                           isExpanded: true,
                           onChanged:  _trackingStart != null ? null : (value) {

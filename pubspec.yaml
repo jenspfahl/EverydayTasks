@@ -34,7 +34,7 @@ dependencies:
   flutter_treeview: ^1.0.6+1
   jiffy: ^5.0.0
   shared_preferences: ^2.0.0-nullsafety
-  pie_chart: ^5.3.0
+  fl_chart: ^0.50.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

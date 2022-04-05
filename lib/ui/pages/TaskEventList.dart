@@ -271,7 +271,9 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       IconButton(
         icon: Icon(Icons.bar_chart),
         onPressed: () {
-          Navigator.push(super.context, MaterialPageRoute(builder: (context) => TaskEventStats()));
+          Navigator.push(super.context, MaterialPageRoute(builder: (context) => TaskEventStats(
+            _taskEvents
+          )));
         }
       ),
       IconButton(
