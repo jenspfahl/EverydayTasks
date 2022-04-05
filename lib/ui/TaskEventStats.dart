@@ -28,7 +28,7 @@ enum DataType {COUNT, DURATION}
 
 class _TaskEventStatsState extends State<TaskEventStats> {
 
-  int _touchedIndex = 0;
+  int _touchedIndex = -1;
   DataType _dataType = DataType.DURATION;
   
   @override
@@ -58,69 +58,87 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     );
 
     final dataList = dataMap.entries
-        .map((e) => Pair(e.key, e.value));
-    //TODO sort map
+        .map((e) => Pair(e.key, e.value))
+        .sortedBy((element) => element.second.toString()).reversed;
 
+    final totalValue = dataMap.entries
+        .map((e) => _getDataValue(e.value))
+        .fold(0.0, (double previous, current) => previous + current);
 
-    return AspectRatio(
-      aspectRatio: 1,
-      child: PieChart(
-        PieChartData(
-            pieTouchData: PieTouchData(
-                touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                  setState(() {
-                    if (!event.isInterestedForInteractions ||
-                        pieTouchResponse == null ||
-                        pieTouchResponse.touchedSection == null) {
-                      _touchedIndex = -1;
-                      return;
-                    }
-                    _touchedIndex =
-                        pieTouchResponse.touchedSection!.touchedSectionIndex;
-                  });
-                }),
-            borderData: FlBorderData(
-              show: false,
-            ),
-            sectionsSpace: 0,
-            centerSpaceRadius: 0,
-            sections: _showingSections(dataList)),
-      ),
+    return Column(
+      children: [
+        AspectRatio(
+          aspectRatio: 1,
+          child: PieChart(
+            PieChartData(
+                pieTouchData: PieTouchData(
+                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                      setState(() {
+                        if (!event.isInterestedForInteractions ||
+                            pieTouchResponse == null ||
+                            pieTouchResponse.touchedSection == null) {
+                          _touchedIndex = -1;
+                          return;
+                        }
+                        _touchedIndex =
+                            pieTouchResponse.touchedSection!.touchedSectionIndex;
+                      });
+                    }),
+                borderData: FlBorderData(
+                  show: false,
+                ),
+                sectionsSpace: 0.9,
+                centerSpaceRadius: 0,
+                sections: _showingSections(dataList, totalValue)),
+          ),
+        ),
+        const SizedBox(
+          height: 28,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32),
+          child: _buildLegend(dataList),
+        )
+      ],
     );
   }
 
 
 
 
-  List<PieChartSectionData> _showingSections(Iterable<Pair> rawDataList) {
-    return rawDataList.mapIndexed((i, data) {
+  List<PieChartSectionData> _showingSections(Iterable<Pair> dataList, num totalValue) {
+    return dataList.mapIndexed((i, data) {
       final isTouched = i == _touchedIndex;
       final fontSize = isTouched ? 20.0 : 16.0;
       final radius = isTouched ? 110.0 : 100.0;
-      final widgetSize = isTouched ? 55.0 : 40.0;
 
       int? taskGroupId = data.first;
-      final value = _getValue(data.second);
+      final value = _getDataValue(data.second);
       final taskGroup = taskGroupId != null
           ? findPredefinedTaskGroupById(taskGroupId)
           : null;
-      final taskGroupName = taskGroup != null
-          ? taskGroup.name
-          : "-unknown-";
+      final taskGroupName = _getTaskGroupName(taskGroup);
 
       return PieChartSectionData(
         color: getSharpedColor(getTaskGroupColor(taskGroupId, false)),
         value: value,
-        title: taskGroupName,
+        title: _valueToPercent(value, totalValue),
         radius: radius,
         titleStyle: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.bold,
-            color: const Color(0xffffffff)),
-        badgeWidget: taskGroup?.getIcon(true),
-        badgePositionPercentageOffset: .98,
+        ),
+        badgeWidget: _getTaskGroupIcon(taskGroup),
+        badgePositionPercentageOffset: i % 2 == 0 ? 1.2 : 1.2, // TODO avoid overlapping icons
       );
     }).toList();
+  }
+
+  String _getTaskGroupName(TaskGroup? taskGroup) {
+    final taskGroupName = taskGroup != null
+        ? taskGroup.name
+        : "-unknown-";
+    return taskGroupName;
   }
 
   dynamic _aggregateValue(List<TaskEvent> taskEvents) {
@@ -140,7 +158,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         .fold(Duration(), (previousDuration, duration) => previousDuration + duration);
   }
 
-  double _getValue(dynamic value) {
+  double _getDataValue(dynamic value) {
     switch (_dataType) {
       case DataType.DURATION:
         {
@@ -153,6 +171,71 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           return count.toDouble();
         }
     }
-  }
+  } 
   
-} 
+  String _getDataValueAsString(dynamic value) {
+    switch (_dataType) {
+      case DataType.DURATION:
+        {
+          Duration duration = value;
+          return formatDuration(duration);
+        }
+      case DataType.COUNT:
+        {
+          int count = value;
+          return "$count items";
+        }
+    }
+  }
+
+  Widget _buildLegend(Iterable<Pair> dataList) {
+    final legendElements = dataList.mapIndexed((i, data) {
+      final isTouched = i == _touchedIndex;
+      final fontSize = isTouched ? 17.0 : 16.0;
+
+      int? taskGroupId = data.first;
+      final taskGroup = taskGroupId != null
+          ? findPredefinedTaskGroupById(taskGroupId)
+          : null;
+      final taskGroupName = _getTaskGroupName(taskGroup);
+
+      return GestureDetector(
+        onTapDown: (details) {
+          setState(() {
+            _touchedIndex = i;
+          });
+        },
+        onTapUp: (details) {
+          setState(() {
+            _touchedIndex = -1;
+          });
+        },
+        child: Row(
+          children: [
+            _getTaskGroupIcon(taskGroup),
+            Spacer(),
+            Text("$taskGroupName - ${_getDataValueAsString(data.second)}",
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: isTouched ? FontWeight.bold : null)
+            )
+          ],
+        ),
+      );
+    }).toList();
+
+    return Column(children: legendElements);
+  }
+
+  Icon _getTaskGroupIcon(TaskGroup? taskGroup) {
+    return taskGroup != null
+        ? taskGroup.getIcon(true)
+        : Icon(Icons.question_mark_outlined,
+          color: Colors.grey,);
+  }
+
+  _valueToPercent(double value, num total) {
+    return "${(value * 100 / total).round()}%";
+  }
+
+}
