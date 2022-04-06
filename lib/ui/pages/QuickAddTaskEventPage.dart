@@ -386,23 +386,31 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   void _sortList() {
     _templates..sort((t1, t2) {
       if (_sortBy == SortBy.GROUP) {
-        final d1 = t1.taskGroupId;
-        final d2 = t2.taskGroupId;
-        return d1.compareTo(d2);
-      }
-      else if (_sortBy == SortBy.TITLE) {
-        final d1 = t1.title.toLowerCase();
-        final d2 = t2.title.toLowerCase();
-        final c = d1.compareTo(d2);
+        final g1 = t1.taskGroupId;
+        final g2 = t2.taskGroupId;
+        final c = g2.compareTo(g1);
         if (c == 0) {
-          return t1.title.toLowerCase().compareTo(t2.title.toLowerCase());
+          return _sortByTitleAndId(t1, t2);
         }
         return c;
+      }
+      else if (_sortBy == SortBy.TITLE) {
+        return _sortByTitleAndId(t1, t2);
       }
       else {
         return t1.compareTo(t2);
       }
     });
+  }
+
+  int _sortByTitleAndId(Template t1, Template t2) {
+    final d1 = t1.title.toLowerCase();
+    final d2 = t2.title.toLowerCase();
+    final c = d1.compareTo(d2);
+    if (c == 0) {
+      return t1.tId!.compareTo(t2.tId!);
+    }
+    return c;
   }
 
   @override

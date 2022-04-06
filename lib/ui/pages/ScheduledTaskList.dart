@@ -662,51 +662,63 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
   void _sortList() {
-    _scheduledTasks..sort((t1, t2) {
+    _scheduledTasks..sort((s1, s2) {
       if (_sortBy == SortBy.PROGRESS) {
-        final d1 = t1.active ? t1.getNextRepetitionIndicatorValue() : null;
-        final d2 = t2.active ? t2.getNextRepetitionIndicatorValue() : null;
-        if (d1 == null && d2 != null) {
+        final n1 = s1.active ? s1.getNextRepetitionIndicatorValue() : null;
+        final n2 = s2.active ? s2.getNextRepetitionIndicatorValue() : null;
+        if (n1 == null && n2 != null) {
           return 1;
         }
-        else if (d1 != null && d2 == null) {
+        else if (n1 != null && n2 == null) {
           return -1;
         }
-        else if (d1 == null && d2 == null) {
-          return t1.title.toLowerCase().compareTo(t2.title.toLowerCase());
+        else if (n1 == null && n2 == null) {
+          return _sortByTitleAndId(s1, s2);
         }
-        return d2!.compareTo(d1!); // reverse
-      }
-      else if (_sortBy == SortBy.REMAINING_TIME) {
-        final d1 = t1.active && !t1.isPaused ? t1.getNextSchedule() : null;
-        final d2 = t2.active && !t1.isPaused ? t2.getNextSchedule() : null;
-        if (d1 == null && d2 != null) {
-          return 1;
-        }
-        else if (d1 != null && d2 == null) {
-          return -1;
-        }
-        else if (d1 == null && d2 == null) {
-          return t1.title.toLowerCase().compareTo(t2.title.toLowerCase());
-        }
-        return d1!.compareTo(d2!); // reverse
-      }
-      else if (_sortBy == SortBy.GROUP) {
-        final d1 = t1.taskGroupId;
-        final d2 = t2.taskGroupId;
-        return d1.compareTo(d2);
-      }
-      else if (_sortBy == SortBy.TITLE) {
-        final d1 = t1.title.toLowerCase();
-        final d2 = t2.title.toLowerCase();
-        final c = d1.compareTo(d2);
+        final c = n2!.compareTo(n1!); // reverse
         if (c == 0) {
-          return t1.title.toLowerCase().compareTo(t2.title.toLowerCase());
+          return _sortByTitleAndId(s1, s2);
         }
         return c;
       }
+      else if (_sortBy == SortBy.REMAINING_TIME) {
+        final n1 = s1.active ? s1.getNextSchedule() : null;
+        final n2 = s2.active ? s2.getNextSchedule() : null;
+        if (n1 == null && n2 != null) {
+          return 1;
+        }
+        else if (n1 != null && n2 == null) {
+          return -1;
+        }
+        else if (n1 == null && n2 == null) {
+          return _sortByTitleAndId(s1, s2);
+        }
+        else if (s1.isPaused && !s2.isPaused) {
+          return 1;
+        }
+        else if (!s1.isPaused && s2.isPaused) {
+          return -1;
+        }
+        final c = n1!.compareTo(n2!);
+        if (c == 0) {
+          return _sortByTitleAndId(s1, s2);
+        }
+        return c;
+      }
+      else if (_sortBy == SortBy.GROUP) {
+        final g1 = s1.taskGroupId;
+        final g2 = s2.taskGroupId;
+        final c = g2.compareTo(g1);
+        if (c == 0) {
+          return _sortByTitleAndId(s1, s2);
+        }
+        return c;
+      }
+      else if (_sortBy == SortBy.TITLE) {
+        return _sortByTitleAndId(s1, s2);
+      }
       else {
-        return t1.compareTo(t2);
+        return s1.compareTo(s2);
       }
     });
   }
@@ -798,7 +810,15 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     });
   }
 
-
+  int _sortByTitleAndId(ScheduledTask s1, ScheduledTask s2) {
+    final d1 = s1.title.toLowerCase();
+    final d2 = s2.title.toLowerCase();
+    final c = d1.compareTo(d2);
+    if (c == 0) {
+      return s1.id!.compareTo(s2.id!);
+    }
+    return c;
+  }
 }
 
 

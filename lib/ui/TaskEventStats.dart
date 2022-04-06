@@ -59,7 +59,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
     final dataList = dataMap.entries
         .map((e) => Pair(e.key, e.value))
-        .sortedBy((element) => element.second.toString()).reversed;
+        .sorted((a, b) => _getDataValue(a.second).compareTo(_getDataValue(b.second))).reversed;
 
     final totalValue = dataMap.entries
         .map((e) => _getDataValue(e.value))
