@@ -38,10 +38,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         title: Text("Journal Statistics"),
     ),
     body: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 30),
-        child: _createChart(),
-      ),
+      child: _createChart(),
     )
     );
   }
@@ -96,7 +93,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           height: 28,
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32),
+          padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: _buildLegend(dataList),
         )
       ],
@@ -128,7 +125,20 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             fontSize: fontSize,
             fontWeight: FontWeight.bold,
         ),
-        badgeWidget: _getTaskGroupIcon(taskGroup),
+        badgeWidget: GestureDetector(
+            onTapDown: (details) {
+              setState(() {
+                debugPrint("index=$i");
+                _touchedIndex = i;
+              });
+            },
+            onTapUp: (details) {
+              setState(() {
+                _touchedIndex = -1;
+              });
+            },
+          child: _getTaskGroupIcon(taskGroup),
+        ),
         badgePositionPercentageOffset: i % 2 == 0 ? 1.2 : 1.2, // TODO avoid overlapping icons
       );
     }).toList();
@@ -191,13 +201,12 @@ class _TaskEventStatsState extends State<TaskEventStats> {
   Widget _buildLegend(Iterable<Pair> dataList) {
     final legendElements = dataList.mapIndexed((i, data) {
       final isTouched = i == _touchedIndex;
-      final fontSize = isTouched ? 17.0 : 16.0;
+      final fontSize = isTouched ? 16.1 : 16.0;
 
       int? taskGroupId = data.first;
       final taskGroup = taskGroupId != null
           ? findPredefinedTaskGroupById(taskGroupId)
           : null;
-      final taskGroupName = _getTaskGroupName(taskGroup);
 
       return GestureDetector(
         onTapDown: (details) {
@@ -212,9 +221,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         },
         child: Row(
           children: [
-            _getTaskGroupIcon(taskGroup),
+            taskGroup != null ? taskGroup.getTaskGroupRepresentation(useIconColor: true, useBackgroundColor: isTouched) : Text("?"),
             Spacer(),
-            Text("$taskGroupName - ${_getDataValueAsString(data.second)}",
+            Text(_getDataValueAsString(data.second),
             style: TextStyle(
               fontSize: fontSize,
               fontWeight: isTouched ? FontWeight.bold : null)

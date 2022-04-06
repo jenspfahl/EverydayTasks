@@ -61,6 +61,11 @@ List<TaskGroup> predefinedTaskGroups = [
   TaskGroup(id: -9, name: "Maintenance", colorRGB: Color.fromARGB(100, 183, 3, 23), iconData: Icons.build_outlined),
   TaskGroup(id: -10, name: "Organization",colorRGB: Color.fromARGB(100, 183, 100, 128), iconData: Icons.phone_in_talk_outlined),
   TaskGroup(id: -11, name: "Car",colorRGB: Color.fromARGB(100, 123, 123, 228), iconData: Icons.directions_car_outlined),
+  TaskGroup(id: -12, name: "Pets",colorRGB: Color.fromARGB(100, 228, 123, 203), iconData: Icons.pets_outlined),
+  TaskGroup(id: -13, name: "Finance",colorRGB: Color.fromARGB(100, 123, 228, 189), iconData: Icons.money_outlined),
+  TaskGroup(id: -14, name: "Health",colorRGB: Color.fromARGB(100, 200, 240, 3), iconData: Icons.healing_outlined),
+  TaskGroup(id: -15, name: "Sport",colorRGB: Color.fromARGB(100, 240, 122, 3), iconData: Icons.sports_tennis_outlined),
+  TaskGroup(id: -16, name: "Work",colorRGB: Color.fromARGB(100, 240, 3, 3), iconData: Icons.work_outline),
 
   //last one
   TaskGroup(id: 0, name: "Others", colorRGB: Color.fromARGB(100, 128, 128, 128), iconData: Icons.lightbulb_outline),

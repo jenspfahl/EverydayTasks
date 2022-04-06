@@ -231,6 +231,13 @@ class _TaskEventFormState extends State<TaskEventForm> {
                               child: group.getTaskGroupRepresentation(useIconColor: true),
                             );
                           }).toList(),
+                          validator: (TaskGroup? value) {
+                            if (value == null) {
+                              return "Please select a category";
+                            } else {
+                              return null;
+                            }
+                          },
                         ),
                       ),
                       Padding(
