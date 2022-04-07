@@ -37,9 +37,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         appBar: AppBar(
         title: Text("Journal Statistics"),
     ),
-    body: SingleChildScrollView(
-      child: _createChart(),
-    )
+    body: _createChart(),
     );
   }
   
@@ -89,19 +87,10 @@ class _TaskEventStatsState extends State<TaskEventStats> {
                 sections: _showingSections(dataList, totalValue)),
           ),
         ),
-        const SizedBox(
-          height: 28,
-        ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-          child: _buildLegend(dataList),
-        )
+        _buildLegend(dataList),
       ],
     );
   }
-
-
-
 
   List<PieChartSectionData> _showingSections(Iterable<Pair> dataList, num totalValue) {
     return dataList.mapIndexed((i, data) {
@@ -139,7 +128,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             },
           child: _getTaskGroupIcon(taskGroup),
         ),
-        badgePositionPercentageOffset: i % 2 == 0 ? 1.2 : 1.2, // TODO avoid overlapping icons
+        badgePositionPercentageOffset: (value <= 10 && i % 2 == 0) ? 1.45 : 1.2, // avoid overlapping icons
       );
     }).toList();
   }
@@ -208,32 +197,41 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           ? findPredefinedTaskGroupById(taskGroupId)
           : null;
 
-      return GestureDetector(
-        onTapDown: (details) {
-          setState(() {
-            _touchedIndex = i;
-          });
-        },
-        onTapUp: (details) {
-          setState(() {
-            _touchedIndex = -1;
-          });
-        },
-        child: Row(
-          children: [
-            taskGroup != null ? taskGroup.getTaskGroupRepresentation(useIconColor: true, useBackgroundColor: isTouched) : Text("?"),
-            Spacer(),
-            Text(_getDataValueAsString(data.second),
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: isTouched ? FontWeight.bold : null)
-            )
-          ],
+      return Container(
+        height: 30,
+        color: taskGroup != null ? taskGroup.backgroundColor : null,
+        child: GestureDetector(
+          onTapDown: (details) {
+            setState(() {
+              _touchedIndex = i;
+            });
+          },
+          onTapUp: (details) {
+            setState(() {
+              _touchedIndex = -1;
+            });
+          },
+          child: Row(
+            children: [
+              taskGroup != null ? taskGroup.getTaskGroupRepresentation(useIconColor: true, useBackgroundColor: isTouched) : Text("?"),
+              Spacer(),
+              Text(_getDataValueAsString(data.second),
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: isTouched ? FontWeight.bold : null)
+              )
+            ],
+          ),
         ),
       );
     }).toList();
 
-    return Column(children: legendElements);
+    return Expanded(
+      child: ListView(
+          padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+          children: legendElements
+      ),
+    );
   }
 
   Icon _getTaskGroupIcon(TaskGroup? taskGroup) {

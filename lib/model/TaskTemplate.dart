@@ -104,7 +104,31 @@ List<TaskTemplate> predefinedTaskTemplates = [
 
   // Car
   TaskTemplate.data(subId: -1, title: "Regular inspection", taskGroupId: -11),
-  TaskTemplate.data(subId: -3, title: "Change tires", taskGroupId: -11),
   TaskTemplate.data(subId: -2, title: "Change windshield wipers", taskGroupId: -11),
+  TaskTemplate.data(subId: -3, title: "Change tires", taskGroupId: -11),
+
+  // Pets
+  TaskTemplate.data(subId: -1, title: "Go for a walk", taskGroupId: -12),
+  TaskTemplate.data(subId: -2, title: "Clean aquarium/terrarium", taskGroupId: -12),
+  TaskTemplate.data(subId: -3, title: "Go to vet", taskGroupId: -12),
+
+  // Finance
+  TaskTemplate.data(subId: -1, title: "Pay instalments", taskGroupId: -13),
+  TaskTemplate.data(subId: -2, title: "Pay rent", taskGroupId: -13),
+
+  // Health
+  TaskTemplate.data(subId: -1, title: "Take medication", taskGroupId: -14),
+  TaskTemplate.data(subId: -2, title: "Regular health check up", taskGroupId: -14),
+  TaskTemplate.data(subId: -3, title: "Yearly dentist examination", taskGroupId: -14),
+
+  // Sport
+  TaskTemplate.data(subId: -1, title: "Go to gym", taskGroupId: -15),
+  TaskTemplate.data(subId: -2, title: "Do a workout", taskGroupId: -15),
+
+  // Work
+  TaskTemplate.data(subId: -1, title: "Submit expenses", taskGroupId: -16),
+  TaskTemplate.data(subId: -2, title: "Negotiate salary", taskGroupId: -16),
+
+
 
 ];
