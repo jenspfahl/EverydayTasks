@@ -466,6 +466,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     final taskEvent = list[index];
     final dateHeading = dateHeadings[index];
     final dateCount = dateCounts[dateHeading];
+    final items = Items(dateCount??0);
     final dateDuration = dateDurations[dateHeading];
     var taskEventDate = truncToDate(taskEvent.startedAt);
 
@@ -482,7 +483,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
               child: Row(
                 children: [
                   Text(
-                    "${formatToDateOrWord(dateHeading)} ($dateCount items, ${dateDuration != null ? formatDuration(dateDuration) : ""})",
+                    "${formatToDateOrWord(dateHeading)} ($items, ${dateDuration != null ? formatDuration(dateDuration) : ""})",
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 10.0,

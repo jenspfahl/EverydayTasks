@@ -24,12 +24,22 @@ class TaskEventStats extends StatefulWidget {
 
 enum SortBy {NAME, VALUE}
 
-enum DataType {COUNT, DURATION}
+enum DataType {DURATION, COUNT}
 
 class _TaskEventStatsState extends State<TaskEventStats> {
 
   int _touchedIndex = -1;
   DataType _dataType = DataType.DURATION;
+
+  late List<bool> _dataTypeSelection;
+  int? _dataTypeIndex;
+
+  @override
+  void initState() {
+    _dataTypeIndex = _dataType.index;
+    _dataTypeSelection = List.generate(DataType.values.length, (index) => index == _dataTypeIndex);
+    super.initState();
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -37,11 +47,11 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         appBar: AppBar(
         title: Text("Journal Statistics"),
     ),
-    body: _createChart(),
+    body: _createBody(),
     );
   }
   
-  Widget _createChart() {
+  Widget _createBody() {
 
     Map<int?, List<TaskEvent>> groupedTaskEvents = groupBy(widget.taskEvents, (event) => event.taskGroupId);
 
@@ -54,7 +64,13 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
     final dataList = dataMap.entries
         .map((e) => Pair(e.key, e.value))
-        .sorted((a, b) => _getDataValue(a.second).compareTo(_getDataValue(b.second))).reversed;
+        .sorted((a, b) {
+          final c = _getDataValue(a.second).compareTo(_getDataValue(b.second));
+          if (c == 0) {
+            return a.first??-1.compareTo(b.first??-1);
+          }
+          return c;
+    }).reversed;
 
     final totalValue = dataMap.entries
         .map((e) => _getDataValue(e.value))
@@ -62,8 +78,12 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: _createDataButton(),
+        ),
         AspectRatio(
-          aspectRatio: 1,
+          aspectRatio: MediaQuery.of(context).orientation == Orientation.portrait ? 1.2 : 2.7,
           child: PieChart(
             PieChartData(
                 pieTouchData: PieTouchData(
@@ -87,7 +107,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
                 sections: _showingSections(dataList, totalValue)),
           ),
         ),
-        _buildLegend(dataList),
+        _buildLegend(dataList, totalValue),
       ],
     );
   }
@@ -98,24 +118,26 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       final fontSize = isTouched ? 20.0 : 16.0;
       final radius = isTouched ? 110.0 : 100.0;
 
-      int? taskGroupId = data.first;
       final value = _getDataValue(data.second);
+
+      int? taskGroupId = data.first;
       final taskGroup = taskGroupId != null
           ? findPredefinedTaskGroupById(taskGroupId)
           : null;
-      final taskGroupName = _getTaskGroupName(taskGroup);
 
+      var percentValue = _valueToPercent(value, totalValue);
       return PieChartSectionData(
         color: getSharpedColor(getTaskGroupColor(taskGroupId, false)),
         value: value,
-        title: _valueToPercent(value, totalValue),
+        title: _valueToPercentString(percentValue),
         radius: radius,
         titleStyle: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.bold,
         ),
         badgeWidget: GestureDetector(
-            onTapDown: (details) {
+          behavior: HitTestBehavior.deferToChild,
+          onTapDown: (details) {
               setState(() {
                 debugPrint("index=$i");
                 _touchedIndex = i;
@@ -128,18 +150,12 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             },
           child: _getTaskGroupIcon(taskGroup),
         ),
-        badgePositionPercentageOffset: (value <= 10 && i % 2 == 0) ? 1.45 : 1.2, // avoid overlapping icons
+        titlePositionPercentageOffset: (percentValue <= 5) ? (i % 2 == 0 ? 0.9 : 0.8) : 0.6, // avoid overlapping titles
+        badgePositionPercentageOffset: (percentValue <= 10 && i % 2 == 0) ? 1.45 : 1.2, // avoid overlapping icons
       );
     }).toList();
   }
-
-  String _getTaskGroupName(TaskGroup? taskGroup) {
-    final taskGroupName = taskGroup != null
-        ? taskGroup.name
-        : "-unknown-";
-    return taskGroupName;
-  }
-
+  
   dynamic _aggregateValue(List<TaskEvent> taskEvents) {
       switch (_dataType) {
       case DataType.DURATION: {
@@ -182,12 +198,12 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       case DataType.COUNT:
         {
           int count = value;
-          return "$count items";
+          return Items(count).toString();
         }
     }
   }
 
-  Widget _buildLegend(Iterable<Pair> dataList) {
+  Widget _buildLegend(Iterable<Pair> dataList, double totalValue) {
     final legendElements = dataList.mapIndexed((i, data) {
       final isTouched = i == _touchedIndex;
       final fontSize = isTouched ? 16.1 : 16.0;
@@ -201,6 +217,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         height: 30,
         color: taskGroup != null ? taskGroup.backgroundColor : null,
         child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTapDown: (details) {
             setState(() {
               _touchedIndex = i;
@@ -215,10 +232,13 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             children: [
               taskGroup != null ? taskGroup.getTaskGroupRepresentation(useIconColor: true, useBackgroundColor: isTouched) : Text("?"),
               Spacer(),
-              Text(_getDataValueAsString(data.second),
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: isTouched ? FontWeight.bold : null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                child: Text(_getDataValueAsString(data.second),
+                style: TextStyle(
+                  fontSize: fontSize,
+                  fontWeight: isTouched ? FontWeight.bold : null)
+                ),
               )
             ],
           ),
@@ -226,10 +246,20 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       );
     }).toList();
 
+    final totalValueAsString = _dataType == DataType.DURATION
+      ? formatDuration(Duration(minutes: totalValue.toInt()))
+      : Items(totalValue.toInt());
+
+    legendElements.insert(0, Container(
+      height: 30, child: Text("Total $totalValueAsString",
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontWeight: FontWeight.bold)))
+    );
     return Expanded(
       child: ListView(
-          padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-          children: legendElements
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+        children: legendElements
       ),
     );
   }
@@ -241,8 +271,54 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           color: Colors.grey,);
   }
 
-  _valueToPercent(double value, num total) {
-    return "${(value * 100 / total).round()}%";
+  _valueToPercentString(int percentValue) {
+    return "${percentValue}%";
+  }
+
+  int _valueToPercent(double value, num total) => (value * 100 / total).round();
+
+  Widget _createDataButton() {
+    return ToggleButtons(
+      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+      renderBorder: true,
+      borderWidth: 1.5,
+      borderColor: Colors.grey,
+      color: Colors.grey.shade600,
+      selectedBorderColor: Colors.blue,
+      children: [
+        SizedBox(
+          width: 75,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.timer_outlined),
+              const Text("Duration", textAlign: TextAlign.center),
+            ],
+          )
+        ),
+        SizedBox(
+          width: 75,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.numbers_outlined),
+              const Text("Total count", textAlign: TextAlign.center),
+            ],
+          )
+        ),
+      ],
+      isSelected: _dataTypeSelection,
+      onPressed: (int index) {
+        setState(() {
+          if (_dataTypeIndex != null) {
+            _dataTypeSelection[_dataTypeIndex!] = false;
+          }
+          _dataTypeSelection[index] = true;
+          _dataType = DataType.values.elementAt(index);
+          _dataTypeIndex = index;
+        });
+      },
+    );
   }
 
 }
