@@ -112,11 +112,11 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
           title: Text(widget.formTitle),
           actions: [
             Visibility(
-              visible: !widget.createNew && template?.isPredefined(),
+              visible: !widget.createNew && template!.isPredefined(),
               child: IconButton(
                 icon: const Icon(Icons.undo),
                 onPressed: () {
-                  final taskOrVariant = template?.isVariant() ? "variant" : "task";
+                  final taskOrVariant = template!.isVariant() ? "variant" : "task";
 
                   showConfirmationDialog(
                     context,

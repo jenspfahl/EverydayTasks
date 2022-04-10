@@ -8,6 +8,7 @@ import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
+import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTaskEvent.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
@@ -335,13 +336,25 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           if (_filterByTaskOrTemplate is TaskGroup) {
             final _taskGroup = _filterByTaskOrTemplate as TaskGroup;
             if (taskEvent.taskGroupId != _taskGroup.id) {
-              return true; // remove remove not in group items
+              return true; // remove not in group items
             }
           }
           if (_filterByTaskOrTemplate is Template) {
-            final _template = _filterByTaskOrTemplate as Template;
-            if (taskEvent.originTemplateId != _template.tId) {
-              return true; // remove not associated with template items
+            final filterTemplate = _filterByTaskOrTemplate as Template;
+            final eventTemplate = taskEvent.originTemplateId;
+            if (eventTemplate == null) {
+              return true; // remove events with no template at all
+            }
+            if (filterTemplate.isVariant()) {
+              if (eventTemplate != filterTemplate.tId) {
+                return true; // remove not associated with this variant
+              }
+            }
+            else {
+              final parentId = TemplateRepository.getParentId(eventTemplate.id);
+              if (parentId != filterTemplate.tId!.id && eventTemplate != filterTemplate.tId) {
+                return true; // remove not associated parent with template variant item
+              }
             }
           }
           return false; // fallback filter nothing

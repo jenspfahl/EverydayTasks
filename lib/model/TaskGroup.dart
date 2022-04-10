@@ -17,10 +17,13 @@ class TaskGroup implements Comparable {
     return other.tId??0.compareTo(id??0);
   }
   
-  Widget getTaskGroupRepresentation({bool useBackgroundColor = false, bool useIconColor = false}) {
+  Widget getTaskGroupRepresentation({
+    bool useBackgroundColor = false,
+    bool useIconColor = false,
+    TextStyle? textStyle}) {
     final text = useBackgroundColor
-        ? Text(" " + name, style: TextStyle(backgroundColor: backgroundColor))
-        : Text(" " + name);
+        ? Text(" " + name, style: textStyle ?? TextStyle(backgroundColor: backgroundColor))
+        : Text(" " + name, style: textStyle,);
 
     if (iconData != null) {
       var icon = getIcon(useIconColor);

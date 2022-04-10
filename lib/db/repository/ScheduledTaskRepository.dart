@@ -1,5 +1,6 @@
 
 import 'package:personaltasklogger/db/entity/ScheduledTaskEntity.dart';
+import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
@@ -20,6 +21,10 @@ class ScheduledTaskRepository {
 
     final id = await scheduledTaskDao.insertScheduledTask(entity);
     scheduledTask.id = id;
+
+    if (scheduledTask.templateId != null) {
+      TemplateRepository.cacheParentFor(scheduledTask.templateId!);
+    }
 
     return scheduledTask;
 
@@ -96,8 +101,8 @@ class ScheduledTaskRepository {
         scheduledTask.pausedAt != null ? dateTimeToEntity(scheduledTask.pausedAt!) : null,
     );
 
-  static ScheduledTask _mapFromEntity(ScheduledTaskEntity entity) =>
-    ScheduledTask(
+  static ScheduledTask _mapFromEntity(ScheduledTaskEntity entity) {
+    final scheduledTask = ScheduledTask(
         id: entity.id,
         taskGroupId: entity.taskGroupId,
         templateId: entity.taskTemplateId != null
@@ -120,6 +125,13 @@ class ScheduledTaskRepository {
         active: entity.active,
         pausedAt: entity.pausedAt != null ? dateTimeFromEntity(entity.pausedAt!) : null,
     );
+
+    if (scheduledTask.templateId != null) {
+      TemplateRepository.cacheParentFor(scheduledTask.templateId!);
+    }
+
+    return scheduledTask;
+  }
 
 
   static List<ScheduledTask> _mapFromEntities(List<ScheduledTaskEntity> entities) =>

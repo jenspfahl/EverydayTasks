@@ -136,7 +136,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             fontWeight: FontWeight.bold,
         ),
         badgeWidget: GestureDetector(
-          behavior: HitTestBehavior.deferToChild,
+          behavior: HitTestBehavior.translucent,
           onTapDown: (details) {
               setState(() {
                 debugPrint("index=$i");
@@ -151,7 +151,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           child: _getTaskGroupIcon(taskGroup),
         ),
         titlePositionPercentageOffset: (percentValue <= 5) ? (i % 2 == 0 ? 0.9 : 0.8) : 0.6, // avoid overlapping titles
-        badgePositionPercentageOffset: (percentValue <= 10 && i % 2 == 0) ? 1.45 : 1.2, // avoid overlapping icons
+        badgePositionPercentageOffset: (percentValue <= 5 && i % 2 == 0) ? 1.45 : 1.2, // avoid overlapping icons
       );
     }).toList();
   }
@@ -207,6 +207,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     final legendElements = dataList.mapIndexed((i, data) {
       final isTouched = i == _touchedIndex;
       final fontSize = isTouched ? 16.1 : 16.0;
+      final fontWeight = isTouched ? FontWeight.bold : null;
 
       int? taskGroupId = data.first;
       final taskGroup = taskGroupId != null
@@ -230,14 +231,20 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           },
           child: Row(
             children: [
-              taskGroup != null ? taskGroup.getTaskGroupRepresentation(useIconColor: true, useBackgroundColor: isTouched) : Text("?"),
+              taskGroup != null
+                  ? taskGroup.getTaskGroupRepresentation(
+                    useIconColor: true,
+                    textStyle: TextStyle(
+                      fontSize: isTouched ? 14.1 : 14.0,
+                      fontWeight: fontWeight))
+                  : Text("?"),
               Spacer(),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
                 child: Text(_getDataValueAsString(data.second),
                 style: TextStyle(
                   fontSize: fontSize,
-                  fontWeight: isTouched ? FontWeight.bold : null)
+                  fontWeight: fontWeight)
                 ),
               )
             ],

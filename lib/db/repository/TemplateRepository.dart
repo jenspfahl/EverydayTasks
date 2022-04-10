@@ -16,6 +16,8 @@ import 'mapper.dart';
 
 class TemplateRepository {
 
+  static Map<int, int> _taskTemplateVariantIdsToParentId = HashMap();
+
   static Future<Template> save(Template template) async {
     if (template.tId != null) {
       final foundTemplate = await findByIdJustDb(template.tId!);
@@ -62,6 +64,8 @@ class TemplateRepository {
       final id = await taskTemplateVariantDao.insertTaskTemplateVariant(entity);
       template.tId = TemplateId.forTaskTemplateVariant(id);
 
+      _taskTemplateVariantIdsToParentId[id] = template.taskTemplateId;
+
       return template;
     }
     throw Exception("unsupported template");
@@ -84,12 +88,16 @@ class TemplateRepository {
 
       await taskTemplateVariantDao.updateTaskTemplateVariant(entity);
 
+      _taskTemplateVariantIdsToParentId[template.tId!.id] = template.taskTemplateId;
+
       return template;
     }
     throw Exception("unsupported template");
   }
 
   static Future<Template> delete(Template template) async {
+    _taskTemplateVariantIdsToParentId.remove(template.tId!.id);
+
     if (template.isPredefined()) {
       template = findPredefinedTemplate(template.tId!);
       template.hidden = true;
@@ -213,7 +221,11 @@ class TemplateRepository {
 
   static Template findPredefinedTemplate(TemplateId tId) {
     if (tId.isVariant) {
-      return predefinedTaskTemplateVariants.firstWhere((variant) => variant.tId == tId);
+      final foundVariant = predefinedTaskTemplateVariants.firstWhere((variant) => variant.tId == tId);
+      if (!_taskTemplateVariantIdsToParentId.containsKey(tId.id)) {
+        _taskTemplateVariantIdsToParentId[tId.id] = foundVariant.taskTemplateId;
+      }
+      return foundVariant;
     }
     else {
       return predefinedTaskTemplates.firstWhere((template) => template.tId == tId);
@@ -279,8 +291,8 @@ class TemplateRepository {
           taskTemplateVariant.hidden,
       );
 
-  static TaskTemplateVariant _mapTemplateVariantFromEntity(TaskTemplateVariantEntity entity) =>
-      TaskTemplateVariant(
+  static TaskTemplateVariant _mapTemplateVariantFromEntity(TaskTemplateVariantEntity entity) {
+    final variant = TaskTemplateVariant(
           id: entity.id,
           taskGroupId: entity.taskGroupId,
           taskTemplateId: entity.taskTemplateId,
@@ -302,6 +314,13 @@ class TemplateRepository {
           hidden: entity.hidden,
       );
 
+    if (!_taskTemplateVariantIdsToParentId.containsKey(variant.tId?.id)) {
+      _taskTemplateVariantIdsToParentId[variant.tId!.id] = variant.taskTemplateId;
+    }
+
+    return variant;
+  }
+
 
   static List<TaskTemplateVariant> _mapTemplateVariantsFromEntities(List<TaskTemplateVariantEntity> entities) =>
       entities.map(_mapTemplateVariantFromEntity).toList();
@@ -320,4 +339,23 @@ class TemplateRepository {
 
     return sequencesEntity.lastId;
   }
+
+  static cacheParentFor(TemplateId tId) async {
+    if (!tId.isVariant) {
+      // has no parent per definition
+      return;
+    }
+    final id = tId.id;
+    final parentId = getParentId(id);
+    if (parentId != null) {
+      return;
+    }
+    final template = await TemplateRepository.getById(tId);
+    if (template is TaskTemplateVariant) {
+      _taskTemplateVariantIdsToParentId[tId.id] = template.taskTemplateId;
+    }
+  }
+
+  static int? getParentId(int id) => _taskTemplateVariantIdsToParentId[id];
 }
+

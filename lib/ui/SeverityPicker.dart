@@ -40,7 +40,6 @@ class _SeverityPickerState extends State<SeverityPicker> {
   void _initState() {
     _severityIndex = widget.initialSeverity?.index;
     _severitySelection = List.generate(Severity.values.length, (index) => index == _severityIndex);
-    super.initState();
   }
 
   @override

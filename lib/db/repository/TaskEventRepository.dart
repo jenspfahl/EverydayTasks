@@ -1,12 +1,12 @@
-import 'dart:ui';
-
 import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/model/When.dart';
+
 import '../database.dart';
 import 'ChronologicalPaging.dart';
+import 'TemplateRepository.dart';
 import 'mapper.dart';
 
 class TaskEventRepository {
@@ -20,6 +20,10 @@ class TaskEventRepository {
 
     final id = await taskEventDao.insertTaskEvent(entity);
     taskEvent.id = id;
+
+    if (taskEvent.originTemplateId != null) {
+      TemplateRepository.cacheParentFor(taskEvent.originTemplateId!);
+    }
 
     return taskEvent;
 
@@ -84,8 +88,8 @@ class TaskEventRepository {
         taskEvent.severity.index,
         taskEvent.favorite);
 
-  static TaskEvent _mapFromEntity(TaskEventEntity entity) =>
-    TaskEvent(
+  static TaskEvent _mapFromEntity(TaskEventEntity entity) {
+    final taskEvent = TaskEvent(
         entity.id,
         entity.taskGroupId,
         entity.originTaskTemplateId != null
@@ -102,6 +106,13 @@ class TaskEventRepository {
         AroundDurationHours.values.elementAt(entity.aroundDuration),
         Severity.values.elementAt(entity.severity),
         entity.favorite);
+
+    if (taskEvent.originTemplateId != null) {
+      TemplateRepository.cacheParentFor(taskEvent.originTemplateId!);
+    }
+
+    return taskEvent;
+  }
 
 
   static List<TaskEvent> _mapFromEntities(List<TaskEventEntity> entities) =>
