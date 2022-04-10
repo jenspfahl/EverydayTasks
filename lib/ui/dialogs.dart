@@ -11,22 +11,26 @@ import 'ToggleActionIcon.dart';
 
 void showConfirmationDialog(BuildContext context, String title, String message,
     {Function()? okPressed, Function()? cancelPressed}) {
-  Widget cancelButton = TextButton(
-    child: Text("Cancel"),
-    onPressed:  cancelPressed,
-  );
-  Widget okButton = TextButton(
-    child: Text("Ok"),
-    onPressed:  okPressed,
-  );
 
+  List<Widget> actions = [];
+  if (cancelPressed != null) {
+    Widget cancelButton = TextButton(
+      child: Text("Cancel"),
+      onPressed:  cancelPressed,
+    );
+    actions.add(cancelButton);
+  }
+  if (okPressed != null) {
+    Widget okButton = TextButton(
+      child: Text("Ok"),
+      onPressed:  okPressed,
+    );
+    actions.add(okButton);
+  }
   AlertDialog alert = AlertDialog(
     title: Text(title),
     content: Text(message),
-    actions: [
-      cancelButton,
-      okButton,
-    ],
+    actions: actions,
   );  // show the dialog
   showDialog(
     context: context,

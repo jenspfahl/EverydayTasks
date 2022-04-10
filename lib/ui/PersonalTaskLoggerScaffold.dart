@@ -2,6 +2,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/pages/QuickAddTaskEventPage.dart';
@@ -102,29 +104,39 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               decoration: BoxDecoration(
                color: Colors.green[50],
               ),
-              child: Positioned(
-                  bottom: 12,
-                  left: 16,
-                  child: Text(APP_NAME,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold
-                    ),
-                  ),
+              child: Text(APP_NAME,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold
+                ),
               ),
             ),
             ListTile(
               leading: const Icon(Icons.help_outline),
-              title: const Text('Help'),
+              title: const Text('Website'),
               onTap: () {
                 Navigator.pop(context);
+                _launchUrl("https://everydaytasks.jepfa.de");
               },
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text('About'),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
+                final packageInfo = await PackageInfo.fromPlatform();
+                final version = packageInfo.version;
+                final build = packageInfo.buildNumber;
+
+                showConfirmationDialog(
+                    context,
+                    "About Everyday Tasks",
+                    "Everyday Tasks is an app to log, track and schedule daily tasks."
+                        "\n\n© Jens Pfahl 2022"
+                        "\n\nVersion $version:$build",
+
+                    okPressed: () =>  Navigator.pop(context),
+                );
               },
             ),
           ],
@@ -349,6 +361,15 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
           });
         }
       });
+    }
+  }
+
+  void _launchUrl(url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
+    else {
+      debugPrint("Could not launch $url");
     }
   }
 }
