@@ -104,15 +104,23 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               decoration: BoxDecoration(
                color: Colors.green[50],
               ),
-              child: Text(APP_NAME,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold
+              child: Align(
+                alignment: AlignmentDirectional.bottomStart,
+                child: Column(
+                  children: [
+                 //   const Image(image: AssetImage('graphics/background.png')),
+                    Text(APP_NAME,
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.help_outline),
+              leading: const Icon(Icons.public_outlined), //TODO help_outlined
               title: const Text('Website'),
               onTap: () {
                 Navigator.pop(context);

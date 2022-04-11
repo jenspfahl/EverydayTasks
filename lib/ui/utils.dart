@@ -52,10 +52,3 @@ toastError(BuildContext context, String message) {
           duration: Duration(seconds: 4),
           content: Text(message)));
 }
-
-class Pair {
-  dynamic first;
-  dynamic second;
-
-  Pair(this.first, this.second);
-}

@@ -81,7 +81,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     final taskTemplatesFuture = TemplateRepository.getAllTaskTemplates(widget.onlyHidden??false);
     final taskTemplateVariantsFuture = TemplateRepository.getAllTaskTemplateVariants(widget.onlyHidden??false);
 
-    _nodes = predefinedTaskGroups.map((group) => createTaskGroupNode(group, [], widget.expandAll??false)).toList();
+    _nodes = predefinedTaskGroups.map((group) => _createTaskGroupNode(group, [], widget.expandAll??false)).toList();
 
     Future.wait([taskTemplatesFuture, taskTemplateVariantsFuture]).then((allTemplates) {
       
@@ -106,7 +106,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     
     _nodes = predefinedTaskGroups
         .map((group) =>
-        createTaskGroupNode(
+        _createTaskGroupNode(
             group,
             findTaskTemplates(taskTemplates, group)
                 .where((template) => (widget.onlyHidden??false)
@@ -114,7 +114,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                   : (template.hidden??false)==false
                 )
                 .map((template) =>
-                createTaskTemplateNode(
+                _createTaskTemplateNode(
                     template,
                     group,
                     findTaskTemplateVariants(taskTemplateVariants, template)
@@ -124,7 +124,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                           : (variant.hidden??false)==false
                         )
                         .map((variant) =>
-                        createTaskTemplateVariantNode(
+                        _createTaskTemplateVariantNode(
                             variant,
                             group,
                         ))
@@ -157,7 +157,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     );
   }
 
-  Node<TaskGroup> createTaskGroupNode(TaskGroup group,
+  Node<TaskGroup> _createTaskGroupNode(TaskGroup group,
       List<Node<TaskTemplate>> templates, bool expandAll) {
     return Node(
       key: group.getKey(),
@@ -301,7 +301,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     _onFABPressed();
   }
 
-  Node<TaskTemplate> createTaskTemplateNode(TaskTemplate template,
+  Node<TaskTemplate> _createTaskTemplateNode(TaskTemplate template,
       TaskGroup group,
       List<Node<dynamic>> templateVariants, bool expandAll) {
     debugPrint("${template.tId} is hidden ${template.hidden}");
@@ -318,7 +318,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     );
   }
 
-  Node<TaskTemplateVariant> createTaskTemplateVariantNode(
+  Node<TaskTemplateVariant> _createTaskTemplateVariantNode(
       TaskTemplateVariant variant, TaskGroup group) {
     return Node(
       key: variant.getKey(),
@@ -338,7 +338,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     setState(() {
       _treeViewController = _treeViewController.withAddNode(
           parent.getKey(),
-          createTaskTemplateNode(template, parent, [], widget.expandAll??false,
+          _createTaskTemplateNode(template, parent, [], widget.expandAll??false,
           )
       );
       _updateSelection(template.getKey());
@@ -355,7 +355,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     setState(() {
       _treeViewController = _treeViewController.withAddNode(
           parent.getKey(),
-          createTaskTemplateVariantNode(variant, taskGroup)
+          _createTaskTemplateVariantNode(variant, taskGroup)
       );
       _updateSelection(variant.getKey());
     });
@@ -369,7 +369,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       final children = _treeViewController.getNode(template.getKey())?.children ?? [];
       _treeViewController = _treeViewController.withUpdateNode(
           template.getKey(),
-          createTaskTemplateNode(template, taskGroup, children, widget.expandAll??false)
+          _createTaskTemplateNode(template, taskGroup, children, widget.expandAll??false)
       );
     });
     widget._pagesHolder?.quickAddTaskEventPage?.getGlobalKey().currentState?.updateTemplate(template);
@@ -382,7 +382,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     setState(() {
       _treeViewController = _treeViewController.withUpdateNode(
           template.getKey(),
-          createTaskTemplateVariantNode(template, taskGroup)
+          _createTaskTemplateVariantNode(template, taskGroup)
       );
     });
     widget._pagesHolder?.quickAddTaskEventPage?.getGlobalKey().currentState?.updateTemplate(template);

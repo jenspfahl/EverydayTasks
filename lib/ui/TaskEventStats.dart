@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
+import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -22,13 +24,14 @@ class TaskEventStats extends StatefulWidget {
   }
 }
 
-enum SortBy {NAME, VALUE}
-
 enum DataType {DURATION, COUNT}
+enum SortBy {NAME, VALUE}
+enum GroupBy {TASK_GROUP, TEMPLATE}
 
 class _TaskEventStatsState extends State<TaskEventStats> {
 
   int _touchedIndex = -1;
+  GroupBy _groupBy = GroupBy.TASK_GROUP;
   DataType _dataType = DataType.DURATION;
 
   late List<bool> _dataTypeSelection;
@@ -44,10 +47,21 @@ class _TaskEventStatsState extends State<TaskEventStats> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         title: Text("Journal Statistics"),
-    ),
-    body: _createBody(),
+        actions: [
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  _groupBy = _groupBy == GroupBy.TEMPLATE ? GroupBy.TASK_GROUP : GroupBy.TEMPLATE;
+                });
+              },
+              icon: Icon(
+                _groupBy == GroupBy.TEMPLATE ? Icons.task_alt : Icons.category_outlined,
+              )),
+        ],
+      ),
+      body: _createBody(),
     );
   }
   
@@ -55,25 +69,44 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
     Map<int?, List<TaskEvent>> groupedTaskEvents = groupBy(widget.taskEvents, (event) => event.taskGroupId);
 
-    Map<int?, dynamic> dataMap = groupedTaskEvents.map((taskGroupId, taskEvents) {
-      return MapEntry(
-          taskGroupId,
-          _aggregateValue(taskEvents));
+    Map<int?, Map<TemplateId?, dynamic>> dataMap = groupedTaskEvents.map((taskGroupId, taskEvents) {
+      if (_groupBy == GroupBy.TASK_GROUP) {
+        return MapEntry(
+            taskGroupId,
+            Map.fromEntries([MapEntry(
+              null,
+              _aggregateValue(taskEvents))]));
       }
-    );
+      else if (_groupBy == GroupBy.TEMPLATE) {
+        Map<TemplateId?, List<TaskEvent>> groupedTemplates = groupBy(taskEvents, (event) => event.originTemplateId);
+
+        Map<TemplateId?, dynamic> templateDataMap = groupedTemplates.map((templateId, subTaskEvents) {
+          return MapEntry(
+              templateId,
+              _aggregateValue(subTaskEvents));
+        });
+
+        return MapEntry(taskGroupId, templateDataMap);
+      }
+      else {
+        throw Exception("Programming error: unknown GroupBy: $_groupBy");
+      }
+    });
 
     final dataList = dataMap.entries
-        .map((e) => Pair(e.key, e.value))
+        .expand((e) => e.value.entries
+            .map((templateMap) => SliceData(e.key, templateMap.key,  templateMap.value))
+          )
         .sorted((a, b) {
-          final c = _getDataValue(a.second).compareTo(_getDataValue(b.second));
+          final c = _getDataValue(a.value).compareTo(_getDataValue(b.value));
           if (c == 0) {
-            return a.first??-1.compareTo(b.first??-1);
+            return a.taskGroupId??-1.compareTo(b.taskGroupId??-1);
           }
           return c;
     }).reversed;
 
     final totalValue = dataMap.entries
-        .map((e) => _getDataValue(e.value))
+        .expand((e) => e.value.entries.map((e) => _getDataValue(e.value)))
         .fold(0.0, (double previous, current) => previous + current);
 
     return Column(
@@ -103,7 +136,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
                   show: false,
                 ),
                 sectionsSpace: 0.9,
-                centerSpaceRadius: 0,
+                centerSpaceRadius: _groupBy == GroupBy.TEMPLATE ? 30 : 0,
                 sections: _showingSections(dataList, totalValue)),
           ),
         ),
@@ -112,22 +145,25 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     );
   }
 
-  List<PieChartSectionData> _showingSections(Iterable<Pair> dataList, num totalValue) {
+  List<PieChartSectionData> _showingSections(Iterable<SliceData> dataList, num totalValue) {
     return dataList.mapIndexed((i, data) {
       final isTouched = i == _touchedIndex;
       final fontSize = isTouched ? 20.0 : 16.0;
-      final radius = isTouched ? 110.0 : 100.0;
+      final r = _groupBy == GroupBy.TEMPLATE ? 70.0 : 100.0;
+      final radius = isTouched ? r * 1.1 : r;
 
-      final value = _getDataValue(data.second);
+      final value = _getDataValue(data.value);
 
-      int? taskGroupId = data.first;
+      int? taskGroupId = data.taskGroupId;
       final taskGroup = taskGroupId != null
           ? findPredefinedTaskGroupById(taskGroupId)
           : null;
 
       var percentValue = _valueToPercent(value, totalValue);
       return PieChartSectionData(
-        color: getSharpedColor(getTaskGroupColor(taskGroupId, false)),
+        color: data.templateId == null
+            ? getSharpedColor(getTaskGroupColor(taskGroupId, false))
+            : getTaskGroupColor(taskGroupId, data.templateId!.isVariant),
         value: value,
         title: _valueToPercentString(percentValue),
         radius: radius,
@@ -203,20 +239,58 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     }
   }
 
-  Widget _buildLegend(Iterable<Pair> dataList, double totalValue) {
-    final legendElements = dataList.mapIndexed((i, data) {
+  Widget _buildLegend(Iterable<SliceData> dataList, double totalValue) {
+
+    return Expanded(
+      child: FutureBuilder(
+        future: _createLegendElements(dataList, totalValue),
+        builder: (context, AsyncSnapshot<List<Container>> snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return snapshot.data![index];
+              },
+            );
+          }
+          else {
+            return Text("loading");
+          }
+        },
+      ),
+    );
+
+  }
+
+  Future<List<Container>> _createLegendElements(Iterable<SliceData> dataList, double totalValue) async {
+    final legendElementFutures = dataList.mapIndexed((i, data) async {
       final isTouched = i == _touchedIndex;
       final fontSize = isTouched ? 16.1 : 16.0;
       final fontWeight = isTouched ? FontWeight.bold : null;
-
-      int? taskGroupId = data.first;
+    
+      int? taskGroupId = data.taskGroupId;
       final taskGroup = taskGroupId != null
           ? findPredefinedTaskGroupById(taskGroupId)
           : null;
+    
+      final template = data.templateId != null ? await TemplateRepository.getById(data.templateId!) : null;
 
+      final groupedByPresentation = Row(
+          children: [
+            taskGroup?.getIcon(true) ?? Text(""),
+            Text(template?.title ?? taskGroup?.name ?? "",
+              style: TextStyle(
+              fontSize: isTouched ? 14.1 : 14.0,
+              fontWeight: fontWeight)),
+          ]);
+    
       return Container(
         height: 30,
-        color: taskGroup != null ? taskGroup.backgroundColor : null,
+       // color: taskGroup != null ? taskGroup.backgroundColor : null,
+        color: data.templateId == null
+            ? (taskGroup != null ? taskGroup.backgroundColor : null)
+            : getTaskGroupColor(taskGroupId, data.templateId!.isVariant),
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTapDown: (details) {
@@ -231,17 +305,11 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           },
           child: Row(
             children: [
-              taskGroup != null
-                  ? taskGroup.getTaskGroupRepresentation(
-                    useIconColor: true,
-                    textStyle: TextStyle(
-                      fontSize: isTouched ? 14.1 : 14.0,
-                      fontWeight: fontWeight))
-                  : Text("?"),
+              groupedByPresentation,
               Spacer(),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                child: Text(_getDataValueAsString(data.second),
+                child: Text(_getDataValueAsString(data.value),
                 style: TextStyle(
                   fontSize: fontSize,
                   fontWeight: fontWeight)
@@ -252,23 +320,18 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         ),
       );
     }).toList();
-
+    
     final totalValueAsString = _dataType == DataType.DURATION
       ? formatDuration(Duration(minutes: totalValue.toInt()))
       : Items(totalValue.toInt());
-
-    legendElements.insert(0, Container(
+    
+    legendElementFutures.insert(0, Future.value(Container(
       height: 30, child: Text("Total $totalValueAsString",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontWeight: FontWeight.bold)))
-    );
-    return Expanded(
-      child: ListView(
-        padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-        children: legendElements
-      ),
-    );
+    ));
+    return Future.wait(legendElementFutures);
   }
 
   Icon _getTaskGroupIcon(TaskGroup? taskGroup) {
@@ -327,5 +390,12 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       },
     );
   }
+}
 
+class SliceData {
+  int? taskGroupId;
+  TemplateId? templateId;
+  dynamic value;
+
+  SliceData(this.taskGroupId, this.templateId, this.value);
 }
