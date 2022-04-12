@@ -379,7 +379,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       final templateId = scheduledTask.templateId;
                       Template? template;
                       if (templateId != null) {
-                        template = await TemplateRepository.getById(templateId);
+                        template = await TemplateRepository.findById(templateId);
                       }
 
                       TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {

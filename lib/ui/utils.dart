@@ -17,6 +17,13 @@ Color getSharpedColor(Color? colorRGB) {
   return color.withAlpha((color.alpha * 2.5).toInt());
 }
 
+String truncate(String text, { required int length, omission: '...' }) {
+  if (length >= text.length) {
+    return text;
+  }
+  return text.replaceRange(length, text.length, omission);
+}
+
 Color getShadedColor(Color? colorRGB, bool lessShaded) {
   var color = colorRGB ?? Colors.lime.shade100;
   return shadeColor(lessShaded, color);

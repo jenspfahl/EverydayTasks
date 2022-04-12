@@ -467,7 +467,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 toastInfo(context, "Variant with name '${changedTemplate.title}' cloned");
                 final variant = changedTemplate as TaskTemplateVariant;
                 debugPrint("base variant: ${variant.taskTemplateId}");
-                TemplateRepository.getById(TemplateId.forTaskTemplate(variant.taskTemplateId)).then((foundTemplate) {
+                TemplateRepository.findById(TemplateId.forTaskTemplate(variant.taskTemplateId)).then((foundTemplate) {
                   debugPrint("foundTemplate: $foundTemplate");
                   _addTaskTemplateVariant(variant, taskGroup!, foundTemplate as TaskTemplate);
                 });

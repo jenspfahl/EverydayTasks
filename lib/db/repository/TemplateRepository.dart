@@ -211,12 +211,15 @@ class TemplateRepository {
     }
   }
 
-  static Future<Template> getById(TemplateId tId) async {
+  static Future<Template?> findById(TemplateId tId) async {
     final foundInDb = await findByIdJustDb(tId);
     if (foundInDb != null) {
       return Future.value(foundInDb);
     }
-    return findPredefinedTemplate(tId);
+    if (tId.isPredefined()) {
+      return findPredefinedTemplate(tId);
+    }
+    return null;
   }
 
   static Template findPredefinedTemplate(TemplateId tId) {
@@ -350,7 +353,7 @@ class TemplateRepository {
     if (parentId != null) {
       return;
     }
-    final template = await TemplateRepository.getById(tId);
+    final template = await TemplateRepository.findById(tId);
     if (template is TaskTemplateVariant) {
       _taskTemplateVariantIdsToParentId[tId.id] = template.taskTemplateId;
     }

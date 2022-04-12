@@ -31,16 +31,18 @@ enum GroupBy {TASK_GROUP, TEMPLATE}
 class _TaskEventStatsState extends State<TaskEventStats> {
 
   int _touchedIndex = -1;
-  GroupBy _groupBy = GroupBy.TASK_GROUP;
-  DataType _dataType = DataType.DURATION;
 
+  GroupBy _groupBy = GroupBy.TASK_GROUP;
+  late List<bool> _groupBySelection;
+
+  DataType _dataType = DataType.DURATION;
   late List<bool> _dataTypeSelection;
-  int? _dataTypeIndex;
 
   @override
   void initState() {
-    _dataTypeIndex = _dataType.index;
-    _dataTypeSelection = List.generate(DataType.values.length, (index) => index == _dataTypeIndex);
+    _dataTypeSelection = List.generate(DataType.values.length, (index) => index == _dataType.index);
+    _groupBySelection = List.generate(GroupBy.values.length, (index) => index == _groupBy.index);
+
     super.initState();
   }
   
@@ -49,17 +51,6 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Journal Statistics"),
-        actions: [
-          IconButton(
-              onPressed: () {
-                setState(() {
-                  _groupBy = _groupBy == GroupBy.TEMPLATE ? GroupBy.TASK_GROUP : GroupBy.TEMPLATE;
-                });
-              },
-              icon: Icon(
-                _groupBy == GroupBy.TEMPLATE ? Icons.task_alt : Icons.category_outlined,
-              )),
-        ],
       ),
       body: _createBody(),
     );
@@ -113,7 +104,13 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          child: _createDataButton(),
+          child: Row(
+            children: [
+              _createDataButton(),
+              Spacer(),
+              _createGroupByButton(),
+            ],
+          ),
         ),
         AspectRatio(
           aspectRatio: MediaQuery.of(context).orientation == Orientation.portrait ? 1.2 : 2.7,
@@ -250,12 +247,15 @@ class _TaskEventStatsState extends State<TaskEventStats> {
               padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                return snapshot.data![index];
+                return snapshot.data!.length > index ? snapshot.data![index] : Text("-unknown-");
               },
             );
           }
+          else if (snapshot.hasError) {
+            return Text("Error " + snapshot.error.toString());
+          }
           else {
-            return Text("loading");
+            return Text("loading..");
           }
         },
       ),
@@ -274,15 +274,17 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           ? findPredefinedTaskGroupById(taskGroupId)
           : null;
     
-      final template = data.templateId != null ? await TemplateRepository.getById(data.templateId!) : null;
+      final template = data.templateId != null ? await TemplateRepository.findById(data.templateId!) : null;
 
+      var title = template?.title ?? taskGroup?.name ?? "-unknown-";
       final groupedByPresentation = Row(
           children: [
-            taskGroup?.getIcon(true) ?? Text(""),
-            Text(template?.title ?? taskGroup?.name ?? "",
+            taskGroup?.getIcon(true) ?? Text("?"),
+            Text(truncate(title, length: 30), //TODO cutting this is not enough for long durarion strings
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-              fontSize: isTouched ? 14.1 : 14.0,
-              fontWeight: fontWeight)),
+                fontSize: isTouched ? 14.1 : 14.0,
+                fontWeight: fontWeight)),
           ]);
     
       return Container(
@@ -345,7 +347,12 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     return "${percentValue}%";
   }
 
-  int _valueToPercent(double value, num total) => (value * 100 / total).round();
+  int _valueToPercent(double value, num total) {
+    if (total == 0) {
+      return 0;
+    }
+    return (value * 100 / total).round();
+  }
 
   Widget _createDataButton() {
     return ToggleButtons(
@@ -380,12 +387,51 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       isSelected: _dataTypeSelection,
       onPressed: (int index) {
         setState(() {
-          if (_dataTypeIndex != null) {
-            _dataTypeSelection[_dataTypeIndex!] = false;
-          }
+          _dataTypeSelection[_dataType.index] = false;
           _dataTypeSelection[index] = true;
           _dataType = DataType.values.elementAt(index);
-          _dataTypeIndex = index;
+        });
+      },
+    );
+  }
+
+
+  Widget _createGroupByButton() {
+    return ToggleButtons(
+      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+      renderBorder: true,
+      borderWidth: 1.5,
+      borderColor: Colors.grey,
+      color: Colors.grey.shade600,
+      selectedBorderColor: Colors.blue,
+      children: [
+        SizedBox(
+            width: 75,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.category_outlined,),
+                const Text("Categories", textAlign: TextAlign.center),
+              ],
+            )
+        ),
+        SizedBox(
+            width: 75,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.task_alt),
+                const Text("Tasks", textAlign: TextAlign.center),
+              ],
+            )
+        ),
+      ],
+      isSelected: _groupBySelection,
+      onPressed: (int index) {
+        setState(() {
+          _groupBySelection[_groupBy.index] = false;
+          _groupBySelection[index] = true;
+          _groupBy = GroupBy.values.elementAt(index);
         });
       },
     );

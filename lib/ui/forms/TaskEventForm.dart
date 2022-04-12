@@ -211,34 +211,32 @@ class _TaskEventFormState extends State<TaskEventForm> {
                         keyboardType: TextInputType.text,
                         maxLines: 1,
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 16.0, right: 16.0),
-                        child: DropdownButtonFormField<TaskGroup?>(
-                          onTap: () => FocusScope.of(context).unfocus(),
-                          value: _selectedTaskGroup,
-                          hint: Text(
-                            'Belongs to a category',
-                          ),
-                          isExpanded: true,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedTaskGroup = value;
-                            });
-                          },
-                          items: predefinedTaskGroups.map((TaskGroup group) {
-                            return DropdownMenuItem(
-                              value: group,
-                              child: group.getTaskGroupRepresentation(useIconColor: true),
-                            );
-                          }).toList(),
-                          validator: (TaskGroup? value) {
-                            if (value == null) {
-                              return "Please select a category";
-                            } else {
-                              return null;
-                            }
-                          },
+                      DropdownButtonFormField<TaskGroup?>(
+                        onTap: () => FocusScope.of(context).unfocus(),
+                        value: _selectedTaskGroup,
+                        icon: const Icon(Icons.category_outlined),
+                        hint: Text(
+                          'Belongs to a category',
                         ),
+                        isExpanded: true,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedTaskGroup = value;
+                          });
+                        },
+                        items: predefinedTaskGroups.map((TaskGroup group) {
+                          return DropdownMenuItem(
+                            value: group,
+                            child: group.getTaskGroupRepresentation(useIconColor: true),
+                          );
+                        }).toList(),
+                        validator: (TaskGroup? value) {
+                          if (value == null) {
+                            return "Please select a category";
+                          } else {
+                            return null;
+                          }
+                        },
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 20.0),
@@ -477,7 +475,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                 var taskEvent = TaskEvent(
                                   _taskEvent?.id,
                                   _selectedTaskGroup?.id,
-                                  _template?.tId,
+                                  _template?.tId ?? _taskEvent?.originTemplateId,
                                   _titleController.text,
                                   _descriptionController.text,
                                   _taskEvent?.createdAt ?? DateTime.now(),
@@ -611,7 +609,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
     int? templateId = jsonMap['templateId'];
     bool? isVariant = jsonMap['isVariant'];
     if (templateId != null && isVariant != null) {
-      TemplateRepository.getById(TemplateId(templateId, isVariant))
+      TemplateRepository.findById(TemplateId(templateId, isVariant))
           .then((foundTemplate) {
             _template = foundTemplate;
       });
