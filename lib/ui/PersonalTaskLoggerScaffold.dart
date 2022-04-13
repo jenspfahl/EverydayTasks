@@ -2,7 +2,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
@@ -10,6 +9,7 @@ import 'package:personaltasklogger/ui/pages/QuickAddTaskEventPage.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
+import 'package:personaltasklogger/ui/utils.dart';
 
 import '../main.dart';
 import 'dialogs.dart';
@@ -96,7 +96,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   Widget build(BuildContext context) {
 
     return Scaffold(
-      drawer: Drawer(
+      drawer: _isSearching ? null : Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -124,7 +124,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               title: const Text('Website'),
               onTap: () {
                 Navigator.pop(context);
-                _launchUrl("https://everydaytasks.jepfa.de");
+                launchUrl("https://everydaytasks.jepfa.de");
               },
             ),
             ListTile(
@@ -151,7 +151,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
         ),
       ),
       appBar: AppBar(
-        title: _searchString != null ? _buildSearchField() : getSelectedPage().getTitle(),
+        title: _isSearching ? _buildSearchField() : getSelectedPage().getTitle(),
         actions: _buildActions(context),
       ),
       body: PageView(
@@ -251,7 +251,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     }
     List<Widget> actions = [];
 
-    if (_searchString != null) {
+    if (_isSearching) {
       //actions.add(
        return [IconButton(
           icon: const Icon(Icons.clear),
@@ -372,12 +372,6 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     }
   }
 
-  void _launchUrl(url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    }
-    else {
-      debugPrint("Could not launch $url");
-    }
-  }
+  get _isSearching => _searchString != null;
+
 }

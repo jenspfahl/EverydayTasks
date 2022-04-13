@@ -18,6 +18,7 @@ import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
+import 'package:personaltasklogger/ui/pages/TaskEventFilter.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
@@ -25,7 +26,6 @@ import '../PersonalTaskLoggerScaffold.dart';
 import '../TaskEventStats.dart';
 import '../forms/TaskEventForm.dart';
 
-final filterIconKey = new GlobalKey<ToggleActionIconState>();
 final expandIconKey = new GlobalKey<ToggleActionIconState>();
 final TASK_EVENT_LIST_ROUTING_KEY = "TaskEvents";
 
@@ -69,11 +69,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
   Object? _selectedTemplateItem;
 
-  DateTimeRange? _filterByDateRange;
-  Severity? _filterBySeverity;
-  bool _filterByFavorites = false;
-  Object? _filterByTaskOrTemplate;
-  List<int>? _filterByTaskEventIds;
+  TaskEventFilterState? _filterState;
 
   String? _searchQuery;
   late Timer _timer;
@@ -102,173 +98,15 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   @override
   List<Widget>? getActions(BuildContext context) {
     final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, isAllExpanded(), expandIconKey);
-    final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, isFilterActive(), filterIconKey);
     return [
-      GestureDetector(
-        child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
-            child: filterIcon),
-        onTapDown: (details) {
-          showPopUpMenuAtTapDown(
-              context,
-              details,
-              [
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          Icon(
-                            _filterByDateRange != null ? Icons.calendar_today : Icons.calendar_today_outlined,
-                            color: _filterByDateRange != null ? Colors.blueAccent : null,
-                          ),
-                          const Spacer(),
-                          Text(_filterByDateRange != null
-                              ?  "${formatToDateOrWord(_filterByDateRange!.start)} to ${formatToDateOrWord(_filterByDateRange!.end).toLowerCase()}"
-                              : "Filter by date range"),
-                        ]
-                    ),
-                    value: '1'),
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          _filterBySeverity != null
-                              ? severityToIcon(_filterBySeverity!, Colors.blueAccent)
-                              : Icon(Icons.fitness_center_rounded),
-                          const Spacer(),
-                          Text(_filterBySeverity != null
-                              ? severityToString(_filterBySeverity!)
-                              : "Filter by severity"),
-                        ]
-                    ),
-                    value: '2'),
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          Icon(
-                            _filterByFavorites ? Icons.favorite : Icons.favorite_border,
-                            color: _filterByFavorites ? Colors.blueAccent : null,
-                          ),
-                          const Spacer(),
-                          const Text("Filter favorites"),
-                        ]
-                    ),
-                    value: '3'),
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          _filterByTaskOrTemplate != null
-                              ? _filterByTaskOrTemplate is TaskGroup
-                              ? (_filterByTaskOrTemplate as TaskGroup).getIcon(true)
-                              : (_filterByTaskOrTemplate as Template).getIcon(true)
-                              : const Icon(Icons.task_alt),
-                          const Spacer(),
-                          Text(_filterByTaskOrTemplate != null
-                              ? _filterByTaskOrTemplate is TaskGroup
-                              ? (_filterByTaskOrTemplate as TaskGroup).name
-                              : (_filterByTaskOrTemplate as Template).title
-                              : "Filter by task"),
-                        ]
-                    ),
-                    value: '4'),
-                PopupMenuItem<String>(
-                    child: Row(
-                        children: [
-                          Icon(
-                            isFilterActive() ? Icons.clear : Icons.clear_outlined,
-                            color: isFilterActive() ? Colors.blueAccent : null,
-                          ),
-                          const Spacer(),
-                          const Text("Clear filters"),
-                        ]
-                    ),
-                    value: '5'),
-              ]
-          ).then((selected) {
-            switch (selected) {
-              case '1' : {
-                if (_filterByDateRange == null) {
-                  showDateRangePicker(
-                    context: context,
-                    firstDate: DateTime.now().subtract(Duration(days: 365)),
-                    lastDate: DateTime.now().add(Duration(days: 365)),
-                    currentDate: DateTime.now(),
-                    builder: (context, child) {
-                      return Theme(
-                        data: Theme.of(context).copyWith(
-                          colorScheme: ColorScheme.light(
-                            // TODO i don't know why but without that the app bar text id white here !!!
-                            onPrimary: Colors.black, // header text color
-                          ),
-
-                        ),
-                        child: child!,
-                      );},
-                  ).then((dateRange) {
-                    if (dateRange != null) {
-                      _filterByDateRange = dateRange;
-                      _doFilter();
-                      filterIconKey.currentState?.refresh(isFilterActive());
-                    }
-                  });
-                }
-                else {
-                  _filterByDateRange = null;
-                  _doFilter();
-                  filterIconKey.currentState?.refresh(isFilterActive());
-                }
-                break;
-              }
-
-              case '2' : {
-                showSeverityPicker(
-                    context, _filterBySeverity, true, (selected) {
-                  _filterBySeverity = selected;
-                  _doFilter();
-                  filterIconKey.currentState?.refresh(isFilterActive());
-                  Navigator.pop(context);
-                });
-                break;
-              }
-
-              case '3' : {
-                _filterByFavorites = !_filterByFavorites;
-                _doFilter();
-                filterIconKey.currentState?.refresh(isFilterActive());
-                break;
-              }
-
-              case '4' : {
-                if (_filterByTaskOrTemplate == null) {
-                  Object? selectedItem = null;
-                  showTemplateDialog(context, "Filter by task", "Select a category or task to filter by.",
-                    selectedItem: (item) {
-                      selectedItem = item;
-                    },
-                    okPressed: () {
-                      Navigator.pop(context);
-                      _filterByTaskOrTemplate = selectedItem;
-                      _doFilter();
-                      filterIconKey.currentState?.refresh(isFilterActive());
-                    },
-                    cancelPressed: () =>
-                        Navigator.pop(context), // dis
-                  );
-                }
-                else {
-                  _filterByTaskOrTemplate = null;
-                  _doFilter();
-                  filterIconKey.currentState?.refresh(isFilterActive());
-                }
-                break;
-              }
-              case '5' : {
-                clearFilters();
-                _doFilter();
-                filterIconKey.currentState?.refresh(isFilterActive());
-                break;
-              }
-            }
+      TaskEventFilter(
+        initialTaskFilterSettings: _filterState?.taskFilterSettings,
+        doFilter: (filterState) {
+          setState(() {
+            _filterState = filterState;
+            _doFilter();
           });
-        },
-      ),
+      }),
       IconButton(
         icon: Icon(Icons.bar_chart),
         onPressed: () {
@@ -321,26 +159,26 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                   || (taskEvent.description != null && taskEvent.description!.toLowerCase().contains(_searchQuery!.toLowerCase())))) {
             return true; // remove events not containing search string
           }
-          if (_filterByTaskEventIds != null && !_filterByTaskEventIds!.contains(taskEvent.id!)) {
+          if (_filterState?.taskFilterSettings.filterByTaskEventIds != null && !_filterState!.taskFilterSettings.filterByTaskEventIds!.contains(taskEvent.id!)) {
             return true;  // remove not explicitly requested events
           }
-          if (_filterByDateRange != null && taskEvent.startedAt.isBefore(truncToDate(_filterByDateRange!.start))) {
+          if (_filterState?.taskFilterSettings.filterByDateRange != null && taskEvent.startedAt.isBefore(truncToDate(_filterState!.taskFilterSettings.filterByDateRange!.start))) {
             return true; // remove events before dateFrom
           }
-          if (_filterBySeverity != null && taskEvent.severity != _filterBySeverity) {
+          if (_filterState?.taskFilterSettings.filterBySeverity != null && taskEvent.severity != _filterState!.taskFilterSettings.filterBySeverity) {
             return true; // remove events don't match given severity
           }
-          if (_filterByFavorites && !taskEvent.favorite) {
+          if (_filterState?.taskFilterSettings.filterByFavorites == true && !taskEvent.favorite) {
             return true; // remove non favorites
           }
-          if (_filterByTaskOrTemplate is TaskGroup) {
-            final _taskGroup = _filterByTaskOrTemplate as TaskGroup;
+          if (_filterState?.taskFilterSettings.filterByTaskOrTemplate is TaskGroup) {
+            final _taskGroup = _filterState!.taskFilterSettings.filterByTaskOrTemplate as TaskGroup;
             if (taskEvent.taskGroupId != _taskGroup.id) {
               return true; // remove not in group items
             }
           }
-          if (_filterByTaskOrTemplate is Template) {
-            final filterTemplate = _filterByTaskOrTemplate as Template;
+          if (_filterState?.taskFilterSettings.filterByTaskOrTemplate is Template) {
+            final filterTemplate = _filterState!.taskFilterSettings.filterByTaskOrTemplate as Template;
             final eventTemplate = taskEvent.originTemplateId;
             if (eventTemplate == null) {
               return true; // remove events with no template at all
@@ -734,22 +572,12 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   @override
   bool get wantKeepAlive => true;
 
-  bool isFilterActive() => _filterByTaskEventIds != null
-      || _filterByDateRange != null
-      || _filterBySeverity != null
-      || _filterByFavorites
-      || _filterByTaskOrTemplate != null;
+  bool isFilterActive() => _filterState?.isFilterActive()??false;
 
-  void clearFilters() {
-    _filterByTaskEventIds = null;
-    _filterByDateRange = null;
-    _filterBySeverity = null;
-    _filterByFavorites = false;
-    _filterByTaskOrTemplate = null;
-  }
+  void clearFilters() => _filterState?.clearFilters();
 
   void filterByTaskEventIds(Iterable<int> taskEventIds) {
-    _filterByTaskEventIds = taskEventIds.toList();
+    _filterState?.taskFilterSettings.filterByTaskEventIds = taskEventIds.toList();
   }
 
   bool isAllExpanded() => _hiddenTiles.isEmpty;

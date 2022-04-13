@@ -134,7 +134,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
                 ),
                 sectionsSpace: 0.9,
                 centerSpaceRadius: _groupBy == GroupBy.TEMPLATE ? 30 : 0,
-                sections: _showingSections(dataList, totalValue)),
+                sections: _createSections(dataList, totalValue),
+            ),
+            swapAnimationDuration: Duration(milliseconds: 75),
           ),
         ),
         _buildLegend(dataList, totalValue),
@@ -142,7 +144,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     );
   }
 
-  List<PieChartSectionData> _showingSections(Iterable<SliceData> dataList, num totalValue) {
+  List<PieChartSectionData> _createSections(Iterable<SliceData> dataList, num totalValue) {
     return dataList.mapIndexed((i, data) {
       final isTouched = i == _touchedIndex;
       final fontSize = isTouched ? 20.0 : 16.0;

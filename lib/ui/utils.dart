@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 
@@ -58,4 +58,13 @@ toastError(BuildContext context, String message) {
           backgroundColor: Colors.red,
           duration: Duration(seconds: 4),
           content: Text(message)));
+}
+
+void launchUrl(url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  }
+  else {
+    debugPrint("Could not launch $url");
+  }
 }
