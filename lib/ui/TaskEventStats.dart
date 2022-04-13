@@ -4,6 +4,8 @@ import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
+import 'package:personaltasklogger/ui/pages/TaskEventFilter.dart';
+import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -13,9 +15,9 @@ import "package:collection/collection.dart";
 
 class TaskEventStats extends StatefulWidget {
 
-  List<TaskEvent> taskEvents;
+  TaskEventListState taskEventListState;
 
-  TaskEventStats(this.taskEvents);
+  TaskEventStats(this.taskEventListState);
 
 
   @override
@@ -51,6 +53,16 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Journal Statistics"),
+        actions: [
+          TaskEventFilter(
+              initialTaskFilterSettings: widget.taskEventListState.filterState?.taskFilterSettings,
+              doFilter: (filterState) {
+                setState(() {
+                  widget.taskEventListState.filterState = filterState;
+                  widget.taskEventListState.doFilter();
+                });
+              }),
+        ],
       ),
       body: _createBody(),
     );
@@ -58,7 +70,8 @@ class _TaskEventStatsState extends State<TaskEventStats> {
   
   Widget _createBody() {
 
-    Map<int?, List<TaskEvent>> groupedTaskEvents = groupBy(widget.taskEvents, (event) => event.taskGroupId);
+    Map<int?, List<TaskEvent>> groupedTaskEvents = groupBy(
+        widget.taskEventListState.getVisibleTaskEvents(), (event) => event.taskGroupId);
 
     Map<int?, Map<TemplateId?, dynamic>> dataMap = groupedTaskEvents.map((taskGroupId, taskEvents) {
       if (_groupBy == GroupBy.TASK_GROUP) {

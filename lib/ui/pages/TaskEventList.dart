@@ -27,6 +27,7 @@ import '../TaskEventStats.dart';
 import '../forms/TaskEventForm.dart';
 
 final expandIconKey = new GlobalKey<ToggleActionIconState>();
+final taskEventFilterKey = new GlobalKey<TaskEventFilterState>();
 final TASK_EVENT_LIST_ROUTING_KEY = "TaskEvents";
 
 @immutable
@@ -69,7 +70,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
   Object? _selectedTemplateItem;
 
-  TaskEventFilterState? _filterState;
+  TaskEventFilterState? filterState;
 
   String? _searchQuery;
   late Timer _timer;
@@ -94,25 +95,27 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     });
   }
 
-
   @override
   List<Widget>? getActions(BuildContext context) {
     final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, isAllExpanded(), expandIconKey);
     return [
       TaskEventFilter(
-        initialTaskFilterSettings: _filterState?.taskFilterSettings,
-        doFilter: (filterState) {
+        initialTaskFilterSettings: filterState?.taskFilterSettings,
+        doFilter: (newFilterState) {
           setState(() {
-            _filterState = filterState;
-            _doFilter();
+            filterState = newFilterState;
+            doFilter();
           });
-      }),
+        },
+        key: taskEventFilterKey,
+      ),
       IconButton(
         icon: Icon(Icons.bar_chart),
         onPressed: () {
-          Navigator.push(super.context, MaterialPageRoute(builder: (context) => TaskEventStats(
-            _taskEvents
-          )));
+          Navigator.push(super.context, MaterialPageRoute(builder: (context) => TaskEventStats(this)))
+              .then((_) {
+            taskEventFilterKey.currentState?.refresh(filterState?.taskFilterSettings);
+          });
         }
       ),
       IconButton(
@@ -139,7 +142,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   @override
   void searchQueryUpdated(String? searchQuery) {
     _updateSearchQuery(searchQuery);
-    _doFilter();
+    doFilter();
   }
 
 
@@ -147,7 +150,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     _searchQuery = searchQuery;
   }
 
-  void _doFilter() {
+  void doFilter() {
     setState(() {
 
       if (isFilterActive() || _searchQuery != null) {
@@ -159,26 +162,26 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                   || (taskEvent.description != null && taskEvent.description!.toLowerCase().contains(_searchQuery!.toLowerCase())))) {
             return true; // remove events not containing search string
           }
-          if (_filterState?.taskFilterSettings.filterByTaskEventIds != null && !_filterState!.taskFilterSettings.filterByTaskEventIds!.contains(taskEvent.id!)) {
+          if (filterState?.taskFilterSettings.filterByTaskEventIds != null && !filterState!.taskFilterSettings.filterByTaskEventIds!.contains(taskEvent.id!)) {
             return true;  // remove not explicitly requested events
           }
-          if (_filterState?.taskFilterSettings.filterByDateRange != null && taskEvent.startedAt.isBefore(truncToDate(_filterState!.taskFilterSettings.filterByDateRange!.start))) {
+          if (filterState?.taskFilterSettings.filterByDateRange != null && taskEvent.startedAt.isBefore(truncToDate(filterState!.taskFilterSettings.filterByDateRange!.start))) {
             return true; // remove events before dateFrom
           }
-          if (_filterState?.taskFilterSettings.filterBySeverity != null && taskEvent.severity != _filterState!.taskFilterSettings.filterBySeverity) {
+          if (filterState?.taskFilterSettings.filterBySeverity != null && taskEvent.severity != filterState!.taskFilterSettings.filterBySeverity) {
             return true; // remove events don't match given severity
           }
-          if (_filterState?.taskFilterSettings.filterByFavorites == true && !taskEvent.favorite) {
+          if (filterState?.taskFilterSettings.filterByFavorites == true && !taskEvent.favorite) {
             return true; // remove non favorites
           }
-          if (_filterState?.taskFilterSettings.filterByTaskOrTemplate is TaskGroup) {
-            final _taskGroup = _filterState!.taskFilterSettings.filterByTaskOrTemplate as TaskGroup;
+          if (filterState?.taskFilterSettings.filterByTaskOrTemplate is TaskGroup) {
+            final _taskGroup = filterState!.taskFilterSettings.filterByTaskOrTemplate as TaskGroup;
             if (taskEvent.taskGroupId != _taskGroup.id) {
               return true; // remove not in group items
             }
           }
-          if (_filterState?.taskFilterSettings.filterByTaskOrTemplate is Template) {
-            final filterTemplate = _filterState!.taskFilterSettings.filterByTaskOrTemplate as Template;
+          if (filterState?.taskFilterSettings.filterByTaskOrTemplate is Template) {
+            final filterTemplate = filterState!.taskFilterSettings.filterByTaskOrTemplate as Template;
             final eventTemplate = taskEvent.originTemplateId;
             if (eventTemplate == null) {
               return true; // remove events with no template at all
@@ -254,7 +257,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     clearFilters();
     expandAll();
     filterByTaskEventIds(taskEventIds);
-    _doFilter();
+    doFilter();
   }
 
   @override
@@ -274,7 +277,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     List<DateTime?> dateHeadings = [];
     Map<DateTime, int> dateCounts = HashMap();
     Map<DateTime, Duration> dateDurations = HashMap();
-    var list = _filteredTaskEvents != null ? _filteredTaskEvents! : _taskEvents;
+    var list = getVisibleTaskEvents();
 
     for (var i = 0; i < list.length; i++) {
       var taskEvent = list[i];
@@ -311,6 +314,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           );
         });
   }
+
+  List<TaskEvent> getVisibleTaskEvents() => _filteredTaskEvents != null ? _filteredTaskEvents! : _taskEvents;
 
   Widget _buildRow(List<TaskEvent> list, int index, List<DateTime?> dateHeadings, 
       Map<DateTime, int> dateCounts, Map<DateTime, Duration> dateDurations) {
@@ -572,12 +577,12 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   @override
   bool get wantKeepAlive => true;
 
-  bool isFilterActive() => _filterState?.isFilterActive()??false;
+  bool isFilterActive() => filterState?.isFilterActive()??false;
 
-  void clearFilters() => _filterState?.clearFilters();
+  void clearFilters() => filterState?.clearFilters();
 
   void filterByTaskEventIds(Iterable<int> taskEventIds) {
-    _filterState?.taskFilterSettings.filterByTaskEventIds = taskEventIds.toList();
+    filterState?.taskFilterSettings.filterByTaskEventIds = taskEventIds.toList();
   }
 
   bool isAllExpanded() => _hiddenTiles.isEmpty;

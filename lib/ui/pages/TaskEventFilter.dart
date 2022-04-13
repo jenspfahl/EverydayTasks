@@ -13,7 +13,7 @@ class TaskEventFilter extends StatefulWidget {
   TaskFilterSettings? initialTaskFilterSettings;
   Function(TaskEventFilterState) doFilter;
 
-  TaskEventFilter({this.initialTaskFilterSettings, required this.doFilter});
+  TaskEventFilter({this.initialTaskFilterSettings, required this.doFilter, Key? key}) :super(key: key);
 
   @override
   State<StatefulWidget> createState() => TaskEventFilterState();
@@ -29,6 +29,7 @@ class TaskFilterSettings {
 
 class TaskEventFilterState extends State<TaskEventFilter> {
 
+  final filterIconKey = new GlobalKey<ToggleActionIconState>();
   TaskFilterSettings taskFilterSettings = TaskFilterSettings();
 
   @override
@@ -41,7 +42,6 @@ class TaskEventFilterState extends State<TaskEventFilter> {
   
   @override
   Widget build(BuildContext context) {
-    final filterIconKey = new GlobalKey<ToggleActionIconState>();
     final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, isFilterActive(), filterIconKey);
 
     return GestureDetector(
@@ -223,6 +223,15 @@ class TaskEventFilterState extends State<TaskEventFilter> {
     taskFilterSettings.filterBySeverity = null;
     taskFilterSettings.filterByFavorites = false;
     taskFilterSettings.filterByTaskOrTemplate = null;
+  }
+
+  void refresh(TaskFilterSettings? taskFilterSettings) {
+    setState(() {
+      if (taskFilterSettings != null) {
+        this.taskFilterSettings = taskFilterSettings;
+        filterIconKey.currentState?.refresh(isFilterActive());
+      }
+    });
   }
 
 }
