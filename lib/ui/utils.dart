@@ -68,3 +68,7 @@ void launchUrl(url) async {
     debugPrint("Could not launch $url");
   }
 }
+
+Text boldedText(String text) => Text(text, style: TextStyle(fontWeight: FontWeight.bold));
+
+Text wrappedText(String text) => Text(text, softWrap: true);

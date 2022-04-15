@@ -315,6 +315,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                           ],
                         ),
                       ),
+                      // TODO add a switch to dis-/enable notifications for this schedule
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(

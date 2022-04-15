@@ -403,7 +403,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       if (newTaskEvent != null) {
                         TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
                           toastInfo(context, "New journal entry with name '${newTaskEvent.title}' created");
-                          widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.addTaskEvent(newTaskEvent);
+                          widget._pagesHolder
+                              .taskEventList
+                              ?.getGlobalKey()
+                              .currentState
+                              ?.addTaskEvent(newTaskEvent, justSetState: true);
 
                           scheduledTask.executeSchedule(null);
                           ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
@@ -497,14 +501,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         .getByScheduledTaskIdPaged(scheduledTask.id, ChronologicalPaging.start(100))
                         .then((scheduledTaskEvents) {
                       if (scheduledTaskEvents.isNotEmpty) {
-                        final lastEvent = scheduledTaskEvents.last;
                         PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
                         if (root != null) {
                           final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
                           if (taskEventListState != null) {
                             taskEventListState.clearFilters();
                             taskEventListState.filterByTaskEventIds(scheduledTaskEvents.map((e) => e.taskEventId));
-                            root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, lastEvent.taskEventId.toString());
+                            root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, "noop");
                           }
                         }
                       }

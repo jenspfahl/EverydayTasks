@@ -1,6 +1,22 @@
 import 'package:floor/floor.dart';
 
-@entity
+@Entity(indices: [
+  Index(
+    name: 'idx_TaskEventEntity_taskGroupId',
+    value: ['taskGroupId'],
+    unique: false,
+  ),
+  Index(
+    name: 'idx_TaskEventEntity_originTaskTemplateId',
+    value: ['originTaskTemplateId'],
+    unique: false,
+  ),
+  Index(
+    name: 'idx_TaskEventEntity_originTaskTemplateVariantId',
+    value: ['originTaskTemplateVariantId'],
+    unique: false,
+  ),
+])
 class TaskEventEntity {
   @primaryKey
   final int? id;

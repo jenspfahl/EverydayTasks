@@ -9,6 +9,7 @@ import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.da
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
+import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/ScheduledTaskEvent.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
@@ -67,8 +68,6 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   List<TaskEvent>? _filteredTaskEvents;
   int _selectedTile = -1;
   Set<DateTime> _hiddenTiles = Set();
-
-  Object? _selectedTemplateItem;
 
   TaskEventFilterState? filterState;
 
@@ -207,8 +206,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     });
   }
 
-  void addTaskEvent(TaskEvent taskEvent) {
-    if (taskEvent.originTemplateId != null) {
+  void addTaskEvent(TaskEvent taskEvent, {bool justSetState = false}) {
+    if (!justSetState && taskEvent.originTemplateId != null) {
       ScheduledTaskRepository.getByTemplateId(taskEvent.originTemplateId!)
           .then((scheduledTasks) {
             scheduledTasks.forEach((scheduledTask) {
@@ -253,10 +252,10 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     });
   }
 
-  void doFilterByTaskEventIds(Iterable<int> taskEventIds) {
+  void filterByTaskEventIds(Iterable<int> taskEventIds) {
     clearFilters();
     expandAll();
-    filterByTaskEventIds(taskEventIds);
+    _filterByTaskEventIds(taskEventIds);
     doFilter();
   }
 
@@ -405,6 +404,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
   List<Widget> _createExpansionWidgets(TaskEvent taskEvent) {
     var expansionWidgets = <Widget>[];
+    final taskGroup = findPredefinedTaskGroupById(taskEvent.taskGroupId!);
 
     if (taskEvent.description != null && taskEvent.description!.isNotEmpty) {
       expansionWidgets.add(Padding(
@@ -440,6 +440,28 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
               ),
             ],
           ),
+            ButtonBar(
+            alignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () async {
+                  final scheduledTaskEvent = await ScheduledTaskEventRepository.findByTaskEventId(taskEvent.id);
+                  final scheduledTask = scheduledTaskEvent != null
+                      ? await ScheduledTaskRepository.findById(scheduledTaskEvent.id!)
+                      : null;
+
+                  if (taskEvent.originTemplateId != null) {
+                    TemplateRepository.findById(taskEvent.originTemplateId!).then((template) {
+                      _showInfoDialog(taskEvent, template, scheduledTask);
+                    });
+                  }
+                  else {
+                    _showInfoDialog(taskEvent, null, scheduledTask);
+                  }
+                },
+                child: const Icon(Icons.info_outline),
+              ),
+            ]),
           ButtonBar(
             alignment: MainAxisAlignment.end,
             children: [
@@ -470,11 +492,12 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                       TaskEventRepository.delete(taskEvent).then(
                         (_) {
                           ScheduledTaskEventRepository
-                              .getByTaskEventIdPaged(taskEvent.id!, ChronologicalPaging.start(100))
-                              .then((scheduledTaskEvents) {
-                                scheduledTaskEvents.forEach((scheduledTaskEvent) {
-                                  ScheduledTaskEventRepository.delete(scheduledTaskEvent);
-                                });
+                              .findByTaskEventId(taskEvent.id!)
+                              .then((scheduledTaskEvent) {
+                                if (scheduledTaskEvent != null) {
+                                  ScheduledTaskEventRepository.delete(
+                                      scheduledTaskEvent);
+                                }
                           });
                           toastInfo(context, "Journal entry '${taskEvent.title}' deleted");
                           _removeTaskEvent(taskEvent);
@@ -494,6 +517,113 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       ),
     ]);
     return expansionWidgets;
+  }
+
+  void _showInfoDialog(TaskEvent taskEvent, Template? originTemplate, ScheduledTask? scheduledTask) {
+    final alert = AlertDialog(
+      title: Row(children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+          child: const Icon(Icons.info_outline),
+        ),
+        Text("Entry details")
+      ],),
+      content: Wrap(
+        children: [
+          Wrap(
+            children: [
+              boldedText("Title:"),
+              Spacer(),
+              wrappedText(taskEvent.title),
+            ],
+          ),
+          Row(
+            children: [
+              boldedText("Category: "),
+              _taskGroupPresentation(taskEvent) ?? Text("-uncategorized-"),
+            ],
+          ),
+          Divider(),
+          Row(
+            children: [
+              boldedText("Created at:"),
+              Spacer(),
+              Text(formatToDateTime(taskEvent.createdAt)),
+            ],
+          ),
+          Row(
+            children: [
+              boldedText("Started at:"),
+              Spacer(),
+              Text(formatToDateTime(taskEvent.startedAt)),
+            ],
+          ),
+          Row(
+            children: [
+              boldedText("Finished at:"),
+              Spacer(),
+              Text(formatToDateTime(taskEvent.finishedAt)),
+            ],
+          ),
+          Divider(),
+          Wrap(
+            children: [
+              boldedText("Origin associated task:"),
+              Spacer(),
+              _createOriginTemplateInfo(originTemplate),
+            ],
+          ),
+          Divider(),
+          Wrap(
+            children: [
+              boldedText("Associated schedule: "),
+              Spacer(),
+              _createScheduleInfo(scheduledTask),
+            ],
+          ),
+        ],
+      ),
+    );  // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  Widget _createOriginTemplateInfo(Template? originTemplate) {
+    if (originTemplate == null) {
+      return const Text("-none-");
+    }
+    final originTaskGroup = findPredefinedTaskGroupById(originTemplate.taskGroupId);
+    return Column(
+      children: [
+        Row(
+          children: [
+            originTaskGroup.getTaskGroupRepresentation(useIconColor: true),
+            const Text(" /"),
+          ],
+        ),
+        wrappedText(originTemplate.title)
+      ],);
+  }
+
+  Widget _createScheduleInfo(ScheduledTask? scheduledTask) {
+    if (scheduledTask == null) {
+      return const Text("-none-");
+    }
+    final originTaskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
+    return Column(
+      children: [
+        Row(
+          children: [
+            originTaskGroup.getTaskGroupRepresentation(useIconColor: true),
+            const Text(" /"),
+          ],
+        ),
+        wrappedText(scheduledTask.title)
+      ],);
   }
 
   void _onFABPressed() {
@@ -531,6 +661,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                     child: const Text('From task'),
                     onPressed: () {
                       Navigator.pop(context);
+                      Object? _selectedTemplateItem;
                       showTemplateDialog(context, "New journal entry", "Select a category or task to be used for the journal entry.",
                           selectedItem: (selectedItem) {
                             setState(() {
@@ -581,7 +712,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
   void clearFilters() => filterState?.clearFilters();
 
-  void filterByTaskEventIds(Iterable<int> taskEventIds) {
+  void _filterByTaskEventIds(Iterable<int> taskEventIds) {
     filterState?.taskFilterSettings.filterByTaskEventIds = taskEventIds.toList();
   }
 
@@ -603,9 +734,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   @override
   handleNotificationClickRouted(bool isAppLaunch, String payload) async {
     debugPrint("_handle TaskEventList: payload=$payload $isAppLaunch");
+    if (payload == "noop") {
+      debugPrint("nothing to do");
+      return;
+    }
     final index = payload.indexOf("-");
     if (index == -1) {
-      debugPrint("not proper formed payload");
+      debugPrint("not proper formed payload: $payload");
       return;
     }
     final subRoutingKey = payload.substring(0, index);

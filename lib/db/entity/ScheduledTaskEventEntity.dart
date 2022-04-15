@@ -1,6 +1,17 @@
 import 'package:floor/floor.dart';
 
-@entity
+@Entity(indices: [
+  Index(
+    name: 'idx_ScheduledTaskEventEntity_taskEventId',
+    value: ['taskEventId'],
+    unique: false,
+  ),
+  Index(
+    name: 'idx_ScheduledTaskEventEntity_scheduledTaskId',
+    value: ['scheduledTaskId'],
+    unique: false,
+  ),
+])
 class ScheduledTaskEventEntity {
   @primaryKey
   final int? id;

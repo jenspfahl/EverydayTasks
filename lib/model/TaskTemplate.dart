@@ -73,7 +73,7 @@ List<TaskTemplate> predefinedTaskTemplates = [
   // Dishes
   TaskTemplate.data(subId: -1, title: "Wash up", taskGroupId: -4),
   TaskTemplate.data(subId: -2, title: "Dry up", taskGroupId: -4),
-  TaskTemplate.data(subId: -3, title: "Fill and and start dishwasher", taskGroupId: -4),
+  TaskTemplate.data(subId: -3, title: "Fill and start dishwasher", taskGroupId: -4),
   TaskTemplate.data(subId: -4, title: "Empty dishwasher", taskGroupId: -4),
 
   // Errands

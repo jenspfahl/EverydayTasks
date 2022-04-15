@@ -6,6 +6,7 @@ part of 'database.dart';
 // FloorGenerator
 // **************************************************************************
 
+// ignore: avoid_classes_with_only_static_members
 class $FloorAppDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
@@ -75,7 +76,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 7,
+      version: 8,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -102,6 +103,16 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `ScheduledTaskEventEntity` (`id` INTEGER, `taskEventId` INTEGER NOT NULL, `scheduledTaskId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `SequencesEntity` (`id` INTEGER, `table` TEXT NOT NULL, `lastId` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE INDEX `idx_TaskEventEntity_taskGroupId` ON `TaskEventEntity` (`taskGroupId`)');
+        await database.execute(
+            'CREATE INDEX `idx_TaskEventEntity_originTaskTemplateId` ON `TaskEventEntity` (`originTaskTemplateId`)');
+        await database.execute(
+            'CREATE INDEX `idx_TaskEventEntity_originTaskTemplateVariantId` ON `TaskEventEntity` (`originTaskTemplateVariantId`)');
+        await database.execute(
+            'CREATE INDEX `idx_ScheduledTaskEventEntity_taskEventId` ON `ScheduledTaskEventEntity` (`taskEventId`)');
+        await database.execute(
+            'CREATE INDEX `idx_ScheduledTaskEventEntity_scheduledTaskId` ON `ScheduledTaskEventEntity` (`scheduledTaskId`)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -786,12 +797,11 @@ class _$ScheduledTaskEventDao extends ScheduledTaskEventDao {
   }
 
   @override
-  Future<List<ScheduledTaskEventEntity>> findByTaskEventId(
-      int taskEventId, int lastId, int limit) async {
-    return _queryAdapter.queryList(
-        'SELECT * FROM ScheduledTaskEventEntity WHERE taskEventId = ?1 AND id < ?2 ORDER BY createdAt DESC, id DESC LIMIT ?3',
+  Future<ScheduledTaskEventEntity?> findByTaskEventId(int taskEventId) async {
+    return _queryAdapter.query(
+        'SELECT * FROM ScheduledTaskEventEntity WHERE taskEventId = ?1 ORDER BY createdAt DESC LIMIT 1',
         mapper: (Map<String, Object?> row) => ScheduledTaskEventEntity(row['id'] as int?, row['taskEventId'] as int, row['scheduledTaskId'] as int, row['createdAt'] as int),
-        arguments: [taskEventId, lastId, limit]);
+        arguments: [taskEventId]);
   }
 
   @override

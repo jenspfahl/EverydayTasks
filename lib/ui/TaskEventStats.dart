@@ -304,6 +304,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           children: [
             taskGroup?.getIcon(true) ?? Text("?"),
             Text(truncate(title, length: 30), //TODO cutting this is not enough for long durarion strings
+              softWrap: true,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: isTouched ? 14.1 : 14.0,

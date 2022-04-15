@@ -17,7 +17,7 @@ import 'entity/ScheduledTaskEventEntity.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 7, entities: [
+@Database(version: 8, entities: [
   TaskEventEntity, TaskTemplateEntity, TaskTemplateVariantEntity, ScheduledTaskEntity, ScheduledTaskEventEntity, SequencesEntity])
 abstract class AppDatabase extends FloorDatabase {
   TaskEventDao get taskEventDao;
@@ -60,7 +60,17 @@ final migration6To7 = new Migration(6, 7,
           await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `pausedAt` INTEGER");
         });
 
+final migration7To8 = new Migration(7, 8,
+        (sqflite.Database database) async {
+          await database.execute("CREATE INDEX IF NOT EXISTS idx_ScheduledTaskEventEntity_taskEventId ON ScheduledTaskEventEntity (taskEventId)");
+          await database.execute("CREATE INDEX IF NOT EXISTS idx_ScheduledTaskEventEntity_scheduledTaskId ON ScheduledTaskEventEntity (scheduledTaskId)");
+
+          await database.execute("CREATE INDEX IF NOT EXISTS idx_TaskEventEntity_taskGroupId ON TaskEventEntity (taskGroupId)");
+          await database.execute("CREATE INDEX IF NOT EXISTS idx_TaskEventEntity_originTaskTemplateId ON TaskEventEntity (originTaskTemplateId)");
+          await database.execute("CREATE INDEX IF NOT EXISTS idx_TaskEventEntity_originTaskTemplateVariantId ON TaskEventEntity (originTaskTemplateVariantId)");
+        });
+
 Future<AppDatabase> getDb() async => $FloorAppDatabase
     .databaseBuilder('app_database.db')
-    .addMigrations([migration2To3, migration3To4, migration4To5, migration5To6, migration6To7])
+    .addMigrations([migration2To3, migration3To4, migration4To5, migration5To6, migration6To7, migration7To8])
     .build();
