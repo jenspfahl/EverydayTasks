@@ -447,7 +447,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                 onPressed: () async {
                   final scheduledTaskEvent = await ScheduledTaskEventRepository.findByTaskEventId(taskEvent.id);
                   final scheduledTask = scheduledTaskEvent != null
-                      ? await ScheduledTaskRepository.findById(scheduledTaskEvent.id!)
+                      ? await ScheduledTaskRepository.findById(scheduledTaskEvent.scheduledTaskId)
                       : null;
 
                   if (taskEvent.originTemplateId != null) {
