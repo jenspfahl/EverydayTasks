@@ -7,17 +7,27 @@ import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../utils.dart';
+
 @immutable
 class TaskEventFilter extends StatefulWidget {
 
   TaskFilterSettings? initialTaskFilterSettings;
-  Function(TaskEventFilterState) doFilter;
+  Function(TaskEventFilterState, FilterChangeState) doFilter;
 
   TaskEventFilter({this.initialTaskFilterSettings, required this.doFilter, Key? key}) :super(key: key);
 
   @override
   State<StatefulWidget> createState() => TaskEventFilterState();
 }
+
+enum FilterChangeState {
+  DATE_RANGE_ON, DATE_RANGE_OFF, 
+  SEVERITY_ON, SEVERITY_OFF,
+  FAVORITE_ON, FAVORITE_OFF, 
+  TASK_ON, TASK_OFF, 
+  SCHEDULED_ON, SCHEDULED_OFF, 
+  ALL_OFF, }
 
 class TaskFilterSettings {
   DateTimeRange? filterByDateRange;
@@ -98,13 +108,14 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                             ? taskFilterSettings.filterByTaskOrTemplate is TaskGroup
                             ? (taskFilterSettings.filterByTaskOrTemplate as TaskGroup).getIcon(true)
                             : (taskFilterSettings.filterByTaskOrTemplate as Template).getIcon(true)
-                            : const Icon(Icons.task_alt),
+                            : Icon(taskFilterSettings.filterByTaskEventIds != null ? Icons.checklist : Icons.task_alt,
+                                color: taskFilterSettings.filterByTaskEventIds != null ? Colors.blueAccent : null),
                         const Spacer(),
                         Text(taskFilterSettings.filterByTaskOrTemplate != null
                             ? taskFilterSettings.filterByTaskOrTemplate is TaskGroup
                             ? (taskFilterSettings.filterByTaskOrTemplate as TaskGroup).name
                             : (taskFilterSettings.filterByTaskOrTemplate as Template).title
-                            : "Filter by task"),
+                            : (taskFilterSettings.filterByTaskEventIds != null ? "Filter by schedule" : "Filter by task")),
                       ]
                   ),
                   value: '4'),
@@ -124,11 +135,12 @@ class TaskEventFilterState extends State<TaskEventFilter> {
         ).then((selected) {
           switch (selected) {
             case '1' : {
-              if (taskFilterSettings.filterByDateRange == null) {
+            //  if (taskFilterSettings.filterByDateRange == null) {
                 showDateRangePicker(
                   context: context,
                   firstDate: DateTime.now().subtract(Duration(days: 365)),
                   lastDate: DateTime.now().add(Duration(days: 365)),
+                  initialDateRange: taskFilterSettings.filterByDateRange,
                   currentDate: DateTime.now(),
                   builder: (context, child) {
                     return Theme(
@@ -144,16 +156,16 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                 ).then((dateRange) {
                   if (dateRange != null) {
                     taskFilterSettings.filterByDateRange = dateRange;
-                    widget.doFilter(this);
+                    widget.doFilter(this, FilterChangeState.DATE_RANGE_ON);
                     filterIconKey.currentState?.refresh(isFilterActive());
                   }
                 });
-              }
+             /* }
               else {
                 taskFilterSettings.filterByDateRange = null;
-                widget.doFilter(this);
+                widget.doFilter(this, FilterChangeState.DATE_RANGE_OFF);
                 filterIconKey.currentState?.refresh(isFilterActive());
-              }
+              }*/
               break;
             }
 
@@ -161,7 +173,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
               showSeverityPicker(
                   context, taskFilterSettings.filterBySeverity, true, (selected) {
                 taskFilterSettings.filterBySeverity = selected;
-                widget.doFilter(this);
+                widget.doFilter(this, selected != null ? FilterChangeState.SEVERITY_ON : FilterChangeState.SEVERITY_OFF);
                 filterIconKey.currentState?.refresh(isFilterActive());
                 Navigator.pop(context);
               });
@@ -170,38 +182,47 @@ class TaskEventFilterState extends State<TaskEventFilter> {
 
             case '3' : {
               taskFilterSettings.filterByFavorites = !taskFilterSettings.filterByFavorites;
-              widget.doFilter(this);
+              widget.doFilter(this, taskFilterSettings.filterByFavorites ? FilterChangeState.FAVORITE_ON : FilterChangeState.FAVORITE_OFF);
               filterIconKey.currentState?.refresh(isFilterActive());
               break;
             }
 
             case '4' : {
-              if (taskFilterSettings.filterByTaskOrTemplate == null) {
+              if (taskFilterSettings.filterByTaskEventIds != null) {
+                toastInfo(context, "'Filter by schedule' is selected. Click 'Clear all' to reset.");
+                return;
+              }
+              //if (taskFilterSettings.filterByTaskOrTemplate == null) {
                 Object? selectedItem = null;
                 showTemplateDialog(context, "Filter by task", "Select a category or task to filter by.",
+                  initialSelectedKey: taskFilterSettings.filterByTaskOrTemplate is TaskGroup
+                    ? (taskFilterSettings.filterByTaskOrTemplate as TaskGroup).getKey()
+                    : (taskFilterSettings.filterByTaskOrTemplate is Template
+                        ? (taskFilterSettings.filterByTaskOrTemplate as Template).getKey()
+                        : null),
                   selectedItem: (item) {
                     selectedItem = item;
                   },
                   okPressed: () {
                     Navigator.pop(context);
                     taskFilterSettings.filterByTaskOrTemplate = selectedItem;
-                    widget.doFilter(this);
+                    widget.doFilter(this, selectedItem != null ? FilterChangeState.TASK_ON : FilterChangeState.TASK_OFF);
                     filterIconKey.currentState?.refresh(isFilterActive());
                   },
                   cancelPressed: () =>
                       Navigator.pop(context), // dis
                 );
-              }
+             /* }
               else {
                 taskFilterSettings.filterByTaskOrTemplate = null;
-                widget.doFilter(this);
+                widget.doFilter(this, FilterChangeState.TASK_OFF);
                 filterIconKey.currentState?.refresh(isFilterActive());
-              }
+              }*/
               break;
             }
             case '5' : {
               clearFilters();
-              widget.doFilter(this);
+              widget.doFilter(this, FilterChangeState.ALL_OFF);
               filterIconKey.currentState?.refresh(isFilterActive());
               break;
             }

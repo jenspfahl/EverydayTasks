@@ -42,6 +42,13 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
   @override
   void initState() {
+    if (widget.taskEventListState.filterState?.taskFilterSettings.filterByTaskOrTemplate != null) {
+      _updateGroupByByFilter(FilterChangeState.TASK_ON);
+    }
+    if (widget.taskEventListState.filterState?.taskFilterSettings.filterByTaskEventIds != null) {
+      _updateGroupByByFilter(FilterChangeState.SCHEDULED_ON);
+    }
+
     _dataTypeSelection = List.generate(DataType.values.length, (index) => index == _dataType.index);
     _groupBySelection = List.generate(GroupBy.values.length, (index) => index == _groupBy.index);
 
@@ -56,8 +63,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         actions: [
           TaskEventFilter(
               initialTaskFilterSettings: widget.taskEventListState.filterState?.taskFilterSettings,
-              doFilter: (filterState) {
+              doFilter: (filterState, filterChangeState) {
                 setState(() {
+                  _updateGroupByByFilter(filterChangeState);
                   widget.taskEventListState.filterState = filterState;
                   widget.taskEventListState.doFilter();
                 });
@@ -304,9 +312,11 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     
       return Container(
         height: 30,
-       // color: taskGroup != null ? taskGroup.backgroundColor : null,
-        color: data.templateId == null
+       /* color: data.templateId == null
             ? (taskGroup != null ? taskGroup.backgroundColor : null)
+            : getTaskGroupColor(taskGroupId, !data.templateId!.isVariant),*/
+        color: data.templateId == null
+            ? getSharpedColor(getTaskGroupColor(taskGroupId, false))
             : getTaskGroupColor(taskGroupId, data.templateId!.isVariant),
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
@@ -451,6 +461,24 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       },
     );
   }
+
+
+  void _updateGroupByByFilter(FilterChangeState filterChangeState) {
+    debugPrint("old: $_groupBy $filterChangeState");
+
+    if (filterChangeState == FilterChangeState.TASK_ON
+        || filterChangeState == FilterChangeState.SCHEDULED_ON) {
+      _groupBy = GroupBy.TEMPLATE;
+    }
+    else if (filterChangeState == FilterChangeState.TASK_OFF
+        || filterChangeState == FilterChangeState.SCHEDULED_OFF
+        || filterChangeState == FilterChangeState.ALL_OFF) {
+      _groupBy = GroupBy.TASK_GROUP;
+    }
+    debugPrint("new: $_groupBy");
+    _groupBySelection = List.generate(GroupBy.values.length, (index) => index == _groupBy.index);
+  }
+
 }
 
 class SliceData {

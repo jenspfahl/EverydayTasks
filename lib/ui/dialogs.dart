@@ -142,6 +142,7 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
       bool? onlyHidden,
       bool? hideEmptyNodes,
       bool? expandAll,
+      String? initialSelectedKey,
     }) {
   Widget cancelButton = TextButton(
     child: Text("Cancel"),
@@ -169,6 +170,7 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
               onlyHidden: onlyHidden,
               hideEmptyNodes: hideEmptyNodes,
               expandAll: expandAll,
+              initialSelectedKey: initialSelectedKey,
               key: taskTemplateListStateKey,
             ),
           ),

@@ -101,7 +101,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     return [
       TaskEventFilter(
         initialTaskFilterSettings: filterState?.taskFilterSettings,
-        doFilter: (newFilterState) {
+        doFilter: (newFilterState, _) {
           setState(() {
             filterState = newFilterState;
             doFilter();

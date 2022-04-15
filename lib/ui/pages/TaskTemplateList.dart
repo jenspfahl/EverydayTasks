@@ -27,11 +27,12 @@ class TaskTemplateList extends PageScaffold<TaskTemplateListState> {
   final bool? hideEmptyNodes;
   final bool? expandAll;
   bool isModal = false;
-
-  TaskTemplateList(this._pagesHolder): _selectedItem = null, onlyHidden = null, hideEmptyNodes = null, expandAll = null;
+  final String? initialSelectedKey;
+  
+  TaskTemplateList(this._pagesHolder): _selectedItem = null, onlyHidden = null, hideEmptyNodes = null, expandAll = null, initialSelectedKey = null;
   TaskTemplateList.withSelectionCallback(
       this._selectedItem,
-      {this.onlyHidden, this.hideEmptyNodes, this.expandAll, Key? key})
+      {this.onlyHidden, this.hideEmptyNodes, this.expandAll, this.initialSelectedKey, Key? key})
       :  _pagesHolder = null, isModal = true, super(key: key);
 
 
@@ -84,11 +85,16 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     _nodes = predefinedTaskGroups.map((group) => _createTaskGroupNode(group, [], widget.expandAll??false)).toList();
 
     Future.wait([taskTemplatesFuture, taskTemplateVariantsFuture]).then((allTemplates) {
-      
+
       setState(() {
         _allTemplates = allTemplates;
+        _selectedNodeKey = widget.initialSelectedKey; // before fillNodes to expand selection
         // filter only hidden but non-hidden if have hidden leaves
         _fillNodes(allTemplates, widget.hideEmptyNodes??false, widget.expandAll??false);
+
+        if (_selectedNodeKey != null) {
+          _updateSelection(widget.initialSelectedKey!);
+        }
       });
     });
 
