@@ -42,10 +42,10 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
   @override
   void initState() {
-    if (widget.taskEventListState.filterState?.taskFilterSettings.filterByTaskOrTemplate != null) {
+    if (widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate != null) {
       _updateGroupByByFilter(FilterChangeState.TASK_ON);
     }
-    if (widget.taskEventListState.filterState?.taskFilterSettings.filterByTaskEventIds != null) {
+    if (widget.taskEventListState.taskFilterSettings.filterByTaskEventIds != null) {
       _updateGroupByByFilter(FilterChangeState.SCHEDULED_ON);
     }
 
@@ -62,11 +62,11 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         title: Text("Journal Statistics"),
         actions: [
           TaskEventFilter(
-              initialTaskFilterSettings: widget.taskEventListState.filterState?.taskFilterSettings,
-              doFilter: (filterState, filterChangeState) {
+              initialTaskFilterSettings: widget.taskEventListState.taskFilterSettings,
+              doFilter: (taskFilterSettings, filterChangeState) {
                 setState(() {
                   _updateGroupByByFilter(filterChangeState);
-                  widget.taskEventListState.filterState = filterState;
+                  widget.taskEventListState.taskFilterSettings = taskFilterSettings;
                   widget.taskEventListState.doFilter();
                 });
               }),

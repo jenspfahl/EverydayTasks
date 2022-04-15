@@ -505,7 +505,6 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         if (root != null) {
                           final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
                           if (taskEventListState != null) {
-                            taskEventListState.clearFilters();
                             taskEventListState.filterByTaskEventIds(scheduledTaskEvents.map((e) => e.taskEventId));
                             root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, "noop");
                           }

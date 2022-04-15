@@ -13,7 +13,7 @@ import '../utils.dart';
 class TaskEventFilter extends StatefulWidget {
 
   TaskFilterSettings? initialTaskFilterSettings;
-  Function(TaskEventFilterState, FilterChangeState) doFilter;
+  Function(TaskFilterSettings, FilterChangeState) doFilter;
 
   TaskEventFilter({this.initialTaskFilterSettings, required this.doFilter, Key? key}) :super(key: key);
 
@@ -35,12 +35,27 @@ class TaskFilterSettings {
   bool filterByFavorites = false;
   Object? filterByTaskOrTemplate;
   List<int>? filterByTaskEventIds;
+
+  bool isFilterActive() => filterByTaskEventIds != null
+      || filterByDateRange != null
+      || filterBySeverity != null
+      || filterByFavorites
+      || filterByTaskOrTemplate != null;
+
+  void clearFilters() {
+    filterByTaskEventIds = null;
+    filterByDateRange = null;
+    filterBySeverity = null;
+    filterByFavorites = false;
+    filterByTaskOrTemplate = null;
+  }
+
 }
 
 class TaskEventFilterState extends State<TaskEventFilter> {
 
   final filterIconKey = new GlobalKey<ToggleActionIconState>();
-  TaskFilterSettings taskFilterSettings = TaskFilterSettings();
+  TaskFilterSettings taskFilterSettings = TaskFilterSettings(); //TODO always from outside
 
   @override
   void initState() {
@@ -52,7 +67,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
   
   @override
   Widget build(BuildContext context) {
-    final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, isFilterActive(), filterIconKey);
+    final filterIcon = ToggleActionIcon(Icons.filter_alt, Icons.filter_alt_outlined, taskFilterSettings.isFilterActive(), filterIconKey);
 
     return GestureDetector(
       child: Padding(padding: EdgeInsets.symmetric(horizontal: 6.0),
@@ -123,8 +138,8 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                   child: Row(
                       children: [
                         Icon(
-                          isFilterActive() ? Icons.clear : Icons.clear_outlined,
-                          color: isFilterActive() ? Colors.blueAccent : null,
+                          taskFilterSettings.isFilterActive() ? Icons.clear : Icons.clear_outlined,
+                          color: taskFilterSettings.isFilterActive() ? Colors.blueAccent : null,
                         ),
                         const Spacer(),
                         const Text("Clear filters"),
@@ -156,8 +171,8 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                 ).then((dateRange) {
                   if (dateRange != null) {
                     taskFilterSettings.filterByDateRange = dateRange;
-                    widget.doFilter(this, FilterChangeState.DATE_RANGE_ON);
-                    filterIconKey.currentState?.refresh(isFilterActive());
+                    widget.doFilter(taskFilterSettings, FilterChangeState.DATE_RANGE_ON);
+                    filterIconKey.currentState?.refresh(taskFilterSettings.isFilterActive());
                   }
                 });
              /* }
@@ -173,8 +188,8 @@ class TaskEventFilterState extends State<TaskEventFilter> {
               showSeverityPicker(
                   context, taskFilterSettings.filterBySeverity, true, (selected) {
                 taskFilterSettings.filterBySeverity = selected;
-                widget.doFilter(this, selected != null ? FilterChangeState.SEVERITY_ON : FilterChangeState.SEVERITY_OFF);
-                filterIconKey.currentState?.refresh(isFilterActive());
+                widget.doFilter(taskFilterSettings, selected != null ? FilterChangeState.SEVERITY_ON : FilterChangeState.SEVERITY_OFF);
+                filterIconKey.currentState?.refresh(taskFilterSettings.isFilterActive());
                 Navigator.pop(context);
               });
               break;
@@ -182,8 +197,8 @@ class TaskEventFilterState extends State<TaskEventFilter> {
 
             case '3' : {
               taskFilterSettings.filterByFavorites = !taskFilterSettings.filterByFavorites;
-              widget.doFilter(this, taskFilterSettings.filterByFavorites ? FilterChangeState.FAVORITE_ON : FilterChangeState.FAVORITE_OFF);
-              filterIconKey.currentState?.refresh(isFilterActive());
+              widget.doFilter(taskFilterSettings, taskFilterSettings.filterByFavorites ? FilterChangeState.FAVORITE_ON : FilterChangeState.FAVORITE_OFF);
+              filterIconKey.currentState?.refresh(taskFilterSettings.isFilterActive());
               break;
             }
 
@@ -206,8 +221,8 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                   okPressed: () {
                     Navigator.pop(context);
                     taskFilterSettings.filterByTaskOrTemplate = selectedItem;
-                    widget.doFilter(this, selectedItem != null ? FilterChangeState.TASK_ON : FilterChangeState.TASK_OFF);
-                    filterIconKey.currentState?.refresh(isFilterActive());
+                    widget.doFilter(taskFilterSettings, selectedItem != null ? FilterChangeState.TASK_ON : FilterChangeState.TASK_OFF);
+                    filterIconKey.currentState?.refresh(taskFilterSettings.isFilterActive());
                   },
                   cancelPressed: () =>
                       Navigator.pop(context), // dis
@@ -221,9 +236,9 @@ class TaskEventFilterState extends State<TaskEventFilter> {
               break;
             }
             case '5' : {
-              clearFilters();
-              widget.doFilter(this, FilterChangeState.ALL_OFF);
-              filterIconKey.currentState?.refresh(isFilterActive());
+              taskFilterSettings.clearFilters();
+              widget.doFilter(taskFilterSettings, FilterChangeState.ALL_OFF);
+              filterIconKey.currentState?.refresh(taskFilterSettings.isFilterActive());
               break;
             }
           }
@@ -232,25 +247,11 @@ class TaskEventFilterState extends State<TaskEventFilter> {
     );
   }
 
-  bool isFilterActive() => taskFilterSettings.filterByTaskEventIds != null
-      || taskFilterSettings.filterByDateRange != null
-      || taskFilterSettings.filterBySeverity != null
-      || taskFilterSettings.filterByFavorites
-      || taskFilterSettings.filterByTaskOrTemplate != null;
-
-  void clearFilters() {
-    taskFilterSettings.filterByTaskEventIds = null;
-    taskFilterSettings.filterByDateRange = null;
-    taskFilterSettings.filterBySeverity = null;
-    taskFilterSettings.filterByFavorites = false;
-    taskFilterSettings.filterByTaskOrTemplate = null;
-  }
-
   void refresh(TaskFilterSettings? taskFilterSettings) {
     setState(() {
       if (taskFilterSettings != null) {
         this.taskFilterSettings = taskFilterSettings;
-        filterIconKey.currentState?.refresh(isFilterActive());
+        filterIconKey.currentState?.refresh(taskFilterSettings.isFilterActive());
       }
     });
   }

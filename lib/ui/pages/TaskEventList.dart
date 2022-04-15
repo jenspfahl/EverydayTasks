@@ -69,7 +69,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   int _selectedTile = -1;
   Set<DateTime> _hiddenTiles = Set();
 
-  TaskEventFilterState? filterState;
+  TaskFilterSettings taskFilterSettings = TaskFilterSettings();
 
   String? _searchQuery;
   late Timer _timer;
@@ -99,10 +99,10 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, isAllExpanded(), expandIconKey);
     return [
       TaskEventFilter(
-        initialTaskFilterSettings: filterState?.taskFilterSettings,
-        doFilter: (newFilterState, _) {
+        initialTaskFilterSettings: taskFilterSettings,
+        doFilter: (newFilterSettings, _) {
           setState(() {
-            filterState = newFilterState;
+            taskFilterSettings = newFilterSettings;
             doFilter();
           });
         },
@@ -113,7 +113,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         onPressed: () {
           Navigator.push(super.context, MaterialPageRoute(builder: (context) => TaskEventStats(this)))
               .then((_) {
-            taskEventFilterKey.currentState?.refresh(filterState?.taskFilterSettings);
+            taskEventFilterKey.currentState?.refresh(taskFilterSettings);
           });
         }
       ),
@@ -161,26 +161,26 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                   || (taskEvent.description != null && taskEvent.description!.toLowerCase().contains(_searchQuery!.toLowerCase())))) {
             return true; // remove events not containing search string
           }
-          if (filterState?.taskFilterSettings.filterByTaskEventIds != null && !filterState!.taskFilterSettings.filterByTaskEventIds!.contains(taskEvent.id!)) {
+          if (taskFilterSettings.filterByTaskEventIds != null && !taskFilterSettings.filterByTaskEventIds!.contains(taskEvent.id!)) {
             return true;  // remove not explicitly requested events
           }
-          if (filterState?.taskFilterSettings.filterByDateRange != null && taskEvent.startedAt.isBefore(truncToDate(filterState!.taskFilterSettings.filterByDateRange!.start))) {
+          if (taskFilterSettings.filterByDateRange != null && taskEvent.startedAt.isBefore(truncToDate(taskFilterSettings.filterByDateRange!.start))) {
             return true; // remove events before dateFrom
           }
-          if (filterState?.taskFilterSettings.filterBySeverity != null && taskEvent.severity != filterState!.taskFilterSettings.filterBySeverity) {
+          if (taskFilterSettings.filterBySeverity != null && taskEvent.severity != taskFilterSettings.filterBySeverity) {
             return true; // remove events don't match given severity
           }
-          if (filterState?.taskFilterSettings.filterByFavorites == true && !taskEvent.favorite) {
+          if (taskFilterSettings.filterByFavorites == true && !taskEvent.favorite) {
             return true; // remove non favorites
           }
-          if (filterState?.taskFilterSettings.filterByTaskOrTemplate is TaskGroup) {
-            final _taskGroup = filterState!.taskFilterSettings.filterByTaskOrTemplate as TaskGroup;
+          if (taskFilterSettings.filterByTaskOrTemplate is TaskGroup) {
+            final _taskGroup = taskFilterSettings.filterByTaskOrTemplate as TaskGroup;
             if (taskEvent.taskGroupId != _taskGroup.id) {
               return true; // remove not in group items
             }
           }
-          if (filterState?.taskFilterSettings.filterByTaskOrTemplate is Template) {
-            final filterTemplate = filterState!.taskFilterSettings.filterByTaskOrTemplate as Template;
+          if (taskFilterSettings.filterByTaskOrTemplate is Template) {
+            final filterTemplate = taskFilterSettings.filterByTaskOrTemplate as Template;
             final eventTemplate = taskEvent.originTemplateId;
             if (eventTemplate == null) {
               return true; // remove events with no template at all
@@ -254,9 +254,10 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
   void filterByTaskEventIds(Iterable<int> taskEventIds) {
     clearFilters();
-    expandAll();
-    _filterByTaskEventIds(taskEventIds);
+    taskFilterSettings.filterByTaskEventIds = taskEventIds.toList();
+    debugPrint("filter by ${taskFilterSettings.filterByTaskEventIds}");
     doFilter();
+    expandAll();
   }
 
   @override
@@ -404,7 +405,6 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
   List<Widget> _createExpansionWidgets(TaskEvent taskEvent) {
     var expansionWidgets = <Widget>[];
-    final taskGroup = findPredefinedTaskGroupById(taskEvent.taskGroupId!);
 
     if (taskEvent.description != null && taskEvent.description!.isNotEmpty) {
       expansionWidgets.add(Padding(
@@ -708,13 +708,9 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   @override
   bool get wantKeepAlive => true;
 
-  bool isFilterActive() => filterState?.isFilterActive()??false;
+  bool isFilterActive() => taskFilterSettings.isFilterActive();
 
-  void clearFilters() => filterState?.clearFilters();
-
-  void _filterByTaskEventIds(Iterable<int> taskEventIds) {
-    filterState?.taskFilterSettings.filterByTaskEventIds = taskEventIds.toList();
-  }
+  void clearFilters() => taskFilterSettings.clearFilters();
 
   bool isAllExpanded() => _hiddenTiles.isEmpty;
 
