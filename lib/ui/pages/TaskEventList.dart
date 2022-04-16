@@ -532,8 +532,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         children: [
           Wrap(
             children: [
-              boldedText("Title:"),
-              Spacer(),
+              boldedText("Title: "),
               wrappedText(taskEvent.title),
             ],
           ),
@@ -546,21 +545,21 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           Divider(),
           Row(
             children: [
-              boldedText("Created at:"),
+              boldedText("Created at: "),
               Spacer(),
               Text(formatToDateTime(taskEvent.createdAt)),
             ],
           ),
           Row(
             children: [
-              boldedText("Started at:"),
+              boldedText("Started at: "),
               Spacer(),
               Text(formatToDateTime(taskEvent.startedAt)),
             ],
           ),
           Row(
             children: [
-              boldedText("Finished at:"),
+              boldedText("Finished at: "),
               Spacer(),
               Text(formatToDateTime(taskEvent.finishedAt)),
             ],
@@ -568,8 +567,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           Divider(),
           Wrap(
             children: [
-              boldedText("Origin associated task:"),
-              Spacer(),
+              boldedText("Origin associated task: "),
               _createOriginTemplateInfo(originTemplate),
             ],
           ),
@@ -577,7 +575,6 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           Wrap(
             children: [
               boldedText("Associated schedule: "),
-              Spacer(),
               _createScheduleInfo(scheduledTask),
             ],
           ),
