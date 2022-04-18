@@ -19,7 +19,7 @@ import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
-import 'package:personaltasklogger/ui/pages/TaskEventFilter.dart';
+import 'package:personaltasklogger/ui/TaskEventFilter.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
@@ -230,6 +230,12 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       _taskEvents..sort();
       _selectedTile = _taskEvents.indexOf(taskEvent);
       _hiddenTiles.remove(truncToDate(taskEvent.startedAt));
+
+      if (_filteredTaskEvents != null) {
+        _filteredTaskEvents?.add(taskEvent);
+        _filteredTaskEvents?..sort();
+        _selectedTile = _filteredTaskEvents?.indexOf(taskEvent)??-1;
+      }
     });
   }
 
@@ -242,6 +248,16 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       }
       _taskEvents..sort();
       _selectedTile = _taskEvents.indexOf(updated);
+
+      if (_filteredTaskEvents != null) {
+        final index = _filteredTaskEvents?.indexOf(origin)??-1;
+        if (index != -1) {
+          _filteredTaskEvents?.removeAt(index);
+          _filteredTaskEvents?.insert(index, updated);
+        }
+        _filteredTaskEvents?..sort();
+        _selectedTile = _filteredTaskEvents?.indexOf(updated)??-1;
+      }
     });
   }
 
@@ -249,6 +265,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     setState(() {
       _taskEvents.remove(taskEvent);
       _selectedTile = -1;
+      _filteredTaskEvents?.remove(taskEvent);
     });
   }
 
@@ -567,7 +584,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           Divider(),
           Wrap(
             children: [
-              boldedText("Origin associated task: "),
+              boldedText("Associated task: "),
               _createOriginTemplateInfo(originTemplate),
             ],
           ),

@@ -93,6 +93,7 @@ List<TaskTemplate> predefinedTaskTemplates = [
   // Garden
   TaskTemplate.data(subId: -1, title: "Water vegetable patch", taskGroupId: -8),
   TaskTemplate.data(subId: -2, title: "Dig vegetable patch", taskGroupId: -8),
+  TaskTemplate.data(subId: -3, title: "Cut the lawn", taskGroupId: -8),
 
   // Maintenance
   TaskTemplate.data(subId: -1, title: "Defrost fridge", taskGroupId: -9),
@@ -108,7 +109,7 @@ List<TaskTemplate> predefinedTaskTemplates = [
   TaskTemplate.data(subId: -3, title: "Change tires", taskGroupId: -11),
 
   // Pets
-  TaskTemplate.data(subId: -1, title: "Go for a walk", taskGroupId: -12),
+  TaskTemplate.data(subId: -1, title: "Go for a walk with the dog", taskGroupId: -12),
   TaskTemplate.data(subId: -2, title: "Clean aquarium/terrarium", taskGroupId: -12),
   TaskTemplate.data(subId: -3, title: "Go to vet", taskGroupId: -12),
 

@@ -4,7 +4,7 @@ import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
-import 'package:personaltasklogger/ui/pages/TaskEventFilter.dart';
+import 'package:personaltasklogger/ui/TaskEventFilter.dart';
 import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
@@ -182,7 +182,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       var percentValue = _valueToPercent(value, totalValue);
       return PieChartSectionData(
         color: data.templateId == null
-            ? getSharpedColor(getTaskGroupColor(taskGroupId, false))
+            ? getSharpedColor(getTaskGroupColor(taskGroupId, false), 2.2)
             : getTaskGroupColor(taskGroupId, data.templateId!.isVariant),
         value: value,
         title: _valueToPercentString(percentValue),
@@ -311,14 +311,15 @@ class _TaskEventStatsState extends State<TaskEventStats> {
                 fontWeight: fontWeight)),
           ]);
     
+      var bgColor = data.templateId == null
+            ? getSharpedColor(getTaskGroupColor(taskGroupId, false), 1.9)
+            : getTaskGroupColor(taskGroupId, data.templateId!.isVariant);
       return Container(
         height: 30,
        /* color: data.templateId == null
             ? (taskGroup != null ? taskGroup.backgroundColor : null)
             : getTaskGroupColor(taskGroupId, !data.templateId!.isVariant),*/
-        color: data.templateId == null
-            ? getSharpedColor(getTaskGroupColor(taskGroupId, false))
-            : getTaskGroupColor(taskGroupId, data.templateId!.isVariant),
+        color: bgColor.withAlpha((bgColor.alpha * 0.6).toInt()),
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTapDown: (details) {

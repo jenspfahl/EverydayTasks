@@ -12,9 +12,9 @@ Color getColorWithOpacity(Color? colorRGB, double opacity) {
   return color.withOpacity(opacity);
 }
 
-Color getSharpedColor(Color? colorRGB) {
+Color getSharpedColor(Color? colorRGB, [double factor = 2.5]) {
   var color = colorRGB ?? Colors.lime.shade100;
-  return color.withAlpha((color.alpha * 2.5).toInt());
+  return color.withAlpha((color.alpha * factor).toInt());
 }
 
 String truncate(String text, { required int length, omission: '...' }) {

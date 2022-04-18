@@ -7,7 +7,7 @@ import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
-import '../utils.dart';
+import 'utils.dart';
 
 @immutable
 class TaskEventFilter extends StatefulWidget {
