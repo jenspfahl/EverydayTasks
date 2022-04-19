@@ -505,6 +505,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                     context,
                     "Delete journal entry",
                     "Are you sure to delete '${taskEvent.title}' ?",
+                    icon: const Icon(Icons.warning_amber_outlined),
                     okPressed: () {
                       TaskEventRepository.delete(taskEvent).then(
                         (_) {

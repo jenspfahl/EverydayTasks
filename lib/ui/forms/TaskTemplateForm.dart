@@ -122,6 +122,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                     context,
                     "Restore default",
                     "This will restore the current $taskOrVariant '${template?.title}' to the predefined default.",
+                    icon: const Icon(Icons.undo),
                     okPressed: () {
                       Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 

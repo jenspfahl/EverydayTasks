@@ -45,8 +45,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   WhenOnDate? _selectedScheduleFrom = WhenOnDate.TODAY;
   DateTime? _customScheduleFrom;
 
-
   late bool _isActive;
+  RepetitionMode _repetitionMode = RepetitionMode.DYNAMIC;
 
   _ScheduledTaskFormState(this._scheduledTask, this._taskGroup, this._template) {
 
@@ -65,6 +65,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       _customScheduleFrom = _scheduledTask!.lastScheduledEventOn;
 
       _isActive = _scheduledTask!.active;
+      _repetitionMode = _scheduledTask!.schedule.repetitionMode;
     }
     else if (_template != null) {
       titleController.text = _template!.title;
@@ -315,8 +316,24 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                           ],
                         ),
                       ),
-                      // TODO add a switch to dis-/enable notifications for this schedule
-                      Align(
+                      Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text("Dynamic repetition behavior: ${_repetitionMode == RepetitionMode.DYNAMIC ? "On" : "Off"}"),
+                          subtitle: Text(_repetitionMode == RepetitionMode.DYNAMIC
+                              ? "Next schedule is due based on the repetition steps and when the current one is done."
+                              : "Next schedule is due based on the exact repetition steps."),
+                          value: _repetitionMode == RepetitionMode.DYNAMIC,
+                          onChanged: (bool value) {
+                            setState(() {
+                              _repetitionMode = _repetitionMode == RepetitionMode.DYNAMIC
+                                  ? RepetitionMode.FIXED
+                                  : RepetitionMode.DYNAMIC;
+                            });
+                          },)
+                      ),
+                    Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 26.0),
@@ -338,6 +355,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                   startAtExactly: _customStartAt,
                                   repetitionStep: _selectedRepetitionStep!,
                                   customRepetition: _customRepetition,
+                                  repetitionMode: _repetitionMode,
                                 );
                                 var scheduledTask = ScheduledTask(
                                   id: _scheduledTask?.id,

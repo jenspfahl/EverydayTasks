@@ -23,6 +23,8 @@ class ScheduledTaskEntity {
   final bool active;
   final int? pausedAt;
 
+  final int? repetitionMode;
+
   ScheduledTaskEntity(
       this.id,
       this.taskGroupId,
@@ -39,5 +41,6 @@ class ScheduledTaskEntity {
       this.lastScheduledEventAt,
       this.active,
       this.pausedAt,
+      this.repetitionMode
       );
 }

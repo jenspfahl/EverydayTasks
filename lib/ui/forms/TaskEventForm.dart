@@ -425,6 +425,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                             context,
                                             "Start tracking",
                                             "There are some values which will be overwritten when starting the tracking. Continue?",
+                                            icon: const Icon(Icons.warning_amber_outlined),
                                             okPressed: () {
                                               setState(() {
                                                 _startTracking();

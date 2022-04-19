@@ -185,7 +185,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             ? getSharpedColor(getTaskGroupColor(taskGroupId, false), 2.2)
             : getTaskGroupColor(taskGroupId, data.templateId!.isVariant),
         value: value,
-        title: _valueToPercentString(percentValue),
+        title: _valueToPercentString(percentValue, i),
         radius: radius,
         titleStyle: TextStyle(
             fontSize: fontSize,
@@ -370,8 +370,12 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           color: Colors.grey,);
   }
 
-  _valueToPercentString(int percentValue) {
-    return "${percentValue}%";
+  String _valueToPercentString(int percentValue, int index) {
+    return percentValue < 1
+        ? ""
+        : ((percentValue == 1 && index % 2 == 0)
+          ? ""
+          : "$percentValue%");
   }
 
   int _valueToPercent(double value, num total) {

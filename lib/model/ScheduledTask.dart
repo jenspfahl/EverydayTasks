@@ -43,10 +43,13 @@ class ScheduledTask implements Comparable {
 
   bool get isPaused => pausedAt != null;
 
-  DateTime? getNextSchedule() {
-    if (lastScheduledEventOn != null) {
-      return schedule.getNextRepetitionFrom(lastScheduledEventOn!);
+  DateTime? getNextSchedule() => getNextScheduleAfter(lastScheduledEventOn);
+
+  DateTime? getNextScheduleAfter(DateTime? after) {
+    if (after != null) {
+      return schedule.getNextRepetitionFrom(after);
     }
+    return null;
   }
 
   Duration? getScheduledDuration() {
@@ -136,14 +139,29 @@ class ScheduledTask implements Comparable {
   }
 
   executeSchedule(TaskEvent? taskEvent) {
-    if (taskEvent != null && templateId != null && taskEvent.originTemplateId == templateId) {
-      lastScheduledEventOn = taskEvent.startedAt;
-    }
-    else {
-      lastScheduledEventOn = DateTime.now();
-    }
+    lastScheduledEventOn = _calcLastScheduledEventOn(taskEvent);
   }
 
+  DateTime? simulateExecuteSchedule(TaskEvent? taskEvent) {
+    final calculatedLastScheduledEventOn = _calcLastScheduledEventOn(taskEvent);
+    return getNextScheduleAfter(calculatedLastScheduledEventOn);
+  }
+
+  DateTime? _calcLastScheduledEventOn(TaskEvent? taskEvent) {
+    if (schedule.repetitionMode == RepetitionMode.DYNAMIC) {
+      if (taskEvent != null && templateId != null &&
+          taskEvent.originTemplateId == templateId) {
+        return taskEvent.startedAt;
+      }
+      else {
+        return DateTime.now();
+      }
+    }
+    else if (schedule.repetitionMode == RepetitionMode.FIXED) {
+      return getNextSchedule();
+    }
+    return null;
+  }
 
   void pause() {
     if (active) {

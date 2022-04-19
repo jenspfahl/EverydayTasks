@@ -433,16 +433,22 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 SizedBox(
                   width: 50,
                   child: TextButton(
-                    child: Icon(Icons.replay),
+                    child: const Icon(Icons.replay),
                     onPressed: () {
                       if (scheduledTask.isPaused) {
                         toastError(context, "Cannot reset paused schedule! Resume it first!");
                         return;
                       }
+                      final newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
+                      final actualNextDueDate = scheduledTask.getNextSchedule();
+                      var message = (newNextDueDate != actualNextDueDate)
+                          ? "Are you sure to reset the progress of '${scheduledTask.title}' ? The schedule is then due ${formatToDateOrWord(newNextDueDate!, true).toLowerCase()} at ${formatToTime(newNextDueDate)}."
+                          : "Are you sure to reset the progress of '${scheduledTask.title}' ? The schedule is still due ${formatToDateOrWord(newNextDueDate!, true).toLowerCase()} at ${formatToTime(newNextDueDate)}.";
                       showConfirmationDialog(
                         context,
                         "Reset schedule",
-                        "Are you sure to reset '${scheduledTask.title}' ? This will reset the progress to the beginning.",
+                        message,
+                        icon: const Icon(Icons.replay),
                         okPressed: () {
                           scheduledTask.executeSchedule(null);
                           ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
@@ -557,6 +563,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       context,
                       "Delete Schedule",
                       "Are you sure to delete '${scheduledTask.title}' ?",
+                      icon: const Icon(Icons.warning_amber_outlined),
                       okPressed: () {
                         ScheduledTaskRepository.delete(scheduledTask).then(
                               (_) {

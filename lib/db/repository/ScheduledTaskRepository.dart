@@ -99,6 +99,7 @@ class ScheduledTaskRepository {
         scheduledTask.lastScheduledEventOn != null ? dateTimeToEntity(scheduledTask.lastScheduledEventOn!) : null,
         scheduledTask.active,
         scheduledTask.pausedAt != null ? dateTimeToEntity(scheduledTask.pausedAt!) : null,
+        scheduledTask.schedule.repetitionMode != null ? scheduledTask.schedule.repetitionMode.index : null,
     );
 
   static ScheduledTask _mapFromEntity(ScheduledTaskEntity entity) {
@@ -120,6 +121,9 @@ class ScheduledTaskRepository {
           customRepetition: entity.exactRepetitionAfter != null && entity.exactRepetitionAfterUnit != null
               ? CustomRepetition(entity.exactRepetitionAfter!, RepetitionUnit.values.elementAt(entity.exactRepetitionAfterUnit!) )
               : null,
+          repetitionMode: entity.repetitionMode != null
+              ? RepetitionMode.values.elementAt(entity.repetitionMode!)
+              : RepetitionMode.DYNAMIC,
         ),
         lastScheduledEventOn: entity.lastScheduledEventAt != null ? dateTimeFromEntity(entity.lastScheduledEventAt!) : null,
         active: entity.active,

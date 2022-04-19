@@ -142,7 +142,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                     "Everyday Tasks is an app to log, track and schedule daily tasks."
                         "\n\n© Jens Pfahl 2022"
                         "\n\nVersion $version:$build",
-
+                    icon: const Icon(Icons.info_outline),
                     okPressed: () =>  Navigator.pop(context),
                 );
               },

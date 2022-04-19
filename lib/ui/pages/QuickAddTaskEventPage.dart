@@ -109,6 +109,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                       context,
                       "Delete QuickAdd for '${template.title}'",
                       "Are you sure to remove this QuickAdd? This will not affect the associated task.",
+                      icon: const Icon(Icons.warning_amber_outlined),
                       okPressed: () {
                         template.favorite = false;
                         TemplateRepository.save(template).then((template) {

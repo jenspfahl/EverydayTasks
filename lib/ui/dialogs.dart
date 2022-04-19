@@ -10,7 +10,7 @@ import 'RepetitionPicker.dart';
 import 'ToggleActionIcon.dart';
 
 void showConfirmationDialog(BuildContext context, String title, String message,
-    {Function()? okPressed, Function()? cancelPressed}) {
+    {Icon? icon, Function()? okPressed, Function()? cancelPressed}) {
 
   List<Widget> actions = [];
   if (cancelPressed != null) {
@@ -28,7 +28,15 @@ void showConfirmationDialog(BuildContext context, String title, String message,
     actions.add(okButton);
   }
   AlertDialog alert = AlertDialog(
-    title: Text(title),
+    title: icon != null
+      ? Row(children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+        child: icon,
+      ),
+      Text("Entry details")
+    ],)
+      : Text(title),
     content: Text(message),
     actions: actions,
   );  // show the dialog

@@ -613,6 +613,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
           context,
           "Delete $taskOrVariant '${template.title}'",
           message,
+          icon: const Icon(Icons.warning_amber_outlined),
           okPressed: () {
             Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
             Navigator.pop(context); // dismiss bottom sheet

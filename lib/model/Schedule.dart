@@ -6,6 +6,7 @@ import 'When.dart';
 
 enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, EVERY_OTHER_MONTH, QUARTERLY, HALF_YEARLY, YEARLY, CUSTOM}
 enum RepetitionUnit {DAYS, WEEKS, MONTHS, YEARS}
+enum RepetitionMode {DYNAMIC, FIXED}
 
 class CustomRepetition {
   int repetitionValue;
@@ -34,12 +35,14 @@ class Schedule {
   TimeOfDay? startAtExactly;
   RepetitionStep repetitionStep;
   CustomRepetition? customRepetition;
+  RepetitionMode repetitionMode;
 
   Schedule({
     required this.aroundStartAt,
     this.startAtExactly,
     required this.repetitionStep,
     this.customRepetition,
+    required this.repetitionMode,
   });
 
   DateTime adjustScheduleFrom(DateTime fromDate) {
@@ -102,6 +105,13 @@ class Schedule {
       case RepetitionUnit.WEEKS: return "Weeks";
       case RepetitionUnit.MONTHS: return "Months";
       case RepetitionUnit.YEARS: return "Years";
+    }
+  }
+  
+  static String fromRepetitionModeToString(RepetitionMode repetitionMode) {
+    switch(repetitionMode) {
+      case RepetitionMode.DYNAMIC: return "Dynamic";
+      case RepetitionMode.FIXED: return "Fixed";
     }
   }
 
