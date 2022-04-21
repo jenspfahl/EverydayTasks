@@ -57,6 +57,7 @@ class ScheduledTask implements Comparable {
       var nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
       return nextRepetition.difference(lastScheduledEventOn!);
     }
+    return null;
   }
 
   Duration? getMissingDuration() {
@@ -65,6 +66,7 @@ class ScheduledTask implements Comparable {
       final now = pausedAt != null ? pausedAt! : DateTime.now();
       return nextRepetition.difference(truncToSeconds(now));
     }
+    return null;
   }
 
   Duration? getPassedDuration() {
@@ -72,6 +74,7 @@ class ScheduledTask implements Comparable {
       final now = pausedAt != null ? pausedAt! : DateTime.now();
       return now.difference(truncToSeconds(lastScheduledEventOn!));
     }
+    return null;
   }
 
   bool isNextScheduleReached() {
@@ -134,24 +137,10 @@ class ScheduledTask implements Comparable {
     var scheduledDuration = getScheduledDuration();
     var missingDuration = getMissingDuration();
     if (scheduledDuration != null && missingDuration != null) {
-      if (missingDuration.isNegative) {
-        return 1; //
-      }
       return 1 - (missingDuration.inMinutes / (scheduledDuration.inMinutes != 0 ? scheduledDuration.inMinutes : 1));
     }
     return null;
   }
-
-
-  double? getNextRepetitionIndicatorValueWithOverdue() {
-    var scheduledDuration = getScheduledDuration();
-    var missingDuration = getMissingDuration();
-    if (scheduledDuration != null && missingDuration != null) {
-      return 1 - (missingDuration.inMinutes / (scheduledDuration.inMinutes != 0 ? scheduledDuration.inMinutes : 1));
-    }
-    return null;
-  }
-
 
   executeSchedule(TaskEvent? taskEvent) {
     lastScheduledEventOn = _calcLastScheduledEventOn(taskEvent);

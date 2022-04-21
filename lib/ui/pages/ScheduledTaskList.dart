@@ -324,7 +324,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                             ? Color(0xFF770C0C)
                             : null),
                       backgroundColor: scheduledTask.isNextScheduleOverdue(true)
-                          ? ((scheduledTask.getNextRepetitionIndicatorValueWithOverdue()??0.0) > 1.5
+                          ? ((scheduledTask.getNextRepetitionIndicatorValue()??0.0) > 1.3333
                             ? Colors.red[200]
                             : Colors.red[300])
                           : null,
@@ -446,8 +446,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       final newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
                       final actualNextDueDate = scheduledTask.getNextSchedule();
                       var message = (newNextDueDate != actualNextDueDate)
-                          ? "Are you sure to reset the progress of '${scheduledTask.title}' ? The schedule is then due ${formatToDateOrWord(newNextDueDate!, true).toLowerCase()} at ${formatToTime(newNextDueDate)}."
-                          : "Are you sure to reset the progress of '${scheduledTask.title}' ? The schedule is still due ${formatToDateOrWord(newNextDueDate!, true).toLowerCase()} at ${formatToTime(newNextDueDate)}.";
+                          ? "Are you sure to reset the progress of '${scheduledTask.title}' ? The schedule is then due ${formatToDateOrWord(newNextDueDate!, context, true).toLowerCase()} at ${formatToTime(newNextDueDate)}."
+                          : "Are you sure to reset the progress of '${scheduledTask.title}' ? The schedule is still due ${formatToDateOrWord(newNextDueDate!, context, true).toLowerCase()} at ${formatToTime(newNextDueDate)}.";
                       showConfirmationDialog(
                         context,
                         "Reset schedule",
@@ -475,9 +475,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
             children: [
               Visibility(
-                visible: scheduledTask.active 
-                    && !scheduledTask.isNextScheduleReached()
-                    && !scheduledTask.isNextScheduleOverdue(false),
+                visible: scheduledTask.active,
                 child: SizedBox(
                   width: 50,
                   child: TextButton(
@@ -602,27 +600,27 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
 
   String getDetailsMessage(ScheduledTask scheduledTask) {
-    var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}, overdue_ratio: ${scheduledTask.getNextRepetitionIndicatorValueWithOverdue()}, missing: ${scheduledTask.getMissingDuration()}, scheduled: ${scheduledTask.getScheduledDuration()}\n";
+    var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}, missing: ${scheduledTask.getMissingDuration()}, scheduled: ${scheduledTask.getScheduledDuration()}\n";
     final nextSchedule = scheduledTask.getNextSchedule()!;
 
     if (scheduledTask.active && scheduledTask.lastScheduledEventOn != null) {
       var msg = "";
-      if (scheduledTask.isNextScheduleOverdue(false)) {
+      if (scheduledTask.isPaused) {
+        msg = debug + "- paused -";
+      }
+      else if (scheduledTask.isNextScheduleOverdue(false)) {
         msg = debug +
             "Overdue ${formatToDateOrWord(
-            scheduledTask.getNextSchedule()!, true).toLowerCase()} "
+            scheduledTask.getNextSchedule()!, context, true).toLowerCase()} "
             "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} !";
       }
       else if (truncToSeconds(nextSchedule) == truncToSeconds(DateTime.now())) {
         msg = debug +
             "Due now!";
       }
-      else if (scheduledTask.isPaused) {
-        msg = debug + "- paused -";
-      }
       else {
         msg = debug +
-            "Due ${formatToDateOrWord(nextSchedule, true)
+            "Due ${formatToDateOrWord(nextSchedule, context, true)
                 .toLowerCase()} "
                 "${scheduledTask.schedule.toStartAtAsString().toLowerCase()} "
                 "in ${formatDuration(scheduledTask.getMissingDuration()!)}";
@@ -638,7 +636,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       return "$msg"
           "\n\n"
           "Scheduled ${formatToDateOrWord(
-          scheduledTask.lastScheduledEventOn!).toLowerCase()}"
+          scheduledTask.lastScheduledEventOn!, context).toLowerCase()}"
           " $passedString";
     }
     else {

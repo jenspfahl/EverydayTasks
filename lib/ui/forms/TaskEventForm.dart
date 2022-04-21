@@ -399,7 +399,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                     value: whenOnDate,
                                     child: Text(
                                       whenOnDate == WhenOnDate.CUSTOM && _customWhenOn != null
-                                          ? formatToDateOrWord(_customWhenOn!)
+                                          ? formatToDateOrWord(_customWhenOn!, context)
                                           : When.fromWhenOnDateToString(whenOnDate),
                                     ),
                                   );

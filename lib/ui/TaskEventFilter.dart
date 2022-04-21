@@ -86,7 +86,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                         ),
                         const Spacer(),
                         Text(taskFilterSettings.filterByDateRange != null
-                            ?  "${formatToDateOrWord(taskFilterSettings.filterByDateRange!.start)} to ${formatToDateOrWord(taskFilterSettings.filterByDateRange!.end).toLowerCase()}"
+                            ?  "${formatToDateOrWord(taskFilterSettings.filterByDateRange!.start, context)} to ${formatToDateOrWord(taskFilterSettings.filterByDateRange!.end, context).toLowerCase()}"
                             : "Filter by date range"),
                       ]
                   ),

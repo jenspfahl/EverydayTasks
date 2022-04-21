@@ -356,7 +356,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
               child: Row(
                 children: [
                   Text(
-                    "${formatToDateOrWord(dateHeading)} ($items, ${dateDuration != null ? formatDuration(dateDuration) : ""})",
+                    "${formatToDateOrWord(dateHeading, context)} ($items, ${dateDuration != null ? formatDuration(dateDuration) : ""})",
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 10.0,
@@ -565,21 +565,21 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
             children: [
               boldedText("Created at: "),
               Spacer(),
-              Text(formatToDateTime(taskEvent.createdAt)),
+              Text(formatToDateTime(taskEvent.createdAt, context)),
             ],
           ),
           Row(
             children: [
               boldedText("Started at: "),
               Spacer(),
-              Text(formatToDateTime(taskEvent.startedAt)),
+              Text(formatToDateTime(taskEvent.startedAt, context)),
             ],
           ),
           Row(
             children: [
               boldedText("Finished at: "),
               Spacer(),
-              Text(formatToDateTime(taskEvent.finishedAt)),
+              Text(formatToDateTime(taskEvent.finishedAt, context)),
             ],
           ),
           Divider(),

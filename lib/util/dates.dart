@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:personaltasklogger/model/When.dart';
 
@@ -14,7 +15,7 @@ DateTime truncToSeconds(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
 }
 
-String formatToDateOrWord(DateTime dateTime, [bool? withPreposition]) {
+String formatToDateOrWord(DateTime dateTime, BuildContext context, [bool? withPreposition]) {
   if (isToday(dateTime)) {
     return "Today";
   }
@@ -31,19 +32,25 @@ String formatToDateOrWord(DateTime dateTime, [bool? withPreposition]) {
     return "After tomorrow";
   }
   if (withPreposition ?? false) {
-    return "on " + formatToDate(dateTime);
+    return "on " + formatToDate(dateTime, context);
   }
-  return formatToDate(dateTime);
+  return formatToDate(dateTime, context);
 }
 
-String formatToDate(DateTime dateTime) {
-  final DateFormat formatter = DateFormat('yyyy-MMM-dd');
+String formatToDate(DateTime dateTime, BuildContext context) {
+  final locale = Localizations.localeOf(context).languageCode;
+  initializeDateFormatting(locale);
+  final DateFormat formatter = DateFormat.yMMMd(locale);
   return formatter.format(dateTime);
 }
 
-String formatToDateTime(DateTime dateTime) {
-  final DateFormat formatter = DateFormat('yyyy-MMM-dd H:mm');
-  return formatter.format(dateTime);
+String formatToDateTime(DateTime dateTime, BuildContext context) {
+  final locale = Localizations.localeOf(context).languageCode;
+  initializeDateFormatting(locale);
+
+  final DateFormat dateFormatter = DateFormat.yMd(locale);
+  final DateFormat timeFormatter = DateFormat.Hms(locale);
+  return dateFormatter.format(dateTime) + " " + timeFormatter.format(dateTime);
 }
 
 String formatToTime(DateTime dateTime) {

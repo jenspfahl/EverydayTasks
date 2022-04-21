@@ -305,7 +305,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     value: whenOnDate,
                                     child: Text(
                                      whenOnDate == WhenOnDate.CUSTOM && _customScheduleFrom != null
-                                          ? formatToDateOrWord(_customScheduleFrom!)
+                                          ? formatToDateOrWord(_customScheduleFrom!, context)
                                           : When.fromWhenOnDateToString(whenOnDate),
                                     ),
                                   );
