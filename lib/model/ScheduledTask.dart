@@ -142,19 +142,16 @@ class ScheduledTask implements Comparable {
     return null;
   }
 
-  /*
-  Returns the factor of how long the schedule is overdue. 0.5 means half the origin time, 3 means double of origin time.
-   */
-  double? getNextRepetitionOverdueValue() {
+
+  double? getNextRepetitionIndicatorValueWithOverdue() {
     var scheduledDuration = getScheduledDuration();
     var missingDuration = getMissingDuration();
     if (scheduledDuration != null && missingDuration != null) {
-      if (missingDuration.isNegative) {
-        return (missingDuration.inMinutes / scheduledDuration.inMinutes).abs();
-      }
+      return 1 - (missingDuration.inMinutes / (scheduledDuration.inMinutes != 0 ? scheduledDuration.inMinutes : 1));
     }
     return null;
   }
+
 
   executeSchedule(TaskEvent? taskEvent) {
     lastScheduledEventOn = _calcLastScheduledEventOn(taskEvent);

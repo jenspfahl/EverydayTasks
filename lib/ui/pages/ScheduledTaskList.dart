@@ -324,7 +324,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                             ? Color(0xFF770C0C)
                             : null),
                       backgroundColor: scheduledTask.isNextScheduleOverdue(true)
-                          ? ((scheduledTask.getNextRepetitionOverdueValue()??0.0) > 0.5
+                          ? ((scheduledTask.getNextRepetitionIndicatorValueWithOverdue()??0.0) > 1.5
                             ? Colors.red[200]
                             : Colors.red[300])
                           : null,
@@ -602,7 +602,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
 
   String getDetailsMessage(ScheduledTask scheduledTask) {
-    var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}, overdue_ratio: ${scheduledTask.getNextRepetitionOverdueValue()}, missing: ${scheduledTask.getMissingDuration()}, scheduled: ${scheduledTask.getScheduledDuration()}\n";
+    var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}, overdue_ratio: ${scheduledTask.getNextRepetitionIndicatorValueWithOverdue()}, missing: ${scheduledTask.getMissingDuration()}, scheduled: ${scheduledTask.getScheduledDuration()}\n";
     final nextSchedule = scheduledTask.getNextSchedule()!;
 
     if (scheduledTask.active && scheduledTask.lastScheduledEventOn != null) {
