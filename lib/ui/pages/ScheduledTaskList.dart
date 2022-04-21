@@ -98,7 +98,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       });
     });
 
-    final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 100);
+    final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 1000);
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
       setState(() {
         _scheduledTasks = scheduledTasks;
@@ -323,7 +323,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                           : (scheduledTask.isNextScheduleReached()
                             ? Color(0xFF770C0C)
                             : null),
-                      backgroundColor: scheduledTask.isNextScheduleOverdue(true) ? Colors.red[300] : null,
+                      backgroundColor: scheduledTask.isNextScheduleOverdue(true)
+                          ? ((scheduledTask.getNextRepetitionOverdueValue()??0.0) > 0.5
+                            ? Colors.red[200]
+                            : Colors.red[300])
+                          : null,
                     ),
                   ),
                 ),
@@ -598,7 +602,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
 
   String getDetailsMessage(ScheduledTask scheduledTask) {
-    var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}\n";
+    var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}, overdue_ratio: ${scheduledTask.getNextRepetitionOverdueValue()}, missing: ${scheduledTask.getMissingDuration()}, scheduled: ${scheduledTask.getScheduledDuration()}\n";
     final nextSchedule = scheduledTask.getNextSchedule()!;
 
     if (scheduledTask.active && scheduledTask.lastScheduledEventOn != null) {

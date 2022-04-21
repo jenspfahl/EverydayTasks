@@ -173,13 +173,17 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
           TemplateDialogDescription(description, templateDialogDescriptionStateKey),
           Expanded(
             flex: 100,
-            child: TaskTemplateList.withSelectionCallback(
-              selectedItem,
-              onlyHidden: onlyHidden,
-              hideEmptyNodes: hideEmptyNodes,
-              expandAll: expandAll,
-              initialSelectedKey: initialSelectedKey,
-              key: taskTemplateListStateKey,
+            child: SizedBox(
+              width: 3000,
+              height: 3000,
+              child: TaskTemplateList.withSelectionCallback(
+                selectedItem,
+                onlyHidden: onlyHidden,
+                hideEmptyNodes: hideEmptyNodes,
+                expandAll: expandAll,
+                initialSelectedKey: initialSelectedKey,
+                key: taskTemplateListStateKey,
+              ),
             ),
           ),
         ],

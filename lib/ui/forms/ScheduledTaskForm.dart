@@ -39,17 +39,16 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   RepetitionStep? _selectedRepetitionStep;
   CustomRepetition? _customRepetition;
 
-  AroundWhenAtDay? _selectedStartAt = AroundWhenAtDay.NOW;
+  AroundWhenAtDay? _selectedStartAt;
   TimeOfDay? _customStartAt;
 
-  WhenOnDate? _selectedScheduleFrom = WhenOnDate.TODAY;
+  WhenOnDate? _selectedScheduleFrom;
   DateTime? _customScheduleFrom;
 
   late bool _isActive;
   RepetitionMode _repetitionMode = RepetitionMode.DYNAMIC;
 
   _ScheduledTaskFormState(this._scheduledTask, this._taskGroup, this._template) {
-
 
     if (_scheduledTask != null) {
       titleController.text = _scheduledTask!.title;
@@ -296,7 +295,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 },
                                 validator: (WhenOnDate? value) {
                                   if (value == null || (value == WhenOnDate.CUSTOM && _customScheduleFrom == null)) {
-                                    return "Please select which day the repetition relates to";
+                                    return "Please select which day the schedule starts";
                                   } else {
                                     return null;
                                   }

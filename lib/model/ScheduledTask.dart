@@ -95,6 +95,9 @@ class ScheduledTask implements Comparable {
     return false;
   }
 
+  /*
+   * Returns the duration in the next bigger unit then the repitition steps are defined.
+   */
   int _getRoundedDurationValue(Duration duration) {
       if (schedule.repetitionStep == RepetitionStep.DAILY
         || schedule.repetitionStep == RepetitionStep.EVERY_OTHER_DAY
@@ -136,6 +139,21 @@ class ScheduledTask implements Comparable {
       }
       return 1 - (missingDuration.inMinutes / (scheduledDuration.inMinutes != 0 ? scheduledDuration.inMinutes : 1));
     }
+    return null;
+  }
+
+  /*
+  Returns the factor of how long the schedule is overdue. 0.5 means half the origin time, 3 means double of origin time.
+   */
+  double? getNextRepetitionOverdueValue() {
+    var scheduledDuration = getScheduledDuration();
+    var missingDuration = getMissingDuration();
+    if (scheduledDuration != null && missingDuration != null) {
+      if (missingDuration.isNegative) {
+        return (missingDuration.inMinutes / scheduledDuration.inMinutes).abs();
+      }
+    }
+    return null;
   }
 
   executeSchedule(TaskEvent? taskEvent) {
