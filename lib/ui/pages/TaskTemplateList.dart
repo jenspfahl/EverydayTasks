@@ -176,7 +176,6 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       expanded: _forceExpandOrCollapseAll != null
           ? _forceExpandOrCollapseAll!
           : (expandAll || _containsSelectedNode(templates) || _containsExpandedChildren(templates)),
-
     );
   }
 
@@ -737,14 +736,14 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   void _expandAll() {
     setState(() {
       _forceExpandOrCollapseAll = true;
-      _fillNodes(_allTemplates, true, true);
+      _fillNodes(_allTemplates, widget.hideEmptyNodes??false, true);
     });
   }
 
   void _collapseAll() {
     setState(() {
       _forceExpandOrCollapseAll = false;
-      _fillNodes(_allTemplates, true, false);
+      _fillNodes(_allTemplates, widget.hideEmptyNodes??false, false);
     });
   }
 
