@@ -48,7 +48,12 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   late bool _isActive;
   RepetitionMode _repetitionMode = RepetitionMode.DYNAMIC;
 
-  _ScheduledTaskFormState(this._scheduledTask, this._taskGroup, this._template) {
+
+  _ScheduledTaskFormState(this._scheduledTask, this._taskGroup, this._template);
+
+  @override
+  void initState() {
+    super.initState();
 
     if (_scheduledTask != null) {
       titleController.text = _scheduledTask!.title;
@@ -60,7 +65,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       _selectedStartAt = _scheduledTask!.schedule.aroundStartAt;
       _customStartAt = _scheduledTask!.schedule.startAtExactly;
 
-      _selectedScheduleFrom = WhenOnDate.CUSTOM;
+      if (_scheduledTask?.lastScheduledEventOn != null) {
+        _selectedScheduleFrom = fromDateTimeToWhenOnDate(_scheduledTask!.lastScheduledEventOn!);
+        debugPrint("_selectedScheduleFrom=$_selectedScheduleFrom");
+      }
+      debugPrint("_customScheduleFrom=$_customScheduleFrom");
       _customScheduleFrom = _scheduledTask!.lastScheduledEventOn;
 
       _isActive = _scheduledTask!.active;
@@ -83,6 +92,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     }
 
   }
+
 
   @override
   void dispose() {
@@ -304,7 +314,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                   return DropdownMenuItem(
                                     value: whenOnDate,
                                     child: Text(
-                                     whenOnDate == WhenOnDate.CUSTOM && _customScheduleFrom != null
+                                     whenOnDate == WhenOnDate.CUSTOM && _customScheduleFrom != null && _isNotAWord(_customScheduleFrom!)
                                           ? formatToDateOrWord(_customScheduleFrom!, context)
                                           : When.fromWhenOnDateToString(whenOnDate),
                                     ),
@@ -383,5 +393,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
         ),
       ),
     );
+  }
+
+  bool _isNotAWord(DateTime dateTime) {
+    final whenOn = fromDateTimeToWhenOnDate(dateTime);
+    return whenOn == WhenOnDate.CUSTOM;
   }
 }

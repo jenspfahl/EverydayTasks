@@ -356,7 +356,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
               child: Row(
                 children: [
                   Text(
-                    "${formatToDateOrWord(dateHeading, context)} ($items, ${dateDuration != null ? formatDuration(dateDuration) : ""})",
+                    "${formatToDateOrWord(dateHeading, context, withWeekDay: true)} ($items, ${dateDuration != null ? formatDuration(dateDuration) : ""})",
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 10.0,

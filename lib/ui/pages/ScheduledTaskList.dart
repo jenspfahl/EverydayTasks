@@ -444,9 +444,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       }
                       final newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
                       final actualNextDueDate = scheduledTask.getNextSchedule();
+                      var nextDueDateAsString = formatToDateOrWord(newNextDueDate!, context,
+                          withPreposition: true,
+                          makeWhenOnLowerCase: true);
                       var message = (newNextDueDate != actualNextDueDate)
-                          ? "Are you sure to reset the progress of '${scheduledTask.title}' ? The schedule is then due ${formatToDateOrWord(newNextDueDate!, context, true).toLowerCase()} at ${formatToTime(newNextDueDate)}."
-                          : "Are you sure to reset the progress of '${scheduledTask.title}' ? The schedule is still due ${formatToDateOrWord(newNextDueDate!, context, true).toLowerCase()} at ${formatToTime(newNextDueDate)}.";
+                          ? "Are you sure to reset the progress of '${scheduledTask.title}' ? The schedule is then due $nextDueDateAsString at ${formatToTime(newNextDueDate)}."
+                          : "Are you sure to reset the progress of '${scheduledTask.title}' ? The schedule is still due $nextDueDateAsString at ${formatToTime(newNextDueDate)}.";
                       showConfirmationDialog(
                         context,
                         "Reset schedule",
@@ -609,9 +612,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
       else if (scheduledTask.isNextScheduleOverdue(false)) {
         msg = debug +
-            "Overdue ${formatToDateOrWord(
-            scheduledTask.getNextSchedule()!, context, true).toLowerCase()} "
-            "for ${formatDuration(scheduledTask.getMissingDuration()!, true)} !";
+            "Overdue for ${formatDuration(scheduledTask.getMissingDuration()!, true)} "
+                "(${formatToDateOrWord(scheduledTask.getNextSchedule()!, context, withPreposition: true, makeWhenOnLowerCase: true)})!";
       }
       else if (truncToSeconds(nextSchedule) == truncToSeconds(DateTime.now())) {
         msg = debug +
@@ -619,10 +621,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
       else {
         msg = debug +
-            "Due ${formatToDateOrWord(nextSchedule, context, true)
-                .toLowerCase()} "
-                "${scheduledTask.schedule.toStartAtAsString().toLowerCase()} "
-                "in ${formatDuration(scheduledTask.getMissingDuration()!)}";
+            "Due in ${formatDuration(scheduledTask.getMissingDuration()!)} "
+            "(${formatToDateOrWord(nextSchedule, context, withPreposition: true, makeWhenOnLowerCase: true)} "
+                "${scheduledTask.schedule.toStartAtAsString().toLowerCase()})";
       }
 
       final passedDuration = scheduledTask.getPassedDuration();
@@ -634,9 +635,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
       return "$msg"
           "\n\n"
-          "Scheduled ${formatToDateOrWord(
-          scheduledTask.lastScheduledEventOn!, context).toLowerCase()}"
-          " $passedString";
+          "Scheduled $passedString "
+            "(${formatToDateOrWord(scheduledTask.lastScheduledEventOn!, context, withPreposition: true, makeWhenOnLowerCase: true)})";
     }
     else {
       return debug +
@@ -674,22 +674,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   void _sortList() {
     _scheduledTasks..sort((s1, s2) {
       if (_sortBy == SortBy.PROGRESS) {
-        final n1 = s1.active ? s1.getNextRepetitionIndicatorValue() : null;
-        final n2 = s2.active ? s2.getNextRepetitionIndicatorValue() : null;
-        if (n1 == null && n2 != null) {
-          return 1;
-        }
-        else if (n1 != null && n2 == null) {
-          return -1;
-        }
-        else if (n1 == null && n2 == null) {
-          return _sortByTitleAndId(s1, s2);
-        }
-        final c = n2!.compareTo(n1!); // reverse
-        if (c == 0) {
-          return _sortByTitleAndId(s1, s2);
-        }
-        return c;
+        return _sortByProgress(s1, s2);
       }
       else if (_sortBy == SortBy.REMAINING_TIME) {
         final n1 = s1.active ? s1.getNextSchedule() : null;
@@ -711,7 +696,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         }
         final c = n1!.compareTo(n2!);
         if (c == 0) {
-          return _sortByTitleAndId(s1, s2);
+          return _sortByProgress(s1, s2);
         }
         return c;
       }
@@ -731,6 +716,25 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         return s1.compareTo(s2);
       }
     });
+  }
+
+  int _sortByProgress(ScheduledTask s1, ScheduledTask s2) {
+    final n1 = s1.active ? s1.getNextRepetitionIndicatorValue() : null;
+    final n2 = s2.active ? s2.getNextRepetitionIndicatorValue() : null;
+    if (n1 == null && n2 != null) {
+      return 1;
+    }
+    else if (n1 != null && n2 == null) {
+      return -1;
+    }
+    else if (n1 == null && n2 == null) {
+      return _sortByTitleAndId(s1, s2);
+    }
+    final c = n2!.compareTo(n1!); // reverse
+    if (c == 0) {
+      return _sortByTitleAndId(s1, s2);
+    }
+    return c;
   }
 
   void _removeScheduledTask(ScheduledTask scheduledTask) {

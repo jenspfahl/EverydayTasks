@@ -15,7 +15,18 @@ DateTime truncToSeconds(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
 }
 
-String formatToDateOrWord(DateTime dateTime, BuildContext context, [bool? withPreposition]) {
+String formatToDateOrWord(DateTime dateTime, BuildContext context,
+    {bool withPreposition = false, bool withWeekDay = false, bool makeWhenOnLowerCase = false}) {
+  final word = _formatToWord(dateTime);
+  if (word != null) {
+    return makeWhenOnLowerCase ? word.toLowerCase() : word;
+  }
+  if (withPreposition) {
+    return "on " + formatToDate(dateTime, context, withWeekDay);
+  }
+  return formatToDate(dateTime, context, withWeekDay);
+}
+String? _formatToWord(DateTime dateTime) {
   if (isToday(dateTime)) {
     return "Today";
   }
@@ -31,16 +42,13 @@ String formatToDateOrWord(DateTime dateTime, BuildContext context, [bool? withPr
   if (isAfterTomorrow(dateTime)) {
     return "After tomorrow";
   }
-  if (withPreposition ?? false) {
-    return "on " + formatToDate(dateTime, context);
-  }
-  return formatToDate(dateTime, context);
+  return null;
 }
 
-String formatToDate(DateTime dateTime, BuildContext context) {
+String formatToDate(DateTime dateTime, BuildContext context, [bool withWeekDay = false]) {
   final locale = Localizations.localeOf(context).languageCode;
   initializeDateFormatting(locale);
-  final DateFormat formatter = DateFormat.yMMMd(locale);
+  final DateFormat formatter = withWeekDay ? DateFormat.yMMMEd(locale) : DateFormat.yMMMd(locale) ;
   return formatter.format(dateTime);
 }
 
@@ -222,7 +230,7 @@ class Months extends Unit {
 
   @override
   String getPluralUnitAsString() {
-    return "month";
+    return "months";
   }
 }
 
