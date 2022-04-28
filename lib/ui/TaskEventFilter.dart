@@ -219,10 +219,15 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                     selectedItem = item;
                   },
                   okPressed: () {
-                    Navigator.pop(context);
-                    taskFilterSettings.filterByTaskOrTemplate = selectedItem;
-                    widget.doFilter(taskFilterSettings, selectedItem != null ? FilterChangeState.TASK_ON : FilterChangeState.TASK_OFF);
-                    filterIconKey.currentState?.refresh(taskFilterSettings.isFilterActive());
+                    if (selectedItem != null) {
+                      Navigator.pop(context);
+                      taskFilterSettings.filterByTaskOrTemplate = selectedItem;
+                      widget.doFilter(taskFilterSettings, selectedItem != null
+                          ? FilterChangeState.TASK_ON
+                          : FilterChangeState.TASK_OFF);
+                      filterIconKey.currentState?.refresh(
+                          taskFilterSettings.isFilterActive());
+                    }
                   },
                   cancelPressed: () =>
                       Navigator.pop(context), // dis

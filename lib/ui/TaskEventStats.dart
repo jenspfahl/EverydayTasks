@@ -12,6 +12,8 @@ import 'package:fl_chart/fl_chart.dart';
 
 import "package:collection/collection.dart";
 
+import '../model/Template.dart';
+
 
 class TaskEventStats extends StatefulWidget {
 
@@ -135,29 +137,39 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         ),
         AspectRatio(
           aspectRatio: MediaQuery.of(context).orientation == Orientation.portrait ? 1.2 : 2.7,
-          child: PieChart(
-            PieChartData(
-                pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      setState(() {
-                        if (!event.isInterestedForInteractions ||
-                            pieTouchResponse == null ||
-                            pieTouchResponse.touchedSection == null) {
-                          _touchedIndex = -1;
-                          return;
-                        }
-                        _touchedIndex =
-                            pieTouchResponse.touchedSection!.touchedSectionIndex;
-                      });
-                    }),
-                borderData: FlBorderData(
-                  show: false,
+          child: Stack(
+            children: [
+              Visibility(
+                visible: _showIconInCircle(),
+                child: Center(
+                  child: _getTaskGroupIcon(_getTaskGroupFromFilter()),
                 ),
-                sectionsSpace: 0.9,
-                centerSpaceRadius: _groupBy == GroupBy.TEMPLATE ? 30 : 0,
-                sections: _createSections(dataList, totalValue),
-            ),
-            swapAnimationDuration: Duration(milliseconds: 75),
+              ),
+              PieChart(
+                PieChartData(
+                    pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          setState(() {
+                            if (!event.isInterestedForInteractions ||
+                                pieTouchResponse == null ||
+                                pieTouchResponse.touchedSection == null) {
+                              _touchedIndex = -1;
+                              return;
+                            }
+                            _touchedIndex =
+                                pieTouchResponse.touchedSection!.touchedSectionIndex;
+                          });
+                        }),
+                    borderData: FlBorderData(
+                      show: false,
+                    ),
+                    sectionsSpace: 0.9,
+                    centerSpaceRadius: _groupBy == GroupBy.TEMPLATE ? 30 : 0,
+                    sections: _createSections(dataList, totalValue),
+                ),
+                swapAnimationDuration: Duration(milliseconds: 75),
+              ),
+            ],
           ),
         ),
         _buildLegend(dataList, totalValue),
@@ -204,7 +216,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
                 _touchedIndex = -1;
               });
             },
-          child: _getTaskGroupIcon(taskGroup),
+          child: _showIconInCircle() ? null : _getTaskGroupIcon(taskGroup),
         ),
         titlePositionPercentageOffset: (percentValue <= 5) ? (i % 2 == 0 ? 0.9 : 0.8) : 0.6, // avoid overlapping titles
         badgePositionPercentageOffset: (percentValue <= 5 && i % 2 == 0) ? 1.45 : 1.2, // avoid overlapping icons
@@ -483,6 +495,21 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     }
     debugPrint("new: $_groupBy");
     _groupBySelection = List.generate(GroupBy.values.length, (index) => index == _groupBy.index);
+  }
+
+  bool _showIconInCircle() => widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate != null  && _groupBy == GroupBy.TEMPLATE;
+
+  TaskGroup? _getTaskGroupFromFilter() {
+    if (widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate is TaskGroup) {
+      return widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate as TaskGroup;
+    }
+    else if (widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate is Template) {
+      final template = widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate as Template;
+      return findPredefinedTaskGroupById(template.taskGroupId);
+    }
+    else {
+      return null;
+    }
   }
 
 }
