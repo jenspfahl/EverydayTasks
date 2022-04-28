@@ -191,8 +191,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
               }
             }
             else {
-              final parentId = TemplateRepository.getParentId(eventTemplate.id);
-              if (parentId != filterTemplate.tId!.id && eventTemplate != filterTemplate.tId) {
+              final eventTaskTemplateId = TemplateRepository.getParentId(eventTemplate.id); // returns a taskTemplate or null, never a variant
+              if (eventTaskTemplateId != filterTemplate.tId!.id && eventTemplate != filterTemplate.tId) {
                 return true; // remove not associated parent with template variant item
               }
             }
@@ -269,9 +269,10 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     });
   }
 
-  void filterByTaskEventIds(Iterable<int> taskEventIds) {
+  void filterByTaskEventIds(ScheduledTask scheduledTask, Iterable<int> taskEventIds) {
     clearFilters();
     taskFilterSettings.filterByTaskEventIds = taskEventIds.toList();
+    taskFilterSettings.filterByScheduledTask = scheduledTask;
     debugPrint("filter by ${taskFilterSettings.filterByTaskEventIds}");
     doFilter();
     expandAll();

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
@@ -35,8 +36,11 @@ class TaskFilterSettings {
   bool filterByFavorites = false;
   Object? filterByTaskOrTemplate;
   List<int>? filterByTaskEventIds;
+  // this goes together with filterByTaskEventIds and is only needed to get info about the used schedule
+  ScheduledTask? filterByScheduledTask;
 
   bool isFilterActive() => filterByTaskEventIds != null
+      || filterByScheduledTask != null
       || filterByDateRange != null
       || filterBySeverity != null
       || filterByFavorites
@@ -44,6 +48,7 @@ class TaskFilterSettings {
 
   void clearFilters() {
     filterByTaskEventIds = null;
+    filterByScheduledTask = null;
     filterByDateRange = null;
     filterBySeverity = null;
     filterByFavorites = false;
@@ -124,7 +129,9 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                             ? (taskFilterSettings.filterByTaskOrTemplate as TaskGroup).getIcon(true)
                             : (taskFilterSettings.filterByTaskOrTemplate as Template).getIcon(true)
                             : Icon(taskFilterSettings.filterByTaskEventIds != null ? Icons.checklist : Icons.task_alt,
-                                color: taskFilterSettings.filterByTaskEventIds != null ? Colors.blueAccent : null),
+                                color: taskFilterSettings.filterByTaskEventIds != null
+                                    ? _getColorFromScheduledTask(taskFilterSettings.filterByScheduledTask!)
+                                    : null),
                         const Spacer(),
                         Text(taskFilterSettings.filterByTaskOrTemplate != null
                             ? taskFilterSettings.filterByTaskOrTemplate is TaskGroup
@@ -204,7 +211,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
 
             case '4' : {
               if (taskFilterSettings.filterByTaskEventIds != null) {
-                toastInfo(context, "'Filter by schedule' is selected. Click 'Clear all' to reset.");
+                toastInfo(context, "Filter by schedule '${taskFilterSettings.filterByScheduledTask!.title}' is selected. Click 'Clear all' to reset.");
                 return;
               }
               //if (taskFilterSettings.filterByTaskOrTemplate == null) {
@@ -259,6 +266,11 @@ class TaskEventFilterState extends State<TaskEventFilter> {
         filterIconKey.currentState?.refresh(taskFilterSettings.isFilterActive());
       }
     });
+  }
+
+  Color _getColorFromScheduledTask(ScheduledTask scheduledTask) {
+    final taskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
+    return getSharpedColor(taskGroup.colorRGB);
   }
 
 }

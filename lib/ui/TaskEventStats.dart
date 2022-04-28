@@ -311,7 +311,15 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     
       final template = data.templateId != null ? await TemplateRepository.findById(data.templateId!) : null;
 
-      var title = template?.title ?? taskGroup?.name ?? "-unknown-";
+      var title = "-unknown-";
+      if (template != null) {
+        title = template.title;
+      }
+      else if (taskGroup != null) {
+        title = _groupBy == GroupBy.TASK_GROUP
+            ? taskGroup.name
+            : "-others-";
+      }
       final groupedByPresentation = Row(
           children: [
             taskGroup?.getIcon(true) ?? Text("?"),
@@ -497,7 +505,8 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     _groupBySelection = List.generate(GroupBy.values.length, (index) => index == _groupBy.index);
   }
 
-  bool _showIconInCircle() => widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate != null  && _groupBy == GroupBy.TEMPLATE;
+  bool _showIconInCircle() => widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate != null
+      && _groupBy == GroupBy.TEMPLATE;
 
   TaskGroup? _getTaskGroupFromFilter() {
     if (widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate is TaskGroup) {
@@ -506,6 +515,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     else if (widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate is Template) {
       final template = widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate as Template;
       return findPredefinedTaskGroupById(template.taskGroupId);
+    }
+    else if (widget.taskEventListState.taskFilterSettings.filterByScheduledTask != null) {
+      return findPredefinedTaskGroupById(widget.taskEventListState.taskFilterSettings.filterByScheduledTask!.taskGroupId);
     }
     else {
       return null;
