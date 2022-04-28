@@ -8,6 +8,7 @@ import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.da
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
+import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/ScheduledTaskEvent.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
@@ -105,8 +106,6 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         _initialLoaded = true;
         _sortList();
 
-        // refresh scheduled notifications. Could be lost if phone was reseted.
-        _scheduledTasks.forEach((scheduledTask) => _rescheduleNotification(scheduledTask));
       });
     });
   }
@@ -220,7 +219,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
       }
       else {
-        _scheduledTasks.forEach((scheduledTask) => _rescheduleNotification(scheduledTask));
+        _scheduledTasks.forEach((scheduledTask) =>
+            _rescheduleNotification(scheduledTask,
+                withCancel: false,
+                withCancelFixedMode: scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED)
+        );
         if (withSnackMsg) {
           toastInfo(context, "Schedule notifications enabled");
         }
@@ -650,7 +653,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       _scheduledTasks.add(scheduledTask);
       _sortList();
       _selectedTile = _scheduledTasks.indexOf(scheduledTask);
-      _rescheduleNotification(scheduledTask);
+      _rescheduleNotification(scheduledTask, withCancel: false);
 
     });
 
@@ -665,7 +668,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
       _sortList();
       _selectedTile = _scheduledTasks.indexOf(updated);
-      _rescheduleNotification(updated);
+      _rescheduleNotification(updated,
+          withCancelFixedMode: origin.schedule.repetitionMode == RepetitionMode.FIXED);
 
     });
 
@@ -791,29 +795,70 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   bool get wantKeepAlive => true;
 
 
-  void _rescheduleNotification(ScheduledTask scheduledTask) {
+  void _rescheduleNotification(ScheduledTask scheduledTask,
+      {bool withCancel = true, withCancelFixedMode = true}) {
     final missingDuration = scheduledTask.getMissingDuration();
-    debugPrint("missing duration: $missingDuration");
     if (missingDuration != null && !missingDuration.isNegative) {
-      _cancelNotification(scheduledTask);
+      debugPrint("reschedule ${scheduledTask.id!} with missing duration: $missingDuration");
+
+      if (withCancel) {
+        _cancelNotification(scheduledTask, alsoFixedMode: withCancelFixedMode);
+      }
 
       if (scheduledTask.active && !scheduledTask.isPaused && _disableNotification == false) {
         final taskGroup = findPredefinedTaskGroupById(
             scheduledTask.taskGroupId);
-        _notificationService.scheduleNotification(
-            widget.getRoutingKey(),
-            scheduledTask.id!,
-            "Due scheduled task (${taskGroup.name})",
-            "Scheduled task '${scheduledTask.title}' is due!",
-            missingDuration,
-            CHANNEL_ID_SCHEDULES,
-            taskGroup.backgroundColor);
+        _scheduleNotification(scheduledTask, taskGroup, missingDuration);
       }
     }
   }
 
-  void _cancelNotification(ScheduledTask scheduledTask) {
+  void _scheduleNotification(ScheduledTask scheduledTask, TaskGroup taskGroup, Duration missingDuration) {
+    if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
+      var lastScheduled = scheduledTask.lastScheduledEventOn!;
+
+      forFixedNotificationIds(scheduledTask.id!, (notificationId) {
+        final nextMissingDuration = scheduledTask.getMissingDurationAfter(lastScheduled);
+        debugPrint("schedule $notificationId, lastScheduled $lastScheduled nextMissingDuration $nextMissingDuration");
+        _schedule(notificationId, scheduledTask.title, taskGroup, nextMissingDuration);
+
+        lastScheduled = scheduledTask.getNextScheduleAfter(lastScheduled)!;
+      });
+    }
+    else {
+      _schedule(scheduledTask.id!, scheduledTask.title, taskGroup, missingDuration);
+    }
+  }
+
+  void _schedule(int id, String title, TaskGroup taskGroup, Duration missingDuration) {
+    _notificationService.scheduleNotification(
+        widget.getRoutingKey(),
+        id,
+        "Due scheduled task (${taskGroup.name})",
+        "Scheduled task '$title' is due!",
+        missingDuration,
+        CHANNEL_ID_SCHEDULES,
+        taskGroup.backgroundColor);
+  }
+
+  void _cancelNotification(ScheduledTask scheduledTask, {alsoFixedMode = true}) {
+    // cancel dynamic mode
+    debugPrint("cancel dynamic ${scheduledTask.id!}");
     _notificationService.cancelNotification(scheduledTask.id!);
+
+    // cancel fixed mode
+    if (alsoFixedMode) {
+      forFixedNotificationIds(scheduledTask.id!, (notificationId) {
+        debugPrint("cancel fixed $notificationId");
+        _notificationService.cancelNotification(notificationId);
+      });
+    }
+
+  }
+
+  forFixedNotificationIds(int scheduledTaskId, Function(int) f) {
+    List<int>.generate(10, (baseId) => scheduledTaskId * 1000000 + baseId + 1)
+        .forEach(f);
   }
 
   void _updateSortBy(SortBy sortBy) {

@@ -62,11 +62,15 @@ class ScheduledTask implements Comparable {
 
   Duration? getMissingDuration() {
     if (lastScheduledEventOn != null) {
-      final nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
-      final now = pausedAt != null ? pausedAt! : DateTime.now();
-      return nextRepetition.difference(truncToSeconds(now));
+      return getMissingDurationAfter(lastScheduledEventOn!);
     }
     return null;
+  }
+  
+  Duration getMissingDurationAfter(DateTime afterDate) {
+    final nextRepetition = schedule.getNextRepetitionFrom(afterDate);
+    final now = pausedAt != null ? pausedAt! : DateTime.now();
+    return nextRepetition.difference(truncToSeconds(now));
   }
 
   Duration? getPassedDuration() {
