@@ -23,6 +23,7 @@ import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../../util/units.dart';
 import '../ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
@@ -73,6 +74,17 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   int _selectedTile = -1;
   bool _disableNotification = false;
   SortBy _sortBy = SortBy.PROGRESS;
+  bool _statusTileHidden = true;
+
+  int _totalRunningSchedules = 0;
+  int _totalDueSchedules = 0;
+  int _totalOverdueSchedules = 0;
+  int _dueBeforeTodaySchedules = 0;
+  int _dueTodaySchedules = 0;
+  int _dueTomorrowSchedules = 0;
+  int _dueAfterTomorrowSchedules = 0;
+  int _pausedSchedules = 0;
+  int _inactiveSchedules = 0;
 
   final _notificationService = LocalNotificationService();
   final _preferenceService = PreferenceService();
@@ -95,6 +107,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       setState(() {
         // update all
         _sortList();
+        _calcOverallStats();
         debugPrint(".. ST timer refresh #${_timer.tick} ..");
       });
     });
@@ -105,6 +118,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         _scheduledTasks = scheduledTasks;
         _initialLoaded = true;
         _sortList();
+        _calcOverallStats();
 
       });
     });
@@ -267,15 +281,93 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
   Widget _buildList() {
+
+    final statusTile = Column(
+      children: [
+        GestureDetector(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            child: Row(
+              children: [
+                Text(
+                  "${Schedules(_totalRunningSchedules).toStringWithAdjective("running")}, $_totalDueSchedules due, thereof $_totalOverdueSchedules overdue",
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 10.0,
+                  ),
+                ),
+                Icon(
+                  _statusTileHidden ? Icons.arrow_drop_down_sharp : Icons.arrow_drop_up_sharp,
+                  color: Colors.grey,
+                ),
+              ],
+            ),
+          ),
+          onTapDown: (_) {
+            setState(() {
+              _statusTileHidden = !_statusTileHidden;
+            });
+          },
+        ),
+        Visibility(
+          visible: !_statusTileHidden,
+          child: GestureDetector(
+            child: Column(
+              children: [
+                _createStatusRow(Icons.warning_amber_outlined, Colors.red, "Due before today", _dueBeforeTodaySchedules),
+                _createStatusRow(Icons.warning_amber_outlined, Colors.red, "Due today", _dueTodaySchedules),
+                _createStatusRow(Icons.schedule, Colors.blue, "Due tomorrow", _dueTomorrowSchedules),
+                _createStatusRow(Icons.schedule, Colors.blue, "Due after tomorrow", _dueAfterTomorrowSchedules),
+                _createStatusRow(Icons.pause, Colors.black87, "Paused schedules", _pausedSchedules),
+                _createStatusRow(Icons.check_box_outline_blank, Colors.black87, "Inactive schedules", _inactiveSchedules),
+                Divider(),
+              ],
+            ),
+            onTapDown: (_) {
+              setState(() {
+                _statusTileHidden = true;
+              });
+            },
+          ),
+        ),
+      ],
+    );
+
+
     return Padding(
-        padding: EdgeInsets.all(8.0),
-        child: ListView.builder(
-            itemCount: _scheduledTasks.length,
-            itemBuilder: (context, index) {
-              var scheduledTask = _scheduledTasks[index];
-              var taskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
-              return _buildRow(index, scheduledTask, taskGroup);
-            }),
+        padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
+        child: Column(
+          children: [
+            statusTile,
+            Expanded(
+              child: ListView.builder(
+                  itemCount: _scheduledTasks.length,
+                  itemBuilder: (context, index) {
+                    var scheduledTask = _scheduledTasks[index];
+                    var taskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
+                    return _buildRow(index, scheduledTask, taskGroup);
+                  }),
+            ),
+          ],
+        ),
+    );
+  }
+
+  Widget _createStatusRow(IconData iconData, Color color, String text, int data) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Icon(iconData, color: color),
+          Spacer(),
+          Text(text, style: TextStyle(color: color)),
+          Spacer(),
+          Text(data.toString(),
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold)
+          ),
+        ],),
     );
   }
 
@@ -617,11 +709,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         msg = debug + "- paused -";
       }
       else if (scheduledTask.isNextScheduleOverdue(false)) {
+        final dueString = scheduledTask.isNextScheduleOverdue(true) ? "Overdue" : "Due";
         msg = debug +
-            "Overdue for ${formatDuration(scheduledTask.getMissingDuration()!, true)} "
+            "$dueString for ${formatDuration(scheduledTask.getMissingDuration()!, true)} "
                 "(${formatToDateOrWord(scheduledTask.getNextSchedule()!, context, withPreposition: true, makeWhenOnLowerCase: true)})!";
       }
-      else if (truncToSeconds(nextSchedule) == truncToSeconds(DateTime.now())) {
+      else if (scheduledTask.isDueNow()) {
         msg = debug +
             "Due now!";
       }
@@ -657,7 +750,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       _sortList();
       _selectedTile = _scheduledTasks.indexOf(scheduledTask);
       _rescheduleNotification(scheduledTask, withCancel: false);
-
+      _calcOverallStats();
     });
 
   }
@@ -671,6 +764,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
       _sortList();
       _selectedTile = _scheduledTasks.indexOf(updated);
+      _calcOverallStats();
+
       _rescheduleNotification(updated,
           withCancelFixedMode: origin.schedule.repetitionMode == RepetitionMode.FIXED);
 
@@ -748,8 +843,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     setState(() {
       _scheduledTasks.remove(scheduledTask);
       _selectedTile = -1;
-      _cancelNotification(scheduledTask);
+      _calcOverallStats();
 
+      _cancelNotification(scheduledTask);
     });
 
   }
@@ -880,6 +976,59 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       return s1.id!.compareTo(s2.id!);
     }
     return c;
+  }
+
+  void _calcOverallStats() {
+    setState(() {
+      _totalRunningSchedules = 0;
+      _totalDueSchedules = 0;
+      _totalOverdueSchedules = 0;
+      _dueBeforeTodaySchedules = 0;
+      _dueTodaySchedules = 0;
+      _dueTomorrowSchedules = 0;
+      _dueAfterTomorrowSchedules = 0;
+      _pausedSchedules = 0;
+      _inactiveSchedules = 0;
+
+      final now = DateTime.now();
+      _scheduledTasks
+          .forEach((scheduledTask) {
+
+        if (!scheduledTask.active) {
+          _inactiveSchedules++;
+        }
+        else if (scheduledTask.isPaused) {
+          _pausedSchedules++;
+        }
+        else {
+          _totalRunningSchedules++;
+
+          if (scheduledTask.isDueNow() ||
+              scheduledTask.isNextScheduleOverdue(false)) {
+            _totalDueSchedules++;
+          }
+          if (scheduledTask.isNextScheduleOverdue(true)) {
+            _totalOverdueSchedules++;
+          }
+
+          final nextSchedule = scheduledTask.getNextSchedule();
+          if (nextSchedule != null) {
+            if (nextSchedule.isBefore(truncToDate(now))) {
+              _dueBeforeTodaySchedules++;
+            }
+            if (isToday(nextSchedule)) {
+              _dueTodaySchedules++;
+            }
+            if (isTomorrow(nextSchedule)) {
+              _dueTomorrowSchedules++;
+            }
+            if (isAfterTomorrow(nextSchedule)) {
+              _dueAfterTomorrowSchedules++;
+            }
+          }
+        }
+      });
+    });
   }
 }
 

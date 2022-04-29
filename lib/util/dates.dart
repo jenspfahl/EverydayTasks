@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:personaltasklogger/model/When.dart';
+import 'package:personaltasklogger/util/units.dart';
 
 DateTime fillToWholeDate(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day, 23, 59, 59, 9999);
@@ -11,7 +12,7 @@ DateTime truncToDate(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day);
 }
 
-DateTime truncToSeconds(DateTime dateTime) {
+DateTime truncToMinutes(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day, dateTime.hour, dateTime.minute);
 }
 
@@ -200,111 +201,5 @@ WhenOnDate fromDateTimeToWhenOnDate(DateTime dateTime) {
     return WhenOnDate.BEFORE_YESTERDAY;
   } else {
     return WhenOnDate.CUSTOM;
-  }
-}
-
-
-abstract class Unit {
-    num value;
-
-    Unit(this.value);
-    String getSingleUnitAsString();
-    String getPluralUnitAsString();
-
-    @override
-    String toString() {
-      final unit = value == 1 ? getSingleUnitAsString() : getPluralUnitAsString();
-      return "$value $unit";
-    }
-
-}
-
-class Months extends Unit {
-
-  Months(num value) : super(value);
-
-  @override
-  String getSingleUnitAsString() {
-    return "month";
-  }
-
-  @override
-  String getPluralUnitAsString() {
-    return "months";
-  }
-}
-
-class Weeks extends Unit {
-
-  Weeks(num value) : super(value);
-
-  @override
-  String getSingleUnitAsString() {
-    return "week";
-  }
-
-  @override
-  String getPluralUnitAsString() {
-    return "weeks";
-  }
-}
-
-class Days extends Unit {
-
-  Days(num value) : super(value);
-
-  @override
-  String getSingleUnitAsString() {
-    return "day";
-  }
-
-  @override
-  String getPluralUnitAsString() {
-    return "days";
-  }
-}
-
-class Hours extends Unit {
-
-  Hours(num value) : super(value);
-
-  @override
-  String getSingleUnitAsString() {
-    return "hour";
-  }
-
-  @override
-  String getPluralUnitAsString() {
-    return "hours";
-  }
-}
-
-class Minutes extends Unit {
-
-  Minutes(num value) : super(value);
-
-  @override
-  String getSingleUnitAsString() {
-    return "minute";
-  }
-
-  @override
-  String getPluralUnitAsString() {
-    return "minutes";
-  }
-}
-
-class Items extends Unit {
-
-  Items(num value) : super(value);
-
-  @override
-  String getSingleUnitAsString() {
-    return "item";
-  }
-
-  @override
-  String getPluralUnitAsString() {
-    return "items";
   }
 }

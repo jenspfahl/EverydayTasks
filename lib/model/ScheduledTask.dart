@@ -70,13 +70,13 @@ class ScheduledTask implements Comparable {
   Duration getMissingDurationAfter(DateTime afterDate) {
     final nextRepetition = schedule.getNextRepetitionFrom(afterDate);
     final now = pausedAt != null ? pausedAt! : DateTime.now();
-    return nextRepetition.difference(truncToSeconds(now));
+    return nextRepetition.difference(truncToMinutes(now));
   }
 
   Duration? getPassedDuration() {
     if (lastScheduledEventOn != null) {
       final now = pausedAt != null ? pausedAt! : DateTime.now();
-      return now.difference(truncToSeconds(lastScheduledEventOn!));
+      return now.difference(truncToMinutes(lastScheduledEventOn!));
     }
     return null;
   }
@@ -88,6 +88,8 @@ class ScheduledTask implements Comparable {
     }
     return false;
   }
+
+  bool isDueNow() => getNextSchedule() != null && truncToMinutes(getNextSchedule()!) == truncToMinutes(DateTime.now());
 
   bool isNextScheduleOverdue(bool withBuffer) {
     var duration = getMissingDuration();
