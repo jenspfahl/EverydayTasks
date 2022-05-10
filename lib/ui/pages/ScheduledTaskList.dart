@@ -328,6 +328,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 _statusTileHidden = true;
               });
             },
+            onPanUpdate: (details) {
+              if (details.delta.dy < 0) {
+                setState(() {
+                  _statusTileHidden = true;
+                });
+              }
+            },
           ),
         ),
       ],
