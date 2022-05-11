@@ -297,20 +297,20 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                                   if (template == null) {
                                     // create new task template under given taskGroup
                                     final taskTemplate = _createTaskTemplate(
-                                        null, startedAtTimeOfDay, duration);
+                                        null, startedAtTimeOfDay, duration, null);
                                     Navigator.pop(context, taskTemplate);
                                   }
                                   else if (template!.isVariant() == false) {
                                     // create new variant under given template
                                     final taskTemplateVariant = _createTaskTemplateVariant(
-                                        null, template!.tId!.id, startedAtTimeOfDay, duration);
+                                        null, template!.tId!.id, startedAtTimeOfDay, duration, null);
                                     Navigator.pop(context, taskTemplateVariant);
                                   }
                                   else if (template!.isVariant() == true) {
                                     // clone existing variant to a new one
                                     final variant = template! as TaskTemplateVariant;
                                     final taskTemplateVariant = _createTaskTemplateVariant(
-                                        null, variant.taskTemplateId, startedAtTimeOfDay, duration);
+                                        null, variant.taskTemplateId, startedAtTimeOfDay, duration, null);
                                     Navigator.pop(context, taskTemplateVariant);
                                   }
                                 }
@@ -321,14 +321,14 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                                   else if (template!.isVariant() == false) {
                                     // update task template
                                     final taskTemplate = _createTaskTemplate(
-                                        template!.tId!.id, startedAtTimeOfDay, duration);
+                                        template!.tId!.id, startedAtTimeOfDay, duration, template!.favorite);
                                     Navigator.pop(context, taskTemplate);
                                   }
                                   else if (template!.isVariant() == true) {
                                     // update variant
                                     final variant = template! as TaskTemplateVariant;
                                     final taskTemplateVariant = _createTaskTemplateVariant(
-                                        variant.tId!.id, variant.taskTemplateId, startedAtTimeOfDay, duration);
+                                        variant.tId!.id, variant.taskTemplateId, startedAtTimeOfDay, duration, template!.favorite);
                                     Navigator.pop(context, taskTemplateVariant);
                                   }
                                 }
@@ -349,7 +349,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
     );
   }
 
-  TaskTemplate _createTaskTemplate(int? id, TimeOfDay? startedAtTimeOfDay, Duration? duration) {
+  TaskTemplate _createTaskTemplate(int? id, TimeOfDay? startedAtTimeOfDay, Duration? duration, bool? isFavorite) {
     final when = _createWhen(startedAtTimeOfDay, duration);
     
     final taskTemplate = TaskTemplate(
@@ -359,11 +359,13 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
       description: descriptionController.text,
       when: when,
       severity: _severity,
+      favorite: isFavorite
     );
     return taskTemplate;
   }
 
-  TaskTemplateVariant _createTaskTemplateVariant(int? id, int taskTemplateId, TimeOfDay? startedAtTimeOfDay, Duration? duration) {
+  TaskTemplateVariant _createTaskTemplateVariant(int? id, int taskTemplateId,
+      TimeOfDay? startedAtTimeOfDay, Duration? duration, bool? isFavorite) {
     final when = _createWhen(startedAtTimeOfDay, duration);
 
     final taskTemplateVariant = TaskTemplateVariant(
@@ -374,6 +376,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
       description: descriptionController.text,
       when: when,
       severity: _severity,
+      favorite: isFavorite,
     );
     return taskTemplateVariant;
   }
