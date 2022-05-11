@@ -926,24 +926,25 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       forFixedNotificationIds(scheduledTask.id!, (notificationId, isLast) {
         final nextMissingDuration = scheduledTask.getMissingDurationAfter(lastScheduled);
         debugPrint("schedule $notificationId, lastScheduled $lastScheduled nextMissingDuration $nextMissingDuration isLast $isLast");
-        _schedule(notificationId, scheduledTask.title, taskGroup, nextMissingDuration, isLast);
+        _schedule(notificationId, scheduledTask.title, taskGroup, nextMissingDuration, true, isLast);
 
         lastScheduled = scheduledTask.getNextScheduleAfter(lastScheduled)!;
       });
     }
     else {
-      _schedule(scheduledTask.id!, scheduledTask.title, taskGroup, missingDuration, false);
+      _schedule(scheduledTask.id!, scheduledTask.title, taskGroup, missingDuration, false, false);
     }
   }
 
-  void _schedule(int id, String title, TaskGroup taskGroup, Duration missingDuration, bool isLastAndFixed) {
+  void _schedule(int id, String title, TaskGroup taskGroup, Duration missingDuration, bool isFixed, bool isLast) {
+    final taskWord = isFixed ? "fixed task" : "task";
     _notificationService.scheduleNotification(
         widget.getRoutingKey(),
         id,
-        "Due scheduled task (${taskGroup.name})",
-        isLastAndFixed 
-            ? "Scheduled fixed task '$title' is due! Please open the app to get future notifications!"
-            : "Scheduled task '$title' is due!",
+        "Due scheduled $taskWord (${taskGroup.name})",
+        isLast
+            ? "Scheduled $taskWord '$title' is due! Please click to get future notifications!"
+            : "Scheduled $taskWord '$title' is due!",
         missingDuration,
         CHANNEL_ID_SCHEDULES,
         taskGroup.backgroundColor);
