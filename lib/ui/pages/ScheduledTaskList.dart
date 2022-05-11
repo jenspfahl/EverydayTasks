@@ -923,25 +923,27 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
       var lastScheduled = scheduledTask.lastScheduledEventOn!;
 
-      forFixedNotificationIds(scheduledTask.id!, (notificationId) {
+      forFixedNotificationIds(scheduledTask.id!, (notificationId, isLast) {
         final nextMissingDuration = scheduledTask.getMissingDurationAfter(lastScheduled);
-        debugPrint("schedule $notificationId, lastScheduled $lastScheduled nextMissingDuration $nextMissingDuration");
-        _schedule(notificationId, scheduledTask.title, taskGroup, nextMissingDuration);
+        debugPrint("schedule $notificationId, lastScheduled $lastScheduled nextMissingDuration $nextMissingDuration isLast $isLast");
+        _schedule(notificationId, scheduledTask.title, taskGroup, nextMissingDuration, isLast);
 
         lastScheduled = scheduledTask.getNextScheduleAfter(lastScheduled)!;
       });
     }
     else {
-      _schedule(scheduledTask.id!, scheduledTask.title, taskGroup, missingDuration);
+      _schedule(scheduledTask.id!, scheduledTask.title, taskGroup, missingDuration, false);
     }
   }
 
-  void _schedule(int id, String title, TaskGroup taskGroup, Duration missingDuration) {
+  void _schedule(int id, String title, TaskGroup taskGroup, Duration missingDuration, bool isLastAndFixed) {
     _notificationService.scheduleNotification(
         widget.getRoutingKey(),
         id,
         "Due scheduled task (${taskGroup.name})",
-        "Scheduled task '$title' is due!",
+        isLastAndFixed 
+            ? "Scheduled fixed task '$title' is due! Please open the app to get future notifications!"
+            : "Scheduled task '$title' is due!",
         missingDuration,
         CHANNEL_ID_SCHEDULES,
         taskGroup.backgroundColor);
@@ -954,7 +956,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
     // cancel fixed mode
     if (alsoFixedMode) {
-      forFixedNotificationIds(scheduledTask.id!, (notificationId) {
+      forFixedNotificationIds(scheduledTask.id!, (notificationId, _) {
         debugPrint("cancel fixed $notificationId");
         _notificationService.cancelNotification(notificationId);
       });
@@ -962,9 +964,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   }
 
-  forFixedNotificationIds(int scheduledTaskId, Function(int) f) {
-    List<int>.generate(10, (baseId) => scheduledTaskId * 1000000 + baseId + 1)
-        .forEach(f);
+  forFixedNotificationIds(int scheduledTaskId, Function(int, bool) f) {
+    const amount = 10;
+    const multiplier = 1000000;
+    int base = scheduledTaskId * multiplier;
+    List.generate(amount, (baseId) => base + baseId + 1)
+        .forEach((id) => f(id, id - base  == amount));
   }
 
   void _updateSortBy(SortBy sortBy) {
