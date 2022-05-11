@@ -336,7 +336,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
 
                     setState(() {
                       _templates.remove(template);
-                      _sortList();
+                      _sortTemplateList();
                     });
                   });
                   Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
@@ -387,6 +387,25 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
       .map((template) => findPredefinedTaskGroupById(template.taskGroupId))
       .toSet()
       .toList();
+
+    taskGroups..sort((t1, t2) {
+      if (_sortBy == SortBy.GROUP) {
+        final g1 = t1.id!;
+        final g2 = t2.id!;
+        final c = g2.compareTo(g1);
+        if (c == 0) {
+          return _sortTaskGroupByTitleAndId(t1, t2);
+        }
+        return c;
+      }
+      else if (_sortBy == SortBy.TITLE) {
+        return _sortTaskGroupByTitleAndId(t1, t2);
+      }
+      else {
+        return t1.compareTo(t2);
+      }
+    });
+
     return GridView.builder(
         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 150,
@@ -474,24 +493,24 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
     _preferenceService.setInt(PREF_SORT_BY, sortBy.index);
     setState(() {
       _sortBy = sortBy;
-      _sortList();
+      _sortTemplateList();
     });
   }
 
 
-  void _sortList() {
+  void _sortTemplateList() {
     _templates..sort((t1, t2) {
       if (_sortBy == SortBy.GROUP) {
         final g1 = t1.taskGroupId;
         final g2 = t2.taskGroupId;
         final c = g2.compareTo(g1);
         if (c == 0) {
-          return _sortByTitleAndId(t1, t2);
+          return _sortTemplateByTitleAndId(t1, t2);
         }
         return c;
       }
       else if (_sortBy == SortBy.TITLE) {
-        return _sortByTitleAndId(t1, t2);
+        return _sortTemplateByTitleAndId(t1, t2);
       }
       else {
         return t1.compareTo(t2);
@@ -499,7 +518,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
     });
   }
 
-  int _sortByTitleAndId(Template t1, Template t2) {
+  int _sortTemplateByTitleAndId(Template t1, Template t2) {
     final d1 = t1.title.toLowerCase();
     final d2 = t2.title.toLowerCase();
     final c = d1.compareTo(d2);
@@ -507,7 +526,17 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
       return t1.tId!.compareTo(t2.tId!);
     }
     return c;
-  } 
+  }
+
+  int _sortTaskGroupByTitleAndId(TaskGroup t1, TaskGroup t2) {
+    final d1 = t1.name.toLowerCase();
+    final d2 = t2.name.toLowerCase();
+    final c = d1.compareTo(d2);
+    if (c == 0) {
+      return t1.id!.compareTo(t2.id!);
+    }
+    return c;
+  }
 
   @override
   handleNotificationClickRouted(bool isAppLaunch, String payload) {
@@ -561,7 +590,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
         _templates = templates
             .where((template) => _groupedByTaskGroup == null || _groupedByTaskGroup!.id == template.taskGroupId)
             .toList();
-        _sortList();
+        _sortTemplateList();
       });
     });
   }
