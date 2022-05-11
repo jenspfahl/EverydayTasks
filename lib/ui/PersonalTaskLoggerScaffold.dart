@@ -12,6 +12,7 @@ import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 
 import '../main.dart';
+import 'SettingsScreen.dart';
 import 'dialogs.dart';
 import 'forms/TaskEventForm.dart';
 import 'pages/TaskEventList.dart';
@@ -96,58 +97,100 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   Widget build(BuildContext context) {
 
     return Scaffold(
-      drawer: _isSearching ? null : Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-               color: Colors.green[50],
-              ),
-              child: Align(
-                alignment: AlignmentDirectional.bottomStart,
-                child: Column(
-                  children: [
-                 //   const Image(image: AssetImage('graphics/background.png')),
-                    Text(APP_NAME,
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold
-                      ),
+      drawer: _isSearching ? null : SizedBox(
+        width: 250,
+        child: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              SizedBox(
+                height: 150,
+                child: DrawerHeader(
+                  decoration: BoxDecoration(
+                   color: Colors.green[50],
+                  ),
+                  child: Align(
+                    alignment: AlignmentDirectional.bottomStart,
+                    child: Column(
+                      children: [
+                        Text(""),
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Row(
+                            children: [
+                              Text(APP_NAME,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              ),
+                              Icon(Icons.task_alt, color: Colors.lime[700]),
+                            ],
+                          ),
+                        ),
+                        Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Text("Track, log and schedule tasks",
+                              style: TextStyle(color: Colors.grey[700]))),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.public_outlined), //TODO help_outlined
-              title: const Text('Website'),
-              onTap: () {
-                Navigator.pop(context);
-                launchUrl("https://everydaytasks.jepfa.de");
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text('About'),
-              onTap: () async {
-                Navigator.pop(context);
-                final packageInfo = await PackageInfo.fromPlatform();
-                final version = packageInfo.version;
-                final build = packageInfo.buildNumber;
+              ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Settings'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(super.context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+                },
+              ),
+              Divider(),
+              ListTile(
+                leading: const Icon(Icons.help_outline),
+                title: const Text('Online Help'),
+                onTap: () {
+                  Navigator.pop(context);
+                  launchUrl("https://everydaytasks.jepfa.de");
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text('About'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final packageInfo = await PackageInfo.fromPlatform();
+                  final version = packageInfo.version;
+                  final build = packageInfo.buildNumber;
 
-                showConfirmationDialog(
-                    context,
-                    "About Everyday Tasks",
-                    "Everyday Tasks is an app to log, track and schedule daily tasks."
-                        "\n\n© Jens Pfahl 2022"
-                        "\n\nVersion $version:$build",
-                    icon: const Icon(Icons.info_outline),
-                    okPressed: () =>  Navigator.pop(context),
-                );
-              },
-            ),
-          ],
+                  showConfirmationDialog(
+                      context,
+                      "About Everyday Tasks",
+                      "Everyday Tasks is an app to log, track and schedule daily tasks."
+                          "\n\n© Jens Pfahl 2022"
+                          "\n\nVersion $version:$build",
+                      icon: const Icon(Icons.info_outline),
+                      okPressed: () =>  Navigator.pop(context),
+                  );
+                },
+              ),
+              Divider(),
+              ListTile(
+                leading: const Icon(Icons.bug_report_outlined),
+                title: const Text('Report A Bug'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final packageInfo = await PackageInfo.fromPlatform();
+                  final version = packageInfo.version;
+                  final build = packageInfo.buildNumber;
+
+                  final title = Uri.encodeComponent("A bug in version $version:$build");
+                  final body = Uri.encodeComponent("Please describe ..");
+                  launchUrl("https://github.com/jenspfahl/everydaytasks/issues/new?title=$title&body=$body");
+                },
+              ),
+            ],
+          ),
         ),
       ),
       appBar: AppBar(

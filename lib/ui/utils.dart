@@ -1,3 +1,4 @@
+import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
@@ -34,35 +35,64 @@ Color shadeColor(bool lessShaded, Color color) {
     return color.withAlpha((color.alpha/2.5).toInt());
   }
   else {
-    return color.withAlpha((color.alpha/1.5).toInt());
+    return color.withAlpha(color.alpha~/1.5);
   }
 }
 
-Icon createCheckIcon(bool checked) {
+Widget createCheckIcon(bool checked) {
+  if (!checked) {
+    return Text("");
+  }
   return Icon(
-    checked ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-    color: checked ? Colors.blueAccent : null,
+    Icons.check,
+    color: Colors.blueAccent,
   );
 }
 
 toastInfo(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          duration: Duration(milliseconds: message.length * 80),
-          content: Text(message)));
+  PreferenceService().getBool(PreferenceService.PREF_SHOW_ACTION_NOTIFICATIONS)
+      .then((show) {
+        if (show??true) {
+          _calcMessageDuration(message).then((duration) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    duration: duration,
+                    content: Text(message)));
+          });
+        }
+  });
+
 }
 
 toastError(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 4),
-          content: Text(message)));
+  _calcMessageDuration(message).then((duration) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            backgroundColor: Colors.red,
+            duration: duration,
+            content: Text(message)));
+  });
+}
+
+Future<Duration> _calcMessageDuration(String message) async {
+  final showActionNotificationDurationSelection = await PreferenceService().getInt(PreferenceService.PREF_SHOW_ACTION_NOTIFICATION_DURATION_SELECTION)??1;
+  double factor = 1;
+  switch (showActionNotificationDurationSelection) {
+    case 0 : { // slow
+      factor = 2;
+      break;
+    }
+    case 2 : { // fast
+      factor = 0.5;
+      break;
+    }
+  }
+  return Duration(milliseconds: (message.length * 80 * factor).toInt());
 }
 
 void launchUrl(url) async {
-  if (await canLaunch(url)) {
-    await launch(url);
+  if (await canLaunchUrl(url)) {
+    launchUrl(url);
   }
   else {
     debugPrint("Could not launch $url");

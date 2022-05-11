@@ -2,6 +2,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceService {
 
+  static final PREF_SHOW_ACTION_NOTIFICATIONS = "common/showActionNotifications";
+  static final PREF_SHOW_ACTION_NOTIFICATION_DURATION_SELECTION = "common/showActionNotificationDurationSelection";
+
   static final PreferenceService _notificationService = PreferenceService._internal();
 
   static List<Function(String receiverKey, String id)> _handler = [];

@@ -37,6 +37,7 @@ dependencies:
   fl_chart: ^0.50.1
   package_info_plus: ^1.4.2
   url_launcher: ^6.0.20
+  settings_ui: ^2.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

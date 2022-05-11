@@ -6,6 +6,7 @@ import 'package:personaltasklogger/ui/DurationPicker.dart';
 import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 
+import 'ChoiceWidget.dart';
 import 'RepetitionPicker.dart';
 import 'ToggleActionIcon.dart';
 
@@ -164,7 +165,7 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
   final taskTemplateListStateKey = new GlobalKey<TaskTemplateListState>();
   final templateDialogDescriptionStateKey = new GlobalKey<TemplateDialogDescriptionState>();
 
-  AlertDialog alert = AlertDialog(
+  final dialog = AlertDialog(
     title: TemplateDialogBar(title, expandAll??false, taskTemplateListStateKey, templateDialogDescriptionStateKey),
     titlePadding: EdgeInsets.fromLTRB(16, 16, 8, 8),
     content: Container(
@@ -197,7 +198,7 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
   return showDialog(
     context: context,
     builder: (BuildContext context) {
-      return alert;
+      return dialog;
     },
   );
 }
@@ -225,6 +226,40 @@ Future<bool?> showSeverityPicker(BuildContext context, Severity? initialSeverity
     builder: (BuildContext context) {
       return alert;
     },
+  );
+}
+
+Future<void> showChoiceDialog(BuildContext context, String title, List<String> choices, {
+  Function()? okPressed,
+  Function()? cancelPressed,
+  int? initialSelected,
+  required ValueChanged<int> selectionChanged
+}) {
+  Widget cancelButton = TextButton(
+    child: Text("Cancel"),
+    onPressed:  cancelPressed,
+  );
+  Widget okButton = TextButton(
+    child: Text("Ok"),
+    onPressed:  okPressed,
+  );
+
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: ChoiceWidget(
+            choices: choices,
+            initialSelected: initialSelected,
+            onChanged: selectionChanged,
+          ),
+          actions: [
+            cancelButton,
+            okButton,
+          ],
+        );
+      }
   );
 }
 

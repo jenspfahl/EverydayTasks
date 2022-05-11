@@ -15,10 +15,10 @@ import "package:collection/collection.dart";
 import '../model/Template.dart';
 import '../util/units.dart';
 
-
+@immutable
 class TaskEventStats extends StatefulWidget {
 
-  TaskEventListState taskEventListState;
+  final TaskEventListState taskEventListState;
 
   TaskEventStats(this.taskEventListState);
 
