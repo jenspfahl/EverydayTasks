@@ -52,27 +52,28 @@ String formatToDate(DateTime dateTime, BuildContext context) {
   final preferenceService = PreferenceService();
   final showWeekdays = preferenceService.showWeekdays;
   final dateFormatSelection = preferenceService.dateFormatSelection;
-  final formatter = getDateFormat(context, dateFormatSelection, showWeekdays);
+  final isSameYear = dateTime.year == DateTime.now().year;
+  final formatter = getDateFormat(context, dateFormatSelection, showWeekdays, isSameYear);
   return formatter.format(dateTime);
 }
 
- getDateFormat(BuildContext context, int dateFormatSelection, bool showWeekdays) {
+ getDateFormat(BuildContext context, int dateFormatSelection, bool showWeekdays, bool withoutYear) {
 
   final locale = Localizations.localeOf(context).languageCode;
   initializeDateFormatting(locale);
 
   if (showWeekdays) {
-    final yMEd = DateFormat.yMEd(locale);
-    final yMMMEd = DateFormat.yMMMEd(locale);
-    final yMMMMEEEEd = DateFormat.yMMMMEEEEd(locale);
+    final yMEd = withoutYear ? DateFormat.MEd(locale) : DateFormat.yMEd(locale);
+    final yMMMEd = withoutYear ? DateFormat.MMMEd(locale) : DateFormat.yMMMEd(locale);
+    final yMMMMEEEEd = withoutYear ? DateFormat.MMMMEEEEd(locale) : DateFormat.yMMMMEEEEd(locale);
     final withWeekdays = [yMEd, yMMMEd, yMMMMEEEEd];
 
     return withWeekdays.elementAt(dateFormatSelection);
   }
   else {
-    final yMd = DateFormat.yMd(locale);
-    final yMMMd = DateFormat.yMMMd(locale);
-    final yMMMMd = DateFormat.yMMMMd(locale);
+    final yMd = withoutYear ? DateFormat.Md(locale) : DateFormat.yMd(locale);
+    final yMMMd = withoutYear ? DateFormat.MMMd(locale) : DateFormat.yMMMd(locale);
+    final yMMMMd = withoutYear ? DateFormat.MMMMd(locale) : DateFormat.yMMMMd(locale);
     final withoutWeekdays = [yMd, yMMMd, yMMMMd];
 
     return withoutWeekdays.elementAt(dateFormatSelection);

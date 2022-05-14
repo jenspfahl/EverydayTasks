@@ -42,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           tiles: [
             SettingsTile(
               title: Text('Used date format'),
-              description: Text("E.g. '${getDateFormat(context, _dateFormatSelection, false).format(_exampleDate)}'"),
+              description: Text("E.g. '${getDateFormat(context, _dateFormatSelection, false, false).format(_exampleDate)}'"),
               onPressed: (context) {
                 final locale = Localizations.localeOf(context).languageCode;
                 initializeDateFormatting(locale);
