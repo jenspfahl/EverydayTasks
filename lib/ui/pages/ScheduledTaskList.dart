@@ -112,7 +112,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       });
     });
 
-    final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 1000);
+    final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 10000);
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
       setState(() {
         _scheduledTasks = scheduledTasks;
@@ -610,7 +610,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   child: const Icon(Icons.checklist),
                   onPressed: () {
                     ScheduledTaskEventRepository
-                        .getByScheduledTaskIdPaged(scheduledTask.id, ChronologicalPaging.start(100))
+                        .getByScheduledTaskIdPaged(scheduledTask.id, ChronologicalPaging.start(10000))
                         .then((scheduledTaskEvents) {
                       if (scheduledTaskEvents.isNotEmpty) {
                         PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
@@ -677,7 +677,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         ScheduledTaskRepository.delete(scheduledTask).then(
                               (_) {
                                 ScheduledTaskEventRepository
-                                    .getByScheduledTaskIdPaged(scheduledTask.id!, ChronologicalPaging.start(100))
+                                    .getByScheduledTaskIdPaged(scheduledTask.id!, ChronologicalPaging.start(10000))
                                     .then((scheduledTaskEvents) {
                                   scheduledTaskEvents.forEach((scheduledTaskEvent) {
                                     ScheduledTaskEventRepository.delete(scheduledTaskEvent);

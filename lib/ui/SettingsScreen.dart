@@ -123,7 +123,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ],
         ),
-        SettingsSection(
+        /*SettingsSection(
           title: Text('Data', style: TextStyle(color: Colors.lime[800])),
           tiles: [
             SettingsTile(
@@ -132,7 +132,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
           ],
-        ),
+        ),*/
       ],
     );
   }

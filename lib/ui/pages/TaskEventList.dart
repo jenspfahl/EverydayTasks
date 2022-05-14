@@ -87,7 +87,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       });
     });
 
-    final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 10000);
+    final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 1000000);
     TaskEventRepository.getAllPaged(paging).then((taskEvents) {
       setState(() {
         _taskEvents = taskEvents;
