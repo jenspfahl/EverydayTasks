@@ -110,7 +110,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         key: taskEventFilterKey,
       ),
       IconButton(
-        icon: Icon(Icons.bar_chart),
+        icon: Icon(Icons.donut_large_outlined),
         onPressed: () {
           Navigator.push(super.context, MaterialPageRoute(builder: (context) => TaskEventStats(this)))
               .then((_) {
@@ -358,7 +358,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
               child: Row(
                 children: [
                   Text(
-                    "${formatToDateOrWord(dateHeading, context, withWeekDay: true)} ($items, ${dateDuration != null ? formatDuration(dateDuration) : ""})",
+                    "${formatToDateOrWord(dateHeading, context)} ($items, ${dateDuration != null ? formatDuration(dateDuration) : ""})",
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 10.0,

@@ -142,7 +142,15 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                 title: const Text('Settings'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(super.context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+                  Navigator.push(super.context, MaterialPageRoute(builder: (context) => SettingsScreen()))
+                    .then((_) {
+                      setState(() {
+                        getSelectedPage().getGlobalKey().currentState?.setState(() {
+                          // refresh current page
+                          debugPrint("refresh ..");
+                        });
+                      });
+                  });
                 },
               ),
               Divider(),

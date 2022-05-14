@@ -53,7 +53,7 @@ toastInfo(BuildContext context, String message) {
   PreferenceService().getBool(PreferenceService.PREF_SHOW_ACTION_NOTIFICATIONS)
       .then((show) {
         if (show??true) {
-          _calcMessageDuration(message).then((duration) {
+          _calcMessageDuration(message, false).then((duration) {
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     duration: duration,
@@ -65,7 +65,7 @@ toastInfo(BuildContext context, String message) {
 }
 
 toastError(BuildContext context, String message) {
-  _calcMessageDuration(message).then((duration) {
+  _calcMessageDuration(message, true).then((duration) {
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             backgroundColor: Colors.red,
@@ -74,7 +74,7 @@ toastError(BuildContext context, String message) {
   });
 }
 
-Future<Duration> _calcMessageDuration(String message) async {
+Future<Duration> _calcMessageDuration(String message, bool isError) async {
   final showActionNotificationDurationSelection = await PreferenceService().getInt(PreferenceService.PREF_SHOW_ACTION_NOTIFICATION_DURATION_SELECTION)??1;
   double factor = 1;
   switch (showActionNotificationDurationSelection) {
@@ -86,17 +86,16 @@ Future<Duration> _calcMessageDuration(String message) async {
       factor = 0.5;
       break;
     }
+    case 3 : { // fast
+      factor = 0.3;
+      break;
+    }
   }
-  return Duration(milliseconds: (message.length * 80 * factor).toInt());
+  return Duration(milliseconds: (message.length * (isError ? 100 : 80) * factor).toInt());
 }
 
 void launchUrl(url) async {
-  if (await canLaunchUrl(url)) {
-    launchUrl(url);
-  }
-  else {
-    debugPrint("Could not launch $url");
-  }
+  launch(url);
 }
 
 Text boldedText(String text) => Text(text, style: TextStyle(fontWeight: FontWeight.bold));

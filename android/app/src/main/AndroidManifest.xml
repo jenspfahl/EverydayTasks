@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.jepfa.personaltasklogger">
-   <application
+    <application
         android:label="Everyday Tasks"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -38,8 +38,9 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
     <queries>
-        <!-- If your app opens https URLs -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="https" />

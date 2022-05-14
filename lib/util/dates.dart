@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:personaltasklogger/model/When.dart';
+import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/util/units.dart';
 
 DateTime fillToWholeDate(DateTime dateTime) {
@@ -17,16 +18,17 @@ DateTime truncToMinutes(DateTime dateTime) {
 }
 
 String formatToDateOrWord(DateTime dateTime, BuildContext context,
-    {bool withPreposition = false, bool withWeekDay = false, bool makeWhenOnLowerCase = false}) {
+    {bool withPreposition = false, bool makeWhenOnLowerCase = false}) {
   final word = _formatToWord(dateTime);
   if (word != null) {
     return makeWhenOnLowerCase ? word.toLowerCase() : word;
   }
   if (withPreposition) {
-    return "on " + formatToDate(dateTime, context, withWeekDay);
+    return "on " + formatToDate(dateTime, context);
   }
-  return formatToDate(dateTime, context, withWeekDay);
+  return formatToDate(dateTime, context);
 }
+
 String? _formatToWord(DateTime dateTime) {
   if (isToday(dateTime)) {
     return "Today";
@@ -46,11 +48,36 @@ String? _formatToWord(DateTime dateTime) {
   return null;
 }
 
-String formatToDate(DateTime dateTime, BuildContext context, [bool withWeekDay = false]) {
+String formatToDate(DateTime dateTime, BuildContext context) {
+  final preferenceService = PreferenceService();
+  final showWeekdays = preferenceService.showWeekdays;
+  final dateFormatSelection = preferenceService.dateFormatSelection;
+  final formatter = getDateFormat(context, dateFormatSelection, showWeekdays);
+  return formatter.format(dateTime);
+}
+
+ getDateFormat(BuildContext context, int dateFormatSelection, bool showWeekdays) {
+
   final locale = Localizations.localeOf(context).languageCode;
   initializeDateFormatting(locale);
-  final DateFormat formatter = withWeekDay ? DateFormat.yMMMEd(locale) : DateFormat.yMMMd(locale) ;
-  return formatter.format(dateTime);
+
+  if (showWeekdays) {
+    final yMEd = DateFormat.yMEd(locale);
+    final yMMMEd = DateFormat.yMMMEd(locale);
+    final yMMMMEEEEd = DateFormat.yMMMMEEEEd(locale);
+    final withWeekdays = [yMEd, yMMMEd, yMMMMEEEEd];
+
+    return withWeekdays.elementAt(dateFormatSelection);
+  }
+  else {
+    final yMd = DateFormat.yMd(locale);
+    final yMMMd = DateFormat.yMMMd(locale);
+    final yMMMMd = DateFormat.yMMMMd(locale);
+    final withoutWeekdays = [yMd, yMMMd, yMMMMd];
+
+    return withoutWeekdays.elementAt(dateFormatSelection);
+  }
+
 }
 
 String formatToDateTime(DateTime dateTime, BuildContext context) {

@@ -2,6 +2,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceService {
 
+  static final PREF_SHOW_WEEKDAYS = "common/showWeekdays";
+  static final PREF_DATE_FORMAT_SELECTION = "common/dateFormatSelection";
+
+
   static final PREF_SHOW_ACTION_NOTIFICATIONS = "common/showActionNotifications";
   static final PREF_SHOW_ACTION_NOTIFICATION_DURATION_SELECTION = "common/showActionNotificationDurationSelection";
 
@@ -13,7 +17,23 @@ class PreferenceService {
     return _notificationService;
   }
 
-  PreferenceService._internal();
+  PreferenceService._internal() {
+    getBool(PreferenceService.PREF_SHOW_WEEKDAYS)
+        .then((value) {
+          if (value != null) {
+            showWeekdays = value;
+          }
+    });
+    getInt(PreferenceService.PREF_DATE_FORMAT_SELECTION)
+        .then((value) {
+      if (value != null) {
+        dateFormatSelection = value;
+      }
+    });
+  }
+
+  bool showWeekdays = true;
+  int dateFormatSelection = 1;
 
   Future<String?> getString(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -56,5 +76,6 @@ class PreferenceService {
 
     return prefs.remove(key);
   }
+
 }
 
