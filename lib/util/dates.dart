@@ -116,7 +116,7 @@ String formatToDateTimeRange(
     DateTime startedAt,
     AroundDurationHours aroundDurationHours,
     Duration duration,
-    bool showAround) {
+    bool showAround, {bool showDuration = true}) {
 
 
   final sb = StringBuffer();
@@ -133,15 +133,16 @@ String formatToDateTimeRange(
     sb.write(formatToTime(finishedAt));
   }
 
-  sb.write(" (");
-  if (showAround && aroundDurationHours != AroundDurationHours.CUSTOM) {
-    sb.write(When.fromDurationHoursToString(aroundDurationHours));
+  if (showDuration) {
+    sb.write(" (");
+    if (showAround && aroundDurationHours != AroundDurationHours.CUSTOM) {
+      sb.write(When.fromDurationHoursToString(aroundDurationHours));
+    }
+    else {
+      sb.write(formatDuration(duration));
+    }
+    sb.write(")");
   }
-  else {
-    sb.write(formatDuration(duration));
-  }
-  sb.write(")");
-
   return sb.toString();
 }
 

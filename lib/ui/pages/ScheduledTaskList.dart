@@ -423,10 +423,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             ),
             subtitle: Column(
               children: [
-                Visibility(
-                  visible: isExpanded,
-                  child: taskGroup.getTaskGroupRepresentation(useIconColor: true),
-                ),
+                isExpanded ? taskGroup.getTaskGroupRepresentation(useIconColor: true) : _buildShortProgressText(scheduledTask),
                 Visibility(
                   visible: scheduledTask.active,
                   child: Opacity(
@@ -474,7 +471,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     expansionWidgets.addAll([
       Padding(
         padding: EdgeInsets.all(4.0),
-        child: Text(getDetailsMessage(scheduledTask), textAlign: TextAlign.center,),
+        child: Text(_getDetailsMessage(scheduledTask), textAlign: TextAlign.center,),
       ),
       Divider(),
       Row(
@@ -720,7 +717,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
 
-  String getDetailsMessage(ScheduledTask scheduledTask) {
+  String _getDetailsMessage(ScheduledTask scheduledTask, {bool longVersion = true}) {
     var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}, missing: ${scheduledTask.getMissingDuration()}, scheduled: ${scheduledTask.getScheduledDuration()}\n";
     final nextSchedule = scheduledTask.getNextSchedule()!;
 
@@ -730,10 +727,17 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         msg = debug + "- paused -";
       }
       else if (scheduledTask.isNextScheduleOverdue(false)) {
-        final dueString = scheduledTask.isNextScheduleOverdue(true) ? "Overdue" : "Due";
+        final dueString = scheduledTask.isNextScheduleOverdue(true)
+            ? "Overdue"
+            : "Due";
         msg = debug +
-            "$dueString for ${formatDuration(scheduledTask.getMissingDuration()!, true)} "
-                "(${formatToDateOrWord(scheduledTask.getNextSchedule()!, context, withPreposition: true, makeWhenOnLowerCase: true)})!";
+            "$dueString for ${formatDuration(
+                scheduledTask.getMissingDuration()!, true)} ";
+        if (longVersion) {
+          msg = msg + "(${formatToDateOrWord(
+              scheduledTask.getNextSchedule()!, context, withPreposition: true,
+              makeWhenOnLowerCase: true)})!";
+        }
       }
       else if (scheduledTask.isDueNow()) {
         msg = debug +
@@ -741,9 +745,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
       else {
         msg = debug +
-            "Due in ${formatDuration(scheduledTask.getMissingDuration()!)} "
-            "(${formatToDateOrWord(nextSchedule, context, withPreposition: true, makeWhenOnLowerCase: true)} "
-                "${scheduledTask.schedule.toStartAtAsString().toLowerCase()})";
+            "Due in ${formatDuration(scheduledTask.getMissingDuration()!)} ";
+        if (longVersion) {
+          msg = msg + "(${formatToDateOrWord(nextSchedule, context, withPreposition: true,
+              makeWhenOnLowerCase: true)} "
+              "${scheduledTask.schedule.toStartAtAsString().toLowerCase()})";
+        }
       }
 
       final passedDuration = scheduledTask.getPassedDuration();
@@ -752,6 +759,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         passedString = passedDuration.isNegative
             ? "in " + formatDuration(passedDuration.abs())
             : formatDuration(passedDuration.abs()) + " ago";
+      }
+      if (!longVersion) {
+        return msg;
       }
       return "$msg"
           "\n\n"
@@ -1056,6 +1066,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         }
       });
     });
+  }
+
+  Text _buildShortProgressText(ScheduledTask scheduledTask) {
+    var text = _getDetailsMessage(scheduledTask, longVersion: false);
+    return Text(text, style: TextStyle(fontSize: 8));
   }
 }
 

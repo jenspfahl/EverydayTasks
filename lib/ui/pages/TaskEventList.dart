@@ -402,7 +402,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                   )
               ],
             ),
-            subtitle: isExpanded ? _taskGroupPresentation(taskEvent) : null,
+            subtitle: isExpanded ? _taskGroupPresentation(taskEvent) : _buildWhenText(taskEvent, small: true),
             children: expansionWidgets,
             collapsedBackgroundColor: getTaskGroupColor(taskEvent.taskGroupId, true),
             backgroundColor: getTaskGroupColor(taskEvent.taskGroupId, false),
@@ -419,7 +419,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
     if (dateHeading != null) {
       return Column(
-        children: [const Divider(), listTile],
+        children: [const Divider(), listTile], // TODO Divider at po 0 should be removed
       );
     } else {
       return listTile;
@@ -447,8 +447,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     expansionWidgets.addAll([
       Padding(
         padding: EdgeInsets.all(4.0),
-        child: Text(formatToDateTimeRange(
-            taskEvent.aroundStartedAt, taskEvent.startedAt, taskEvent.aroundDuration, taskEvent.duration, true)),
+        child: _buildWhenText(taskEvent),
       ),
       Padding(
         padding: EdgeInsets.all(4.0),
@@ -549,6 +548,12 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       ),
     ]);
     return expansionWidgets;
+  }
+
+  Text _buildWhenText(TaskEvent taskEvent, {bool small = false}) {
+    var text = formatToDateTimeRange(
+          taskEvent.aroundStartedAt, taskEvent.startedAt, taskEvent.aroundDuration, taskEvent.duration, true, showDuration: !small);
+    return Text(text, style: small ? TextStyle(fontSize: 8) : null);
   }
 
   void _showInfoDialog(TaskEvent taskEvent, Template? originTemplate, ScheduledTask? scheduledTask) {
