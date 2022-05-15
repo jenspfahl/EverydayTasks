@@ -402,6 +402,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
     final expansionWidgets = _createExpansionWidgets(scheduledTask);
+    final isExpanded = index == _selectedTile;
     return Padding(
         padding: EdgeInsets.all(4.0),
         child: Card(
@@ -409,10 +410,23 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           child: ExpansionTile( //better use ExpansionPanel?
             key: GlobalKey(),
             // this makes updating all tiles if state changed
-            title: Text(kReleaseMode ? scheduledTask.title : "${scheduledTask.title} (id=${scheduledTask.id})"),
+            title: isExpanded
+                ? Text(kReleaseMode ? scheduledTask.title : "${scheduledTask.title} (id=${scheduledTask.id})")
+                : Row(
+              children: [
+                taskGroup.getIcon(true),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),
+                  child: Text(kReleaseMode ? scheduledTask.title : "${scheduledTask.title} (id=${scheduledTask.id})"),
+                )
+              ],
+            ),
             subtitle: Column(
               children: [
-                taskGroup.getTaskGroupRepresentation(useIconColor: true),
+                Visibility(
+                  visible: isExpanded,
+                  child: taskGroup.getTaskGroupRepresentation(useIconColor: true),
+                ),
                 Visibility(
                   visible: scheduledTask.active,
                   child: Opacity(
@@ -437,7 +451,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             children: expansionWidgets,
             collapsedBackgroundColor: getTaskGroupColor(scheduledTask.taskGroupId, true),
             backgroundColor: getTaskGroupColor(scheduledTask.taskGroupId, false),
-            initiallyExpanded: index == _selectedTile,
+            initiallyExpanded: isExpanded,
             onExpansionChanged: ((expanded) {
               setState(() {
                 _selectedTile = expanded ? index : -1;

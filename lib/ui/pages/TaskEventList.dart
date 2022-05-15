@@ -346,6 +346,9 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     var taskEventDate = truncToDate(taskEvent.startedAt);
 
     final expansionWidgets = _createExpansionWidgets(taskEvent);
+    final isExpanded = index == _selectedTile;
+    final taskGroup = findPredefinedTaskGroupById(taskEvent.taskGroupId!);
+
     final listTile = ListTile(
       dense: true,
       title: dateHeading != null
@@ -387,14 +390,23 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         child: Card(
           clipBehavior: Clip.antiAlias,
           child: ExpansionTile(
-            key: GlobalKey(),
-            // this makes updating all tiles if state changed
-            title: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
-            subtitle: _taskGroupPresentation(taskEvent),
+            key: GlobalKey(), // this makes updating all tiles if state changed
+            title: isExpanded
+                ? Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})")
+                : Row(
+              children: [
+                  taskGroup.getIcon(true),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),
+                    child: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
+                  )
+              ],
+            ),
+            subtitle: isExpanded ? _taskGroupPresentation(taskEvent) : null,
             children: expansionWidgets,
             collapsedBackgroundColor: getTaskGroupColor(taskEvent.taskGroupId, true),
             backgroundColor: getTaskGroupColor(taskEvent.taskGroupId, false),
-            initiallyExpanded: index == _selectedTile,
+            initiallyExpanded: isExpanded,
             onExpansionChanged: ((expanded) {
               setState(() {
                 _selectedTile = expanded ? index : -1;

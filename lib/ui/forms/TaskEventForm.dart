@@ -317,12 +317,14 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                 isExpanded: true,
                                 onChanged:  _trackingStart != null ? null : (value) {
                                   if (value == AroundWhenAtDay.CUSTOM) {
-                                    final initialWhenAt = _customWhenAt ?? TimeOfDay.now();
+                                    final initialWhenAt = _customWhenAt ?? (_selectedWhenAtDay != null ? When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt) : TimeOfDay.now());
                                     showTimePicker(
                                       initialTime: initialWhenAt,
                                       context: context,
                                     ).then((selectedTimeOfDay) {
-                                      setState(() => _customWhenAt = selectedTimeOfDay ?? initialWhenAt);
+                                      if (selectedTimeOfDay != null) {
+                                        setState(() => _customWhenAt = selectedTimeOfDay);
+                                      }
                                     });
                                   }
                                   setState(() {
@@ -368,20 +370,26 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                       initialDate: initialWhenOn,
                                       firstDate: DateTime.now().subtract(Duration(days: 600)),
                                       lastDate: DateTime.now(),
-                                    ).then((selectedDate) => setState(() {
+                                    ).then((selectedDate) {
+                                      if (selectedDate != null) {
+                                        setState(() {
                                           if (isToday(selectedDate)) {
                                             _selectedWhenOnDate = WhenOnDate.TODAY;
                                             _customWhenOn = null;
-                                          } else if (isYesterday(selectedDate)) {
+                                          } else
+                                          if (isYesterday(selectedDate)) {
                                             _selectedWhenOnDate = WhenOnDate.YESTERDAY;
                                             _customWhenOn = null;
-                                          } else if (isBeforeYesterday(selectedDate)) {
+                                          } else
+                                          if (isBeforeYesterday(selectedDate)) {
                                             _selectedWhenOnDate = WhenOnDate.BEFORE_YESTERDAY;
                                             _customWhenOn = null;
                                           } else {
-                                            _customWhenOn = selectedDate ?? initialWhenOn;
+                                            _customWhenOn = selectedDate;
                                           }
-                                        }));
+                                        });
+                                      }
+                                    });
                                   }
                                   setState(() {
                                     _selectedWhenOnDate = value;
