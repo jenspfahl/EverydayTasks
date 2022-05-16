@@ -717,7 +717,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
 
-  String _getDetailsMessage(ScheduledTask scheduledTask, {bool longVersion = true}) {
+  String _getDetailsMessage(ScheduledTask scheduledTask) {
     var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}, missing: ${scheduledTask.getMissingDuration()}, scheduled: ${scheduledTask.getScheduledDuration()}\n";
     final nextSchedule = scheduledTask.getNextSchedule()!;
 
@@ -731,13 +731,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             ? "Overdue"
             : "Due";
         msg = debug +
-            "$dueString for ${formatDuration(
-                scheduledTask.getMissingDuration()!, true)} ";
-        if (longVersion) {
-          msg = msg + "(${formatToDateOrWord(
+            "$dueString for ${formatDuration(scheduledTask.getMissingDuration()!, true)} "
+            "(${formatToDateOrWord(
               scheduledTask.getNextSchedule()!, context, withPreposition: true,
               makeWhenOnLowerCase: true)})!";
-        }
+
       }
       else if (scheduledTask.isDueNow()) {
         msg = debug +
@@ -745,12 +743,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
       else {
         msg = debug +
-            "Due in ${formatDuration(scheduledTask.getMissingDuration()!)} ";
-        if (longVersion) {
-          msg = msg + "(${formatToDateOrWord(nextSchedule, context, withPreposition: true,
+            "Due in ${formatDuration(scheduledTask.getMissingDuration()!)} "
+            "(${formatToDateOrWord(nextSchedule, context, withPreposition: true,
               makeWhenOnLowerCase: true)} "
               "${scheduledTask.schedule.toStartAtAsString().toLowerCase()})";
-        }
       }
 
       final passedDuration = scheduledTask.getPassedDuration();
@@ -759,9 +755,6 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         passedString = passedDuration.isNegative
             ? "in " + formatDuration(passedDuration.abs())
             : formatDuration(passedDuration.abs()) + " ago";
-      }
-      if (!longVersion) {
-        return msg;
       }
       return "$msg"
           "\n\n"
@@ -1068,9 +1061,26 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     });
   }
 
-  Text _buildShortProgressText(ScheduledTask scheduledTask) {
-    var text = _getDetailsMessage(scheduledTask, longVersion: false);
-    return Text(text, style: TextStyle(fontSize: 8));
+  Widget _buildShortProgressText(ScheduledTask scheduledTask) {
+    String text = "";
+    if (scheduledTask.active && scheduledTask.lastScheduledEventOn != null && !scheduledTask.isPaused) {
+
+      if (scheduledTask.isNextScheduleOverdue(false)) {
+        text = scheduledTask.isNextScheduleOverdue(true)
+            ? "Overdue!"
+            : "Due!";
+      }
+      else if (scheduledTask.isDueNow()) {
+        text ="Due now!";
+      }
+      else {
+        text = "in ${formatDuration(scheduledTask.getMissingDuration()!)}";
+      }
+    }
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(text, style: TextStyle(fontSize: 10)),
+    );
   }
 }
 

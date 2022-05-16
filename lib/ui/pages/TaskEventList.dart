@@ -23,6 +23,7 @@ import 'package:personaltasklogger/ui/TaskEventFilter.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../../model/When.dart';
 import '../../util/units.dart';
 import '../PersonalTaskLoggerScaffold.dart';
 import '../TaskEventStats.dart';
@@ -417,9 +418,9 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       ),
     );
 
-    if (dateHeading != null) {
+    if (dateHeading != null && index > 0) {
       return Column(
-        children: [const Divider(), listTile], // TODO Divider at po 0 should be removed
+        children: [const Divider(), listTile],
       );
     } else {
       return listTile;
@@ -551,9 +552,19 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   }
 
   Text _buildWhenText(TaskEvent taskEvent, {bool small = false}) {
-    var text = formatToDateTimeRange(
-          taskEvent.aroundStartedAt, taskEvent.startedAt, taskEvent.aroundDuration, taskEvent.duration, true, showDuration: !small);
-    return Text(text, style: small ? TextStyle(fontSize: 8) : null);
+    if (small) {
+      var text = formatToTime(taskEvent.startedAt);
+      if (taskEvent.aroundStartedAt != AroundWhenAtDay.CUSTOM) {
+        text = When.fromWhenAtDayToString(taskEvent.aroundStartedAt);
+      }
+      return Text(text, style: TextStyle(fontSize: 10));
+    }
+    else {
+      var text = formatToDateTimeRange(
+          taskEvent.aroundStartedAt, taskEvent.startedAt,
+          taskEvent.aroundDuration, taskEvent.duration, true);
+      return Text(text);
+    }
   }
 
   void _showInfoDialog(TaskEvent taskEvent, Template? originTemplate, ScheduledTask? scheduledTask) {

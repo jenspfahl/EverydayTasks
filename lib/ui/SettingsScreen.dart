@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:personaltasklogger/model/When.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 import '../service/PreferenceService.dart';
@@ -18,6 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _exampleDate = DateTime(2022, DateTime.december, 31);
 
   int _dateFormatSelection = 1;
+  bool? _showTimeOfDayAsText;
   bool? _showWeekdays;
   bool? _showActionNotifications;
   int _showActionNotificationDurationSelection = 1;
@@ -38,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return SettingsList(
       sections: [
         SettingsSection(
-          title: Text('Dates', style: TextStyle(color: Colors.lime[800])),
+          title: Text('Date & Time', style: TextStyle(color: Colors.lime[800])),
           tiles: [
             SettingsTile(
               title: Text('Used date format'),
@@ -83,6 +85,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _preferenceService.showWeekdays = value;
                 _preferenceService.setBool(PreferenceService.PREF_SHOW_WEEKDAYS, value)
                    .then((value) => setState(() => _showWeekdays = value));
+              },
+            ),
+            SettingsTile.switchTile(
+              title: Text('Show time of days'),
+              description: Text("E.g. shows '${When.fromWhenAtDayToString(AroundWhenAtDay.EVENING)}' for the evening"),
+              initialValue: _showTimeOfDayAsText,
+              onToggle: (bool value) {
+                _preferenceService.showTimeOfDayAsText = value;
+                _preferenceService.setBool(PreferenceService.PREF_SHOW_TIME_OF_DAY_AS_TEXT, value)
+                    .then((value) => setState(() => _showTimeOfDayAsText = value));
               },
             ),
           ],
@@ -138,6 +150,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   _loadAllPrefs() async {
+    final showTimeOfDayAsText = await _preferenceService.getBool(PreferenceService.PREF_SHOW_TIME_OF_DAY_AS_TEXT);
+    _showTimeOfDayAsText = showTimeOfDayAsText??true;
+    _preferenceService.showTimeOfDayAsText = showTimeOfDayAsText!;
+    
     final showWeekdays = await _preferenceService.getBool(PreferenceService.PREF_SHOW_WEEKDAYS);
     _showWeekdays = showWeekdays??true;
     _preferenceService.showWeekdays = _showWeekdays!;

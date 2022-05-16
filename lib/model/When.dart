@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../service/PreferenceService.dart';
+
 enum AroundWhenAtDay {NOW, MORNING, FORENOON, NOON, AFTERNOON, EVENING, NIGHT, CUSTOM}
 enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES}
 
@@ -115,7 +117,7 @@ class When {
       case AroundWhenAtDay.CUSTOM: return customWhenAt!;
     }
   }
-  static String fromWhenAtDayToString(AroundWhenAtDay whenAtDay) {
+  static String _fromWhenAtDayToString(AroundWhenAtDay whenAtDay) {
     switch(whenAtDay) {
       case AroundWhenAtDay.NOW: return "Now";
       case AroundWhenAtDay.MORNING: return "In the morning";
@@ -128,7 +130,19 @@ class When {
     }
   }
 
-  static DateTime fromWhenOnDateToDate(WhenOnDate whenOnDate, DateTime? customDate) {
+  static String fromWhenAtDayToString(AroundWhenAtDay whenAtDay) {
+    final preferenceService = PreferenceService();
+    final showTimeOfDayAsText = preferenceService.showTimeOfDayAsText;
+    
+    final asString = _fromWhenAtDayToString(whenAtDay);
+    if (showTimeOfDayAsText || whenAtDay == AroundWhenAtDay.NOW || whenAtDay == AroundWhenAtDay.CUSTOM) {
+      return asString;
+    }
+    final timeOfDay = fromWhenAtDayToTimeOfDay(whenAtDay, null);
+    return "Around ${formatTimeOfDay(timeOfDay)}";
+  }
+
+    static DateTime fromWhenOnDateToDate(WhenOnDate whenOnDate, DateTime? customDate) {
     switch(whenOnDate) {
       case WhenOnDate.TODAY: return truncToDate(DateTime.now());
       case WhenOnDate.YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 1)));
