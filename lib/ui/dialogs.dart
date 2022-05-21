@@ -35,7 +35,7 @@ void showConfirmationDialog(BuildContext context, String title, String message,
         padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
         child: icon,
       ),
-      Text("Entry details")
+      Text(title)
     ],)
       : Text(title),
     content: Text(message),

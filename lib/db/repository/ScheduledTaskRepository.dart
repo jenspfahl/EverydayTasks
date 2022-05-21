@@ -54,8 +54,8 @@ class ScheduledTaskRepository {
 
   }
 
-  static Future<List<ScheduledTask>> getAllPaged(ChronologicalPaging paging) async {
-    final database = await getDb();
+  static Future<List<ScheduledTask>> getAllPaged(ChronologicalPaging paging, [String? dbName]) async {
+    final database = await getDb(dbName);
 
     final scheduledTaskDao = database.scheduledTaskDao;
     return scheduledTaskDao.findAll()

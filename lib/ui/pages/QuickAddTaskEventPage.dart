@@ -84,6 +84,11 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   }
 
   @override
+  reload() {
+    _loadQuickAdds();
+  }
+
+  @override
   void searchQueryUpdated(String? searchQuery) {
   }
 

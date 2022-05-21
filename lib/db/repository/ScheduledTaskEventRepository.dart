@@ -54,8 +54,8 @@ class ScheduledTaskEventRepository {
         .then((entities) => _mapFromEntities(entities));
   }
 
-  static Future<ScheduledTaskEvent?> findByTaskEventId(taskEventId) async {
-    final database = await getDb();
+  static Future<ScheduledTaskEvent?> findByTaskEventId(taskEventId, [String? dbName]) async {
+    final database = await getDb(dbName);
 
     final scheduledTaskEventDao = database.scheduledTaskEventDao;
     return scheduledTaskEventDao.findByTaskEventId(taskEventId)

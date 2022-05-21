@@ -3,10 +3,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:personaltasklogger/service/BackupRestoreService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
-import 'package:personaltasklogger/ui/pages/QuickAddTaskEventPage.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
+import 'package:personaltasklogger/ui/pages/QuickAddTaskEventPage.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
@@ -56,6 +57,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   late List<PageScaffold> _pages;
   final _notificationService = LocalNotificationService();
   final _preferenceService = PreferenceService();
+  final _backupRestoreService = BackupRestoreService();
 
   PersonalTaskLoggerScaffoldState() {
 
@@ -151,6 +153,50 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                         });
                       });
                   });
+                },
+              ),
+              Divider(),
+              ListTile(
+                leading: const Icon(Icons.save_alt_outlined),
+                title: const Text('Backup As File'),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  await _backupRestoreService.backup(
+                          (success, dstPath) {
+                    if (success) {
+                      toastInfo(context, "Backup file $dstPath created");
+                    }
+                    else {
+                      toastInfo(context, "Backup aborted!");
+                    }
+                  }, (errorMsg) => toastError(context, errorMsg));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.restore),
+                title: const Text('Restore From File'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  showConfirmationDialog(context, "Restore from file", "Restoring a backup file will swipe all your current data! Continue?",
+                    icon: const Icon(Icons.warning_amber_outlined),
+                    cancelPressed: () => Navigator.pop(context),
+                    okPressed: () async {
+                      Navigator.pop(context);
+                      await _backupRestoreService.restore((success) {
+                        if (success) {
+                          toastInfo(context, "Backup restored");
+                          setState(() {
+                            _pages.forEach((page) {
+                              page.getGlobalKey().currentState?.reload();
+                            });
+                          });
+                        }
+                        else {
+                          toastInfo(context, "Restoring aborted!");
+                        }
+                      }, (errorMsg) => toastError(context, errorMsg));
+                    });
                 },
               ),
               Divider(),
@@ -259,12 +305,6 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     super.deactivate();
   }
 
-  void dispatch(Notification notification) {
-    debugPrint("dispatch to context $context");
-    notification..dispatch(context);
-  }
-
-
   Widget _buildSearchField() {
     return TextField(
       controller: _searchQueryController,
@@ -339,7 +379,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   }
 
   void _startSearch() {
-    ModalRoute.of(context)!
+    ModalRoute.of(this.context)!
         .addLocalHistoryEntry(LocalHistoryEntry(onRemove: _stopSearching));
 
     setState(() {
@@ -401,7 +441,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       _pageController.jumpToPage(index);
       setState(() {
         _selectedNavigationIndex = index;
-        _clearOrCloseSearchBar(context, true);
+        _clearOrCloseSearchBar(this.context, true);
 
         final selectedPageState = getSelectedPage().getGlobalKey().currentState;
         if (selectedPageState != null) {

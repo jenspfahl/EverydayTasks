@@ -2,7 +2,8 @@
     package="de.jepfa.personaltasklogger">
     <application
         android:label="Everyday Tasks"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true" >
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -39,6 +40,8 @@
             android:value="2" />
     </application>
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <queries>
         <intent>

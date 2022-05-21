@@ -137,8 +137,8 @@ class TemplateRepository {
     throw Exception("unsupported template");
   }
 
-  static Future<List<TaskTemplate>> getAllTaskTemplates(bool inclHidden) async {
-    final database = await getDb();
+  static Future<List<TaskTemplate>> getAllTaskTemplates(bool inclHidden, [String? dbName]) async {
+    final database = await getDb(dbName);
 
     final taskTemplateDao = database.taskTemplateDao;
     return taskTemplateDao.findAll()
@@ -155,8 +155,8 @@ class TemplateRepository {
         });
   }
 
-  static Future<List<TaskTemplateVariant>> getAllTaskTemplateVariants(bool inclHidden) async {
-    final database = await getDb();
+  static Future<List<TaskTemplateVariant>> getAllTaskTemplateVariants(bool inclHidden, [String? dbName]) async {
+    final database = await getDb(dbName);
 
     final taskTemplateVariantDao = database.taskTemplateVariantDao;
     return taskTemplateVariantDao.findAll()
@@ -173,9 +173,9 @@ class TemplateRepository {
         });
   }
 
-  static Future<List<Template>> getAll(bool inclHidden) async {
-    final taskTemplatesFuture = getAllTaskTemplates(inclHidden);
-    final taskTemplateVariantsFuture = getAllTaskTemplateVariants(inclHidden);
+  static Future<List<Template>> getAll(bool inclHidden, [String? dbName]) async {
+    final taskTemplatesFuture = getAllTaskTemplates(inclHidden, dbName);
+    final taskTemplateVariantsFuture = getAllTaskTemplateVariants(inclHidden, dbName);
     final taskTemplates = await taskTemplatesFuture;
     final taskTemplateVariants = await taskTemplateVariantsFuture;
 

@@ -12,8 +12,6 @@ class PreferenceService {
 
   static final PreferenceService _notificationService = PreferenceService._internal();
 
-  static List<Function(String receiverKey, String id)> _handler = [];
-
   factory PreferenceService() {
     return _notificationService;
   }

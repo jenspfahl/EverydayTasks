@@ -75,7 +75,8 @@ final migration8To9 = new Migration(8, 9,
       await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `repetitionMode` INTEGER");
     });
 
-Future<AppDatabase> getDb() async => $FloorAppDatabase
-    .databaseBuilder('app_database.db')
+
+Future<AppDatabase> getDb([String? name]) async => $FloorAppDatabase
+    .databaseBuilder(name??'app_database.db')
     .addMigrations([migration2To3, migration3To4, migration4To5, migration5To6, migration6To7, migration7To8, migration8To9])
     .build();

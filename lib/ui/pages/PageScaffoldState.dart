@@ -10,4 +10,6 @@ abstract class PageScaffoldState<T extends StatefulWidget> extends State<T> {
   void searchQueryUpdated(String? searchQuery);
 
   handleNotificationClickRouted(bool isAppLaunch, String payload);
+
+  reload();
 }

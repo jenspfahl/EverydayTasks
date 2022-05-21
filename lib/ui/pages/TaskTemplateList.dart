@@ -79,31 +79,40 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   void initState() {
     super.initState();
 
+    _loadTemplates();
+  }
+
+  void _loadTemplates() {
     final taskTemplatesFuture = TemplateRepository.getAllTaskTemplates(widget.onlyHidden??false);
     final taskTemplateVariantsFuture = TemplateRepository.getAllTaskTemplateVariants(widget.onlyHidden??false);
-
+    
     _nodes = predefinedTaskGroups.map((group) => _createTaskGroupNode(group, [], widget.expandAll??false)).toList();
-
+    
     Future.wait([taskTemplatesFuture, taskTemplateVariantsFuture]).then((allTemplates) {
-
+    
       setState(() {
         _allTemplates = allTemplates;
         _selectedNodeKey = widget.initialSelectedKey; // before fillNodes to expand selection
         // filter only hidden but non-hidden if have hidden leaves
         _fillNodes(allTemplates, widget.hideEmptyNodes??false, widget.expandAll??false);
-
+    
         if (_selectedNodeKey != null) {
           _updateSelection(widget.initialSelectedKey!);
         }
       });
     });
-
+    
     if (widget.hideEmptyNodes??false) {
       _nodes.removeWhere((node) => node.children.isEmpty);
     }
     _treeViewController = TreeViewController(
       children: _nodes,
     );
+  }
+  
+  @override
+  reload() {
+    _loadTemplates();
   }
 
   void _fillNodes(List<List<Template>> allTemplates, bool hideEmptyNodes, bool expandAll) {

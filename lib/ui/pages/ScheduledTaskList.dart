@@ -112,6 +112,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       });
     });
 
+    _loadSchedules();
+  }
+
+  void _loadSchedules() {
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 10000);
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
       setState(() {
@@ -119,9 +123,14 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         _initialLoaded = true;
         _sortList();
         _calcOverallStats();
-
+    
       });
     });
+  }
+
+  @override
+  reload() {
+    _loadSchedules();
   }
 
   @override

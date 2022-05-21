@@ -53,8 +53,8 @@ class TaskEventRepository {
 
   }
 
-  static Future<List<TaskEvent>> getAllPaged(ChronologicalPaging paging) async {
-    final database = await getDb();
+  static Future<List<TaskEvent>> getAllPaged(ChronologicalPaging paging, [String? dbName]) async {
+    final database = await getDb(dbName);
 
     final taskEventDao = database.taskEventDao;
     return taskEventDao.findAllBeginningByStartedAt(
