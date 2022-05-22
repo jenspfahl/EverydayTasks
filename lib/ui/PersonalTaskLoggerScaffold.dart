@@ -45,7 +45,11 @@ class PersonalTaskLoggerScaffold extends StatefulWidget {
   }
 }
 
-final DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX = 1;
+final NAVIGATION_IDX_QUICKADD = 0;
+final NAVIGATION_IDX_TASK_EVENTS = 1;
+final NAVIGATION_IDX_TASK_SCHEDULES = 2;
+final NAVIGATION_IDX_TEMPLATES = 3;
+final DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX = NAVIGATION_IDX_TASK_EVENTS;
 
 class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> {
   int _selectedNavigationIndex = DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX;
@@ -68,7 +72,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     final scheduledTaskList = ScheduledTaskList(pagesHolder);
     pagesHolder.init(quickAddTaskEventPage, taskEventList, taskTemplateList, scheduledTaskList);
 
-    _pages = <PageScaffold>[quickAddTaskEventPage, taskEventList, taskTemplateList, scheduledTaskList];
+    // order is important here
+    _pages = <PageScaffold>[quickAddTaskEventPage, taskEventList, scheduledTaskList, taskTemplateList];
   }
 
   @override
@@ -80,9 +85,9 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
     //this is a hack since this is QuickAdd related code here
     _preferenceService.getBool(PREF_PIN_QUICK_ADD).then((pinQuickAddPage) {
-      if (pinQuickAddPage == true && _selectedNavigationIndex != 3) { // only if current is not the Schdule Page
+      if (pinQuickAddPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schdeule Page
         setState(() {
-          _selectedNavigationIndex = 0;
+          _selectedNavigationIndex = NAVIGATION_IDX_QUICKADD;
           _pageController.jumpToPage(_selectedNavigationIndex);
         });
       }
@@ -280,12 +285,12 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
             label: 'Journal',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.task_alt),
-            label: 'Tasks',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.next_plan_outlined),
             label: 'Schedules',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.task_alt),
+            label: 'Tasks',
           ),
         ],
         selectedItemColor: Colors.lime[800],
