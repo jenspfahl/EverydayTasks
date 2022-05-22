@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
@@ -477,10 +478,51 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         child: Text(scheduledTask.description!),
       ));
     }
+
+    List<Widget> content = [];
+    if (!scheduledTask.active || scheduledTask.lastScheduledEventOn == null) {
+      content.add(const Text("- currently inactive -"));
+    }
+    else if (scheduledTask.isPaused) {
+      content.add(const Text("- paused -"));
+    }
+    else {
+      content.add(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: scheduledTask.isNextScheduleOverdue(false) || scheduledTask.isDueNow()
+                    ? Icon(Icons.warning_amber_outlined, color: scheduledTask.isDueNow() ? Color(0xFF770C0C) : Colors.red)
+                    : const Icon(Icons.watch_later_outlined),
+              ),
+              Text(_getDueMessage(scheduledTask), softWrap: true),
+            ]
+          )
+      );
+      content.add(const Text(""));
+      content.add(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: const Icon(MdiIcons.arrowExpandRight),
+              ),
+              Text(_getScheduledMessage(scheduledTask)),
+            ]
+          )
+      );
+    }
+
     expansionWidgets.addAll([
       Padding(
-        padding: EdgeInsets.all(4.0),
-        child: Text(_getDetailsMessage(scheduledTask), textAlign: TextAlign.center,),
+        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: content,
+        ),
       ),
       Divider(),
       Row(
@@ -725,57 +767,44 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     return expansionWidgets;
   }
 
-
-  String _getDetailsMessage(ScheduledTask scheduledTask) {
-    var debug = kReleaseMode ? "" : "last:${scheduledTask.lastScheduledEventOn}, next:${scheduledTask.getNextSchedule()}, ratio: ${scheduledTask.getNextRepetitionIndicatorValue()}, missing: ${scheduledTask.getMissingDuration()}, scheduled: ${scheduledTask.getScheduledDuration()}\n";
+  String _getDueMessage(ScheduledTask scheduledTask) {
     final nextSchedule = scheduledTask.getNextSchedule()!;
 
-    if (scheduledTask.active && scheduledTask.lastScheduledEventOn != null) {
-      var msg = "";
-      if (scheduledTask.isPaused) {
-        msg = debug + "- paused -";
-      }
-      else if (scheduledTask.isNextScheduleOverdue(false)) {
-        final dueString = scheduledTask.isNextScheduleOverdue(true)
-            ? "Overdue"
-            : "Due";
-        msg = debug +
-            "$dueString for ${formatDuration(scheduledTask.getMissingDuration()!, true)} "
-            "(${formatToDateOrWord(
+    if (scheduledTask.isNextScheduleOverdue(false)) {
+      final dueString = scheduledTask.isNextScheduleOverdue(true)
+          ? "Overdue"
+          : "Due";
+      return "$dueString for ${formatDuration(scheduledTask.getMissingDuration()!, true)} "
+              "\n"
+              "(${formatToDateOrWord(
               scheduledTask.getNextSchedule()!, context, withPreposition: true,
               makeWhenOnLowerCase: true)})!";
 
-      }
-      else if (scheduledTask.isDueNow()) {
-        msg = debug +
-            "Due now!";
-      }
-      else {
-        msg = debug +
-            "Due in ${formatDuration(scheduledTask.getMissingDuration()!)} "
-            "(${formatToDateOrWord(nextSchedule, context, withPreposition: true,
-              makeWhenOnLowerCase: true)} "
-              "${scheduledTask.schedule.toStartAtAsString().toLowerCase()})";
-      }
-
-      final passedDuration = scheduledTask.getPassedDuration();
-      var passedString = "";
-      if (passedDuration != null) {
-        passedString = passedDuration.isNegative
-            ? "in " + formatDuration(passedDuration.abs())
-            : formatDuration(passedDuration.abs()) + " ago";
-      }
-      return "$msg"
-          "\n\n"
-          "Scheduled $passedString "
-            "(${formatToDateOrWord(scheduledTask.lastScheduledEventOn!, context, withPreposition: true, makeWhenOnLowerCase: true)})";
+    }
+    else if (scheduledTask.isDueNow()) {
+      return "Due now!";
     }
     else {
-      return debug +
-          "- currently inactive -";
+      return "Due in ${formatDuration(scheduledTask.getMissingDuration()!)} "
+              "\n"
+              "(${formatToDateOrWord(nextSchedule, context, withPreposition: true,
+              makeWhenOnLowerCase: true)} "
+              "${scheduledTask.schedule.toStartAtAsString().toLowerCase()})";
     }
   }
 
+  String _getScheduledMessage(ScheduledTask scheduledTask) {
+    final passedDuration = scheduledTask.getPassedDuration();
+    var passedString = "";
+    if (passedDuration != null) {
+      passedString = passedDuration.isNegative
+          ? "in " + formatDuration(passedDuration.abs())
+          : formatDuration(passedDuration.abs()) + " ago";
+    }
+    return "Scheduled $passedString "
+        "\n"
+        "(${formatToDateOrWord(scheduledTask.lastScheduledEventOn!, context, withPreposition: true, makeWhenOnLowerCase: true)})";
+  }
 
   void _addScheduledTask(ScheduledTask scheduledTask) {
     setState(() {

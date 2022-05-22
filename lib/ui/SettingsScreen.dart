@@ -88,7 +88,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             SettingsTile.switchTile(
-              title: Text('Show time of days'),
+              title: Text('Show daytime as word'),
               description: Text("E.g. shows '${When.fromWhenAtDayToString(AroundWhenAtDay.EVENING)}' for the evening"),
               initialValue: _showTimeOfDayAsText,
               onToggle: (bool value) {

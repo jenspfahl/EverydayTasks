@@ -457,8 +457,14 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
     expansionWidgets.addAll([
       Padding(
-        padding: EdgeInsets.all(4.0),
-        child: _buildWhenText(taskEvent),
+        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            const Icon(Icons.watch_later_outlined),
+            _buildWhenText(taskEvent),
+          ],
+        ),
       ),
       Padding(
         padding: EdgeInsets.all(4.0),

@@ -157,6 +157,7 @@ class LocalNotificationService {
       usesChronometer: keepAsProgress,
       showProgress: keepAsProgress,
       autoCancel: !keepAsProgress,
+      icon: null, //TODO have TaskGroup Icons would be an option
       ongoing: keepAsProgress,
       priority: Priority.high,
       importance: Importance.high,
