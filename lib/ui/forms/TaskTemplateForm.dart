@@ -75,7 +75,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
       aroundDuration = template!.when?.durationHours;
       duration = template!.when?.durationExactly;
     
-      aroundStartedAt = template!.when?.startAt ?? AroundWhenAtDay.NOW;
+      aroundStartedAt = template!.when?.startAt;
       startedAt = template!.when?.startAtExactly;
     
     }
@@ -247,7 +247,9 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                                 initialTime: initialWhenAt,
                                 context: context,
                               ).then((selectedTimeOfDay) {
-                                setState(() => _customWhenAt = selectedTimeOfDay ?? initialWhenAt);
+                                if (selectedTimeOfDay != null) {
+                                  setState(() => _customWhenAt = selectedTimeOfDay);
+                                }
                               });
                             }
                             setState(() {

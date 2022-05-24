@@ -218,7 +218,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       initialTime: initialWhenAt,
                                       context: context,
                                     ).then((selectedTimeOfDay) {
-                                      setState(() => _customStartAt = selectedTimeOfDay ?? initialWhenAt);
+                                      if (selectedTimeOfDay != null) {
+                                        setState(() =>
+                                        _customStartAt = selectedTimeOfDay);
+                                      }
                                     });
                                   }
                                   setState(() {
@@ -284,20 +287,29 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       initialDate: initialScheduleFrom,
                                       firstDate: DateTime.now().subtract(Duration(days: 600)),
                                       lastDate: DateTime.now().add(Duration(days: 600)),
-                                    ).then((selectedDate) => setState(() {
-                                      if (isToday(selectedDate)) {
-                                        _selectedScheduleFrom = WhenOnDate.TODAY;
-                                        _customScheduleFrom = null;
-                                      } else if (isYesterday(selectedDate)) {
-                                        _selectedScheduleFrom = WhenOnDate.YESTERDAY;
-                                        _customScheduleFrom = null;
-                                      } else if (isBeforeYesterday(selectedDate)) {
-                                        _selectedScheduleFrom = WhenOnDate.BEFORE_YESTERDAY;
-                                        _customScheduleFrom = null;
-                                      } else {
-                                        _customScheduleFrom = selectedDate ?? initialScheduleFrom;
+                                    ).then((selectedDate) {
+                                      if (selectedDate != null) {
+                                        setState(() {
+                                          if (isToday(selectedDate)) {
+                                            _selectedScheduleFrom =
+                                                WhenOnDate.TODAY;
+                                            _customScheduleFrom = null;
+                                          } else
+                                          if (isYesterday(selectedDate)) {
+                                            _selectedScheduleFrom =
+                                                WhenOnDate.YESTERDAY;
+                                            _customScheduleFrom = null;
+                                          } else
+                                          if (isBeforeYesterday(selectedDate)) {
+                                            _selectedScheduleFrom =
+                                                WhenOnDate.BEFORE_YESTERDAY;
+                                            _customScheduleFrom = null;
+                                          } else {
+                                            _customScheduleFrom = selectedDate;
+                                          }
+                                        });
                                       }
-                                    }));
+                                    });
                                   }
                                   setState(() {
                                     _selectedScheduleFrom = value;

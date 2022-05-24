@@ -215,7 +215,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               ),
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: const Text('About'),
+                title: const Text('About The App'),
                 onTap: () async {
                   Navigator.pop(context);
                   final packageInfo = await PackageInfo.fromPlatform();
@@ -225,10 +225,10 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                   showConfirmationDialog(
                       context,
                       "About Everyday Tasks",
-                      "Everyday Tasks is an app to log, track and schedule daily tasks."
+                      "Everyday Tasks is an easy and quickly to use app to log, track and schedule daily tasks."
                           "\n\n© Jens Pfahl 2022"
                           "\n\nVersion $version:$build",
-                      icon: const Icon(Icons.info_outline),
+                      icon: Icon(Icons.task_alt, color: Colors.lime[700]),
                       okPressed: () =>  Navigator.pop(context),
                   );
                 },
