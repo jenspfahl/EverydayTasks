@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:flutter_treeview/flutter_treeview.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
@@ -38,7 +39,7 @@ class TaskTemplateList extends PageScaffold<TaskTemplateListState> {
 
   @override
   Widget getTitle() {
-    return Text('Tasks');
+    return Text(translate('pages.tasks'));
   }
 
   @override

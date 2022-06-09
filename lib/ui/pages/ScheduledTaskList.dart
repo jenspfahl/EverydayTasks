@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
@@ -48,7 +49,7 @@ class ScheduledTaskList extends PageScaffold<ScheduledTaskListState> {
 
   @override
   Widget getTitle() {
-    return Text('Schedules');
+    return Text(translate('pages.schedules'));
   }
 
   @override

@@ -61,7 +61,7 @@ String formatToDate(DateTime dateTime, BuildContext context) {
 
   final locale = Localizations.localeOf(context).languageCode;
   initializeDateFormatting(locale);
-
+debugPrint('showWeekdays=$showWeekdays');
   if (showWeekdays) {
     final yMEd = withoutYear ? DateFormat.MEd(locale) : DateFormat.yMEd(locale);
     final yMMMEd = withoutYear ? DateFormat.MMMEd(locale) : DateFormat.yMMMEd(locale);

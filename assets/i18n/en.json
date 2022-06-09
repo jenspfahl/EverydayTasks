@@ -1,0 +1,8 @@
+{
+  "pages" : {
+    "quick_add": "QuickAdd",
+    "journal": "Journal",
+    "schedules": "Schedules",
+    "tasks": "Tasks"
+  }
+}

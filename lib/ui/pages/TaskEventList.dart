@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
@@ -45,7 +46,7 @@ class TaskEventList extends PageScaffold<TaskEventListState> {
 
   @override
   Widget getTitle() {
-    return const Text("Journal");
+    return Text(translate('pages.journal'));
   }
 
   @override

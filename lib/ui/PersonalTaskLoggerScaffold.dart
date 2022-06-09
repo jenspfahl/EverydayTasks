@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/service/BackupRestoreService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
@@ -275,22 +276,22 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
         type: BottomNavigationBarType.fixed,
         showUnselectedLabels: true,
         showSelectedLabels: true,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline_outlined),
-            label: 'QuickAdd',
+            label: translate('pages.quick_add'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.event_available_rounded),
-            label: 'Journal',
+            label: translate('pages.journal'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.next_plan_outlined),
-            label: 'Schedules',
+            label: translate('pages.schedules'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.task_alt),
-            label: 'Tasks',
+            label: translate('pages.tasks'),
           ),
         ],
         selectedItemColor: Colors.lime[800],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
@@ -28,7 +29,7 @@ class QuickAddTaskEventPage extends PageScaffold<QuickAddTaskEventPageState> {
 
   @override
   Widget getTitle() {
-    return Text('QuickAdd');
+    return Text(translate('pages.quick_add'));
   }
 
   @override
