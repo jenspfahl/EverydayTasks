@@ -69,8 +69,8 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
         _severity = Severity.MEDIUM;
       }
     
-      titleController.text = template!.title;
-      descriptionController.text = template!.description ?? "";
+      titleController.text = template!.translatedTitle;
+      descriptionController.text = template!.translatedDescription ?? "";
     
       aroundDuration = template!.when?.durationHours;
       duration = template!.when?.durationExactly;
@@ -121,7 +121,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                   showConfirmationDialog(
                     context,
                     "Restore default",
-                    "This will restore the current $taskOrVariant '${template?.title}' to the predefined default.",
+                    "This will restore the current $taskOrVariant '${template?.translatedTitle}' to the predefined default.",
                     icon: const Icon(Icons.undo),
                     okPressed: () {
                       Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
@@ -353,7 +353,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
 
   TaskTemplate _createTaskTemplate(int? id, TimeOfDay? startedAtTimeOfDay, Duration? duration, bool? isFavorite) {
     final when = _createWhen(startedAtTimeOfDay, duration);
-    
+
     final taskTemplate = TaskTemplate(
       id: id,
       taskGroupId: widget._taskGroup.id!,

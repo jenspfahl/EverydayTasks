@@ -46,7 +46,7 @@ class TaskEventList extends PageScaffold<TaskEventListState> {
 
   @override
   Widget getTitle() {
-    return Text(translate('pages.journal'));
+    return Text(translate('pages.journal.title'));
   }
 
   @override
@@ -170,8 +170,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
         _filteredTaskEvents?..removeWhere((taskEvent) {
           if (_searchQuery != null &&
-              !(taskEvent.title.toLowerCase().contains(_searchQuery!.toLowerCase())
-                  || (taskEvent.description != null && taskEvent.description!.toLowerCase().contains(_searchQuery!.toLowerCase())))) {
+              !(taskEvent.translatedTitle.toLowerCase().contains(_searchQuery!.toLowerCase())
+                  || (taskEvent.translatedDescription != null && taskEvent.translatedDescription!.toLowerCase().contains(_searchQuery!.toLowerCase())))) {
             return true; // remove events not containing search string
           }
           if (taskFilterSettings.filterByTaskEventIds != null && !taskFilterSettings.filterByTaskEventIds!.contains(taskEvent.id!)) {
@@ -404,13 +404,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           child: ExpansionTile(
             key: GlobalKey(), // this makes updating all tiles if state changed
             title: isExpanded
-                ? Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})")
+                ? Text(kReleaseMode ? taskEvent.translatedTitle : "${taskEvent.translatedTitle} (id=${taskEvent.id})")
                 : Row(
               children: [
                   taskGroup.getIcon(true),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),
-                    child: Text(kReleaseMode ? taskEvent.title : "${taskEvent.title} (id=${taskEvent.id})"),
+                    child: Text(kReleaseMode ? taskEvent.translatedTitle : "${taskEvent.translatedTitle} (id=${taskEvent.id})"),
                   )
               ],
             ),
@@ -449,10 +449,10 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   List<Widget> _createExpansionWidgets(TaskEvent taskEvent) {
     var expansionWidgets = <Widget>[];
 
-    if (taskEvent.description != null && taskEvent.description!.isNotEmpty) {
+    if (taskEvent.translatedDescription != null && taskEvent.translatedDescription!.isNotEmpty) {
       expansionWidgets.add(Padding(
         padding: EdgeInsets.all(4.0),
-        child: Text(taskEvent.description!),
+        child: Text(taskEvent.translatedDescription!),
       ));
     }
 
@@ -520,13 +520,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                 onPressed: () async {
                   TaskEvent? changedTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return TaskEventForm(
-                        formTitle: "Change journal entry '${taskEvent.title}'",
+                        formTitle: "Change journal entry '${taskEvent.translatedTitle}'",
                         taskEvent: taskEvent);
                   }));
 
                   if (changedTaskEvent != null) {
                     TaskEventRepository.update(changedTaskEvent).then((updatedTaskEvent) {
-                      toastInfo(context, "Journal entry with name '${updatedTaskEvent.title}' changed");
+                      toastInfo(context, "Journal entry with name '${updatedTaskEvent.translatedTitle}' changed");
                       _updateTaskEvent(taskEvent, updatedTaskEvent);
                     });
                   }
@@ -538,7 +538,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                   showConfirmationDialog(
                     context,
                     "Delete journal entry",
-                    "Are you sure to delete '${taskEvent.title}' ?",
+                    "Are you sure to delete '${taskEvent.translatedTitle}' ?",
                     icon: const Icon(Icons.warning_amber_outlined),
                     okPressed: () {
                       TaskEventRepository.delete(taskEvent).then(
@@ -551,7 +551,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                                       scheduledTaskEvent);
                                 }
                           });
-                          toastInfo(context, "Journal entry '${taskEvent.title}' deleted");
+                          toastInfo(context, "Journal entry '${taskEvent.translatedTitle}' deleted");
                           _removeTaskEvent(taskEvent);
                         },
                       );
@@ -601,7 +601,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           Wrap(
             children: [
               boldedText("Title: "),
-              wrappedText(taskEvent.title),
+              wrappedText(taskEvent.translatedTitle),
             ],
           ),
           Row(
@@ -670,7 +670,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
             const Text(" /"),
           ],
         ),
-        wrappedText(originTemplate.title)
+        wrappedText(originTemplate.translatedTitle)
       ],);
   }
 
@@ -687,7 +687,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
             const Text(" /"),
           ],
         ),
-        wrappedText(scheduledTask.title)
+        wrappedText(scheduledTask.translatedTitle)
       ],);
   }
 
@@ -716,7 +716,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
                       if (newTaskEvent != null) {
                         TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                          toastInfo(super.context, "New journal entry with name '${newTaskEvent.title}' created");
+                          toastInfo(super.context, "New journal entry with name '${newTaskEvent.translatedTitle}' created");
                           addTaskEvent(newTaskEvent);
                         });
                       }
@@ -753,7 +753,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
                             if (newTaskEvent != null) {
                               TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                                toastInfo(super.context, "New journal entry with name '${newTaskEvent.title}' created");
+                                toastInfo(super.context, "New journal entry with name '${newTaskEvent.translatedTitle}' created");
                                 addTaskEvent(newTaskEvent);
                               });
                             }
@@ -823,13 +823,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       if (taskEvent != null) {
         if (isCreation) {
           TaskEventRepository.insert(taskEvent).then((newTaskEvent) {
-            toastInfo(context, "Journal entry with name '${newTaskEvent.title}' created");
+            toastInfo(context, "Journal entry with name '${newTaskEvent.translatedTitle}' created");
             addTaskEvent(newTaskEvent);
           });
         }
         else {
           TaskEventRepository.update(taskEvent).then((changedTaskEvent) {
-            toastInfo(context, "Journal entry with name '${changedTaskEvent.title}' changed");
+            toastInfo(context, "Journal entry with name '${changedTaskEvent.translatedTitle}' changed");
             _updateTaskEvent(taskEvent, changedTaskEvent);
           });
         }

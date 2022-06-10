@@ -135,8 +135,8 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                         const Spacer(),
                         Text(taskFilterSettings.filterByTaskOrTemplate != null
                             ? taskFilterSettings.filterByTaskOrTemplate is TaskGroup
-                            ? (taskFilterSettings.filterByTaskOrTemplate as TaskGroup).name
-                            : (taskFilterSettings.filterByTaskOrTemplate as Template).title
+                            ? (taskFilterSettings.filterByTaskOrTemplate as TaskGroup).translatedName
+                            : (taskFilterSettings.filterByTaskOrTemplate as Template).translatedTitle
                             : (taskFilterSettings.filterByTaskEventIds != null ? "Filter by schedule" : "Filter by task")),
                       ]
                   ),
@@ -211,7 +211,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
 
             case '4' : {
               if (taskFilterSettings.filterByTaskEventIds != null) {
-                toastInfo(context, "Filter by schedule '${taskFilterSettings.filterByScheduledTask!.title}' is selected. Click 'Clear all' to reset.");
+                toastInfo(context, "Filter by schedule '${taskFilterSettings.filterByScheduledTask!.translatedTitle}' is selected. Click 'Clear all' to reset.");
                 return;
               }
               //if (taskFilterSettings.filterByTaskOrTemplate == null) {

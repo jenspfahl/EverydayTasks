@@ -1,23 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 
+import 'TitleAndDescription.dart';
 import 'Severity.dart';
 import 'TemplateId.dart';
 import 'When.dart';
 
-abstract class Template extends Comparable {
+abstract class Template extends TitleAndDescription implements Comparable {
   TemplateId? tId;
   int taskGroupId;
 
-  String title;
-  String? description;
+
   When? when;
   Severity? severity;
   bool? favorite = false;
   bool? hidden = false;
 
   Template({this.tId, required this.taskGroupId,
-      required this.title, this.description, this.when, this.severity, this.favorite, this.hidden});
+      required String title, String? description, this.when, this.severity, this.favorite, this.hidden})
+  : super(title, description);
 
   bool isVariant() => tId != null && tId!.isVariant;
 

@@ -1,8 +1,32 @@
 {
   "pages" : {
-    "quick_add": "QuickAdd",
-    "journal": "Journal",
-    "schedules": "Schedules",
-    "tasks": "Tasks"
+    "quick_add": {
+      "title": "QuickAdd"
+    },
+    "journal": {
+      "title": "Journal"
+    },
+    "schedules": {
+      "title": "Schedules"
+    },
+    "tasks": {
+      "title": "Tasks"
+    }
+  },
+
+  "task_groups" : {
+    "cleaning_n_tidy_up" : {
+      "name" : "Cleaning & Tidy up",
+      "templates" : {
+        "tidy_up" : {
+          "title" : "Tidy up",
+          "variants" : {
+            "tidy_up_kitchen" : {
+              "title" : "Tidy up kitchen"
+            }
+          }
+        }
+      }
+    }
   }
 }

@@ -314,11 +314,11 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
       var title = "-unknown-";
       if (template != null) {
-        title = template.title;
+        title = template.translatedTitle;
       }
       else if (taskGroup != null) {
         title = _groupBy == GroupBy.TASK_GROUP
-            ? taskGroup.name
+            ? taskGroup.translatedName
             : "-others-";
       }
       final groupedByPresentation = Row(

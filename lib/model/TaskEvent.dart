@@ -2,14 +2,13 @@ import 'package:personaltasklogger/model/When.dart';
 
 import 'Severity.dart';
 import 'TemplateId.dart';
+import 'TitleAndDescription.dart';
 
-class TaskEvent implements Comparable {
+class TaskEvent extends TitleAndDescription implements Comparable {
   int? id;
   int? taskGroupId;
   TemplateId? originTemplateId;
 
-  String title;
-  String? description;
   DateTime createdAt = DateTime.now();
   DateTime startedAt;
   AroundWhenAtDay aroundStartedAt;
@@ -22,8 +21,8 @@ class TaskEvent implements Comparable {
       this.id,
       this.taskGroupId,
       this.originTemplateId,
-      this.title,
-      this.description,
+      String title,
+      String? description,
       this.createdAt,
       this.startedAt,
       this.aroundStartedAt,
@@ -31,7 +30,8 @@ class TaskEvent implements Comparable {
       this.aroundDuration,
       this.severity,
       this.favorite,
-      );
+      )
+  : super(title, description);
 
 
   DateTime get finishedAt => startedAt.add(duration);

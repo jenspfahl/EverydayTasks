@@ -11,6 +11,7 @@ import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/model/When.dart';
 
+import '../../util/i18n.dart';
 import '../database.dart';
 import 'mapper.dart';
 
@@ -19,6 +20,12 @@ class TemplateRepository {
   static Map<int, int> _taskTemplateVariantIdsToParentId = HashMap();
 
   static Future<Template> save(Template template) async {
+
+    // try map texts to i18n keys
+    if (template.tId?.isPredefined()??false) {
+      tryWrapI18nForTitleAndDescription(template, template.tId!);
+    }
+
     if (template.tId != null) {
       final foundTemplate = await findByIdJustDb(template.tId!);
       if (foundTemplate != null) {
@@ -76,6 +83,7 @@ class TemplateRepository {
     final database = await getDb();
 
     if (template is TaskTemplate) {
+
       final taskTemplateDao = database.taskTemplateDao;
       final entity = _mapTemplateToEntity(template);
       await taskTemplateDao.updateTaskTemplate(entity);
@@ -83,6 +91,7 @@ class TemplateRepository {
       return template;
     }
     else if (template is TaskTemplateVariant) {
+      
       final taskTemplateVariantDao = database.taskTemplateVariantDao;
       final entity = _mapTemplateVariantToEntity(template);
 

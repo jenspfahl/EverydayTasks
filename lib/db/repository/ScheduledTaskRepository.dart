@@ -16,6 +16,11 @@ class ScheduledTaskRepository {
 
     final database = await getDb();
 
+    // try map texts to i18n keys
+    if (scheduledTask.templateId?.isPredefined()??false) {
+      tryWrapI18nForTitleAndDescription(scheduledTask, scheduledTask.templateId!);
+    }
+
     final scheduledTaskDao = database.scheduledTaskDao;
     final entity = _mapToEntity(scheduledTask);
 
@@ -34,6 +39,11 @@ class ScheduledTaskRepository {
 
     final database = await getDb();
 
+    // try map texts to i18n keys
+    if (scheduledTask.templateId?.isPredefined()??false) {
+      tryWrapI18nForTitleAndDescription(scheduledTask, scheduledTask.templateId!);
+    }
+    
     final scheduledTaskDao = database.scheduledTaskDao;
     final entity = _mapToEntity(scheduledTask);
 

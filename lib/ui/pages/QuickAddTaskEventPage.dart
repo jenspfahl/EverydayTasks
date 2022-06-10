@@ -29,7 +29,7 @@ class QuickAddTaskEventPage extends PageScaffold<QuickAddTaskEventPageState> {
 
   @override
   Widget getTitle() {
-    return Text(translate('pages.quick_add'));
+    return Text(translate('pages.quick_add.title'));
   }
 
   @override
@@ -290,7 +290,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
     
           if (newTaskEvent != null) {
             TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-              toastInfo(super.context, "New journal entry with name '${newTaskEvent.title}' created");
+              toastInfo(super.context, "New journal entry with name '${newTaskEvent.translatedTitle}' created");
               _handleNewTaskEvent(newTaskEvent);
             });
           }
@@ -332,13 +332,13 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
             onLongPressStart: (details) {
               showConfirmationDialog(
                 context,
-                "Delete QuickAdd for '${template.title}'",
+                "Delete QuickAdd for '${template.translatedTitle}'",
                 "Are you sure to remove this QuickAdd? This will not affect the associated task.",
                 icon: const Icon(Icons.warning_amber_outlined),
                 okPressed: () {
                   template.favorite = false;
                   TemplateRepository.save(template).then((template) {
-                    toastInfo(context, "Removed '${template.title}' from QuickAdd");
+                    toastInfo(context, "Removed '${template.translatedTitle}' from QuickAdd");
 
                     setState(() {
                       _templates.remove(template);
@@ -364,7 +364,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                     newTaskEvent) {
                   toastInfo(context,
                       "New journal entry with name '${newTaskEvent
-                          .title}' created");
+                          .translatedTitle}' created");
                   _handleNewTaskEvent(newTaskEvent);
                 });
               }
@@ -379,7 +379,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                 child: Column(
                   children: [
                     taskGroup.getIcon(true),
-                    Text(template.title, textAlign: TextAlign.center),
+                    Text(template.translatedTitle, textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -436,7 +436,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                 child: Column(
                   children: [
                     taskGroup.getIcon(true),
-                    Text(taskGroup.name, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold),)
+                    Text(taskGroup.translatedName, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold),)
                   ],
                 ),
               ),
@@ -461,11 +461,11 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
           Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
           if (_templates.contains(template)) {
-            toastInfo(context, "'${template.title}' still present");
+            toastInfo(context, "'${template.translatedTitle}' still present");
           }
           else {
             updateTemplate(template);
-            toastInfo(context, "Added '${template.title}' to QuickAdd");
+            toastInfo(context, "Added '${template.translatedTitle}' to QuickAdd");
           }
         });
       }
@@ -525,8 +525,8 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   }
 
   int _sortTemplateByTitleAndId(Template t1, Template t2) {
-    final d1 = t1.title.toLowerCase();
-    final d2 = t2.title.toLowerCase();
+    final d1 = t1.translatedTitle.toLowerCase();
+    final d2 = t2.translatedTitle.toLowerCase();
     final c = d1.compareTo(d2);
     if (c == 0) {
       return t1.tId!.compareTo(t2.tId!);
@@ -535,8 +535,8 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   }
 
   int _sortTaskGroupByTitleAndId(TaskGroup t1, TaskGroup t2) {
-    final d1 = t1.name.toLowerCase();
-    final d2 = t2.name.toLowerCase();
+    final d1 = t1.translatedName.toLowerCase();
+    final d2 = t2.translatedName.toLowerCase();
     final c = d1.compareTo(d2);
     if (c == 0) {
       return t1.id!.compareTo(t2.id!);

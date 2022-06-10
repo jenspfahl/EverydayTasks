@@ -279,19 +279,19 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline_outlined),
-            label: translate('pages.quick_add'),
+            label: translate('pages.quick_add.title'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.event_available_rounded),
-            label: translate('pages.journal'),
+            label: translate('pages.journal.title'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.next_plan_outlined),
-            label: translate('pages.schedules'),
+            label: translate('pages.schedules.title'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.task_alt),
-            label: translate('pages.tasks'),
+            label: translate('pages.tasks.title'),
           ),
         ],
         selectedItemColor: Colors.lime[800],

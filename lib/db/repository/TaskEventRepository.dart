@@ -15,6 +15,11 @@ class TaskEventRepository {
 
     final database = await getDb();
 
+    // try map texts to i18n keys
+    if (taskEvent.originTemplateId?.isPredefined()??false) {
+      tryWrapI18nForTitleAndDescription(taskEvent, taskEvent.originTemplateId!);
+    }
+
     final taskEventDao = database.taskEventDao;
     final entity = _mapToEntity(taskEvent);
 
@@ -32,6 +37,11 @@ class TaskEventRepository {
   static Future<TaskEvent> update(TaskEvent taskEvent) async {
 
     final database = await getDb();
+
+    // try map texts to i18n keys
+    if (taskEvent.originTemplateId?.isPredefined()??false) {
+      tryWrapI18nForTitleAndDescription(taskEvent, taskEvent.originTemplateId!);
+    }
 
     final taskEventDao = database.taskEventDao;
     final entity = _mapToEntity(taskEvent);

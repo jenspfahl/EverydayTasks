@@ -1,8 +1,32 @@
 {
   "pages" : {
-    "quick_add": "QuickAdd",
-    "journal": "Journal",
-    "schedules": "Zeitpläne",
-    "tasks": "Aufgaben"
+    "quick_add": {
+      "title": "QuickAdd"
+    },
+    "journal": {
+      "title": "Journal"
+    },
+    "schedules": {
+      "title": "Zeitpläne"
+    },
+    "tasks": {
+      "title": "Aufgaben"
+    }
+  },
+
+  "task_groups" : {
+    "cleaning_n_tidy_up" : {
+      "name" : "Putzen & Aufräumen",
+      "templates" : {
+        "tidy_up" : {
+          "title" : "Aufräumen",
+          "variants" : {
+            "tidy_up_kitchen" : {
+              "title" : "Küche aufräumen"
+            }
+          }
+        }
+      }
+    }
   }
 }

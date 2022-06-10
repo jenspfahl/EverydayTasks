@@ -91,8 +91,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
       _severity = _taskEvent!.severity;
 
-      _titleController.text = _taskEvent!.title;
-      _descriptionController.text = _taskEvent!.description ?? "";
+      _titleController.text = _taskEvent!.translatedTitle;
+      _descriptionController.text = _taskEvent!.translatedDescription ?? "";
 
       aroundDuration = _taskEvent!.aroundDuration;
       duration = _taskEvent!.duration;
@@ -114,8 +114,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
         _severity = _template!.severity!;
       }
 
-      _titleController.text = _template!.title;
-      _descriptionController.text = _template!.description ?? "";
+      _titleController.text = _template!.translatedTitle;
+      _descriptionController.text = _template!.translatedDescription ?? "";
 
       aroundDuration = _template!.when?.durationHours;
       duration = _template!.when?.durationExactly;

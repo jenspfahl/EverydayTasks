@@ -4,14 +4,13 @@ import 'package:personaltasklogger/util/dates.dart';
 import 'Schedule.dart';
 import 'Template.dart';
 import 'TemplateId.dart';
+import 'TitleAndDescription.dart';
 
-class ScheduledTask implements Comparable {
+class ScheduledTask extends TitleAndDescription implements Comparable {
   int? id;
   int taskGroupId;
   TemplateId? templateId;
 
-  String title;
-  String? description;
   DateTime createdAt = DateTime.now();
   Schedule schedule;
   DateTime? lastScheduledEventOn;
@@ -22,14 +21,15 @@ class ScheduledTask implements Comparable {
     this.id,
     required this.taskGroupId,
     this.templateId,
-    required this.title,
-    this.description,
+    required String title,
+    String? description,
     required this.createdAt,
     required this.schedule,
     this.lastScheduledEventOn,
     required this.active,
     this.pausedAt,
-  });
+  })
+  : super(title, description);
 
   ScheduledTask.forTemplate(
       Template template,
@@ -37,9 +37,8 @@ class ScheduledTask implements Comparable {
       ) :
         taskGroupId = template.taskGroupId,
         templateId = template.tId!,
-        title = template.title,
-        description = template.description,
-        schedule = schedule;
+        schedule = schedule,
+        super(template.title, template.description);
 
   bool get isPaused => pausedAt != null;
 

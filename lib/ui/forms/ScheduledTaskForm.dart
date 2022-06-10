@@ -56,8 +56,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     super.initState();
 
     if (_scheduledTask != null) {
-      titleController.text = _scheduledTask!.title;
-      descriptionController.text = _scheduledTask!.description ?? "";
+      titleController.text = _scheduledTask!.translatedTitle;
+      descriptionController.text = _scheduledTask!.translatedDescription ?? "";
 
       _selectedRepetitionStep = _scheduledTask!.schedule.repetitionStep;
       _customRepetition = _scheduledTask!.schedule.customRepetition;
@@ -76,8 +76,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       _repetitionMode = _scheduledTask!.schedule.repetitionMode;
     }
     else if (_template != null) {
-      titleController.text = _template!.title;
-      descriptionController.text = _template?.description ?? "";
+      titleController.text = _template!.translatedTitle;
+      descriptionController.text = _template?.translatedDescription ?? "";
 
       _selectedStartAt = _template?.when?.startAt;
       _customStartAt = _template?.when?.startAtExactly;
