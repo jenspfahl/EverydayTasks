@@ -27,6 +27,71 @@
           }
         }
       }
+    },
+
+    "laundry" : {
+      "name" : "Laundry"
+    },
+
+    "cooking" : {
+      "name" : "Cooking"
+    },
+
+    "dishes" : {
+      "name" : "Dishes"
+    },
+
+    "errands" : {
+      "name" : "Errands"
+    },
+
+    "kids" : {
+      "name" : "Kids"
+    },
+
+    "indoor_plants" : {
+      "name" : "Indoor plants"
+    },
+
+    "garden" : {
+      "name" : "Garden"
+    },
+
+    "maintenance" : {
+      "name" : "Maintenance"
+    },
+
+    "organization" : {
+      "name" : "Organization"
+    },
+
+    "car" : {
+      "name" : "Car"
+    },
+
+    "pets" : {
+      "name" : "Pets"
+    },
+
+    "finance" : {
+      "name" : "Finance"
+    },
+
+    "health" : {
+      "name" : "Health"
+    },
+
+    "sport" : {
+      "name" : "Sport"
+    },
+
+    "work" : {
+      "name" : "Work"
+    },
+
+    "others" : {
+      "name" : "Others"
     }
+
   }
 }

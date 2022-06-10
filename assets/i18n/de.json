@@ -27,6 +27,70 @@
           }
         }
       }
+    },
+
+    "laundry" : {
+      "name" : "Wäsche"
+    },
+
+    "cooking" : {
+      "name" : "Kochen"
+    },
+
+    "dishes" : {
+      "name" : "Abwasch"
+    },
+
+    "errands" : {
+      "name" : "Einkaufen"
+    },
+
+    "kids" : {
+      "name" : "Kinder"
+    },
+
+    "indoor_plants" : {
+      "name" : "Zimmerpflanzen"
+    },
+
+    "garden" : {
+      "name" : "Garten"
+    },
+
+    "maintenance" : {
+      "name" : "Reperaturen"
+    },
+
+    "organization" : {
+      "name" : "Organisation"
+    },
+
+    "car" : {
+      "name" : "Auto"
+    },
+
+    "pets" : {
+      "name" : "Haustiere"
+    },
+
+    "finance" : {
+      "name" : "Finanzen"
+    },
+
+    "health" : {
+      "name" : "Gesundheit"
+    },
+
+    "sport" : {
+      "name" : "Sport"
+    },
+
+    "work" : {
+      "name" : "Arbeit"
+    },
+
+    "others" : {
+      "name" : "Anderes"
     }
   }
 }
