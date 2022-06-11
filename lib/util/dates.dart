@@ -52,6 +52,10 @@ String formatToDate(DateTime dateTime, BuildContext context) {
   final preferenceService = PreferenceService();
   final showWeekdays = preferenceService.showWeekdays;
   final dateFormatSelection = preferenceService.dateFormatSelection;
+  return formatToDateWithFormatSelection(dateTime, context, dateFormatSelection, showWeekdays);
+}
+
+formatToDateWithFormatSelection(DateTime dateTime, BuildContext context, int dateFormatSelection, bool showWeekdays) {
   final isSameYear = dateTime.year == DateTime.now().year;
   final formatter = getDateFormat(context, dateFormatSelection, showWeekdays, isSameYear);
   return formatter.format(dateTime);

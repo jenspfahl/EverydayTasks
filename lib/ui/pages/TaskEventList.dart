@@ -180,6 +180,9 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           if (taskFilterSettings.filterByDateRange != null && taskEvent.startedAt.isBefore(truncToDate(taskFilterSettings.filterByDateRange!.start))) {
             return true; // remove events before dateFrom
           }
+          if (taskFilterSettings.filterByDateRange != null && taskEvent.startedAt.isAfter(truncToDate(taskFilterSettings.filterByDateRange!.end))) {
+            return true; // remove events after dateTo
+          }
           if (taskFilterSettings.filterBySeverity != null && taskEvent.severity != taskFilterSettings.filterBySeverity) {
             return true; // remove events don't match given severity
           }
