@@ -25,68 +25,247 @@
               "title" : "Tidy up kitchen"
             }
           }
+        },
+        "cleaning" : {
+          "title" : "Cleaning"
+        },
+        "hoovering" : {
+          "title" : "Hoovering"
+        },
+        "wiping" : {
+          "title" : "Wiping"
+        },
+        "empty_bin" : {
+          "title" : "Empty bin"
+        },
+        "dispose_wastepaper_n_used_glass" : {
+          "title" : "Dispose wastepaper & used glass"
         }
       }
     },
 
     "laundry" : {
-      "name" : "Laundry"
+      "name" : "Laundry",
+      "templates" : {
+        "fill_washing_machine" : {
+          "title" : "Fill washing machine"
+        },
+        "empty_washing_machine" : {
+          "title" : "Empty washing machine",
+          "description" : "Empty it and put on laundry rack"
+        },
+        "get_from_laundry_rack" : {
+          "title" : "Get from laundry rack"
+        },
+        "put_to_closet" : {
+          "title" : "Put to closet"
+        },
+        "ironing" : {
+          "title" : "Ironing"
+        },
+        "change_bed_linen" : {
+          "title" : "Change bed linen"
+        },
+        "change_towels" : {
+          "title" : "Change towels"
+        }
+      }
     },
 
     "cooking" : {
-      "name" : "Cooking"
+      "name" : "Cooking",
+      "templates" : {
+        "prepare_breakfast" : {
+          "title" : "Prepare breakfast"
+        },
+        "cook_lunch" : {
+          "title" : "Cook lunch"
+        },
+        "prepare_dinner" : {
+          "title" : "Prepare dinner"
+        }
+      }
     },
 
     "dishes" : {
-      "name" : "Dishes"
+      "name" : "Dishes",
+      "templates" : {
+        "wash_up" : {
+          "title" : "Wash up"
+        },
+        "dry_up" : {
+          "title" : "Dry up"
+        },
+        "fill_n_start_dishwasher" : {
+          "title" : "Fill & start dishwasher"
+        },
+        "empty_dishwasher" : {
+          "title" : "Empty dishwasher"
+        }
+      }
     },
 
     "errands" : {
-      "name" : "Errands"
+      "name" : "Errands",
+      "templates" : {
+        "shop_groceries" : {
+          "title" : "Shop groceries"
+        },
+        "shop_diapers" : {
+          "title" : "Shop diapers"
+        }
+      }
     },
 
     "kids" : {
-      "name" : "Kids"
+      "name" : "Kids",
+      "templates" : {
+        "feeding" : {
+          "title" : "Feeding"
+        },
+        "bring_to_daycare" : {
+          "title" : "Bring to daycare"
+        },
+        "pickup_from_daycare" : {
+          "title" : "Pickup from daycare"
+        },
+        "bring_to_bed" : {
+          "title" : "Bring to bed"
+        }
+      }
     },
 
     "indoor_plants" : {
-      "name" : "Indoor plants"
+      "name" : "Indoor plants",
+      "templates" : {
+        "water_plants" : {
+          "title" : "Water plants"
+        },
+        "dung_plants" : {
+          "title" : "Dung plants"
+        }
+      }
     },
 
     "garden" : {
-      "name" : "Garden"
+      "name" : "Garden",
+      "templates" : {
+        "water_vegetable_patch" : {
+          "title" : "Water vegetable patch"
+        },
+        "dig_vegetable_patch" : {
+          "title" : "Dig vegetable patch"
+        },
+        "cut_lawn" : {
+          "title" : "Cut lawn"
+        }
+      }
     },
 
     "maintenance" : {
-      "name" : "Maintenance"
+      "name" : "Maintenance",
+      "templates" : {
+        "defrost_fridge" : {
+          "title" : "Defrost fridge"
+        },
+        "fixing" : {
+          "title" : "Fixing"
+        }
+      }
     },
 
     "organization" : {
-      "name" : "Organization"
+      "name" : "Organization",
+      "templates" : {
+        "organize_vacation" : {
+          "title" : "Organize vacation"
+        },
+        "shop_gifts" : {
+          "title" : "Shop gifts"
+        }
+      }
     },
 
     "car" : {
-      "name" : "Car"
+      "name" : "Car",
+      "templates" : {
+        "regular_inspection" : {
+          "title" : "Regular inspection"
+        },
+        "change_windshield_wipers" : {
+          "title" : "Change windshield wipers"
+        },
+        "change_tires" : {
+          "title" : "Change tires"
+        }
+      }
     },
 
     "pets" : {
-      "name" : "Pets"
+      "name" : "Pets",
+      "templates" : {
+        "go_for_a_walk" : {
+          "title" : "Go for a walk",
+          "description" : "with the dog"
+        },
+        "clean_aquarium_terrarium" : {
+          "title" : "Clean aquarium/terrarium"
+        },
+        "go_to_vet" : {
+          "title" : "Go to vet"
+        }
+      }
     },
 
     "finance" : {
-      "name" : "Finance"
+      "name" : "Finance",
+      "templates" : {
+        "pay_instalments" : {
+          "title" : "Pay instalments"
+        },
+        "pay_rent" : {
+          "title" : "Pay rent"
+        }
+      }
     },
 
     "health" : {
-      "name" : "Health"
+      "name" : "Health",
+      "templates" : {
+        "take_medication" : {
+          "title" : "Take medication"
+        },
+        "regular_health_check_up" : {
+          "title" : "Regular health check up"
+        },
+        "yearly_dentist_examination" : {
+          "title" : "Yearly dentist examination"
+        }
+      }
     },
 
     "sport" : {
-      "name" : "Sport"
+      "name" : "Sport",
+      "templates" : {
+        "go_to_gym" : {
+          "title" : "Go to gym"
+        },
+        "do_a_workout" : {
+          "title" : "Do a workout"
+        }
+      }
     },
 
     "work" : {
-      "name" : "Work"
+      "name" : "Work",
+      "templates" : {
+        "submit_expenses" : {
+          "title" : "Submit expenses"
+        },
+        "negotiate_salary" : {
+          "title" : "Negotiate salary"
+        }
+      }
     },
 
     "others" : {

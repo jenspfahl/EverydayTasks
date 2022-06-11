@@ -30,63 +30,108 @@
     },
 
     "laundry" : {
-      "name" : "Wäsche"
+      "name" : "Wäsche",
+      "templates" : {
+
+      }
     },
 
     "cooking" : {
-      "name" : "Kochen"
+      "name" : "Kochen",
+      "templates" : {
+
+      }
     },
 
     "dishes" : {
-      "name" : "Abwasch"
+      "name" : "Abwasch",
+      "templates" : {
+
+      }
     },
 
     "errands" : {
-      "name" : "Einkaufen"
+      "name" : "Einkaufen",
+      "templates" : {
+
+      }
     },
 
     "kids" : {
-      "name" : "Kinder"
+      "name" : "Kinder",
+      "templates" : {
+
+      }
     },
 
     "indoor_plants" : {
-      "name" : "Zimmerpflanzen"
+      "name" : "Zimmerpflanzen",
+      "templates" : {
+
+      }
     },
 
     "garden" : {
-      "name" : "Garten"
+      "name" : "Garten",
+      "templates" : {
+
+      }
     },
 
     "maintenance" : {
-      "name" : "Reperaturen"
+      "name" : "Reperaturen",
+      "templates" : {
+
+      }
     },
 
     "organization" : {
-      "name" : "Organisation"
+      "name" : "Organisation",
+      "templates" : {
+
+      }
     },
 
     "car" : {
-      "name" : "Auto"
+      "name" : "Auto",
+      "templates" : {
+
+      }
     },
 
     "pets" : {
-      "name" : "Haustiere"
+      "name" : "Haustiere",
+      "templates" : {
+
+      }
     },
 
     "finance" : {
-      "name" : "Finanzen"
+      "name" : "Finanzen",
+      "templates" : {
+
+      }
     },
 
     "health" : {
-      "name" : "Gesundheit"
+      "name" : "Gesundheit",
+      "templates" : {
+
+      }
     },
 
     "sport" : {
-      "name" : "Sport"
+      "name" : "Sport",
+      "templates" : {
+
+      }
     },
 
     "work" : {
-      "name" : "Arbeit"
+      "name" : "Arbeit",
+      "templates" : {
+
+      }
     },
 
     "others" : {
