@@ -23,8 +23,43 @@
           "variants" : {
             "tidy_up_kitchen" : {
               "title" : "Küche aufräumen"
+            },
+            "tidy_up_living_room" : {
+              "title" : "Wohnzimmer aufräumen"
             }
           }
+        },
+        "cleaning" : {
+          "title" : "Putzen",
+          "variants" : {
+            "cleaning_toilet" : {
+              "title" : "Toilette putzen"
+            },
+            "cleaning_sink" : {
+              "title" : "Waschbecken putzen"
+            },
+            "cleaning_shower_o_bathtub" : {
+              "title" : "Dusche / Badewanne putzen"
+            },
+            "cleaning_windows" : {
+              "title" : "Fenster putzen"
+            },
+            "cleaning_fridge" : {
+              "title" : "Kühlschrank putzen"
+            }
+          }
+        },
+        "hoovering" : {
+          "title" : "Staubsaugen"
+        },
+        "wiping" : {
+          "title" : "Wischen"
+        },
+        "empty_bin" : {
+          "title" : "Müll leeren"
+        },
+        "dispose_wastepaper_n_used_glass" : {
+          "title" : "Altpapier & Altglass entsorgen"
         }
       }
     },
@@ -32,105 +67,233 @@
     "laundry" : {
       "name" : "Wäsche",
       "templates" : {
-
+        "fill_washing_machine" : {
+          "title" : "Waschmaschine füllen"
+        },
+        "empty_washing_machine" : {
+          "title" : "Waschmaschine leeren",
+          "description" : "Leeren und auf Wäscheständer hängen"
+        },
+        "get_from_laundry_rack" : {
+          "title" : "Wäscheständer abnehmen"
+        },
+        "put_to_closet" : {
+          "title" : "In den Schrank räumen"
+        },
+        "ironing" : {
+          "title" : "Bügeln"
+        },
+        "change_bed_linen" : {
+          "title" : "Bettwäsche wechseln"
+        },
+        "change_towels" : {
+          "title" : "Handtücher tauschen"
+        }
       }
     },
 
     "cooking" : {
       "name" : "Kochen",
       "templates" : {
-
+        "prepare_breakfast" : {
+          "title" : "Frühstück machen"
+        },
+        "cook_lunch" : {
+          "title" : "Mittagessen kochen"
+        },
+        "prepare_dinner" : {
+          "title" : "Abendbrot vorbereiten"
+        }
       }
     },
 
     "dishes" : {
-      "name" : "Abwasch",
+      "name" : "Geschirr",
       "templates" : {
-
+        "wash_up" : {
+          "title" : "Abwaschen",
+          "variants" : {
+            "wash_up_after_dinner" : {
+              "title" : "Nach Mittagessen abwaschen"
+            },
+            "wash_up_after_lunch" : {
+              "title" : "Nach Abendbrot abwaschen"
+            }
+          }
+        },
+        "dry_up" : {
+          "title" : "Abtrocknen"
+        },
+        "fill_n_start_dishwasher" : {
+          "title" : "Geschirrspüler füllen & starten"
+        },
+        "empty_dishwasher" : {
+          "title" : "Geschirrspüler ausräumen"
+        }
       }
     },
 
     "errands" : {
       "name" : "Einkaufen",
       "templates" : {
-
+        "shop_groceries" : {
+          "title" : "Lebensmittel einkaufen"
+        },
+        "shop_diapers" : {
+          "title" : "Windeln kaufen"
+        }
       }
     },
 
     "kids" : {
       "name" : "Kinder",
       "templates" : {
-
+        "feeding" : {
+          "title" : "Füttern"
+        },
+        "bring_to_daycare" : {
+          "title" : "In die Kita bringen"
+        },
+        "pickup_from_daycare" : {
+          "title" : "Von der Kita abholen"
+        },
+        "bring_to_bed" : {
+          "title" : "Ins Bett bringen"
+        }
       }
     },
 
     "indoor_plants" : {
       "name" : "Zimmerpflanzen",
       "templates" : {
-
+        "water_plants" : {
+          "title" : "Gießen"
+        },
+        "dung_plants" : {
+          "title" : "Düngen"
+        }
       }
     },
 
     "garden" : {
       "name" : "Garten",
       "templates" : {
-
+        "water_vegetable_patch" : {
+          "title" : "Beete gießen"
+        },
+        "dig_vegetable_patch" : {
+          "title" : "Beete umgraben"
+        },
+        "cut_lawn" : {
+          "title" : "Rasenmähen"
+        }
       }
     },
 
     "maintenance" : {
-      "name" : "Reperaturen",
+      "name" : "Wartung & Pflege",
       "templates" : {
-
+        "defrost_fridge" : {
+          "title" : "Gefrierschrank abtauen"
+        },
+        "fixing" : {
+          "title" : "Reparaturen"
+        }
       }
     },
 
     "organization" : {
       "name" : "Organisation",
       "templates" : {
-
+        "organize_vacation" : {
+          "title" : "Urlaub planen"
+        },
+        "shop_gifts" : {
+          "title" : "Geschenke recherchieren"
+        }
       }
     },
 
     "car" : {
       "name" : "Auto",
       "templates" : {
-
+        "regular_inspection" : {
+          "title" : "TÜV & HU"
+        },
+        "change_windshield_wipers" : {
+          "title" : "Scheibenwischer tauschen"
+        },
+        "change_tires" : {
+          "title" : "Räder wechseln",
+          "description" : "Winter- / Sommerräder"
+        }
       }
     },
 
     "pets" : {
       "name" : "Haustiere",
       "templates" : {
-
+        "go_for_a_walk" : {
+          "title" : "Gassi gehen",
+          "description" : "mit dem Hund"
+        },
+        "clean_aquarium_terrarium" : {
+          "title" : " Aquarium/Terrarium putzen"
+        },
+        "go_to_vet" : {
+          "title" : "Zum Tierarzt gehen"
+        }
       }
     },
 
     "finance" : {
       "name" : "Finanzen",
       "templates" : {
-
+        "pay_instalments" : {
+          "title" : "Raten zahlen"
+        },
+        "pay_rent" : {
+          "title" : "Miete zahlen"
+        }
       }
     },
 
     "health" : {
       "name" : "Gesundheit",
       "templates" : {
-
+        "take_medication" : {
+          "title" : "Medikamente nehmen"
+        },
+        "regular_health_check_up" : {
+          "title" : "Gesundheits-Checkup"
+        },
+        "yearly_dentist_examination" : {
+          "title" : "Jährliche Zahnuntersuchung"
+        }
       }
     },
 
     "sport" : {
       "name" : "Sport",
       "templates" : {
-
+        "go_to_gym" : {
+          "title" : "Ins Fitnessstudio gehen"
+        },
+        "do_a_workout" : {
+          "title" : "Laufen gehen"
+        }
       }
     },
 
     "work" : {
       "name" : "Arbeit",
       "templates" : {
-
+        "submit_expenses" : {
+          "title" : "Spesen einreichen"
+        },
+        "negotiate_salary" : {
+          "title" : "Gehalt verhandlen"
+        }
       }
     },
 

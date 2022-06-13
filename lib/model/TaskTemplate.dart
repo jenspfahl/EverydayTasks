@@ -4,6 +4,7 @@ import 'package:personaltasklogger/model/TemplateId.dart';
 
 import '../util/i18n.dart';
 import 'Severity.dart';
+import 'TitleAndDescription.dart';
 import 'When.dart';
 
 class TaskTemplate extends Template {
@@ -45,31 +46,17 @@ class TaskTemplate extends Template {
   );
 
   static String _createI18nKeyForTitle(int taskGroupId, String i18nTitle) {
-    final taskGroup = findPredefinedTaskGroupById(taskGroupId);
-    final taskGroupName = taskGroup.name;
-    if (isI18nKey(taskGroupName)) {
-      final key = extractI18nKey(taskGroupName);
-      final newKey = key.substring(0,key.indexOf(".name")) + ".templates." + i18nTitle + ".title";
-      return wrapToI18nKey(newKey);
-
-    }
-    else {
-      return i18nTitle;
-    }
+    return _createI18nKey(taskGroupId, i18nTitle, "title")!;
   }
 
   static String? _createI18nKeyForDescription(int taskGroupId, String? i18nDescription) {
+    return _createI18nKey(taskGroupId, i18nDescription, "description");
+  }
+  
+  static String? _createI18nKey(int taskGroupId, String? i18nKey, String subKey) {
     final taskGroup = findPredefinedTaskGroupById(taskGroupId);
     final taskGroupName = taskGroup.name;
-    if (i18nDescription != null && isI18nKey(taskGroupName)) {
-      final key = extractI18nKey(taskGroupName);
-      final newKey = key.substring(0,key.indexOf(".name")) + ".templates." + i18nDescription + ".description";
-      return wrapToI18nKey(newKey);
-
-    }
-    else {
-      return i18nDescription;
-    }
+    return TitleAndDescription.createPredefinedI18nKey(taskGroupName, i18nKey, "name", "templates", subKey);
   }
 
 
@@ -136,7 +123,7 @@ List<TaskTemplate> predefinedTaskTemplates = [
   // Car
   TaskTemplate.data(subId: -1, i18nTitle: "regular_inspection", taskGroupId: -11),
   TaskTemplate.data(subId: -2, i18nTitle: "change_windshield_wipers", taskGroupId: -11),
-  TaskTemplate.data(subId: -3, i18nTitle: "change_tires", taskGroupId: -11),
+  TaskTemplate.data(subId: -3, i18nTitle: "change_tires", i18nDescription: "change_tires", taskGroupId: -11),
 
   // Pets
   TaskTemplate.data(subId: -1, i18nTitle: "go_for_a_walk", i18nDescription: "go_for_a_walk", taskGroupId: -12),

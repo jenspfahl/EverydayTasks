@@ -23,11 +23,31 @@
           "variants" : {
             "tidy_up_kitchen" : {
               "title" : "Tidy up kitchen"
+            },
+            "tidy_up_living_room" : {
+              "title" : "Tidy up living room"
             }
           }
         },
         "cleaning" : {
-          "title" : "Cleaning"
+          "title" : "Cleaning",
+          "variants" : {
+            "cleaning_toilet" : {
+              "title" : "Cleaning toilet"
+            },
+            "cleaning_sink" : {
+              "title" : "Cleaning sink"
+            },
+            "cleaning_shower_o_bathtub" : {
+              "title" : "Cleaning shower / bathtub"
+            },
+            "cleaning_windows" : {
+              "title" : "Cleaning windows"
+            },
+            "cleaning_fridge" : {
+              "title" : "Cleaning fridge"
+            }
+          }
         },
         "hoovering" : {
           "title" : "Hoovering"
@@ -91,7 +111,15 @@
       "name" : "Dishes",
       "templates" : {
         "wash_up" : {
-          "title" : "Wash up"
+          "title" : "Wash up",
+          "variants" : {
+            "wash_up_after_dinner" : {
+              "title" : "Wash up after dinner"
+            },
+            "wash_up_after_lunch" : {
+              "title" : "Wash up after lunch"
+            }
+          }
         },
         "dry_up" : {
           "title" : "Dry up"
@@ -181,7 +209,7 @@
           "title" : "Organize vacation"
         },
         "shop_gifts" : {
-          "title" : "Shop gifts"
+          "title" : "Investigate gifts"
         }
       }
     },
@@ -196,7 +224,8 @@
           "title" : "Change windshield wipers"
         },
         "change_tires" : {
-          "title" : "Change tires"
+          "title" : "Change wheels",
+          "description" : "winter / summer wheels"
         }
       }
     },
