@@ -295,7 +295,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
     final statusTile = Column(
       children: [
-        GestureDetector(
+        TextButton(
+          style: ButtonStyle(
+            alignment: Alignment.centerLeft,
+            visualDensity: VisualDensity.compact,
+            padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
+          ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Row(
@@ -314,7 +319,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               ],
             ),
           ),
-          onTapDown: (_) {
+          onPressed: () {
             setState(() {
               _statusTileHidden = !_statusTileHidden;
             });

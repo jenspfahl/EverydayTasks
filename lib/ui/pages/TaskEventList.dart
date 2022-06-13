@@ -366,6 +366,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
     final listTile = ListTile(
       dense: true,
+      visualDensity: VisualDensity(horizontal: 0, vertical: -4),
+      minVerticalPadding: 2.0,
       title: dateHeading != null
           ? TextButton(
               style: ButtonStyle(
