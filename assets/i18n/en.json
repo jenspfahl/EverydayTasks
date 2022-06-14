@@ -1,4 +1,17 @@
 {
+  "scaffold" : {
+    "navigation" : {
+      "header_subtitle" : "Track, log and schedule tasks",
+      "menus" : {
+        "settings" : "Settings",
+        "backup_as_file" : "Backup as file",
+        "restore_from_file" : "Restore from file",
+        "online_help" : "Online help",
+        "about_the_app" : "About the app",
+        "report_a_bug" : "Report a bug"
+      }
+    }
+  },
   "pages" : {
     "quick_add": {
       "title": "QuickAdd"

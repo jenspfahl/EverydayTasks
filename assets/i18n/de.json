@@ -1,10 +1,23 @@
 {
+  "scaffold" : {
+    "navigation" : {
+      "header_subtitle" : "Track, log and schedule tasks",
+      "menus" : {
+        "settings" : "Einstellungen",
+        "backup_as_file" : "Backup",
+        "restore_from_file" : "Wiederherstellen",
+        "online_help" : "Online Hilfe",
+        "about_the_app" : "Über die App",
+        "report_a_bug" : "Fehler melden"
+      }
+    }
+  },
   "pages" : {
     "quick_add": {
-      "title": "QuickAdd"
+      "title": "Erfassung"
     },
     "journal": {
-      "title": "Journal"
+      "title": "Verlauf"
     },
     "schedules": {
       "title": "Zeitpläne"

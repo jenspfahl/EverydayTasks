@@ -1,6 +1,12 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PreferenceService {
+class PreferenceService implements ITranslatePreferences {
+
+  static final PREF_LANGUAGE_SELECTION = "common/languageSelection";
 
   static final PREF_SHOW_TIME_OF_DAY_AS_TEXT = "common/showTimeOfDayAsText";
   
@@ -10,10 +16,10 @@ class PreferenceService {
   static final PREF_SHOW_ACTION_NOTIFICATIONS = "common/showActionNotifications";
   static final PREF_SHOW_ACTION_NOTIFICATION_DURATION_SELECTION = "common/showActionNotificationDurationSelection";
 
-  static final PreferenceService _notificationService = PreferenceService._internal();
+  static final PreferenceService _service = PreferenceService._internal();
 
   factory PreferenceService() {
-    return _notificationService;
+    return _service;
   }
 
   PreferenceService._internal() {
@@ -40,6 +46,7 @@ class PreferenceService {
   bool showTimeOfDayAsText = true;
   bool showWeekdays = true;
   int dateFormatSelection = 1;
+  int languageSelection = 0;
 
   Future<String?> getString(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -68,7 +75,7 @@ class PreferenceService {
   Future<bool> setInt(String key, int value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    return prefs.setInt(key,value);
+    return prefs.setInt(key, value);
   }
 
   Future<bool> setBool(String key, bool value) async {
@@ -81,6 +88,44 @@ class PreferenceService {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     return prefs.remove(key);
+  }
+
+  @override
+  Future<Locale?> getPreferredLocale() async {
+    final languageSelection = await getInt(PREF_LANGUAGE_SELECTION);
+
+    this.languageSelection = languageSelection??0;
+
+    if (languageSelection != null) {
+      final locale = _getLocaleFromSelection(languageSelection);
+
+      if (locale != null) {
+        return Future.value(locale);
+      }
+    }
+    return Future.value(null);
+  }
+
+  @override
+  Future savePreferredLocale(Locale locale) async {
+    // not needed, saved by SettingsScreen.dart
+  }
+
+  String getLanguageSelectionAsString(int languageSelection) {
+    switch (languageSelection) {
+      case 1: return 'English';
+      case 2: return 'Deutsch';
+    }
+    return 'System default';
+  }
+
+
+  Locale? _getLocaleFromSelection(int languageSelection) {
+    switch (languageSelection) {
+      case 1: return Locale('en');
+      case 2: return Locale('de');
+    }
+    return null;
   }
 
 }

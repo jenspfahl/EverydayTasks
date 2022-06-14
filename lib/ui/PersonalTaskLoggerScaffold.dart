@@ -138,7 +138,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                         ),
                         Align(
                             alignment: AlignmentDirectional.centerStart,
-                            child: Text("Track, log and schedule tasks",
+                            child: Text(translate('scaffold.navigation.header_subtitle'),
                               style: TextStyle(color: Colors.grey[700]))),
                       ],
                     ),
@@ -147,7 +147,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               ),
               ListTile(
                 leading: const Icon(Icons.settings),
-                title: const Text('Settings'),
+                title: Text(translate('scaffold.navigation.menus.settings')),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(super.context, MaterialPageRoute(builder: (context) => SettingsScreen()))
@@ -164,7 +164,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               Divider(),
               ListTile(
                 leading: const Icon(Icons.save_alt_outlined),
-                title: const Text('Backup As File'),
+                title: Text(translate('scaffold.navigation.menus.backup_as_file')),
                 onTap: () async {
                   Navigator.pop(context);
 
@@ -181,7 +181,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               ),
               ListTile(
                 leading: const Icon(Icons.restore),
-                title: const Text('Restore From File'),
+                title: Text(translate('scaffold.navigation.menus.restore_from_file')),
                 onTap: () async {
                   Navigator.pop(context);
                   showConfirmationDialog(context, "Restore from file", "Restoring a backup file will swipe all your current data! Continue?",
@@ -208,7 +208,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               Divider(),
               ListTile(
                 leading: const Icon(Icons.help_outline),
-                title: const Text('Online Help'),
+                title: Text(translate('scaffold.navigation.menus.online_help')),
                 onTap: () {
                   Navigator.pop(context);
                   launchUrl("https://everydaytasks.jepfa.de");
@@ -216,7 +216,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               ),
               ListTile(
                 leading: const Icon(Icons.info_outline),
-                title: const Text('About The App'),
+                title: Text(translate('scaffold.navigation.menus.about_the_app')),
                 onTap: () async {
                   Navigator.pop(context);
                   final packageInfo = await PackageInfo.fromPlatform();
@@ -237,7 +237,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               Divider(),
               ListTile(
                 leading: const Icon(Icons.bug_report_outlined),
-                title: const Text('Report A Bug'),
+                title: Text(translate('scaffold.navigation.menus.report_a_bug')),
                 onTap: () async {
                   Navigator.pop(context);
                   final packageInfo = await PackageInfo.fromPlatform();
