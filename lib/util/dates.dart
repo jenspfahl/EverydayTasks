@@ -137,14 +137,22 @@ String formatToDateTimeRange(
     sb.write(formatToTime(finishedAt));
   }
 
-  sb.write(" (");
+  return sb.toString();
+}
+
+String formatToDuration(
+    AroundDurationHours aroundDurationHours,
+    Duration duration,
+    bool showAround) {
+
+  final sb = StringBuffer();
+
   if (showAround && aroundDurationHours != AroundDurationHours.CUSTOM) {
     sb.write(When.fromDurationHoursToString(aroundDurationHours));
   }
   else {
     sb.write(formatDuration(duration));
   }
-  sb.write(")");
 
   return sb.toString();
 }

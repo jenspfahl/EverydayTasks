@@ -476,6 +476,19 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         ),
       ),
       Padding(
+        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: const Icon(Icons.timer_outlined),
+            ),
+            Text(formatToDuration(taskEvent.aroundDuration, taskEvent.duration, true)),
+          ],
+        ),
+      ),
+      Padding(
         padding: EdgeInsets.all(4.0),
         child: severityToIcon(taskEvent.severity),
       ),

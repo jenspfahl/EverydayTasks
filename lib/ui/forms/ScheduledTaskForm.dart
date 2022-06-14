@@ -5,6 +5,7 @@ import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/When.dart';
+import 'package:personaltasklogger/ui/RepetitionPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
@@ -162,7 +163,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 icon: Icon(Icons.next_plan_outlined),
                                 onChanged: (value) {
                                   if (value == RepetitionStep.CUSTOM) {
-                                    CustomRepetition? tempSelectedRepetition;
+                                    var tempSelectedRepetition = _customRepetition ?? RepetitionPicker.DEFAULT_INIT_REPETITION;
                                     showRepetitionPickerDialog(
                                       context: context,
                                       initialRepetition: _customRepetition,
@@ -171,7 +172,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       if (okPressed ?? false) {
                                         setState(() {
                                           _selectedRepetitionStep = RepetitionStep.CUSTOM;
-                                          _customRepetition = tempSelectedRepetition ?? _customRepetition;
+                                          _customRepetition = tempSelectedRepetition;
                                         });
                                       }
                                     });

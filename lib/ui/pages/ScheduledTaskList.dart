@@ -487,7 +487,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
     List<Widget> content = [];
     if (!scheduledTask.active || scheduledTask.lastScheduledEventOn == null) {
-      content.add(const Text("- currently inactive -"));
+      content.add(const Text("- inactive -"));
     }
     else if (scheduledTask.isPaused) {
       content.add(const Text("- paused -"));
@@ -519,6 +519,21 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               Text(_getScheduledMessage(scheduledTask)),
             ]
           )
+      );
+      content.add(const Text(""));
+      content.add(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: const Icon(Icons.next_plan_outlined),
+              ),
+              Text(scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
+                  ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
+                  : Schedule.fromCustomRepetitionToString(scheduledTask.schedule.customRepetition)),
+            ]
+          ),
       );
     }
 
@@ -1107,8 +1122,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   Widget _buildShortProgressText(ScheduledTask scheduledTask) {
     String text = "";
-    if (scheduledTask.active && scheduledTask.lastScheduledEventOn != null && !scheduledTask.isPaused) {
-
+    if (!scheduledTask.active || scheduledTask.lastScheduledEventOn == null) {
+      text = "- inactive -";
+    }
+    else if (scheduledTask.isPaused) {
+      text = "- paused -";
+    }
+    else {
       if (scheduledTask.isNextScheduleOverdue(false)) {
         text = scheduledTask.isNextScheduleOverdue(true)
             ? "Overdue!"

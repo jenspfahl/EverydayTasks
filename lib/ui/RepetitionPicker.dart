@@ -4,6 +4,9 @@ import 'package:numberpicker/numberpicker.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 
 class RepetitionPicker extends StatefulWidget {
+
+  static final DEFAULT_INIT_REPETITION = CustomRepetition(1, RepetitionUnit.DAYS);
+
   late final CustomRepetition _initialRepetition;
   final ValueChanged<CustomRepetition> onChanged;
 
@@ -11,7 +14,7 @@ class RepetitionPicker extends StatefulWidget {
     CustomRepetition? initialRepetition,
     required this.onChanged
   }) {
-    this._initialRepetition = initialRepetition ?? CustomRepetition(1, RepetitionUnit.DAYS);
+    this._initialRepetition = initialRepetition ?? DEFAULT_INIT_REPETITION;
   }
   
   @override
