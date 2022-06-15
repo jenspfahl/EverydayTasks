@@ -111,15 +111,6 @@ class PreferenceService implements ITranslatePreferences {
     // not needed, saved by SettingsScreen.dart
   }
 
-  String getLanguageSelectionAsString(int languageSelection) {
-    switch (languageSelection) {
-      case 1: return 'English';
-      case 2: return 'Deutsch';
-    }
-    return 'System default';
-  }
-
-
   Locale? _getLocaleFromSelection(int languageSelection) {
     switch (languageSelection) {
       case 1: return Locale('en');

@@ -1,18 +1,16 @@
 {
-  "scaffold" : {
-    "navigation" : {
-      "header_subtitle" : "Track, log and schedule tasks",
-      "menus" : {
-        "settings" : "Einstellungen",
-        "backup_as_file" : "Backup",
-        "restore_from_file" : "Wiederherstellen",
-        "online_help" : "Online Hilfe",
-        "about_the_app" : "Über die App",
-        "report_a_bug" : "Fehler melden"
-      }
+  "navigation": {
+    "header_subtitle": "Track, log and schedule tasks",
+    "menus": {
+      "settings": "Einstellungen",
+      "backup_as_file": "Backup",
+      "restore_from_file": "Wiederherstellen",
+      "online_help": "Online Hilfe",
+      "about_the_app": "Über die App",
+      "report_a_bug": "Fehler melden"
     }
   },
-  "pages" : {
+  "pages": {
     "quick_add": {
       "title": "Erfassung"
     },
@@ -24,294 +22,348 @@
     },
     "tasks": {
       "title": "Aufgaben"
+    },
+    "settings": {
+      "common": {
+        "title": "Allgemein",
+        "language": {
+          "title": "Sprache",
+          "dialog": {
+            "title": "Wähle eine Sprache",
+            "options": {
+              "system_default": "System-Sprache",
+              "english": "Englisch (English)",
+              "german": "Deutsch"
+            }
+          }
+        }
+      },
+      "date_n_time": {
+        "title": "Datum & Zeit",
+        "used_date_format": {
+          "title": "Verwendetes Datumsformat",
+          "description": "Beispiel: '{example_date}'",
+          "dialog": {
+            "title": "Wähle ein Datumsformat"
+          }
+        },
+        "show_weekdays": {
+          "title": "Zeige Wochentage",
+          "description": "Zeige Wochentage in Datumsangaben"
+        },
+        "show_daytime_as_word": {
+          "title": "Zeige Tageszeit als Wort",
+          "description": "Zeigt z.B. '{evening}' für Abends"
+        }
+      },
+      "action_feedback": {
+        "title": "Feedback",
+        "show_action_feedback": {
+          "title": "Zeige Feedback Meldungen",
+          "description": "Zeige eine kurze Meldungen nach bestimmten Nutzer-Interaktionen"
+        },
+        "duration": {
+          "title": "Anzeigedauer für Feedback Meldungen",
+          "description": "Die Dauer bevor die Meldung wieder verschwindet",
+          "dialog": {
+            "title": "Wähle deine Lesegeschwindigkeit",
+            "options": {
+              "slow": "Ich brauche mehr Zeit",
+              "normal": "Durchschnitt",
+              "quick": "Ich lese schnell",
+              "fast": "Ich bin noch schneller"
+            }
+          }
+        }
+      }
     }
   },
 
-  "task_groups" : {
-    "cleaning_n_tidy_up" : {
-      "name" : "Putzen & Aufräumen",
-      "templates" : {
-        "tidy_up" : {
-          "title" : "Aufräumen",
-          "variants" : {
-            "tidy_up_kitchen" : {
-              "title" : "Küche aufräumen"
+  "task_groups": {
+    "cleaning_n_tidy_up": {
+      "name": "Putzen & Aufräumen",
+      "templates": {
+        "tidy_up": {
+          "title": "Aufräumen",
+          "variants": {
+            "tidy_up_kitchen": {
+              "title": "Küche aufräumen"
             },
-            "tidy_up_living_room" : {
-              "title" : "Wohnzimmer aufräumen"
+            "tidy_up_living_room": {
+              "title": "Wohnzimmer aufräumen"
             }
           }
         },
-        "cleaning" : {
-          "title" : "Putzen",
-          "variants" : {
-            "cleaning_toilet" : {
-              "title" : "Toilette putzen"
+        "cleaning": {
+          "title": "Putzen",
+          "variants": {
+            "cleaning_toilet": {
+              "title": "Toilette putzen"
             },
-            "cleaning_sink" : {
-              "title" : "Waschbecken putzen"
+            "cleaning_sink": {
+              "title": "Waschbecken putzen"
             },
-            "cleaning_shower_o_bathtub" : {
-              "title" : "Dusche / Badewanne putzen"
+            "cleaning_shower_o_bathtub": {
+              "title": "Dusche / Badewanne putzen"
             },
-            "cleaning_windows" : {
-              "title" : "Fenster putzen"
+            "cleaning_windows": {
+              "title": "Fenster putzen"
             },
-            "cleaning_fridge" : {
-              "title" : "Kühlschrank putzen"
+            "cleaning_fridge": {
+              "title": "Kühlschrank putzen"
             }
           }
         },
-        "hoovering" : {
-          "title" : "Staubsaugen"
+        "hoovering": {
+          "title": "Staubsaugen"
         },
-        "wiping" : {
-          "title" : "Wischen"
+        "wiping": {
+          "title": "Wischen"
         },
-        "empty_bin" : {
-          "title" : "Müll leeren"
+        "empty_bin": {
+          "title": "Mülleimer leeren"
         },
-        "dispose_wastepaper_n_used_glass" : {
-          "title" : "Altpapier & Altglass entsorgen"
+        "dispose_wastepaper_n_used_glass": {
+          "title": "Altpapier & Altglass entsorgen"
         }
       }
     },
 
-    "laundry" : {
-      "name" : "Wäsche",
-      "templates" : {
-        "fill_washing_machine" : {
-          "title" : "Waschmaschine füllen"
+    "laundry": {
+      "name": "Wäsche",
+      "templates": {
+        "fill_washing_machine": {
+          "title": "Waschmaschine füllen"
         },
-        "empty_washing_machine" : {
-          "title" : "Waschmaschine leeren",
-          "description" : "Leeren und auf Wäscheständer hängen"
+        "empty_washing_machine": {
+          "title": "Waschmaschine leeren",
+          "description": "Leeren und auf Wäscheständer hängen"
         },
-        "get_from_laundry_rack" : {
-          "title" : "Wäscheständer abnehmen"
+        "get_from_laundry_rack": {
+          "title": "Wäscheständer abnehmen"
         },
-        "put_to_closet" : {
-          "title" : "In den Schrank räumen"
+        "put_to_closet": {
+          "title": "In den Schrank räumen"
         },
-        "ironing" : {
-          "title" : "Bügeln"
+        "ironing": {
+          "title": "Bügeln"
         },
-        "change_bed_linen" : {
-          "title" : "Bettwäsche wechseln"
+        "change_bed_linen": {
+          "title": "Bettwäsche wechseln"
         },
-        "change_towels" : {
-          "title" : "Handtücher tauschen"
+        "change_towels": {
+          "title": "Handtücher tauschen"
         }
       }
     },
 
-    "cooking" : {
-      "name" : "Kochen",
-      "templates" : {
-        "prepare_breakfast" : {
-          "title" : "Frühstück machen"
+    "cooking": {
+      "name": "Kochen",
+      "templates": {
+        "prepare_breakfast": {
+          "title": "Frühstück machen"
         },
-        "cook_lunch" : {
-          "title" : "Mittagessen kochen"
+        "cook_lunch": {
+          "title": "Mittagessen kochen"
         },
-        "prepare_dinner" : {
-          "title" : "Abendbrot vorbereiten"
+        "prepare_dinner": {
+          "title": "Abendbrot vorbereiten"
         }
       }
     },
 
-    "dishes" : {
-      "name" : "Geschirr",
-      "templates" : {
-        "wash_up" : {
-          "title" : "Abwaschen",
-          "variants" : {
-            "wash_up_after_dinner" : {
-              "title" : "Nach Mittagessen abwaschen"
+    "dishes": {
+      "name": "Geschirr",
+      "templates": {
+        "wash_up": {
+          "title": "Abwaschen",
+          "variants": {
+            "wash_up_after_dinner": {
+              "title": "Nach Mittagessen abwaschen"
             },
-            "wash_up_after_lunch" : {
-              "title" : "Nach Abendbrot abwaschen"
+            "wash_up_after_lunch": {
+              "title": "Nach Abendbrot abwaschen"
             }
           }
         },
-        "dry_up" : {
-          "title" : "Abtrocknen"
+        "dry_up": {
+          "title": "Abtrocknen"
         },
-        "fill_n_start_dishwasher" : {
-          "title" : "Geschirrspüler füllen & starten"
+        "fill_n_start_dishwasher": {
+          "title": "Geschirrspüler füllen & starten"
         },
-        "empty_dishwasher" : {
-          "title" : "Geschirrspüler ausräumen"
+        "empty_dishwasher": {
+          "title": "Geschirrspüler ausräumen"
         }
       }
     },
 
-    "errands" : {
-      "name" : "Einkaufen",
-      "templates" : {
-        "shop_groceries" : {
-          "title" : "Lebensmittel einkaufen"
+    "errands": {
+      "name": "Einkaufen",
+      "templates": {
+        "shop_groceries": {
+          "title": "Lebensmittel einkaufen"
         },
-        "shop_diapers" : {
-          "title" : "Windeln kaufen"
+        "shop_diapers": {
+          "title": "Windeln kaufen"
         }
       }
     },
 
-    "kids" : {
-      "name" : "Kinder",
-      "templates" : {
-        "feeding" : {
-          "title" : "Füttern"
+    "kids": {
+      "name": "Kinder",
+      "templates": {
+        "feeding": {
+          "title": "Füttern"
         },
-        "bring_to_daycare" : {
-          "title" : "In die Kita bringen"
+        "bring_to_daycare": {
+          "title": "In die Kita bringen"
         },
-        "pickup_from_daycare" : {
-          "title" : "Von der Kita abholen"
+        "pickup_from_daycare": {
+          "title": "Von der Kita abholen"
         },
-        "bring_to_bed" : {
-          "title" : "Ins Bett bringen"
+        "bring_to_bed": {
+          "title": "Ins Bett bringen"
         }
       }
     },
 
-    "indoor_plants" : {
-      "name" : "Zimmerpflanzen",
-      "templates" : {
-        "water_plants" : {
-          "title" : "Gießen"
+    "indoor_plants": {
+      "name": "Zimmerpflanzen",
+      "templates": {
+        "water_plants": {
+          "title": "Gießen"
         },
-        "dung_plants" : {
-          "title" : "Düngen"
+        "dung_plants": {
+          "title": "Düngen"
         }
       }
     },
 
-    "garden" : {
-      "name" : "Garten",
-      "templates" : {
-        "water_vegetable_patch" : {
-          "title" : "Beete gießen"
+    "garden": {
+      "name": "Garten",
+      "templates": {
+        "water_vegetable_patch": {
+          "title": "Beete gießen"
         },
-        "dig_vegetable_patch" : {
-          "title" : "Beete umgraben"
+        "dig_vegetable_patch": {
+          "title": "Beete umgraben"
         },
-        "cut_lawn" : {
-          "title" : "Rasenmähen"
+        "cut_lawn": {
+          "title": "Rasenmähen"
         }
       }
     },
 
-    "maintenance" : {
-      "name" : "Wartung & Pflege",
-      "templates" : {
-        "defrost_fridge" : {
-          "title" : "Gefrierschrank abtauen"
+    "maintenance": {
+      "name": "Wartung & Pflege",
+      "templates": {
+        "defrost_fridge": {
+          "title": "Gefrierschrank abtauen"
         },
-        "fixing" : {
-          "title" : "Reparaturen"
+        "fixing": {
+          "title": "Reparaturen"
         }
       }
     },
 
-    "organization" : {
-      "name" : "Organisation",
-      "templates" : {
-        "organize_vacation" : {
-          "title" : "Urlaub planen"
+    "organization": {
+      "name": "Organisation",
+      "templates": {
+        "organize_vacation": {
+          "title": "Urlaub planen"
         },
-        "shop_gifts" : {
-          "title" : "Geschenke recherchieren"
+        "shop_gifts": {
+          "title": "Geschenke recherchieren"
         }
       }
     },
 
-    "car" : {
-      "name" : "Auto",
-      "templates" : {
-        "regular_inspection" : {
-          "title" : "TÜV & HU"
+    "car": {
+      "name": "Auto",
+      "templates": {
+        "regular_inspection": {
+          "title": "TÜV & HU"
         },
-        "change_windshield_wipers" : {
-          "title" : "Scheibenwischer tauschen"
+        "change_windshield_wipers": {
+          "title": "Scheibenwischer tauschen"
         },
-        "change_tires" : {
-          "title" : "Räder wechseln",
-          "description" : "Winter- / Sommerräder"
+        "change_tires": {
+          "title": "Räder wechseln",
+          "description": "Winter- / Sommerräder"
         }
       }
     },
 
-    "pets" : {
-      "name" : "Haustiere",
-      "templates" : {
-        "go_for_a_walk" : {
-          "title" : "Gassi gehen",
-          "description" : "mit dem Hund"
+    "pets": {
+      "name": "Haustiere",
+      "templates": {
+        "go_for_a_walk": {
+          "title": "Gassi gehen",
+          "description": "mit dem Hund"
         },
-        "clean_aquarium_terrarium" : {
-          "title" : " Aquarium/Terrarium putzen"
+        "clean_aquarium_terrarium": {
+          "title": " Aquarium/Terrarium putzen"
         },
-        "go_to_vet" : {
-          "title" : "Zum Tierarzt gehen"
+        "go_to_vet": {
+          "title": "Zum Tierarzt gehen"
         }
       }
     },
 
-    "finance" : {
-      "name" : "Finanzen",
-      "templates" : {
-        "pay_instalments" : {
-          "title" : "Raten zahlen"
+    "finance": {
+      "name": "Finanzen",
+      "templates": {
+        "pay_instalments": {
+          "title": "Raten zahlen"
         },
-        "pay_rent" : {
-          "title" : "Miete zahlen"
+        "pay_rent": {
+          "title": "Miete zahlen"
         }
       }
     },
 
-    "health" : {
-      "name" : "Gesundheit",
-      "templates" : {
-        "take_medication" : {
-          "title" : "Medikamente nehmen"
+    "health": {
+      "name": "Gesundheit",
+      "templates": {
+        "take_medication": {
+          "title": "Medikamente nehmen"
         },
-        "regular_health_check_up" : {
-          "title" : "Gesundheits-Checkup"
+        "regular_health_check_up": {
+          "title": "Gesundheits-Checkup"
         },
-        "yearly_dentist_examination" : {
-          "title" : "Jährliche Zahnuntersuchung"
+        "yearly_dentist_examination": {
+          "title": "Jährliche Zahnuntersuchung"
         }
       }
     },
 
-    "sport" : {
-      "name" : "Sport",
-      "templates" : {
-        "go_to_gym" : {
-          "title" : "Ins Fitnessstudio gehen"
+    "sport": {
+      "name": "Sport",
+      "templates": {
+        "go_to_gym": {
+          "title": "Ins Fitnessstudio gehen"
         },
-        "do_a_workout" : {
-          "title" : "Laufen gehen"
+        "do_a_workout": {
+          "title": "Laufen gehen"
         }
       }
     },
 
-    "work" : {
-      "name" : "Arbeit",
-      "templates" : {
-        "submit_expenses" : {
-          "title" : "Spesen einreichen"
+    "work": {
+      "name": "Arbeit",
+      "templates": {
+        "submit_expenses": {
+          "title": "Spesen einreichen"
         },
-        "negotiate_salary" : {
-          "title" : "Gehalt verhandlen"
+        "negotiate_salary": {
+          "title": "Gehalt verhandlen"
         }
       }
     },
 
-    "others" : {
-      "name" : "Anderes"
+    "others": {
+      "name": "Anderes"
     }
   }
 }

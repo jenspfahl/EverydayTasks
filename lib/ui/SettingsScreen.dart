@@ -28,7 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Settings')),
+      appBar: AppBar(title: Text(translate('navigation.menus.settings'))),
       body: FutureBuilder(
         future: _loadAllPrefs(),
         builder: (context, AsyncSnapshot snapshot) => _buildSettingsList(),
@@ -44,18 +44,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return SettingsList(
       sections: [
         SettingsSection(
-          title: Text('Common', style: TextStyle(color: Colors.lime[800])),
+          title: Text(translate('pages.settings.common.title'), style: TextStyle(color: Colors.lime[800])),
           tiles: [
             SettingsTile(
-              title: Text('Language'),
-              description: Text(_preferenceService.getLanguageSelectionAsString(_preferenceService.languageSelection)),
+              title: Text(translate('pages.settings.common.language.title')),
+              description: Text(_getLanguageSelectionAsString(_preferenceService.languageSelection)),
               onPressed: (context) {
 
-                showChoiceDialog(context, "Choose a language",
+                showChoiceDialog(context, translate('pages.settings.common.language.dialog.title'),
                     [
-                      _preferenceService.getLanguageSelectionAsString(0),
-                      _preferenceService.getLanguageSelectionAsString(1),
-                      _preferenceService.getLanguageSelectionAsString(2),
+                      _getLanguageSelectionAsString(0),
+                      _getLanguageSelectionAsString(1),
+                      _getLanguageSelectionAsString(2),
                     ],
                     initialSelected: _languageSelection,
                     okPressed: () {
@@ -92,11 +92,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         SettingsSection(
-          title: Text('Date & Time', style: TextStyle(color: Colors.lime[800])),
+          title: Text(translate('pages.settings.date_n_time.title'), style: TextStyle(color: Colors.lime[800])),
           tiles: [
             SettingsTile(
-              title: Text('Used date format'),
-              description: Text("E.g. '${getDateFormat(context, _dateFormatSelection, false, false).format(exampleDate)}'"),
+              title: Text(translate('pages.settings.date_n_time.used_date_format.title')),
+              description: Text(
+                  translate(
+                      'pages.settings.date_n_time.used_date_format.description',
+                      args: {'example_date' : getDateFormat(context, _dateFormatSelection, false, false).format(exampleDate),
+                      })),
               onPressed: (context) {
                 final locale = Localizations.localeOf(context).languageCode;
                 initializeDateFormatting(locale);
@@ -104,7 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 final yMMMd = DateFormat.yMMMd(locale);
                 final yMMMMd = DateFormat.yMMMMd(locale);
 
-                showChoiceDialog(context, "Choose a date format",
+                showChoiceDialog(context, translate('pages.settings.date_n_time.used_date_format.dialog.title'),
                     [
                       yMd.format(exampleDate),
                       yMMMd.format(exampleDate),
@@ -130,8 +134,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             SettingsTile.switchTile(
-              title: Text('Show weekday'),
-              description: Text('Shows the weekday for dates'),
+              title: Text(translate('pages.settings.date_n_time.show_weekdays.title')),
+              description: Text(translate('pages.settings.date_n_time.show_weekdays.description')),
               initialValue: _showWeekdays,
               onToggle: (bool value) {
                 _preferenceService.showWeekdays = value;
@@ -140,8 +144,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             SettingsTile.switchTile(
-              title: Text('Show daytime as word'),
-              description: Text("E.g. shows '${When.fromWhenAtDayToString(AroundWhenAtDay.EVENING)}' for the evening"),
+              title: Text(translate('pages.settings.date_n_time.show_daytime_as_word.title')),
+              description: Text(
+                  translate(
+                      'pages.settings.date_n_time.show_daytime_as_word.description',
+                      args: {'evening' : When.fromWhenAtDayToString(AroundWhenAtDay.EVENING),})),
               initialValue: _showTimeOfDayAsText,
               onToggle: (bool value) {
                 _preferenceService.showTimeOfDayAsText = value;
@@ -152,11 +159,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         SettingsSection(
-          title: Text('Action feedback', style: TextStyle(color: Colors.lime[800])),
+          title: Text(translate('pages.settings.action_feedback.title'), style: TextStyle(color: Colors.lime[800])),
           tiles: [
             SettingsTile.switchTile(
-              title: Text('Show action feedback'),
-              description: Text('Shows a short message after several user actions'),
+              title: Text(translate('pages.settings.action_feedback.show_action_feedback.title')),
+              description: Text(translate('pages.settings.action_feedback.show_action_feedback.description')),
               initialValue: _showActionNotifications,
               onToggle: (bool value) {
                 _preferenceService.setBool(PreferenceService.PREF_SHOW_ACTION_NOTIFICATIONS, value)
@@ -165,11 +172,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             SettingsTile(
               enabled: _showActionNotifications??false,
-              title: Text('Action feedback duration'),
-              description: Text('Duration before messages disappear'),
+              title: Text(translate('pages.settings.action_feedback.duration.title')),
+              description: Text(translate('pages.settings.action_feedback.duration.description')),
               onPressed: (context) {
-                showChoiceDialog(context, "Choose your read duration",
-                  ["I need more time", "Normal", "I read quickly", "I am super fast"],
+                showChoiceDialog(context, translate('pages.settings.action_feedback.duration.dialog.title'),
+                  [
+                    translate('pages.settings.action_feedback.duration.dialog.options.slow'),
+                    translate('pages.settings.action_feedback.duration.dialog.options.normal'),
+                    translate('pages.settings.action_feedback.duration.dialog.options.quick'),
+                    translate('pages.settings.action_feedback.duration.dialog.options.fast'),
+                  ],
                   initialSelected: _showActionNotificationDurationSelection,
                   okPressed: () {
                     Navigator.pop(context);
@@ -231,4 +243,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
   }
+
+  String _getLanguageSelectionAsString(int languageSelection) {
+    switch (languageSelection) {
+      case 1: return translate('pages.settings.common.language.dialog.options.english');
+      case 2: return translate('pages.settings.common.language.dialog.options.german');
+    }
+    return translate('pages.settings.common.language.dialog.options.system_default');
+  }
+
 }
