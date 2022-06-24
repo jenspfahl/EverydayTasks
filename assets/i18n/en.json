@@ -76,9 +76,95 @@
           }
         }
       }
+    },
+    "backup": {
+      "backup_created" : "Backup file {dst_path} created",
+      "backup_aborted" : "Backup aborted!"
+    },
+    "restore": {
+      "dialog": {
+        "title": "Restore from file",
+        "message": "Restoring a backup file will swipe all your current data! Continue?"
+      },
+      "backup_restored" : "Backup restored",
+      "restore_aborted" : "Restore aborted!"
+    },
+    "about" : {
+      "title": "About Everyday Tasks",
+      "message": "Everyday Tasks is an easy and quickly to use app to log, track and schedule daily tasks"
     }
   },
-  
+
+  "common" : {
+    "search": "Search",
+    "units": {
+      "year": {
+        "zero": "years",
+        "one": "year",
+        "two": "years",
+        "other": "years"
+      },
+      "month": {
+        "zero": "months",
+        "one": "month",
+        "two": "months",
+        "other": "months"
+      },
+      "week": {
+        "zero": "weeks",
+        "one": "week",
+        "two": "weeks",
+        "other": "weeks"
+      },
+      "day": {
+        "zero": "days",
+        "one": "day",
+        "two": "days",
+        "other": "days"
+      },
+      "hour": {
+        "zero": "hours",
+        "one": "hour",
+        "two": "hours",
+        "other": "hours"
+      },
+      "minute": {
+        "zero": "minutes",
+        "one": "minute",
+        "two": "minutes",
+        "other": "minutes"
+      },
+      "second": {
+        "zero": "seconds",
+        "one": "second",
+        "two": "seconds",
+        "other": "seconds"
+      },
+      "item": {
+        "zero": "items",
+        "one": "item",
+        "two": "items",
+        "other": "items"
+      },
+      "schedule": {
+        "zero": "schedules",
+        "one": "schedule",
+        "two": "schedules",
+        "other": "schedules"
+      }
+    },
+    "dates": {
+      "before_yesterday": "Before yesterday",
+      "yesterday": "Yesterday",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "After tomorrow": "After tomorrow"
+    },
+    "words": {
+      "on_for_dates": "on",
+      "and": "and"
+    }
+  },
 
   "task_groups": {
     "cleaning_n_tidy_up": {

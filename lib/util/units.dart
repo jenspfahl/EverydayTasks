@@ -1,37 +1,47 @@
 
 
+import 'package:flutter_translate/flutter_translate.dart';
+
 abstract class Unit {
   num value;
 
   Unit(this.value);
-  String getSingleUnitAsString();
-  String getPluralUnitAsString();
+
+  String getSubKey();
+
+  String getUnitAsString(num value) {
+    return translatePlural('common.units.${getSubKey()}', value);
+  }
 
   String toStringWithAdjective(String adjective) {
-    final unit = value == 1 ? getSingleUnitAsString() : getPluralUnitAsString();
+    final unit = getUnitAsString(value);
     return "$value $adjective $unit";
   }
 
   @override
   String toString() {
-    final unit = value == 1 ? getSingleUnitAsString() : getPluralUnitAsString();
+    final unit = getUnitAsString(value);
     return "$value $unit";
   }
 
 }
 
+class Years extends Unit {
+
+  Years(num value) : super(value);
+
+  @override
+  String getSubKey() {
+    return "year";
+  }
+}
 class Months extends Unit {
 
   Months(num value) : super(value);
 
   @override
-  String getSingleUnitAsString() {
+  String getSubKey() {
     return "month";
-  }
-
-  @override
-  String getPluralUnitAsString() {
-    return "months";
   }
 }
 
@@ -40,14 +50,10 @@ class Weeks extends Unit {
   Weeks(num value) : super(value);
 
   @override
-  String getSingleUnitAsString() {
+  String getSubKey() {
     return "week";
   }
 
-  @override
-  String getPluralUnitAsString() {
-    return "weeks";
-  }
 }
 
 class Days extends Unit {
@@ -55,14 +61,10 @@ class Days extends Unit {
   Days(num value) : super(value);
 
   @override
-  String getSingleUnitAsString() {
+  String getSubKey() {
     return "day";
   }
 
-  @override
-  String getPluralUnitAsString() {
-    return "days";
-  }
 }
 
 class Hours extends Unit {
@@ -70,14 +72,10 @@ class Hours extends Unit {
   Hours(num value) : super(value);
 
   @override
-  String getSingleUnitAsString() {
+  String getSubKey() {
     return "hour";
   }
 
-  @override
-  String getPluralUnitAsString() {
-    return "hours";
-  }
 }
 
 class Minutes extends Unit {
@@ -85,14 +83,21 @@ class Minutes extends Unit {
   Minutes(num value) : super(value);
 
   @override
-  String getSingleUnitAsString() {
+  String getSubKey() {
     return "minute";
   }
 
+}
+
+class Seconds extends Unit {
+
+  Seconds(num value) : super(value);
+
   @override
-  String getPluralUnitAsString() {
-    return "minutes";
+  String getSubKey() {
+    return "second";
   }
+
 }
 
 class Items extends Unit {
@@ -100,14 +105,10 @@ class Items extends Unit {
   Items(num value) : super(value);
 
   @override
-  String getSingleUnitAsString() {
+  String getSubKey() {
     return "item";
   }
 
-  @override
-  String getPluralUnitAsString() {
-    return "items";
-  }
 }
 
 class Schedules extends Unit {
@@ -115,12 +116,8 @@ class Schedules extends Unit {
   Schedules(num value) : super(value);
 
   @override
-  String getSingleUnitAsString() {
+  String getSubKey() {
     return "schedule";
   }
 
-  @override
-  String getPluralUnitAsString() {
-    return "schedules";
-  }
 }

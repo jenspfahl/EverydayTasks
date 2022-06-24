@@ -171,10 +171,10 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                   await _backupRestoreService.backup(
                           (success, dstPath) {
                     if (success) {
-                      toastInfo(context, "Backup file $dstPath created");
+                      toastInfo(context, translate('pages.backup.backup_created', args: {'dst_path' : dstPath }));
                     }
                     else {
-                      toastInfo(context, "Backup aborted!");
+                      toastInfo(context, translate('pages.backup.backup_aborted'));
                     }
                   }, (errorMsg) => toastError(context, errorMsg));
                 },
@@ -184,14 +184,14 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                 title: Text(translate('navigation.menus.restore_from_file')),
                 onTap: () async {
                   Navigator.pop(context);
-                  showConfirmationDialog(context, "Restore from file", "Restoring a backup file will swipe all your current data! Continue?",
+                  showConfirmationDialog(context, translate('pages.restore.dialog.title'), translate('pages.restore.dialog.message'),
                     icon: const Icon(Icons.warning_amber_outlined),
                     cancelPressed: () => Navigator.pop(context),
                     okPressed: () async {
                       Navigator.pop(context);
                       await _backupRestoreService.restore((success) {
                         if (success) {
-                          toastInfo(context, "Backup restored");
+                          toastInfo(context, translate('pages.restore.backup_restored'));
                           setState(() {
                             _pages.forEach((page) {
                               page.getGlobalKey().currentState?.reload();
@@ -199,7 +199,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                           });
                         }
                         else {
-                          toastInfo(context, "Restoring aborted!");
+                          toastInfo(context, translate('pages.restore.restore_aborted'));
                         }
                       }, (errorMsg) => toastError(context, errorMsg));
                     });
@@ -225,8 +225,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
                   showConfirmationDialog(
                       context,
-                      "About Everyday Tasks",
-                      "Everyday Tasks is an easy and quickly to use app to log, track and schedule daily tasks."
+                      translate('pages.about.title'),
+                      translate('pages.about.message') +
                           "\n\n© Jens Pfahl 2022"
                           "\n\nVersion $version:$build",
                       icon: Icon(Icons.task_alt, color: Colors.lime[700]),
@@ -316,7 +316,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       controller: _searchQueryController,
       autofocus: true,
       decoration: InputDecoration(
-        hintText: "Search ...",
+        hintText: "${translate('common.search')} ...",
         border: InputBorder.none,
       ),
       style: TextStyle(fontSize: 16.0),

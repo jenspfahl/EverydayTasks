@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:personaltasklogger/model/When.dart';
@@ -24,26 +25,26 @@ String formatToDateOrWord(DateTime dateTime, BuildContext context,
     return makeWhenOnLowerCase ? word.toLowerCase() : word;
   }
   if (withPreposition) {
-    return "on " + formatToDate(dateTime, context);
+    return translate('common.words.on_for_dates') + " " + formatToDate(dateTime, context);
   }
   return formatToDate(dateTime, context);
 }
 
 String? _formatToWord(DateTime dateTime) {
   if (isToday(dateTime)) {
-    return "Today";
+    return translate('common.dates.today');
   }
   if (isYesterday(dateTime)) {
-    return "Yesterday";
+    return translate('common.dates.yesterday');
   }
   if (isBeforeYesterday(dateTime)) {
-    return "Before yesterday";
+    return translate('common.dates.before_yesterday');
   }
   if (isTomorrow(dateTime)) {
-    return "Tomorrow";
+    return translate('common.dates.tomorrow');
   }
   if (isAfterTomorrow(dateTime)) {
-    return "After tomorrow";
+    return translate('common.dates.after_tomorrow');
   }
   return null;
 }
@@ -100,18 +101,18 @@ String formatToTime(DateTime dateTime) {
 }
 
 String formatTrackingDuration(Duration duration) {
-  var hours = duration.inHours;
-  var minutes = duration.inMinutes % 60;
-  var seconds = duration.inSeconds % 60;
+  var hours = Hours(duration.inHours);
+  var minutes = Minutes(duration.inMinutes % 60);
+  var seconds = Seconds(duration.inSeconds % 60);
 
-  if (hours > 0 && minutes > 0) {
-    return "$hours hours $minutes minutes $seconds seconds";
+  if (hours.value > 0) {
+    return "$hours $minutes $seconds";
   }
-  else if (minutes > 0) {
-    return "$minutes minutes $seconds seconds";
+  else if (minutes.value > 0) {
+    return "$minutes $seconds";
   }
   else {
-    return "$seconds seconds";
+    return "$seconds";
   }
 }
 
@@ -165,7 +166,12 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString]) {
   var hours = Hours(duration.inHours);
   var minutes = Minutes(duration.inMinutes);
   var durationText = minutes.toString();
-  if (days.value.abs() >= 62) {
+  if (days.value.abs() >= 730) { // more than 2 years
+    var years = Years(days.value ~/ 365);
+    durationText = years.toString();
+
+  }
+  else if (days.value.abs() >= 62) {
     var months = Months(days.value ~/ 31);
     durationText = months.toString();
 
@@ -174,7 +180,7 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString]) {
     var remainingDays = Days(days.value % 7);
     var weeks = Weeks(days.value ~/ 7);
     if (remainingDays.value != 0) {
-      durationText = "$weeks and $remainingDays";
+      durationText = "$weeks ${translate('common.words.and')} $remainingDays";
     }
     else {
       durationText = weeks.toString();
@@ -183,7 +189,7 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString]) {
   else if (hours.value.abs() >= 24) {
     var remainingHours = Hours(hours.value % 24);
     if (remainingHours.value != 0) {
-      durationText = "$days and $remainingHours";
+      durationText = "$days ${translate('common.words.and')} $remainingHours";
     }
     else {
       durationText = days.toString();
@@ -192,7 +198,7 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString]) {
   else if (minutes.value.abs() >= 60) {
     var remainingMinutes = Minutes(minutes.value % 60);
     if (remainingMinutes.value != 0) {
-      durationText = "$hours and $remainingMinutes";
+      durationText = "$hours ${translate('common.words.and')} $remainingMinutes";
     }
     else {
       durationText = hours.toString();

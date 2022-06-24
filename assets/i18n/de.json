@@ -76,8 +76,96 @@
           }
         }
       }
+    },
+    "backup": {
+      "backup_created" : "Backupdatei {dst_path} erfolgreich angelegt",
+      "backup_aborted" : "Backup abgebrochen!"
+    },
+    "restore": {
+      "dialog": {
+        "title": "Backup wiederherstellen",
+        "message": "Beim Wiederherstellen aus einer Backup-Datei werden alle aktuellen Daten überschrieben! Fortfahren?"
+      },
+      "backup_restored" : "Backup wiederhergestellt",
+      "restore_aborted" : "Wiederherstellung abgebrochen!"
+    },
+    "about" : {
+      "title": "Über Everyday Tasks",
+      "message": "Everyday Tasks ist eine einfache App, um tägliche Aufgaben schnell und einfach zu erfassen, zu tracken oder zu planen."
     }
   },
+
+  "common" : {
+    "search": "Suche",
+    "units": {
+      "year": {
+        "zero": "Jahre",
+        "one": "Jahr",
+        "two": "Jahre",
+        "other": "Jahre"
+      },
+      "month": {
+        "zero": "Monate",
+        "one": "Monat",
+        "two": "Monate",
+        "other": "Monate"
+      },
+      "week": {
+        "zero": "Wochen",
+        "one": "Woche",
+        "two": "Wochen",
+        "other": "Wochen"
+      },
+      "day": {
+        "zero": "Tage",
+        "one": "Tag",
+        "two": "Tage",
+        "other": "Tage"
+      },
+      "hour": {
+        "zero": "Stunden",
+        "one": "Stunde",
+        "two": "Stunden",
+        "other": "Stunden"
+      },
+      "minute": {
+        "zero": "Minuten",
+        "one": "Minute",
+        "two": "Minuten",
+        "other": "Minuten"
+      },
+      "second": {
+        "zero": "Sekunden",
+        "one": "Sekunde",
+        "two": "Sekunden",
+        "other": "Sekunden"
+      },
+      "item": {
+        "zero": "Einträge",
+        "one": "Eintrag",
+        "two": "Einträge",
+        "other": "Einträge"
+      },
+      "schedule": {
+        "zero": "Zeitpläne",
+        "one": "Zeitplan",
+        "two": "Zeitpläne",
+        "other": "Zeitpläne"
+      }
+    },
+    "dates": {
+      "before_yesterday": "Vorgestern",
+      "yesterday": "Gestern",
+      "today": "Heute",
+      "tomorrow": "Morgen",
+      "After tomorrow": "Übermorgen"
+    },
+    "words": {
+      "on_for_dates": "am",
+      "and": "und"
+    }
+  },
+
 
   "task_groups": {
     "cleaning_n_tidy_up": {
