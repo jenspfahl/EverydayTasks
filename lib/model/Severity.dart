@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 
 enum Severity {EASY, MEDIUM, HARD}
 
@@ -19,8 +20,8 @@ Widget severityToIcon(Severity severity, [Color? iconColor]) {
 
 String severityToString(Severity severity) {
   switch (severity) {
-    case Severity.EASY: return "Easy going";
-    case Severity.MEDIUM: return "As always";
-    case Severity.HARD: return "Exhausting";
+    case Severity.EASY: return translate('model.severity.easy');
+    case Severity.MEDIUM: return translate('model.severity.medium');
+    case Severity.HARD: return translate('model.severity.hard');
   }
 }

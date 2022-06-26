@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/util/dates.dart';
+import 'package:personaltasklogger/util/units.dart';
 
 import '../service/PreferenceService.dart';
 
@@ -93,16 +95,20 @@ class When {
   }
   static String fromDurationHoursToString(AroundDurationHours durationHours) {
     switch(durationHours) {
-      case AroundDurationHours.FIVE_MINUTES: return "Around 5 minutes";
-      case AroundDurationHours.TEN_MINUTES: return "Around 10 minutes";
-      case AroundDurationHours.QUARTER: return "Around 15 minutes";
-      case AroundDurationHours.HALF: return "Around half an hour";
-      case AroundDurationHours.ONE: return "Around an hour";
-      case AroundDurationHours.TWO: return "Around 2 hours";
-      case AroundDurationHours.THREE: return "Around 3 hours";
-      case AroundDurationHours.FOUR: return "Around 4 hours";
-      case AroundDurationHours.CUSTOM: return "Custom...";
+      case AroundDurationHours.FIVE_MINUTES: return _translateAround(Minutes(5).toString());
+      case AroundDurationHours.TEN_MINUTES: return _translateAround(Minutes(10).toString());
+      case AroundDurationHours.QUARTER: return _translateAround(Minutes(15).toString());
+      case AroundDurationHours.HALF: return _translateAround(translate('common.durations.half_an_hour'));
+      case AroundDurationHours.ONE: return _translateAround(translate('common.durations.an_hour'));
+      case AroundDurationHours.TWO: return _translateAround(Hours(2).toString());
+      case AroundDurationHours.THREE: return _translateAround(Hours(3).toString());
+      case AroundDurationHours.FOUR: return _translateAround(Hours(4).toString());
+      case AroundDurationHours.CUSTOM: return translate('common.words.custom') + "...";
     }
+  }
+
+  static String _translateAround(String addition) {
+    return translate('common.words.around') + " " + addition;
   }
 
   static TimeOfDay fromWhenAtDayToTimeOfDay(AroundWhenAtDay whenAtDay, TimeOfDay? customWhenAt) {
@@ -119,14 +125,14 @@ class When {
   }
   static String _fromWhenAtDayToString(AroundWhenAtDay whenAtDay) {
     switch(whenAtDay) {
-      case AroundWhenAtDay.NOW: return "Now";
-      case AroundWhenAtDay.MORNING: return "In the morning";
-      case AroundWhenAtDay.FORENOON: return "At forenoon";
-      case AroundWhenAtDay.NOON: return "At noon";
-      case AroundWhenAtDay.AFTERNOON: return "At afternoon";
-      case AroundWhenAtDay.EVENING: return "In the evening";
-      case AroundWhenAtDay.NIGHT: return "At night";
-      case AroundWhenAtDay.CUSTOM: return "Custom...";
+      case AroundWhenAtDay.NOW: return translate('common.times.now');
+      case AroundWhenAtDay.MORNING: return translate('common.times.in_the_morning');
+      case AroundWhenAtDay.FORENOON: return translate('common.times.at_forenoon');
+      case AroundWhenAtDay.NOON: return translate('common.times.at_noon');
+      case AroundWhenAtDay.AFTERNOON: return translate('common.times.at_afternoon');
+      case AroundWhenAtDay.EVENING: return translate('common.times.in_the_evening');
+      case AroundWhenAtDay.NIGHT: return translate('common.times.at_night');
+      case AroundWhenAtDay.CUSTOM: return translate('common.words.custom') + "...";
     }
   }
 
@@ -152,10 +158,10 @@ class When {
   }
   static String fromWhenOnDateToString(WhenOnDate whenOnDate) {
     switch(whenOnDate) {
-      case WhenOnDate.TODAY: return "Today";
-      case WhenOnDate.YESTERDAY: return "Yesterday";
-      case WhenOnDate.BEFORE_YESTERDAY: return "Before yesterday";
-      case WhenOnDate.CUSTOM: return "Custom...";
+      case WhenOnDate.TODAY: return translate('common.dates.today');
+      case WhenOnDate.YESTERDAY: return translate('common.dates.yesterday');
+      case WhenOnDate.BEFORE_YESTERDAY: return translate('common.dates.before_yesterday');
+      case WhenOnDate.CUSTOM: return translate('common.words.custom') + "...";
     }
   }
 

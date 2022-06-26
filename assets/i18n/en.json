@@ -10,6 +10,7 @@
       "report_a_bug": "Report a bug"
     }
   },
+
   "pages": {
     "quick_add": {
       "title": "QuickAdd"
@@ -160,9 +161,54 @@
       "tomorrow": "Tomorrow",
       "After tomorrow": "After tomorrow"
     },
+    "times": {
+      "now": "Now",
+      "in_the_morning": "In the morning",
+      "at_forenoon": "At forenoon",
+      "at_noon": "At noon",
+      "at_afternoon": "At afternoon",
+      "in_the_evening": "In the evening",
+      "at_night": "At night"
+    },
+    "durations": {
+      "half_an_hour": "half an hour",
+      "an_hour": "an hour"
+    },
     "words": {
       "on_for_dates": "on",
-      "and": "and"
+      "at_for_times": "at",
+      "and": "and",
+      "custom": "Custom",
+      "around": "Around"
+    }
+  },
+
+  "model": {
+    "severity": {
+      "easy": "Easy going",
+      "medium": "As always",
+      "hard": "Exhausting"
+    },
+    "repetition_step": {
+      "daily": "Daily",
+      "every_other_day": "Every other day",
+      "weekly": "Weekly",
+      "every_other_week": "Biweekly",
+      "monthly": "Monthly",
+      "every_other_month": "Bimonthly",
+      "quarterly": "Quarterly",
+      "half_yearly": "Half yearly",
+      "yearly": "Yearly"
+    },
+    "repetition_unit": {
+      "days": "Days",
+      "weeks": "Weeks",
+      "months": "Months",
+      "years": "Years"
+    },
+    "repetition_mode": {
+      "dynamic": "Flexible",
+      "fixed": "Fixed"
     }
   },
 

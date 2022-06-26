@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
@@ -65,7 +66,7 @@ class Schedule {
   String toStartAtAsString() {
     return (aroundStartAt == AroundWhenAtDay.CUSTOM)
         && startAtExactly != null
-        ? "at " + formatTimeOfDay(startAtExactly!)
+        ? translate('common.words.at_for_times') + " " + formatTimeOfDay(startAtExactly!)
         : When.fromWhenAtDayToString(aroundStartAt);
   }
 
@@ -86,38 +87,38 @@ class Schedule {
 
   static String fromRepetitionStepToString(RepetitionStep repetitionStep) {
     switch(repetitionStep) {
-      case RepetitionStep.DAILY: return "Daily";
-      case RepetitionStep.EVERY_OTHER_DAY: return "Every other day";
-      case RepetitionStep.WEEKLY: return "Weekly";
-      case RepetitionStep.EVERY_OTHER_WEEK: return "Biweekly";
-      case RepetitionStep.MONTHLY: return "Monthly";
-      case RepetitionStep.EVERY_OTHER_MONTH: return "Bimonthly";
-      case RepetitionStep.QUARTERLY: return "Quarterly";
-      case RepetitionStep.HALF_YEARLY: return "Half yearly";
-      case RepetitionStep.YEARLY: return "Yearly";
-      case RepetitionStep.CUSTOM: return "Custom...";
+      case RepetitionStep.DAILY: return translate('model.repetition_step.daily');
+      case RepetitionStep.EVERY_OTHER_DAY: return translate('model.repetition_step.every_other_day');
+      case RepetitionStep.WEEKLY: return translate('model.repetition_step.weekly');
+      case RepetitionStep.EVERY_OTHER_WEEK: return translate('model.repetition_step.every_other_week');
+      case RepetitionStep.MONTHLY: return translate('model.repetition_step.monthly');
+      case RepetitionStep.EVERY_OTHER_MONTH: return translate('model.repetition_step.every_other_month');
+      case RepetitionStep.QUARTERLY: return translate('model.repetition_step.quarterly');
+      case RepetitionStep.HALF_YEARLY: return translate('model.repetition_step.half_yearly');
+      case RepetitionStep.YEARLY: return translate('model.repetition_step.yearly');
+      case RepetitionStep.CUSTOM: return translate('common.words.custom') + "...";
     }
   }
 
   static String fromRepetitionUnitToString(RepetitionUnit repetitionUnit) {
     switch(repetitionUnit) {
-      case RepetitionUnit.DAYS: return "Days";
-      case RepetitionUnit.WEEKS: return "Weeks";
-      case RepetitionUnit.MONTHS: return "Months";
-      case RepetitionUnit.YEARS: return "Years";
+      case RepetitionUnit.DAYS: return translate('model.repetition_unit.days');
+      case RepetitionUnit.WEEKS: return translate('model.repetition_unit.weeks');
+      case RepetitionUnit.MONTHS: return translate('model.repetition_unit.months');
+      case RepetitionUnit.YEARS: return translate('model.repetition_unit.years');
     }
   }
   
   static String fromRepetitionModeToString(RepetitionMode repetitionMode) {
     switch(repetitionMode) {
-      case RepetitionMode.DYNAMIC: return "Dynamic";
-      case RepetitionMode.FIXED: return "Fixed";
+      case RepetitionMode.DYNAMIC: return translate('model.repetition_mode.dynamic');
+      case RepetitionMode.FIXED: return translate('model.repetition_mode.fixed');
     }
   }
 
   static String fromCustomRepetitionToString(CustomRepetition? customRepetition) {
     if (customRepetition == null) {
-      return "Custom...";
+      return translate('common.words.custom') + "...";
     }
     return customRepetition.repetitionValue.toString() + " " + fromRepetitionUnitToString(customRepetition.repetitionUnit);
   }

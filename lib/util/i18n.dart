@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:personaltasklogger/util/extensions.dart';
 
 final String I18N_PREFIX = "\$i18n{";
 final String I18N_POSTFIX = "}";
@@ -7,6 +8,9 @@ final String I18N_POSTFIX = "}";
 bool isI18nKey(String string) =>
     string.startsWith(I18N_PREFIX) && string.endsWith(I18N_POSTFIX);
 
+String translateCapitalize(String key) {
+  return translate(key).capitalize();
+}
 
 String translateI18nKey(String string) {
   if (isI18nKey(string)) {

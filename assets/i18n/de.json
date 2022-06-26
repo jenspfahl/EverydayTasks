@@ -160,12 +160,56 @@
       "tomorrow": "Morgen",
       "After tomorrow": "Übermorgen"
     },
+    "times": {
+      "now": "Jetzt",
+      "in_the_morning": "Morgens",
+      "at_forenoon": "Vormittags",
+      "at_noon": "Mittags",
+      "at_afternoon": "Nachmittags",
+      "in_the_evening": "Abends",
+      "at_night": "Nachts"
+    },
+    "durations": {
+      "half_an_hour": "eine halbe Stunde",
+      "an_hour": "eine Stunde"
+    },
     "words": {
       "on_for_dates": "am",
-      "and": "und"
+      "at_for_times": "um",
+      "and": "und",
+      "custom": "Benutzerdefiniert",
+      "around": "Ungefähr"
     }
   },
 
+  "model": {
+    "severity": {
+      "easy": "Einfach",
+      "medium": "Wie immer",
+      "hard": "Anstrengend"
+    },
+    "repetition_step": {
+      "daily": "Täglich",
+      "every_other_day": "Jeden zweiten Tag",
+      "weekly": "Wöchentlich",
+      "every_other_week": "14-Tägig",
+      "monthly": "Monatlich",
+      "every_other_month": "Jeden zweiten Monat",
+      "quarterly": "Vierteljährlich",
+      "half_yearly": "Halbjährlich",
+      "yearly": "Jährlich"
+    },
+    "repetition_unit": {
+      "days": "Tage",
+      "weeks": "Wochen",
+      "months": "Monate",
+      "years": "Jahre"
+    },
+    "repetition_mode": {
+      "dynamic": "Flexibel",
+      "fixed": "Fest"
+    }
+  },
 
   "task_groups": {
     "cleaning_n_tidy_up": {
