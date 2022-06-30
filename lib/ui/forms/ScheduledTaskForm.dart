@@ -171,6 +171,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     ).then((okPressed) {
                                       if (okPressed ?? false) {
                                         setState(() {
+                                          //TODO map back to predefined repitirion steps if custom matches
                                           _selectedRepetitionStep = RepetitionStep.CUSTOM;
                                           _customRepetition = tempSelectedRepetition;
                                         });

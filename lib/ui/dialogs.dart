@@ -213,9 +213,10 @@ Future<bool?> showSeverityPicker(BuildContext context, Severity? initialSeverity
     },
   );
   AlertDialog alert = AlertDialog(
+    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 16),
     content: SeverityPicker(
       showText: showText,
-      singleButtonWidth: 75,
+      singleButtonWidth: 85,
       initialSeverity: initialSeverity,
       onChanged: onChanged,
     ),

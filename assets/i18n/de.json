@@ -197,7 +197,8 @@
       "every_other_month": "Jeden zweiten Monat",
       "quarterly": "Vierteljährlich",
       "half_yearly": "Halbjährlich",
-      "yearly": "Jährlich"
+      "yearly": "Jährlich",
+      "every": "Aller"
     },
     "repetition_unit": {
       "days": "Tage",

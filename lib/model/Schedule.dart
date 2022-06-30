@@ -3,6 +3,7 @@ import 'package:flutter_translate/flutter_translate.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../util/units.dart';
 import 'When.dart';
 
 enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, EVERY_OTHER_MONTH, QUARTERLY, HALF_YEARLY, YEARLY, CUSTOM}
@@ -120,7 +121,15 @@ class Schedule {
     if (customRepetition == null) {
       return translate('common.words.custom') + "...";
     }
-    return customRepetition.repetitionValue.toString() + " " + fromRepetitionUnitToString(customRepetition.repetitionUnit);
+    Unit unit;
+    switch(customRepetition.repetitionUnit) {
+      case RepetitionUnit.DAYS: unit = Days(customRepetition.repetitionValue); break;
+      case RepetitionUnit.WEEKS: unit = Weeks(customRepetition.repetitionValue); break;
+      case RepetitionUnit.MONTHS: unit = Months(customRepetition.repetitionValue); break;
+      case RepetitionUnit.YEARS: unit = Years(customRepetition.repetitionValue); break;
+    }
+
+    return "${translate('model.repetition_step.every')} $unit";
   }
 
 }

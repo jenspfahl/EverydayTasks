@@ -198,7 +198,8 @@
       "every_other_month": "Bimonthly",
       "quarterly": "Quarterly",
       "half_yearly": "Half yearly",
-      "yearly": "Yearly"
+      "yearly": "Yearly",
+      "every": "Every"
     },
     "repetition_unit": {
       "days": "Days",

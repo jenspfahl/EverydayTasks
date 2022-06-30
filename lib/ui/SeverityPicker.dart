@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/Severity.dart';
-import 'package:personaltasklogger/ui/utils.dart';
 
 class SeverityPicker extends StatefulWidget {
   final bool showText;
