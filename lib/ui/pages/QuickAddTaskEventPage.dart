@@ -190,7 +190,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                         children: [
                           createCheckIcon(_sortBy == SortBy.GROUP),
                           const Spacer(),
-                          Text("Sort by category"),
+                          Text(translate('pages.quick_add.menu.sorting.by_category')),
                         ]
                     ),
                     value: '1'),
@@ -199,7 +199,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                         children: [
                           createCheckIcon(_sortBy == SortBy.TITLE),
                           const Spacer(),
-                          Text("Sort by title"),
+                          Text(translate('pages.quick_add.menu.sorting.by_title')),
                         ]
                     ),
                     value: '2'),
@@ -238,10 +238,10 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.all(16),
-                    child: const Text('What do you want to create?'),
+                    child: Text(translate('pages.quick_add.action.description')),
                   ),
                   OutlinedButton(
-                    child: const Text('New QuickAdd'),
+                    child: Text(translate('pages.quick_add.action.new_quick_add.title')),
                     onPressed: () {
                       Navigator.pop(super.context);
 
@@ -249,7 +249,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                     },
                   ),
                   ElevatedButton(
-                    child: const Text('New journal entry'),
+                    child: Text(translate('pages.quick_add.action.new_journal_entry.title')),
                     onPressed: () {
                       Navigator.pop(context);
                       _onCreateTaskEventPressed(context);
@@ -264,7 +264,9 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
 
   void _onCreateTaskEventPressed(BuildContext context) async {
     Object? _selectedTemplateItem;
-    showTemplateDialog(context, "New journal entry", "Select a category or task to be used for the journal entry.",
+    showTemplateDialog(context,
+        translate('pages.quick_add.action.new_journal_entry.title'),
+        translate('pages.quick_add.action.new_journal_entry.description'),
         selectedItem: (selectedItem) {
           setState(() {
             _selectedTemplateItem = selectedItem;
@@ -275,22 +277,23 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
           TaskEvent? newTaskEvent = await Navigator.push(super.context, MaterialPageRoute(builder: (context) {
             if (_selectedTemplateItem is TaskGroup) {
               return TaskEventForm(
-                formTitle: "Create new journal entry",
+                formTitle: translate('forms.task_event.title'),
                 taskGroup: _selectedTemplateItem as TaskGroup,);
             }
             else if (_selectedTemplateItem is Template) {
               return TaskEventForm(
-                formTitle: "Create new journal entry",
+                formTitle: translate('forms.task_event.title'),
                 template: _selectedTemplateItem as Template,);
             }
             else {
-              return TaskEventForm(formTitle: "Create new journal entry");
+              return TaskEventForm(formTitle: translate('forms.task_event.title'));
             }
           }));
     
           if (newTaskEvent != null) {
             TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-              toastInfo(super.context, "New journal entry with name '${newTaskEvent.translatedTitle}' created");
+              toastInfo(super.context, translate('forms.task_event.new_task_event_created',
+                  args: {"title" : newTaskEvent.translatedTitle}));
               _handleNewTaskEvent(newTaskEvent);
             });
           }
@@ -332,13 +335,15 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
             onLongPressStart: (details) {
               showConfirmationDialog(
                 context,
-                "Delete QuickAdd for '${template.translatedTitle}'",
-                "Are you sure to remove this QuickAdd? This will not affect the associated task.",
+                translate('pages.quick_add.deletion.title'),
+                translate('pages.quick_add.deletion.description',
+                  args: {"title" : template.translatedTitle}),
                 icon: const Icon(Icons.warning_amber_outlined),
                 okPressed: () {
                   template.favorite = false;
                   TemplateRepository.save(template).then((template) {
-                    toastInfo(context, "Removed '${template.translatedTitle}' from QuickAdd");
+                    toastInfo(context, translate('pages.quick_add.deletion.success',
+                        args: {"title" : template.translatedTitle}),);
 
                     setState(() {
                       _templates.remove(template);
@@ -355,7 +360,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
               TaskEvent? newTaskEvent = await Navigator.push(
                   context, MaterialPageRoute(builder: (context) {
                 return TaskEventForm(
-                    formTitle: "Create new journal entry",
+                    formTitle: translate('forms.task_event.title'),
                     template: template);
               }));
 
@@ -363,8 +368,8 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                 TaskEventRepository.insert(newTaskEvent).then((
                     newTaskEvent) {
                   toastInfo(context,
-                      "New journal entry with name '${newTaskEvent
-                          .translatedTitle}' created");
+                      translate('forms.task_event.new_task_event_created',
+                          args: {"title" : newTaskEvent.translatedTitle}));
                   _handleNewTaskEvent(newTaskEvent);
                 });
               }
@@ -448,7 +453,9 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   void _onCreateQuickAddPressed() {
     Object? selectedTemplateItem;
 
-    showTemplateDialog(context, "New QuickAdd", "Add a task to be added to QuickAdd.",
+    showTemplateDialog(context,
+        translate('pages.quick_add.action.new_quick_add.title'),
+        translate('pages.quick_add.action.new_quick_add.description'),
         selectedItem: (selectedItem) {
       setState(() {
         selectedTemplateItem = selectedItem;
@@ -461,11 +468,13 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
           Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
           if (_templates.contains(template)) {
-            toastInfo(context, "'${template.translatedTitle}' still present");
+            toastInfo(context, translate('pages.quick_add.addition.exists',
+                args: {"title" : template.translatedTitle}));
           }
           else {
             updateTemplate(template);
-            toastInfo(context, "Added '${template.translatedTitle}' to QuickAdd");
+            toastInfo(context, translate('pages.quick_add.addition.success',
+                args: {"title" : template.translatedTitle}));
           }
         });
       }
@@ -555,13 +564,13 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
       pinQuickAddPageIconKey.currentState?.refresh(_pinQuickAddPage);
       if (_pinQuickAddPage) {
         if (withSnackMsg) {
-          toastInfo(context, "QuickAdd page pinned");
+          toastInfo(context, translate('pages.quick_add.menu.pinning.pinned'));
         }
 
       }
       else {
         if (withSnackMsg) {
-          toastInfo(context, "QuickAdd page unpinned");
+          toastInfo(context, translate('pages.quick_add.menu.pinning.unpinned'));
         }
       }
       _preferenceService.setBool(PREF_PIN_QUICK_ADD, _pinQuickAddPage);
@@ -575,14 +584,14 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
       groupByCategoryIconKey.currentState?.refresh(_groupByCategory);
       if (_groupByCategory) {
         if (withSnackMsg) {
-          toastInfo(context, "Group by categories");
+          toastInfo(context, translate('pages.quick_add.menu.grouping.by_categories'));
         }
 
       }
       else {
         _groupedByTaskGroup = null;
         if (withSnackMsg) {
-          toastInfo(context, "Ungroup by categories");
+          toastInfo(context, translate('pages.quick_add.menu.grouping.not_by_categories'));
         }
       }
       _preferenceService.setBool(PREF_GROUP_BY_CATEGORY, _groupByCategory);

@@ -10,9 +10,49 @@
       "report_a_bug": "Fehler melden"
     }
   },
+  "forms": {
+    "task_event": {
+      "title": "Erfasse Eintrag",
+      "new_task_event_created": "Ein neuer Eintrag '{title}' wurde im Verlauf erfasst"
+    }
+  },
   "pages": {
     "quick_add": {
-      "title": "Erfassung"
+      "title": "Erfassung",
+      "menu": {
+        "pinning": {
+          "pinned": "Als Startseite markiert",
+          "unpinned": "Markierung entfernt"
+        },
+        "grouping": {
+          "by_categories": "Gruppierung nach Kategorien",
+          "not_by_categories": "Keine Gruppierung"
+        },
+        "sorting": {
+          "by_category": "Nach Kategorien sortieren",
+          "by_title": "Nach Titel sortieren"
+        }
+      },
+      "action": {
+        "description" : "Was willst du erfassen?",
+        "new_quick_add": {
+          "title": "Neue Schnellerfassung",
+          "description": "Wähle eine Aufgabe oder Variante aus."
+        },
+        "new_journal_entry": {
+          "title": "Neuer Eintrag",
+          "description": "Wähle eine Kategorie, eine Aufgabe oder eine Variante aus."
+        }
+      },
+      "addition": {
+        "success": "'{title}' wurde zur Schnellerfassung hinzugefügt",
+        "exists": "Eine Schnellerfassung für '{title}' existiert bereits"
+      },
+      "deletion": {
+        "title": "Entferne Schnellerfassung",
+        "description": "Soll die Schnellerfassung für '{title}' wirklich entfernt werden? Bestehende Aufgaben bleiben davon unberührt.",
+        "success": "Schnellerfassung für '{title}' wurde entfernt"
+      }
     },
     "journal": {
       "title": "Verlauf"
