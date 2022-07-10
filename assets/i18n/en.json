@@ -11,9 +11,49 @@
     }
   },
 
+  "forms": {
+    "task_event": {
+      "title": "Create new journal entry",
+      "new_task_event_created": "New journal entry with name '{title}' has been created"
+    }
+  },
   "pages": {
     "quick_add": {
-      "title": "QuickAdd"
+      "title": "QuickAdd",
+      "menu": {
+        "pinning": {
+          "pinned": "QuickAdd page pinned",
+          "unpinned": "QuickAdd page pinned"
+        },
+        "grouping": {
+          "by_categories": "Group by categories",
+          "not_by_categories": "Ungroup by categories"
+        },
+        "sorting": {
+          "by_category": "Sort by category",
+          "by_title": "Sort by title"
+        }
+      },
+      "action": {
+        "description" : "What do you want to create?",
+        "new_quick_add": {
+          "title": "New QuickAdd",
+          "description": "Select a task or variant to be added to QuickAdd."
+        },
+        "new_journal_entry": {
+          "title": "New journal entry",
+          "description": "Select a category, a task or a variant to be used for a new journal entry."
+        }
+      },
+      "addition": {
+        "success": "'{title}' has been added to QuickAdd",
+        "exists": "A QuickAdd for '{title}' still exists"
+      },
+      "deletion": {
+        "title": "Remove QuickAdd",
+        "description": "Are you sure to remove QuickAdd for '{title}'? This will not affect the associated task.",
+        "success": "QuickAdd for '{title}' has been removed"
+      }
     },
     "journal": {
       "title": "Journal"
