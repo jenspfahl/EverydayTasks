@@ -147,7 +147,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         _updateDisableNotifications(value, withSnackMsg: false);
       }
       else {
-        disableNotificationIconKey.currentState?.refresh(_disableNotification);
+        disableNotificationIconKey.currentState?.refresh(!_disableNotification);
       }
     });
     
