@@ -216,7 +216,9 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
           icon: const Icon(Icons.undo),
           onPressed: () {
             Object? selectedTemplate;
-            showTemplateDialog(context, "Restore a task", "Select a previously removed predefined task to be restored.",
+            showTemplateDialog(context,
+                translate('pages.tasks.menu.restore_a_task.title'),
+                translate('pages.tasks.menu.restore_a_task.description'),
               selectedItem: (selected) {
                 selectedTemplate = selected;
               },
@@ -236,7 +238,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                     TemplateRepository.undelete(taskTemplate).then((template) {
                       Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
-                      toastInfo(context, "Task '${template.translatedTitle}' restored.");
+                      toastInfo(context, translate('pages.tasks.menu.restore_a_task.success_task',
+                          args: {"title" : template.translatedTitle}));
 
                       final taskGroup = findPredefinedTaskGroupById(taskTemplate.taskGroupId);
                       setState(() {
@@ -261,7 +264,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                           TemplateRepository.undelete(taskTemplateVariant).then((template) {
                             Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
-                            toastInfo(context, "Variant '${template.translatedTitle}' and parent task restored.");
+                            toastInfo(context, translate('pages.tasks.menu.restore_a_task.success_variant_parent_task',
+                                args: {"title" : template.translatedTitle}));
 
                             final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
                             setState(() {
@@ -275,12 +279,18 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                         TemplateRepository.undelete(taskTemplateVariant).then((template) {
                           Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
 
-                          toastInfo(context, "Variant '${template.translatedTitle}' restored.");
+                          toastInfo(context, translate('pages.tasks.menu.restore_a_task.success_variant',
+                              args: {"title" : template.translatedTitle}));
 
-                          final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
-                          setState(() {
-                            _addTaskTemplateVariant(taskTemplateVariant, taskGroup, foundParentInDb as TaskTemplate);
-                          });
+                          if (foundParentInDb is TaskTemplate) {
+                            final taskGroup = findPredefinedTaskGroupById(
+                                template.taskGroupId);
+                            setState(() {
+                              _addTaskTemplateVariant(
+                                  taskTemplateVariant, taskGroup,
+                                  foundParentInDb as TaskTemplate);
+                            });
+                          }
                         });
                       }
                     });
@@ -420,7 +430,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
   void _onFABPressed() {
     if (_treeViewController.selectedKey == null) {
-      toastError(context, "Please select an item first!");
+      toastError(context, translate('pages.tasks.action.error_nothing_selected'));
       return;
     }
     Object? selectedItem = _treeViewController.selectedNode?.data;
@@ -433,23 +443,25 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     Widget? deleteAction;
     if (selectedItem is TaskGroup) {
       taskGroup = selectedItem;
-      message = "Add a new task underneath '${taskGroup.translatedName}'.";
+      message = translate('pages.tasks.action.description_group',
+          args: {"groupName" : taskGroup.translatedName});
       createAction = ElevatedButton(
-        child: const Text('Add new task'),
+        child: Text(translate('pages.tasks.action.add_task.title')),
         onPressed: () async {
           Navigator.pop(context);
           Template? newTemplate = await Navigator.push(
               context, MaterialPageRoute(builder: (context) {
             return TaskTemplateForm(
               taskGroup!,
-              formTitle: "Add new task",
+              formTitle: translate('pages.tasks.action.add_task.title'),
               createNew: true,
             );
           }));
 
           if (newTemplate != null) {
             TemplateRepository.save(newTemplate).then((newTemplate) {
-              toastInfo(context, "New task with name '${newTemplate.translatedTitle}' added");
+              toastInfo(context, translate('pages.tasks.action.add_task.success',
+                  args: {"title" : newTemplate.translatedTitle}));
               _addTaskTemplate(newTemplate as TaskTemplate, taskGroup!);
             });
           }
@@ -460,17 +472,18 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       template = selectedItem as Template;
       taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
       if (template.isVariant()) {
-        message = "Change or remove the selected variant or clone it as a new one.";
+        message = translate('pages.tasks.action.description_variant',
+            args: {"title" : template.translatedTitle});
         createAction = ElevatedButton(
-          child: const Text('Add cloned variant'),
+          child: Text(translate('pages.tasks.action.clone_variant.title')),
           onPressed: () async {
             Navigator.pop(context);
             Template? changedTemplate = await Navigator.push(
                 context, MaterialPageRoute(builder: (context) {
               return TaskTemplateForm(
                 taskGroup!,
-                formTitle: "Add cloned variant",
-                title: template!.translatedTitle + " (cloned)",
+                formTitle: translate('pages.tasks.action.clone_variant.title'),
+                title: template!.translatedTitle + " (${translate('pages.tasks.action.clone_variant.cloned')})",
                 template: template,
                 createNew: true,
               );
@@ -479,7 +492,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             if (changedTemplate != null) {
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
-                toastInfo(context, "Variant with name '${changedTemplate.translatedTitle}' cloned");
+
+                toastInfo(context, translate('pages.tasks.action.clone_variant.success',
+                  args: {"title": changedTemplate.translatedTitle}));
+
                 final variant = changedTemplate as TaskTemplateVariant;
                 debugPrint("base variant: ${variant.taskTemplateId}");
                 TemplateRepository.findById(TemplateId.forTaskTemplate(variant.taskTemplateId)).then((foundTemplate) {
@@ -498,7 +514,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 context, MaterialPageRoute(builder: (context) {
               return TaskTemplateForm(
                 taskGroup!,
-                formTitle: "Change variant '${template?.translatedTitle}'",
+                formTitle: translate('pages.tasks.action.change_variant.title'),
                 template: template,
                 createNew: false,
               );
@@ -507,7 +523,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             if (changedTemplate is Template) {
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
-                toastInfo(context, "Variant with name '${changedTemplate.translatedTitle}' changed");
+
+                toastInfo(context, translate('pages.tasks.action.change_variant.success',
+                  args: {"title": changedTemplate.translatedTitle}));
+
                 _updateTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!);
               });
             }
@@ -516,18 +535,19 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
         deleteAction = _createRemoveTemplateAction(template, hasChildren);
       }
       else {
-        message = "Change or remove the selected task or add a new variant underneath it.";
+        message = translate('pages.tasks.action.description_task',
+            args: {"title" : template.translatedTitle});
         createAction = ElevatedButton(
-          child: const Text('Add new variant'),
+          child: Text(translate('pages.tasks.action.add_variant.title')),
           onPressed: () async {
             Navigator.pop(context);
             Template? newVariant = await Navigator.push(
                 context, MaterialPageRoute(builder: (context) {
               return TaskTemplateForm(
                 taskGroup!,
-                formTitle: "Add new variant",
+                formTitle: translate('pages.tasks.action.add_variant.title'),
                 template: template,
-                title: template!.translatedTitle + " (variant)",
+                title: template!.translatedTitle + " (${translate('pages.tasks.action.add_variant.variant')})",
                 createNew: true,
               );
             }));
@@ -535,7 +555,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             if (newVariant != null) {
               TemplateRepository.save(newVariant)
                   .then((changedTemplate) {
-                toastInfo(context, "Variant with name '${changedTemplate.translatedTitle}' added");
+
+                toastInfo(context, translate('pages.tasks.action.add_variant.success',
+                  args: {"title": changedTemplate.translatedTitle}));
+
                 _addTaskTemplateVariant(changedTemplate as TaskTemplateVariant, taskGroup!, template as TaskTemplate);
               });
             }
@@ -549,7 +572,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 context, MaterialPageRoute(builder: (context) {
               return TaskTemplateForm(
                 taskGroup!,
-                formTitle: "Change task '${template?.translatedTitle}'",
+                formTitle: translate('pages.tasks.action.change_task.title'),
                 template: template,
                 createNew: false,
               );
@@ -558,7 +581,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             if (changedTemplate is Template) {
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
-                toastInfo(context, "Task with name '${changedTemplate.translatedTitle}' changed");
+
+                toastInfo(context, translate('pages.tasks.action.add_task.success',
+                  args: {"title": changedTemplate.translatedTitle}));
+
                 _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
               });
             }
@@ -601,26 +627,31 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   }
 
   Widget _createRemoveTemplateAction(Template template, bool hasChildren) {
-    final taskOrVariant = template.isVariant() ? "variant" : "task";
+    final taskOrVariant = template.isVariant()
+        ? translate('pages.tasks.action.remove.variant')
+        : translate('pages.tasks.action.remove.task');
     var message = "";
     if (template.isPredefined()) {
-      message = "This will remove the current $taskOrVariant by hiding it. You can restore it by clicking on the restore action icon.";
+      message = translate('pages.tasks.action.remove.message_predefined',
+          args: {"what": taskOrVariant, "title": template.translatedTitle});
     }
     else {
-      message = "This will remove the current $taskOrVariant. This cannot be underdone!";
+      message = translate('pages.tasks.action.remove.message_custom',
+          args: {"what": taskOrVariant, "title": template.translatedTitle});
     }
     return TextButton(
       child: const Icon(Icons.delete),
       onPressed: () {
         if (hasChildren) {
-          toastError(context, "Remove underneath variants first!");
+          toastError(context, translate('pages.tasks.action.remove.error_has_children'));
           Navigator.pop(context); // dismiss bottom sheet
           return;
         }
 
         showConfirmationDialog(
           context,
-          "Delete $taskOrVariant '${template.translatedTitle}'",
+          translate('pages.tasks.action.remove.title',
+            args: {"what": taskOrVariant}),
           message,
           icon: const Icon(Icons.warning_amber_outlined),
           okPressed: () {
@@ -629,7 +660,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
             TemplateRepository.delete(template).then((template) {
 
-              toastInfo(context, "The $taskOrVariant '${template.translatedTitle}' has been deleted");
+              toastInfo(context, translate('pages.tasks.action.remove.success',
+                  args: {"what": taskOrVariant, "title": template.translatedTitle}));
 
               _removeTemplate(template);
             });

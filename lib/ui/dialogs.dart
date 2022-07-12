@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/ui/DurationPicker.dart';
@@ -363,7 +364,7 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
           controller: _searchQueryController,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: "Search ...",
+            hintText: "${translate('common.search')} ...",
             border: InputBorder.none,
           ),
           style: TextStyle(fontSize: 16.0),

@@ -62,7 +62,53 @@
       "title": "Schedules"
     },
     "tasks": {
-      "title": "Tasks"
+      "title": "Tasks",
+      "menu":  {
+        "restore_a_task": {
+          "title": "Restore a task",
+          "description": "Select a previously removed predefined task or variant to be restored.",
+          "success_task": "Task '{title}' restored.",
+          "success_variant": "Variant '{title}' restored.",
+          "success_variant_parent_task": "Variant '{title}' and parent task restored."
+        }
+      },
+      "action": {
+        "error_nothing_selected": "Please select an item first!",
+        "description_group": "Add a new task underneath '{groupName}'.",
+        "description_task": "Change or remove the selected task '{title}' or add a new variant underneath it.",
+        "description_variant": "Change or remove the selected variant '{title}' or clone it as a new one.",
+        "add_task": {
+          "title": "Add new task",
+          "success": "New task with name '{title}' added"
+        },
+        "change_task": {
+          "title": "Change task",
+          "success": "Task with name '{title}' changed"
+        },
+        "add_variant": {
+          "title": "Add new variant",
+          "variant": "variant",
+          "success": "Variant with name '{title}' added"
+        },
+        "change_variant": {
+          "title": "Change variant",
+          "success": "Variant with name '{title}' changed"
+        },
+        "clone_variant": {
+          "title": "Clone variant",
+          "success": "Variant with name '{title}' cloned",
+          "cloned": "cloned"
+        },
+        "remove": {
+          "error_has_children": "Remove underneath variants first!",
+          "task": "task",
+          "variant": "variant",
+          "title": "Remove {what}",
+          "message_custom": "This will remove the current {what} '{title}'. This cannot be underdone!",
+          "message_predefined": "This will remove the current {what} '{title}' by hiding it. You can restore it by clicking on the restore action icon.",
+          "success": "The {what} '{title}' has been removed"
+        }
+      }
     },
     "settings": {
       "common": {

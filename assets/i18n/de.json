@@ -61,7 +61,53 @@
       "title": "Zeitpläne"
     },
     "tasks": {
-      "title": "Aufgaben"
+      "title": "Aufgaben",
+      "menu":  {
+        "restore_a_task": {
+          "title": "Aufgabe wiederherstellen",
+          "description": "Wähle eine zuvor entfernte vordefinierte Aufgabe oder Variante zum wiederherstellen.",
+          "success_task": "Aufgabe '{title}' wiederhergestellt.",
+          "success_variant": "Variante '{title}' wiederhergestellt.",
+          "success_variant_parent_task": "Variante '{title}' mit zugehöriger Aufgabe wiederhergestellt."
+        }
+      },
+      "action": {
+        "error_nothing_selected": "Bitte erst ein Element auswählen!",
+        "description_group": "Neue Aufgabe unter '{groupName}' hinzufügen",
+        "description_task": "Ändere oder entferne die ausgewählte Aufgabe '{title}' oder füge eine neue Variante davon hinzu.",
+        "description_variant": "Ändere oder entferne die ausgewählte Variante '{title}' oder klone sie als Vorlage für eine neue Variante.",
+        "add_task": {
+          "title": "Neue Aufgabe hinzufügen",
+          "success": "Neue Aufgabe '{title}' hinzugefügt"
+        },
+        "change_task": {
+          "title": "Ändere Aufgabe",
+          "success": "Aufgabe '{title}' geändert"
+        },
+        "add_variant": {
+          "title": "Neue Variante hinzufügen",
+          "variant": "Variante",
+          "success": "Variante '{title}' hinzugefügt"
+        },
+        "change_variant": {
+          "title": "Ändere Variante",
+          "success": "Variante '{title}' geändert"
+        },
+        "clone_variant": {
+          "title": "Klone Variante",
+          "success": "Variante '{title}' geklont",
+          "cloned": "Klon"
+        },
+        "remove": {
+          "error_has_children": "Bitte erst zugehörige Varianten entfernen!",
+          "task": "Aufgabe",
+          "variant": "Variante",
+          "title": "Entferne {what}",
+          "message_custom": "Die {what} '{title} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
+          "message_predefined": "Die {what} '{title}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
+          "success": "Die {what} '{title}' wurde entfernt"
+        }
+      }
     },
     "settings": {
       "common": {

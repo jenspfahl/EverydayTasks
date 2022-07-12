@@ -343,7 +343,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                   template.favorite = false;
                   TemplateRepository.save(template).then((template) {
                     toastInfo(context, translate('pages.quick_add.deletion.success',
-                        args: {"title" : template.translatedTitle}),);
+                        args: {"title" : template.translatedTitle}));
 
                     setState(() {
                       _templates.remove(template);
