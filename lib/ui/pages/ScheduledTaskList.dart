@@ -501,7 +501,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: scheduledTask.isNextScheduleOverdue(false) || scheduledTask.isDueNow()
                     ? Icon(Icons.warning_amber_outlined, color: scheduledTask.isDueNow() ? Color(0xFF770C0C) : Colors.red)
-                    : const Icon(Icons.watch_later_outlined),
+                    : const Icon(Icons.watch_later_outlined, color: Colors.black45), // in TaskEventList, the icons are not black without setting the color, donät know why ...
               ),
               Text(_getDueMessage(scheduledTask), softWrap: true),
             ]
@@ -514,7 +514,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: const Icon(MdiIcons.arrowExpandRight),
+                child: const Icon(MdiIcons.arrowExpandRight, color: Colors.black45),
               ),
               Text(_getScheduledMessage(scheduledTask)),
             ]
@@ -527,7 +527,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: const Icon(Icons.next_plan_outlined),
+                child: const Icon(Icons.next_plan_outlined, color: Colors.black45),
               ),
               Text(scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
                   ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
