@@ -65,7 +65,7 @@
       "menu":  {
         "restore_a_task": {
           "title": "Aufgabe wiederherstellen",
-          "description": "Wähle eine zuvor entfernte vordefinierte Aufgabe oder Variante zum wiederherstellen.",
+          "description": "Wähle eine vordefinierte Aufgabe oder Variante zum wiederherstellen.",
           "success_task": "Aufgabe '{title}' wiederhergestellt.",
           "success_variant": "Variante '{title}' wiederhergestellt.",
           "success_variant_parent_task": "Variante '{title}' mit zugehöriger Aufgabe wiederhergestellt."
@@ -190,13 +190,31 @@
         "two": "Jahre",
         "other": "Jahre"
       },
+      "year_dative": {
+        "zero": "Jahren",
+        "one": "Jahr",
+        "two": "Jahren",
+        "other": "Jahren"
+      },
       "month": {
         "zero": "Monate",
         "one": "Monat",
         "two": "Monate",
         "other": "Monate"
       },
+      "month_dative": {
+        "zero": "Monaten",
+        "one": "Monat",
+        "two": "Monaten",
+        "other": "Monaten"
+      },
       "week": {
+        "zero": "Wochen",
+        "one": "Woche",
+        "two": "Wochen",
+        "other": "Wochen"
+      },
+      "week_dative": {
         "zero": "Wochen",
         "one": "Woche",
         "two": "Wochen",
@@ -208,7 +226,19 @@
         "two": "Tage",
         "other": "Tage"
       },
+      "day_dative": {
+        "zero": "Tagen",
+        "one": "Tag",
+        "two": "Tagen",
+        "other": "Tagen"
+      },
       "hour": {
+        "zero": "Stunden",
+        "one": "Stunde",
+        "two": "Stunden",
+        "other": "Stunden"
+      },
+      "hour_dative": {
         "zero": "Stunden",
         "one": "Stunde",
         "two": "Stunden",
@@ -220,7 +250,19 @@
         "two": "Minuten",
         "other": "Minuten"
       },
+      "minute_dative": {
+        "zero": "Minuten",
+        "one": "Minute",
+        "two": "Minuten",
+        "other": "Minuten"
+      },
       "second": {
+        "zero": "Sekunden",
+        "one": "Sekunde",
+        "two": "Sekunden",
+        "other": "Sekunden"
+      },
+      "second_dative": {
         "zero": "Sekunden",
         "one": "Sekunde",
         "two": "Sekunden",
@@ -232,11 +274,23 @@
         "two": "Einträge",
         "other": "Einträge"
       },
+      "item_dative": {
+        "zero": "Einträgen",
+        "one": "Eintrag",
+        "two": "Einträgen",
+        "other": "Einträgen"
+      },
       "schedule": {
         "zero": "Zeitpläne",
         "one": "Zeitplan",
         "two": "Zeitpläne",
         "other": "Zeitpläne"
+      },
+      "schedule_dative": {
+        "zero": "Zeitplänen",
+        "one": "Zeitplan",
+        "two": "Zeitplänen",
+        "other": "Zeitplänen"
       }
     },
     "dates": {

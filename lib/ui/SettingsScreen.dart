@@ -7,6 +7,7 @@ import 'package:settings_ui/settings_ui.dart';
 
 import '../service/PreferenceService.dart';
 import '../util/dates.dart';
+import '../util/i18n.dart';
 import 'dialogs.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -68,7 +69,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           _preferenceService.getPreferredLocale().then((locale) {
                             Locale newLocale;
                             if (locale == null) {
-                              newLocale = Locale(Localizations.localeOf(context).languageCode);
+                              newLocale = currentLocale(context);
                             }
                             else {
                               newLocale = locale;
@@ -102,7 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       args: {'example_date' : getDateFormat(context, _dateFormatSelection, false, false).format(exampleDate),
                       })),
               onPressed: (context) {
-                final locale = Localizations.localeOf(context).languageCode;
+                final locale = currentLocale(context).toString();
                 initializeDateFormatting(locale);
                 final yMd = DateFormat.yMd(locale);
                 final yMMMd = DateFormat.yMMMd(locale);

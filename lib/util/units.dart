@@ -1,16 +1,37 @@
-
-
+import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+
+import 'i18n.dart';
+
+enum Clause {dative}
+
+
+Clause? usedClause(BuildContext context, Clause clause) {
+  final locale = currentLocale(context);
+  debugPrint("locale $locale for clause $clause");
+  if (locale.languageCode == 'de') {
+    return clause;
+  }
+  return null;
+}
 
 abstract class Unit {
   num value;
+  Clause? clause;
 
-  Unit(this.value);
+  Unit(this.value, [this.clause]);
 
   String getSubKey();
 
   String getUnitAsString(num value) {
-    return translatePlural('common.units.${getSubKey()}', value);
+    var key = 'common.units.${getSubKey()}';
+
+    if (clause != null) {
+      final clauseName = clause.toString().split('.').last;
+      key = '${key}_$clauseName';
+    }
+    debugPrint("key=$key");
+    return translatePlural(key, value);
   }
 
   String toStringWithAdjective(String adjective) {
@@ -28,7 +49,7 @@ abstract class Unit {
 
 class Years extends Unit {
 
-  Years(num value) : super(value);
+  Years(num value, [Clause? clause]) : super(value, clause);
 
   @override
   String getSubKey() {
@@ -37,7 +58,7 @@ class Years extends Unit {
 }
 class Months extends Unit {
 
-  Months(num value) : super(value);
+  Months(num value, [Clause? clause]) : super(value, clause);
 
   @override
   String getSubKey() {
@@ -47,7 +68,7 @@ class Months extends Unit {
 
 class Weeks extends Unit {
 
-  Weeks(num value) : super(value);
+  Weeks(num value, [Clause? clause]) : super(value, clause);
 
   @override
   String getSubKey() {
@@ -58,7 +79,7 @@ class Weeks extends Unit {
 
 class Days extends Unit {
 
-  Days(num value) : super(value);
+  Days(num value, [Clause? clause]) : super(value, clause);
 
   @override
   String getSubKey() {
@@ -69,7 +90,7 @@ class Days extends Unit {
 
 class Hours extends Unit {
 
-  Hours(num value) : super(value);
+  Hours(num value, [Clause? clause]) : super(value, clause);
 
   @override
   String getSubKey() {
@@ -80,7 +101,7 @@ class Hours extends Unit {
 
 class Minutes extends Unit {
 
-  Minutes(num value) : super(value);
+  Minutes(num value, [Clause? clause]) : super(value, clause);
 
   @override
   String getSubKey() {
@@ -91,7 +112,7 @@ class Minutes extends Unit {
 
 class Seconds extends Unit {
 
-  Seconds(num value) : super(value);
+  Seconds(num value, [Clause? clause]) : super(value, clause);
 
   @override
   String getSubKey() {
@@ -102,7 +123,7 @@ class Seconds extends Unit {
 
 class Items extends Unit {
 
-  Items(num value) : super(value);
+  Items(num value, [Clause? clause]) : super(value, clause);
 
   @override
   String getSubKey() {
@@ -113,7 +134,7 @@ class Items extends Unit {
 
 class Schedules extends Unit {
 
-  Schedules(num value) : super(value);
+  Schedules(num value, [Clause? clause]) : super(value, clause);
 
   @override
   String getSubKey() {

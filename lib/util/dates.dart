@@ -6,6 +6,8 @@ import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/util/units.dart';
 
+import 'i18n.dart';
+
 DateTime fillToWholeDate(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day, 23, 59, 59, 9999);
 }
@@ -64,7 +66,7 @@ formatToDateWithFormatSelection(DateTime dateTime, BuildContext context, int dat
 
  getDateFormat(BuildContext context, int dateFormatSelection, bool showWeekdays, bool withoutYear) {
 
-  final locale = Localizations.localeOf(context).languageCode;
+   final locale = currentLocale(context).toString();
   initializeDateFormatting(locale);
 debugPrint('showWeekdays=$showWeekdays');
   if (showWeekdays) {
@@ -87,7 +89,7 @@ debugPrint('showWeekdays=$showWeekdays');
 }
 
 String formatToDateTime(DateTime dateTime, BuildContext context) {
-  final locale = Localizations.localeOf(context).languageCode;
+  final locale = currentLocale(context).toString();
   initializeDateFormatting(locale);
 
   final DateFormat dateFormatter = DateFormat.yMd(locale);
@@ -158,27 +160,27 @@ String formatToDuration(
   return sb.toString();
 }
 
-String formatDuration(Duration duration, [bool? avoidNegativeDurationString]) {
+String formatDuration(Duration duration, [bool? avoidNegativeDurationString, Clause? clause]) {
   if (avoidNegativeDurationString ?? false) {
     duration = duration.abs();
   }
-  var days = Days(duration.inDays);
-  var hours = Hours(duration.inHours);
-  var minutes = Minutes(duration.inMinutes);
+  var days = Days(duration.inDays, clause);
+  var hours = Hours(duration.inHours, clause);
+  var minutes = Minutes(duration.inMinutes, clause);
   var durationText = minutes.toString();
   if (days.value.abs() >= 730) { // more than 2 years
-    var years = Years(days.value ~/ 365);
+    var years = Years(days.value ~/ 365, clause);
     durationText = years.toString();
 
   }
   else if (days.value.abs() >= 62) {
-    var months = Months(days.value ~/ 31);
+    var months = Months(days.value ~/ 31, clause);
     durationText = months.toString();
 
   }
   else if (days.value.abs() >= 7) {
-    var remainingDays = Days(days.value % 7);
-    var weeks = Weeks(days.value ~/ 7);
+    var remainingDays = Days(days.value % 7, clause);
+    var weeks = Weeks(days.value ~/ 7, clause);
     if (remainingDays.value != 0) {
       durationText = "$weeks ${translate('common.words.and')} $remainingDays";
     }
@@ -187,7 +189,7 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString]) {
     }
   }
   else if (hours.value.abs() >= 24) {
-    var remainingHours = Hours(hours.value % 24);
+    var remainingHours = Hours(hours.value % 24, clause);
     if (remainingHours.value != 0) {
       durationText = "$days ${translate('common.words.and')} $remainingHours";
     }
@@ -196,7 +198,7 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString]) {
     }
   }
   else if (minutes.value.abs() >= 60) {
-    var remainingMinutes = Minutes(minutes.value % 60);
+    var remainingMinutes = Minutes(minutes.value % 60, clause);
     if (remainingMinutes.value != 0) {
       durationText = "$hours ${translate('common.words.and')} $remainingMinutes";
     }

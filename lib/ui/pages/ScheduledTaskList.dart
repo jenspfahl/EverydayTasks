@@ -806,7 +806,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       return "Due now!";
     }
     else {
-      return "Due in ${formatDuration(scheduledTask.getMissingDuration()!)} "
+      return "Due in ${formatDuration(scheduledTask.getMissingDuration()!,
+          true, usedClause(context, Clause.dative))} "
               "\n"
               "(${formatToDateOrWord(nextSchedule, context, withPreposition: true,
               makeWhenOnLowerCase: true)} "
@@ -819,7 +820,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     var passedString = "";
     if (passedDuration != null) {
       passedString = passedDuration.isNegative
-          ? "in " + formatDuration(passedDuration.abs())
+          ? "in " + formatDuration(passedDuration, true, usedClause(context, Clause.dative))
           : formatDuration(passedDuration.abs()) + " ago";
     }
     return "Scheduled $passedString "
@@ -1138,7 +1139,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         text ="Due now!";
       }
       else {
-        text = "in ${formatDuration(scheduledTask.getMissingDuration()!)}";
+        text = "in ${formatDuration(scheduledTask.getMissingDuration()!,
+            true, usedClause(context, Clause.dative))}";
       }
     }
     return Align(
