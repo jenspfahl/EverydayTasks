@@ -82,7 +82,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     },
                     cancelPressed: () {
                       Navigator.pop(context);
-                      _loadAllPrefs();
+                      setState(() {
+                        _loadAllPrefs();
+                      });
                     },
                     selectionChanged: (selection) {
                       _languageSelection = selection;
@@ -126,8 +128,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     },
                     cancelPressed: () {
                       Navigator.pop(context);
-                      _loadAllPrefs();
-                    },
+                      setState(() {
+                        _loadAllPrefs();
+                      });                    },
                     selectionChanged: (selection) {
                       _dateFormatSelection = selection;
                     }
@@ -190,8 +193,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                   cancelPressed: () {
                     Navigator.pop(context);
-                    _loadAllPrefs();
-                  },
+                    setState(() {
+                      _loadAllPrefs();
+                    });                  },
                   selectionChanged: (selection) {
                     _showActionNotificationDurationSelection = selection;
                   }
