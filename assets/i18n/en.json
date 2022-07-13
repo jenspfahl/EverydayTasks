@@ -59,7 +59,40 @@
       "title": "Journal"
     },
     "schedules": {
-      "title": "Schedules"
+      "title": "Schedules",
+      "menu": {
+        "sorting": {
+          "by_progress": "Sort by progress",
+          "by_remaining_time": "Sort by remaining time",
+          "by_category": "Sort by category",
+          "by_title": "Sort by title"
+        },
+        "notifications": {
+          "enabled": "Due notifications enabled",
+          "disabled": "Due notifications disabled"
+        }
+      },
+      "overview": {
+        "running": "running",
+        "due": "due",
+        "overdue": "overdue",
+        "due_now": "due now",
+        "paused": "paused",
+        "inactive": "inactive",
+        "scheduled": "scheduled",
+        "due_yesterday_and_before": "Due before today",
+        "due_today": "Due today",
+        "due_tomorrow": "Due tomorrow",
+        "due_after_tomorrow": "Due after tomorrow",
+        "paused_schedules": "Paused schedules",
+        "inactive_schedules": "Inactive schedules"
+      },
+      "errors": {
+        "cannot_resume": "Cannot execute paused schedule! Resume it first!",
+        "cannot_reset": "Cannot reset paused schedule! Resume it first!",
+        "cannot_change_paused": "Cannot change paused schedule! Resume it first!",
+        "no_journal_entries": "No journal entries for this schedule so far"
+      }
     },
     "tasks": {
       "title": "Tasks",
@@ -263,9 +296,13 @@
     "words": {
       "on_for_dates": "on",
       "at_for_times": "at",
+      "for_for_times": "for",
+      "in_for_times": "in",
+      "ago_for_times": "{when} ago",
       "and": "and",
-      "custom": "Custom",
-      "around": "Around"
+      "thereof": "thereof",
+      "custom": "custom",
+      "around": "around"
     }
   },
 

@@ -24,6 +24,7 @@ import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
 import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
+import 'package:personaltasklogger/util/extensions.dart';
 
 import '../../util/units.dart';
 import '../ToggleActionIcon.dart';
@@ -170,7 +171,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         children: [
                           createCheckIcon(_sortBy == SortBy.PROGRESS),
                           const Spacer(),
-                          Text("Sort by progress"),
+                          Text(translate('pages.schedules.menu.sorting.by_progress')),
                         ]
                     ),
                     value: '1'),
@@ -179,7 +180,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         children: [
                           createCheckIcon(_sortBy == SortBy.REMAINING_TIME),
                           const Spacer(),
-                          Text("Sort by remaining time"),
+                          Text(translate('pages.schedules.menu.sorting.by_remaining_time')),
                         ]
                     ),
                     value: '2'),
@@ -188,7 +189,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         children: [
                           createCheckIcon(_sortBy == SortBy.GROUP),
                           const Spacer(),
-                          Text("Sort by category"),
+                          Text(translate('pages.schedules.menu.sorting.by_category')),
                         ]
                     ),
                     value: '3'),
@@ -197,7 +198,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         children: [
                           createCheckIcon(_sortBy == SortBy.TITLE),
                           const Spacer(),
-                          Text("Sort by title"),
+                          Text(translate('pages.schedules.menu.sorting.by_title')),
                         ]
                     ),
                     value: '4'),
@@ -239,7 +240,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       if (_disableNotification) {
         _notificationService.cancelAllNotifications();
         if (withSnackMsg) {
-          toastInfo(context, "Schedule notifications disabled");
+          toastInfo(context, translate('pages.schedules.menu.notifications.disabled'));
         }
 
       }
@@ -250,7 +251,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 withCancelFixedMode: scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED)
         );
         if (withSnackMsg) {
-          toastInfo(context, "Schedule notifications enabled");
+          toastInfo(context, translate('pages.schedules.menu.notifications.enabled'));
         }
       }
       _preferenceService.setBool(PREF_DISABLE_NOTIFICATIONS, _disableNotification);
@@ -306,7 +307,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             child: Row(
               children: [
                 Text(
-                  "${Schedules(_totalRunningSchedules).toStringWithAdjective("running")}, $_totalDueSchedules due, thereof $_totalOverdueSchedules overdue",
+                  "${Schedules(_totalRunningSchedules).toStringWithAdjective(translate('pages.schedules.overview.running'))}, $_totalDueSchedules ${translate('pages.schedules.overview.due')}, ${translate('common.words.thereof')} $_totalOverdueSchedules ${translate('pages.schedules.overview.overdue')}",
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 10.0,
@@ -330,12 +331,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           child: GestureDetector(
             child: Column(
               children: [
-                _createStatusRow(Icons.warning_amber_outlined, Colors.red, "Due before today", _dueBeforeTodaySchedules),
-                _createStatusRow(Icons.warning_amber_outlined, Colors.red, "Due today", _dueTodaySchedules),
-                _createStatusRow(Icons.schedule, Colors.blue, "Due tomorrow", _dueTomorrowSchedules),
-                _createStatusRow(Icons.schedule, Colors.blue, "Due after tomorrow", _dueAfterTomorrowSchedules),
-                _createStatusRow(Icons.pause, Colors.black87, "Paused schedules", _pausedSchedules),
-                _createStatusRow(Icons.check_box_outline_blank, Colors.black87, "Inactive schedules", _inactiveSchedules),
+                _createStatusRow(Icons.warning_amber_outlined, Colors.red, translate('pages.schedules.overview.due_yesterday_and_before'), _dueBeforeTodaySchedules),
+                _createStatusRow(Icons.warning_amber_outlined, Colors.red, translate('pages.schedules.overview.due_today'), _dueTodaySchedules),
+                _createStatusRow(Icons.schedule, Colors.blue, translate('pages.schedules.overview.due_tomorrow'), _dueTomorrowSchedules),
+                _createStatusRow(Icons.schedule, Colors.blue, translate('pages.schedules.overview.due_after_tomorrow'), _dueAfterTomorrowSchedules),
+                _createStatusRow(Icons.pause, Colors.black87, translate('pages.schedules.overview.paused_schedules'), _pausedSchedules),
+                _createStatusRow(Icons.check_box_outline_blank, Colors.black87, translate('pages.schedules.overview.inactive_schedules'), _inactiveSchedules),
                 Divider(),
               ],
             ),
@@ -487,10 +488,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
     List<Widget> content = [];
     if (!scheduledTask.active || scheduledTask.lastScheduledEventOn == null) {
-      content.add(const Text("- inactive -"));
+      content.add(Text("- ${translate('pages.schedules.overview.inactive')} -"));
     }
     else if (scheduledTask.isPaused) {
-      content.add(const Text("- paused -"));
+      content.add(Text("- ${translate('pages.schedules.overview.paused')} -"));
     }
     else {
       content.add(
@@ -561,7 +562,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                     child: Icon(Icons.check),
                     onPressed: () async {
                       if (scheduledTask.isPaused) {
-                        toastError(context, "Cannot execute paused schedule! Resume it first!");
+                        toastError(context, translate('pages.schedules.errors.cannot_resume'));
                         return;
                       }
                       final templateId = scheduledTask.templateId;
@@ -624,7 +625,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                     child: const Icon(Icons.replay),
                     onPressed: () {
                       if (scheduledTask.isPaused) {
-                        toastError(context, "Cannot reset paused schedule! Resume it first!");
+                        toastError(context, translate('pages.schedules.errors.cannot_reset'));
                         return;
                       }
                       final newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
@@ -709,7 +710,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         }
                       }
                       else {
-                        toastInfo(context, "No journal entries for this schedule so far");
+                        toastError(context, translate('pages.schedules.errors.no_journal_entries'));
                       }
                     });
                   },
@@ -726,7 +727,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 child: TextButton(
                   onPressed: () async {
                     if (scheduledTask.isPaused) {
-                      toastError(context, "Cannot change paused schedule! Resume it first!");
+                      toastError(context, translate('pages.schedules.errors.cannot_change_paused'));
                       return;
                     }
                     ScheduledTask? changedScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -793,9 +794,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
     if (scheduledTask.isNextScheduleOverdue(false)) {
       final dueString = scheduledTask.isNextScheduleOverdue(true)
-          ? "Overdue"
-          : "Due";
-      return "$dueString for ${formatDuration(scheduledTask.getMissingDuration()!, true)} "
+          ? translate('pages.schedules.overview.overdue').capitalize()
+          : translate('pages.schedules.overview.due').capitalize();
+      return "$dueString ${translate('common.words.for_for_times')} ${formatDuration(scheduledTask.getMissingDuration()!, true)} "
               "\n"
               "(${formatToDateOrWord(
               scheduledTask.getNextSchedule()!, context, withPreposition: true,
@@ -803,10 +804,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
     }
     else if (scheduledTask.isDueNow()) {
-      return "Due now!";
+      return translate('pages.schedules.overview.due_now').capitalize() + "!";
     }
     else {
-      return "Due in ${formatDuration(scheduledTask.getMissingDuration()!,
+      return "${translate('pages.schedules.overview.due').capitalize()} ${translate('common.words.in_for_times')} ${formatDuration(scheduledTask.getMissingDuration()!,
           true, usedClause(context, Clause.dative))} "
               "\n"
               "(${formatToDateOrWord(nextSchedule, context, withPreposition: true,
@@ -820,10 +821,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     var passedString = "";
     if (passedDuration != null) {
       passedString = passedDuration.isNegative
-          ? "in " + formatDuration(passedDuration, true, usedClause(context, Clause.dative))
-          : formatDuration(passedDuration.abs()) + " ago";
+          ? "${translate('common.words.in_for_times')} " + formatDuration(passedDuration, true, usedClause(context, Clause.dative))
+          : translate('common.words.ago_for_times', args: {"when": formatDuration(passedDuration.abs())});
     }
-    return "Scheduled $passedString "
+    return "${translate('pages.schedules.overview.scheduled').capitalize()} $passedString "
         "\n"
         "(${formatToDateOrWord(scheduledTask.lastScheduledEventOn!, context, withPreposition: true, makeWhenOnLowerCase: true)})";
   }
@@ -1124,22 +1125,22 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   Widget _buildShortProgressText(ScheduledTask scheduledTask) {
     String text = "";
     if (!scheduledTask.active || scheduledTask.lastScheduledEventOn == null) {
-      text = "- inactive -";
+      text = "- ${translate('pages.schedules.overview.inactive')} -";
     }
     else if (scheduledTask.isPaused) {
-      text = "- paused -";
+      text = "- ${translate('pages.schedules.overview.paused')} -";
     }
     else {
       if (scheduledTask.isNextScheduleOverdue(false)) {
         text = scheduledTask.isNextScheduleOverdue(true)
-            ? "Overdue!"
-            : "Due!";
+            ? "${translate('pages.schedules.overview.overdue').capitalize()}!"
+            : "${translate('pages.schedules.overview.due').capitalize()}!";
       }
       else if (scheduledTask.isDueNow()) {
-        text ="Due now!";
+        text ="${translate('pages.schedules.overview.due_now').capitalize()}!";
       }
       else {
-        text = "in ${formatDuration(scheduledTask.getMissingDuration()!,
+        text = "${translate('common.words.in_for_times')} ${formatDuration(scheduledTask.getMissingDuration()!,
             true, usedClause(context, Clause.dative))}";
       }
     }

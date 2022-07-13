@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/util/dates.dart';
+import 'package:personaltasklogger/util/extensions.dart';
 import 'package:personaltasklogger/util/units.dart';
 
 import '../service/PreferenceService.dart';
@@ -103,12 +104,12 @@ class When {
       case AroundDurationHours.TWO: return _translateAround(Hours(2).toString());
       case AroundDurationHours.THREE: return _translateAround(Hours(3).toString());
       case AroundDurationHours.FOUR: return _translateAround(Hours(4).toString());
-      case AroundDurationHours.CUSTOM: return translate('common.words.custom') + "...";
+      case AroundDurationHours.CUSTOM: return translate('common.words.custom').capitalize() + "...";
     }
   }
 
   static String _translateAround(String addition) {
-    return translate('common.words.around') + " " + addition;
+    return translate('common.words.around').capitalize() + " " + addition;
   }
 
   static TimeOfDay fromWhenAtDayToTimeOfDay(AroundWhenAtDay whenAtDay, TimeOfDay? customWhenAt) {
@@ -132,7 +133,7 @@ class When {
       case AroundWhenAtDay.AFTERNOON: return translate('common.times.at_afternoon');
       case AroundWhenAtDay.EVENING: return translate('common.times.in_the_evening');
       case AroundWhenAtDay.NIGHT: return translate('common.times.at_night');
-      case AroundWhenAtDay.CUSTOM: return translate('common.words.custom') + "...";
+      case AroundWhenAtDay.CUSTOM: return translate('common.words.custom').capitalize() + "...";
     }
   }
 
@@ -161,7 +162,7 @@ class When {
       case WhenOnDate.TODAY: return translate('common.dates.today');
       case WhenOnDate.YESTERDAY: return translate('common.dates.yesterday');
       case WhenOnDate.BEFORE_YESTERDAY: return translate('common.dates.before_yesterday');
-      case WhenOnDate.CUSTOM: return translate('common.words.custom') + "...";
+      case WhenOnDate.CUSTOM: return translate('common.words.custom').capitalize() + "...";
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:personaltasklogger/util/dates.dart';
+import 'package:personaltasklogger/util/extensions.dart';
 
 import '../util/units.dart';
 import 'When.dart';
@@ -97,7 +98,7 @@ class Schedule {
       case RepetitionStep.QUARTERLY: return translate('model.repetition_step.quarterly');
       case RepetitionStep.HALF_YEARLY: return translate('model.repetition_step.half_yearly');
       case RepetitionStep.YEARLY: return translate('model.repetition_step.yearly');
-      case RepetitionStep.CUSTOM: return translate('common.words.custom') + "...";
+      case RepetitionStep.CUSTOM: return translate('common.words.custom').capitalize() + "...";
     }
   }
 
@@ -119,7 +120,7 @@ class Schedule {
 
   static String fromCustomRepetitionToString(CustomRepetition? customRepetition) {
     if (customRepetition == null) {
-      return translate('common.words.custom') + "...";
+      return translate('common.words.custom').capitalize() + "...";
     }
     Unit unit;
     switch(customRepetition.repetitionUnit) {

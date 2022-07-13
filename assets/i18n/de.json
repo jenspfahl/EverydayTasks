@@ -58,7 +58,40 @@
       "title": "Verlauf"
     },
     "schedules": {
-      "title": "Zeitpläne"
+      "title": "Zeitpläne",
+      "menu": {
+        "sorting": {
+          "by_progress": "Nach Fortschritt sortieren",
+          "by_remaining_time": "Nach verbleibender Zeit sortieren",
+          "by_category": "Nach Kategorien sortieren",
+          "by_title": "Nach Titel sortieren"
+        },
+        "notifications": {
+          "enabled": "Fälligkeitsbenachrichtigung aktiviert",
+          "disabled": "Fälligkeitsbenachrichtigung deaktiviert"
+        }
+      },
+      "overview": {
+        "running": "laufende(r)",
+        "due": "fällig",
+        "overdue": "überfällig",
+        "due_now": "jetzt fällig",
+        "paused": "pausiert",
+        "inactive": "inactiv",
+        "scheduled": "geplant",
+        "due_yesterday_and_before": "Fällig seit gestern und älter",
+        "due_today": "Heute fällig",
+        "due_tomorrow": "Morgen fällig",
+        "due_after_tomorrow": "Übermorgen fällig",
+        "paused_schedules": "Pausierte Zeitpläne",
+        "inactive_schedules": "Inaktive Zeitpläne"
+      },
+      "errors": {
+        "cannot_resume": "Pausierte Zeitpläne können nicht erfasst werden! Bitte erst fortsetzen.",
+        "cannot_reset": "Pausierte Zeitpläne können nicht zurückgesetzt werden! Bitte erst fortsetzen.",
+        "cannot_change_paused": "Pausierte Zeitpläne können nicht geändert werden! Bitte erst fortsetzen.",
+        "no_journal_entries": "Noch keine Erfassungen für diesen Zeitplan"
+      }
     },
     "tasks": {
       "title": "Aufgaben",
@@ -316,9 +349,13 @@
     "words": {
       "on_for_dates": "am",
       "at_for_times": "um",
+      "for_for_times": "seit",
+      "in_for_times": "in",
+      "ago_for_times": "vor {when}",
       "and": "und",
-      "custom": "Benutzerdefiniert",
-      "around": "Ungefähr"
+      "thereof": "davon",
+      "custom": "benutzerdefiniert",
+      "around": "ungefähr"
     }
   },
 
