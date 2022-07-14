@@ -14,7 +14,12 @@
   "forms": {
     "task_event": {
       "title": "Create new journal entry",
-      "new_task_event_created": "New journal entry with name '{title}' has been created"
+      "title_from_schedule": "Create new journal entry from schedule",
+      "success": "New journal entry with name '{title}' has been created"
+    },
+    "schedule": {
+      "title": "Create new schedule",
+      "success": "New schedule with name '{title}' has been created"
     }
   },
   "pages": {
@@ -86,6 +91,38 @@
         "due_after_tomorrow": "Due after tomorrow",
         "paused_schedules": "Paused schedules",
         "inactive_schedules": "Inactive schedules"
+      },
+      "notification": {
+        "title_normal_task": "Due scheduled task",
+        "title_fixed_task": "Due scheduled fixed task",
+        "message_normal_task": "Scheduled task '{title}' is due!",
+        "message_fixed_task": "Scheduled fixed task '{title}' is due!",
+        "message_fixed_last_task": "Scheduled fixed task '{title}' is due! Please click to get future notifications!"
+      },
+      "action": {
+        "reset": {
+          "title": "Reset progress",
+          "message_then": "Are you sure to reset the progress of '{title}' ? The schedule is then due {nextDueDate} at {newNextDueDate}.",
+          "message_still": "Are you sure to reset the progress of '{title}' ? The schedule is still due {nextDueDate} at {newNextDueDate}.",
+          "success": "Progress for '{title}' reset to now"
+        },
+        "pause_resume": {
+          "paused": "Schedule '{title}' paused",
+          "resumed": "Schedule '{title}' resumed"
+        },
+        "addition": {
+          "title": "Schedule a task",
+          "message": "Select a category, a task or variant to be repeatedly scheduled."
+        },
+        "change": {
+          "title": "Change schedule '{title}'",
+          "success": "Schedule with name '{title}' changed"
+        },
+        "deletion": {
+          "title": "Delete schedule",
+          "message": "Are you sure to delete schedule '{title}' ?",
+          "success": "Schedule '{title}' deleted"
+        }
       },
       "errors": {
         "cannot_resume": "Cannot execute paused schedule! Resume it first!",

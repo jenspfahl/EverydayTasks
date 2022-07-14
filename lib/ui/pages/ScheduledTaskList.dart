@@ -575,7 +575,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         String title = scheduledTask.translatedTitle;
                         if (template != null) {
                           return TaskEventForm(
-                              formTitle: "Create new journal entry from schedule",
+                              formTitle: translate('forms.task_event.title_from_schedule'),
                               template: template,
                               title: title);
                         }
@@ -583,7 +583,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                           final taskGroup = findPredefinedTaskGroupById(
                               scheduledTask.taskGroupId);
                           return TaskEventForm(
-                              formTitle: "Create new journal entry from schedule",
+                              formTitle: translate('forms.task_event.title_from_schedule'),
                               taskGroup: taskGroup,
                               title: title);
                         }
@@ -591,7 +591,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                       if (newTaskEvent != null) {
                         TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                          toastInfo(context, "New journal entry with name '${newTaskEvent.translatedTitle}' created");
+                          toastInfo(context, translate('forms.task_event.success',
+                              args: {"title" : newTaskEvent.translatedTitle}));
                           widget._pagesHolder
                               .taskEventList
                               ?.getGlobalKey()
@@ -634,17 +635,28 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                           withPreposition: true,
                           makeWhenOnLowerCase: true);
                       var message = (newNextDueDate != actualNextDueDate)
-                          ? "Are you sure to reset the progress of '${scheduledTask.translatedTitle}' ? The schedule is then due $nextDueDateAsString at ${formatToTime(newNextDueDate)}."
-                          : "Are you sure to reset the progress of '${scheduledTask.translatedTitle}' ? The schedule is still due $nextDueDateAsString at ${formatToTime(newNextDueDate)}.";
+                          ? translate('pages.schedules.action.reset.message_then', args: {
+                              "title": scheduledTask.translatedTitle,
+                              "nextDueDate": nextDueDateAsString,
+                              "newNextDueDate": formatToTime(newNextDueDate)
+                          })
+                          : translate('pages.schedules.action.reset.message_still', args: {
+                              "title": scheduledTask.translatedTitle,
+                              "nextDueDate": nextDueDateAsString,
+                              "newNextDueDate": formatToTime(newNextDueDate)
+                          });
                       showConfirmationDialog(
                         context,
-                        "Reset schedule",
+                          translate('pages.schedules.action.reset.title'),
                         message,
                         icon: const Icon(Icons.replay),
                         okPressed: () {
                           scheduledTask.executeSchedule(null);
+
                           ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-                            toastInfo(context, "Schedule with name '${changedScheduledTask.translatedTitle}' reset to now");
+                            toastInfo(context, translate('pages.schedules.action.reset.success',
+                              args: {"title": changedScheduledTask.translatedTitle}));
+
                             _updateScheduledTask(scheduledTask, changedScheduledTask);
                           });
                           Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
@@ -680,8 +692,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                           _updateScheduledTask(scheduledTask, changedScheduledTask);
 
                           var msg = changedScheduledTask.isPaused
-                              ? "Scheduled task '${changedScheduledTask.translatedTitle}' paused"
-                              : "Scheduled task '${changedScheduledTask.translatedTitle}' resumed";
+                              ? translate('pages.schedules.action.pause_resume.paused',
+                                  args: {"title": changedScheduledTask.translatedTitle})
+                              : translate('pages.schedules.action.pause_resume.resumed',
+                                  args: {"title": changedScheduledTask.translatedTitle});
                           toastInfo(context, msg);
                         });
                       }
@@ -710,7 +724,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         }
                       }
                       else {
-                        toastError(context, translate('pages.schedules.errors.no_journal_entries'));
+                        toastInfo(context, translate('pages.schedules.errors.no_journal_entries'), forceShow: true);
                       }
                     });
                   },
@@ -732,7 +746,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                     }
                     ScheduledTask? changedScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                       return ScheduledTaskForm(
-                          formTitle: "Change schedule '${scheduledTask.translatedTitle}'",
+                          formTitle: translate('pages.schedules.action.change.title',
+                              args: {"title": scheduledTask.translatedTitle}),
                           scheduledTask: scheduledTask,
                           taskGroup: findPredefinedTaskGroupById(scheduledTask.taskGroupId),
                       );
@@ -740,7 +755,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                     if (changedScheduledTask != null) {
                       ScheduledTaskRepository.update(changedScheduledTask).then((changedScheduledTask) {
-                        toastInfo(context, "Schedule with name '${changedScheduledTask.translatedTitle}' changed");
+
+                        toastInfo(context, translate('pages.schedules.action.change.title',
+                            args: {"title": changedScheduledTask.translatedTitle}));
+
                         _updateScheduledTask(scheduledTask, changedScheduledTask);
                       });
                     }
@@ -754,8 +772,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   onPressed: () {
                     showConfirmationDialog(
                       context,
-                      "Delete Schedule",
-                      "Are you sure to delete '${scheduledTask.translatedTitle}' ?",
+                      translate('pages.schedules.action.deletion.title'),
+                      translate('pages.schedules.action.deletion.message',
+                          args: {"title": scheduledTask.translatedTitle}),
                       icon: const Icon(Icons.warning_amber_outlined),
                       okPressed: () {
                         ScheduledTaskRepository.delete(scheduledTask).then(
@@ -768,7 +787,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                                   });
                                 });
 
-                                toastInfo(context, "Schedule '${scheduledTask.translatedTitle}' deleted");
+                                toastInfo(context, translate('pages.schedules.action.deletion.success',
+                                    args: {"title": scheduledTask.translatedTitle}));
                               _removeScheduledTask(scheduledTask);
                           },
                         );
@@ -939,7 +959,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   void _onFABPressed() {
     Object? selectedTemplateItem;
 
-    showTemplateDialog(context, "Schedule a task",  "Select a category or task to be repeatedly scheduled.",
+    showTemplateDialog(context,
+        translate('pages.schedules.action.addition.title'),
+        translate('pages.schedules.action.addition.message'),
         selectedItem: (selectedItem) {
           setState(() {
             selectedTemplateItem = selectedItem;
@@ -952,7 +974,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             Navigator.pop(context);
             ScheduledTask? newScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
               return ScheduledTaskForm(
-                formTitle: "Create new schedule ",
+                formTitle: translate('forms.schedule.title'),
                 taskGroup: selectedTemplateItem is Template
                   ? findPredefinedTaskGroupById((selectedTemplateItem as Template).taskGroupId)
                   : selectedTemplateItem as TaskGroup,
@@ -964,7 +986,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
             if (newScheduledTask != null) {
               ScheduledTaskRepository.insert(newScheduledTask).then((newScheduledTask) {
-                toastInfo(context, "New schedule with name '${newScheduledTask.translatedTitle}' created");
+
+                toastInfo(context, translate('forms.schedule.success',
+                  args: {"new": newScheduledTask.translatedTitle}));
+
                 _addScheduledTask(newScheduledTask);
               });
             }
@@ -1015,14 +1040,20 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
   void _schedule(int id, String title, TaskGroup taskGroup, Duration missingDuration, bool isFixed, bool isLast) {
-    final taskWord = isFixed ? "fixed task" : "task";
+    var title = isFixed
+            ? translate('pages.schedules.notification.title_fixed_task')
+            : translate('pages.schedules.notification.title_normal_task');
+    var messageKey = isFixed
+            ? isLast
+              ? 'pages.schedules.notification.message_fixed_last_task'
+              : 'pages.schedules.notification.message_fixed_task'
+            : 'pages.schedules.notification.message_normal_task';
+
     _notificationService.scheduleNotification(
         widget.getRoutingKey(),
         id,
-        "Due scheduled $taskWord (${taskGroup.translatedName})",
-        isLast
-            ? "Scheduled $taskWord '$title' is due! Please click to get future notifications!"
-            : "Scheduled $taskWord '$title' is due!",
+        "$title (${taskGroup.translatedName})",
+        translate(messageKey, args: {"title": title}),
         missingDuration,
         CHANNEL_ID_SCHEDULES,
         taskGroup.backgroundColor);

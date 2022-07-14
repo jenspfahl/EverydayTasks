@@ -13,7 +13,12 @@
   "forms": {
     "task_event": {
       "title": "Erfasse Eintrag",
-      "new_task_event_created": "Ein neuer Eintrag '{title}' wurde im Verlauf erfasst"
+      "title_from_schedule": "Erfasse Eintrag aus Zeitplan",
+      "success": "Ein neuer Eintrag '{title}' wurde im Verlauf erfasst"
+    },
+    "schedule": {
+      "title": "Neuer Zeitplan",
+      "success": "Neuer Zeitplan '{title}' wurde angelegt"
     }
   },
   "pages": {
@@ -85,6 +90,38 @@
         "due_after_tomorrow": "Übermorgen fällig",
         "paused_schedules": "Pausierte Zeitpläne",
         "inactive_schedules": "Inaktive Zeitpläne"
+      },
+      "notification": {
+        "title_normal_task": "Fällige geplante Aufgabe",
+        "title_fixed_task": "Fällige geplante feste Aufgabe",
+        "message_normal_task": "Geplante Aufgabe '{title}' ist fällig!",
+        "message_fixed_task": "Geplante feste Aufgabe '{title}' ist fällig!",
+        "message_fixed_last_task": "Geplante feste Aufgabe '{title}' ist fällig! Bitte klicken um weitere Benachrichtigungen zu erhalten!"
+      },
+      "action": {
+        "reset": {
+          "title": "Fortschritt zurücksetzen",
+          "message_then": "Soll der Fortschritt des Zeitplans '{title}' wirklich zurückgesetzt werden ? Die nächste Fälligkeit ist dann {nextDueDate} um {newNextDueDate}.",
+          "message_still": "Soll der Fortschritt des Zeitplans '{title}' wirklich zurückgesetzt werden ? Die nächste Fälligkeit ist immernoch {nextDueDate} um {newNextDueDate}.",
+          "success": "Fortschritt für '{title}' wurde zurückgesetzt"
+        },
+        "pause_resume": {
+          "paused": "Zeitplan '{title}' pausiert",
+          "resumed": "Zeitplan '{title}' wieder fortgesetzt"
+        },
+        "addition": {
+          "title": "Plane eine Aufgabe",
+          "message": "Wähle aus, was zeitlich geplant werden soll."
+        },
+        "change": {
+          "title": "Ändere Zeitplan '{title}'",
+          "success": "Zeitplan '{title}' geändert"
+        },
+        "deletion": {
+          "title": "Lösche Zeitplan",
+          "message": "Soll der Zeitplan '{title}' wirklich gelöscht werden?",
+          "success": "Zeitplan '{title}' gelöscht"
+        }
       },
       "errors": {
         "cannot_resume": "Pausierte Zeitpläne können nicht erfasst werden! Bitte erst fortsetzen.",

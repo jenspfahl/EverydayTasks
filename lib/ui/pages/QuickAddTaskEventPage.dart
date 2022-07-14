@@ -292,7 +292,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
     
           if (newTaskEvent != null) {
             TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-              toastInfo(super.context, translate('forms.task_event.new_task_event_created',
+              toastInfo(super.context, translate('forms.task_event.success',
                   args: {"title" : newTaskEvent.translatedTitle}));
               _handleNewTaskEvent(newTaskEvent);
             });
@@ -368,7 +368,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                 TaskEventRepository.insert(newTaskEvent).then((
                     newTaskEvent) {
                   toastInfo(context,
-                      translate('forms.task_event.new_task_event_created',
+                      translate('forms.task_event.success',
                           args: {"title" : newTaskEvent.translatedTitle}));
                   _handleNewTaskEvent(newTaskEvent);
                 });

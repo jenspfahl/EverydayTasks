@@ -49,12 +49,14 @@ Widget createCheckIcon(bool checked) {
   );
 }
 
-toastInfo(BuildContext context, String message) {
+toastInfo(BuildContext context, String message, {bool? forceShow}) {
   PreferenceService().getBool(PreferenceService.PREF_SHOW_ACTION_NOTIFICATIONS)
       .then((show) {
-        if (show??true) {
+        if (show != false || forceShow == true) {
           _calcMessageDuration(message, false).then((duration) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            var messenger = ScaffoldMessenger.of(context);
+            messenger.hideCurrentSnackBar();
+            messenger.showSnackBar(
                 SnackBar(
                     duration: duration,
                     content: Text(message)));
@@ -66,7 +68,10 @@ toastInfo(BuildContext context, String message) {
 
 toastError(BuildContext context, String message) {
   _calcMessageDuration(message, true).then((duration) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    var messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
         SnackBar(
             backgroundColor: Colors.red,
             duration: duration,
