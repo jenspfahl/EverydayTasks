@@ -277,22 +277,22 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
           TaskEvent? newTaskEvent = await Navigator.push(super.context, MaterialPageRoute(builder: (context) {
             if (_selectedTemplateItem is TaskGroup) {
               return TaskEventForm(
-                formTitle: translate('forms.task_event.title'),
+                formTitle: translate('forms.task_event.create.title'),
                 taskGroup: _selectedTemplateItem as TaskGroup,);
             }
             else if (_selectedTemplateItem is Template) {
               return TaskEventForm(
-                formTitle: translate('forms.task_event.title'),
+                formTitle: translate('forms.task_event.create.title'),
                 template: _selectedTemplateItem as Template,);
             }
             else {
-              return TaskEventForm(formTitle: translate('forms.task_event.title'));
+              return TaskEventForm(formTitle: translate('forms.task_event.create.title'));
             }
           }));
     
           if (newTaskEvent != null) {
             TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-              toastInfo(super.context, translate('forms.task_event.success',
+              toastInfo(super.context, translate('forms.task_event.create.success',
                   args: {"title" : newTaskEvent.translatedTitle}));
               _handleNewTaskEvent(newTaskEvent);
             });
@@ -360,7 +360,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
               TaskEvent? newTaskEvent = await Navigator.push(
                   context, MaterialPageRoute(builder: (context) {
                 return TaskEventForm(
-                    formTitle: translate('forms.task_event.title'),
+                    formTitle: translate('forms.task_event.create.title'),
                     template: template);
               }));
 
@@ -368,7 +368,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                 TaskEventRepository.insert(newTaskEvent).then((
                     newTaskEvent) {
                   toastInfo(context,
-                      translate('forms.task_event.success',
+                      translate('forms.task_event.create.success',
                           args: {"title" : newTaskEvent.translatedTitle}));
                   _handleNewTaskEvent(newTaskEvent);
                 });

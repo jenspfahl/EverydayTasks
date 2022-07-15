@@ -12,13 +12,25 @@
   },
   "forms": {
     "task_event": {
-      "title": "Erfasse Eintrag",
-      "title_from_schedule": "Erfasse Eintrag aus Zeitplan",
-      "success": "Ein neuer Eintrag '{title}' wurde im Verlauf erfasst"
+      "create": {
+        "title": "Erfasse Eintrag",
+        "title_from_schedule": "Erfasse Eintrag aus Zeitplan",
+        "success": "Ein neuer Eintrag '{title}' wurde im Verlauf erfasst"
+      },
+      "change": {
+        "title": "Ändere Eintrag '{title}'",
+        "success": "Erfassten Eintrag '{title}' geändert"
+      }
     },
     "schedule": {
-      "title": "Neuer Zeitplan",
-      "success": "Neuer Zeitplan '{title}' wurde angelegt"
+      "create": {
+        "title": "Neuer Zeitplan",
+        "success": "Neuer Zeitplan '{title}' wurde angelegt"
+      },
+      "change": {
+        "title": "Ändere Zeitplan '{title}'",
+        "success": "Zeitplan '{title}' geändert"
+      }
     }
   },
   "pages": {
@@ -60,7 +72,34 @@
       }
     },
     "journal": {
-      "title": "Verlauf"
+      "title": "Verlauf",
+      "action": {
+        "description" : "Von was willst du einen neuen Eintrag erfassen?",
+        "from_scratch": {
+          "title": "Von Grund auf"
+        },
+        "from_task": {
+          "title": "Von einer Aufgabe",
+          "description": "Wähle eine Kategorie, eine Aufgabe oder eine Variante aus."
+        },
+        "deletion": {
+          "title": "Lösche Eintrag",
+          "message": "Soll der Eintrag '{title}' wirklich gelöscht werden?",
+          "success": "Eintrag '{title}' gelöscht"
+        }
+      },
+      "details": {
+        "title": "Details",
+        "attrib_title": "Titel",
+        "attrib_category": "Kategorie",
+        "attrib_created_at": "Erfasst am",
+        "attrib_started_at": "Begonnen am",
+        "attrib_finished_at": "Beendet am",
+        "associated_task": "Zugehörige Aufgabe",
+        "associated_schedule": "Zugehöriger Zeitplan",
+        "value_uncategorized": "unkategorisiert",
+        "value_none": "keine"
+      }
     },
     "schedules": {
       "title": "Zeitpläne",
@@ -112,10 +151,6 @@
         "addition": {
           "title": "Plane eine Aufgabe",
           "message": "Wähle aus, was zeitlich geplant werden soll."
-        },
-        "change": {
-          "title": "Ändere Zeitplan '{title}'",
-          "success": "Zeitplan '{title}' geändert"
         },
         "deletion": {
           "title": "Lösche Zeitplan",

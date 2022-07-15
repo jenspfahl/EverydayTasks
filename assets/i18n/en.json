@@ -13,13 +13,25 @@
 
   "forms": {
     "task_event": {
-      "title": "Create new journal entry",
-      "title_from_schedule": "Create new journal entry from schedule",
-      "success": "New journal entry with name '{title}' has been created"
+      "create": {
+        "title": "Create new journal entry",
+        "title_from_schedule": "Create new journal entry from schedule",
+        "success": "New journal entry with name '{title}' has been created"
+      },
+      "change": {
+        "title": "Change journal entry '{title}'",
+        "success": "Journal entry with name '{title}' changed"
+      }
     },
     "schedule": {
-      "title": "Create new schedule",
-      "success": "New schedule with name '{title}' has been created"
+      "create": {
+        "title": "Create new schedule",
+        "success": "New schedule with name '{title}' has been created"
+      },
+      "change": {
+        "title": "Change schedule '{title}'",
+        "success": "Schedule with name '{title}' changed"
+      }
     }
   },
   "pages": {
@@ -61,7 +73,34 @@
       }
     },
     "journal": {
-      "title": "Journal"
+      "title": "Journal",
+      "action": {
+        "description" : "From what do you want to create a new journal entry?",
+        "from_scratch": {
+          "title": "From scratch"
+        },
+        "from_task": {
+          "title": "From task",
+          "description": "Select a category, a task or a variant to be used for a new journal entry."
+        },
+        "deletion": {
+          "title": "Delete journal entry",
+          "message": "Are you sure to delete entry '{title}' ?",
+          "success": "Journal entry '{title}' deleted"
+        }
+      },
+      "details": {
+        "title": "Entry details",
+        "attrib_title": "Title",
+        "attrib_category": "Category",
+        "attrib_created_at": "Created at",
+        "attrib_started_at": "Started at",
+        "attrib_finished_at": "Finished at",
+        "associated_task": "Associated task",
+        "associated_schedule": "Associated schedule",
+        "value_uncategorized": "uncategorized",
+        "value_none": "none"
+      }
     },
     "schedules": {
       "title": "Schedules",
@@ -113,10 +152,6 @@
         "addition": {
           "title": "Schedule a task",
           "message": "Select a category, a task or variant to be repeatedly scheduled."
-        },
-        "change": {
-          "title": "Change schedule '{title}'",
-          "success": "Schedule with name '{title}' changed"
         },
         "deletion": {
           "title": "Delete schedule",

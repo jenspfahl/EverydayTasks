@@ -575,7 +575,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         String title = scheduledTask.translatedTitle;
                         if (template != null) {
                           return TaskEventForm(
-                              formTitle: translate('forms.task_event.title_from_schedule'),
+                              formTitle: translate('forms.task_event.create.title_from_schedule'),
                               template: template,
                               title: title);
                         }
@@ -583,7 +583,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                           final taskGroup = findPredefinedTaskGroupById(
                               scheduledTask.taskGroupId);
                           return TaskEventForm(
-                              formTitle: translate('forms.task_event.title_from_schedule'),
+                              formTitle: translate('forms.task_event.create.title_from_schedule'),
                               taskGroup: taskGroup,
                               title: title);
                         }
@@ -591,7 +591,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                       if (newTaskEvent != null) {
                         TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                          toastInfo(context, translate('forms.task_event.success',
+                          toastInfo(context, translate('forms.task_event.create.success',
                               args: {"title" : newTaskEvent.translatedTitle}));
                           widget._pagesHolder
                               .taskEventList
@@ -746,7 +746,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                     }
                     ScheduledTask? changedScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
                       return ScheduledTaskForm(
-                          formTitle: translate('pages.schedules.action.change.title',
+                          formTitle: translate('forms.schedule.change.title',
                               args: {"title": scheduledTask.translatedTitle}),
                           scheduledTask: scheduledTask,
                           taskGroup: findPredefinedTaskGroupById(scheduledTask.taskGroupId),
@@ -756,7 +756,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                     if (changedScheduledTask != null) {
                       ScheduledTaskRepository.update(changedScheduledTask).then((changedScheduledTask) {
 
-                        toastInfo(context, translate('pages.schedules.action.change.title',
+                        toastInfo(context, translate('forms.schedule.change.success',
                             args: {"title": changedScheduledTask.translatedTitle}));
 
                         _updateScheduledTask(scheduledTask, changedScheduledTask);
@@ -974,7 +974,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             Navigator.pop(context);
             ScheduledTask? newScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
               return ScheduledTaskForm(
-                formTitle: translate('forms.schedule.title'),
+                formTitle: translate('forms.schedule.create.title'),
                 taskGroup: selectedTemplateItem is Template
                   ? findPredefinedTaskGroupById((selectedTemplateItem as Template).taskGroupId)
                   : selectedTemplateItem as TaskGroup,
@@ -987,7 +987,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             if (newScheduledTask != null) {
               ScheduledTaskRepository.insert(newScheduledTask).then((newScheduledTask) {
 
-                toastInfo(context, translate('forms.schedule.success',
+                toastInfo(context, translate('forms.schedule.create.success',
                   args: {"new": newScheduledTask.translatedTitle}));
 
                 _addScheduledTask(newScheduledTask);
