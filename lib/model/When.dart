@@ -146,7 +146,7 @@ class When {
       return asString;
     }
     final timeOfDay = fromWhenAtDayToTimeOfDay(whenAtDay, null);
-    return "Around ${formatTimeOfDay(timeOfDay)}";
+    return "${translate('common.words.around').capitalize()} ${formatTimeOfDay(timeOfDay)}";
   }
 
     static DateTime fromWhenOnDateToDate(WhenOnDate whenOnDate, DateTime? customDate) {

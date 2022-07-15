@@ -39,6 +39,16 @@
     },
     "schedule": {
       "title_hint": "Title of the shedule",
+      "repetition_steps_hint": "Interval",
+      "repetition_steps_emphasis": "Select an interval of the task",
+      "due_at_hint": "Due at",
+      "due_at_emphasis": "Select when the task is due",
+      "activate_schedule": "Activate schedule",
+      "scheduled_from_hint": "Scheduled from",
+      "scheduled_from_emphasis": "Select when the schedule starts",
+      "repetition_mode": "Dynamic repetition mode",
+      "repetition_mode_dynamic": "Next task is due based on the chosen interval and when the recent task was done.",
+      "repetition_mode_fixed": "Next task is due based on the exact interval, no matter when the recent task was done.",
       "create": {
         "title": "Create new schedule",
         "success": "New schedule with name '{title}' has been created"
@@ -370,7 +380,7 @@
       "yesterday": "Yesterday",
       "today": "Today",
       "tomorrow": "Tomorrow",
-      "After tomorrow": "After tomorrow"
+      "after_tomorrow": "After tomorrow"
     },
     "times": {
       "now": "Now",
@@ -394,7 +404,9 @@
       "and": "and",
       "thereof": "thereof",
       "custom": "custom",
-      "around": "around"
+      "around": "around",
+      "on_for_enabled": "on",
+      "off_for_disabled": "off"
     }
   },
 

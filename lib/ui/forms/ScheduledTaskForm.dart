@@ -9,6 +9,7 @@ import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/ui/RepetitionPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
+import 'package:personaltasklogger/util/extensions.dart';
 
 class ScheduledTaskForm extends StatefulWidget {
   final String formTitle;
@@ -157,9 +158,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                               child: DropdownButtonFormField<RepetitionStep?>(
                                 onTap: () => FocusScope.of(context).unfocus(),
                                 value: _selectedRepetitionStep,
-                                hint: Text(
-                                  'Repetition steps',
-                                ),
+                                hint: Text(translate('forms.schedule.repetition_steps_hint')),
                                 isExpanded: true,
                                 icon: Icon(Icons.next_plan_outlined),
                                 onChanged: (value) {
@@ -172,7 +171,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     ).then((okPressed) {
                                       if (okPressed ?? false) {
                                         setState(() {
-                                          //TODO map back to predefined repitirion steps if custom matches
+                                          //TODO map back to predefined repetition steps if custom matches
                                           _selectedRepetitionStep = RepetitionStep.CUSTOM;
                                           _customRepetition = tempSelectedRepetition;
                                         });
@@ -196,7 +195,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 }).toList(),
                                 validator: (RepetitionStep? value) {
                                   if (value == null || (value == RepetitionStep.CUSTOM && _customRepetition == null)) {
-                                    return "Please select a repetition";
+                                    return translate('forms.schedule.repetition_steps_emphasis');
                                   } else {
                                     return null;
                                   }
@@ -209,9 +208,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                               child: DropdownButtonFormField<AroundWhenAtDay?>(
                                 onTap: () => FocusScope.of(context).unfocus(),
                                 value: _selectedStartAt,
-                                hint: Text(
-                                  'Scheduled at',
-                                ),
+                                hint: Text(translate('forms.schedule.due_at_hint')),
                                 icon: Icon(Icons.watch_later_outlined),
                                 isExpanded: true,
                                 onChanged: (value) {
@@ -233,7 +230,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 },
                                 validator: (AroundWhenAtDay? value) {
                                   if (value == null || (value == AroundWhenAtDay.CUSTOM && _customStartAt == null)) {
-                                    return "Please select when the schedule starts";
+                                    return translate('forms.schedule.due_at_emphasis');
                                   } else {
                                     return null;
                                   }
@@ -262,7 +259,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                               height: 64.0,
                               width: (MediaQuery.of(context).size.width / 2) - 25,
                               child: CheckboxListTile(
-                                title: Text("Activate schedule"),
+                                title: Text(translate('forms.schedule.activate_schedule')),
                                 value: _isActive,
                                 onChanged: (bool? value) {
                                   setState(() {
@@ -277,9 +274,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                               child: DropdownButtonFormField<WhenOnDate?>(
                                 onTap: () => FocusScope.of(context).unfocus(),
                                 value: _selectedScheduleFrom,
-                                hint: Text(
-                                  'Scheduled from',
-                                ),
+                                hint: Text(translate('forms.schedule.scheduled_from_hint')),
                                 icon: Icon(MdiIcons.arrowExpandRight),
                                 isExpanded: true,
                                 onChanged: (value) {
@@ -320,7 +315,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 },
                                 validator: (WhenOnDate? value) {
                                   if (value == null || (value == WhenOnDate.CUSTOM && _customScheduleFrom == null)) {
-                                    return "Please select which day the schedule starts";
+                                    return translate('forms.schedule.scheduled_from_emphasis');
                                   } else {
                                     return null;
                                   }
@@ -344,10 +339,13 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                         padding: EdgeInsets.only(top: 10.0),
                         child: SwitchListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text("Dynamic repetition behavior: ${_repetitionMode == RepetitionMode.DYNAMIC ? "On" : "Off"}"),
+                          title: Text("${translate('forms.schedule.repetition_mode').capitalize()}: ${_repetitionMode == RepetitionMode.DYNAMIC
+                              ? translate('common.words.on_for_enabled').capitalize()
+                              : translate('common.words.off_for_disabled').capitalize()
+                          }"),
                           subtitle: Text(_repetitionMode == RepetitionMode.DYNAMIC
-                              ? "Next schedule is due based on the repetition steps and when the current one is done."
-                              : "Next schedule is due based on the exact repetition steps."),
+                              ? translate('forms.schedule.repetition_mode_dynamic')
+                              : translate('forms.schedule.repetition_mode_fixed')),
                           value: _repetitionMode == RepetitionMode.DYNAMIC,
                           onChanged: (bool value) {
                             setState(() {
