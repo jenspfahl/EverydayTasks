@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
@@ -9,6 +10,7 @@ import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
+import 'package:personaltasklogger/util/extensions.dart';
 
 class TaskTemplateForm extends StatefulWidget {
   final TaskGroup _taskGroup;
@@ -155,14 +157,14 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                       TextFormField(
                         controller: titleController,
                         decoration: InputDecoration(
-                          hintText: "Enter a title",
+                          hintText: translate('forms.task.title_hint'),
                           icon: widget._taskGroup.getIcon(true),
                         ),
                         maxLength: 50,
                         keyboardType: TextInputType.text,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a title';
+                            return translate('forms.common.title_emphasis');
                           }
                           return null;
                         },
@@ -170,7 +172,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                       TextFormField(
                         controller: descriptionController,
                         decoration: InputDecoration(
-                          hintText: "An optional description",
+                          hintText: translate('forms.common.description_hint'),
                           icon: Icon(Icons.info_outline),
                         ),
                         maxLength: 500,
@@ -188,84 +190,115 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 20.0),
-                        child: DropdownButtonFormField<AroundDurationHours?>(
-                          onTap: () => FocusScope.of(context).unfocus(),
-                          value: _selectedDurationHours,
-                          hint: Text(
-                            'Choose a duration',
-                          ),
-                          icon: Icon(Icons.timer_outlined),
-                          isExpanded: true,
-                          onChanged: (value) {
-                            if (value == AroundDurationHours.CUSTOM) {
-                              final initialDuration = _customDuration ?? Duration(minutes: 1);
-                              showDurationPickerDialog(
-                                context: context,
-                                initialDuration: initialDuration,
-                                onChanged: (duration) => _tempSelectedDuration = duration,
-                              ).then((okPressed) {
-                                if (okPressed ?? false) {
-                                  setState(() => _customDuration = _tempSelectedDuration ?? initialDuration);
-                                }
-                              });
-                            }
-                            setState(() {
-                              _selectedDurationHours = value;
-                            });
-                          },
-                          items: AroundDurationHours.values.map((AroundDurationHours durationHour) {
-                            return DropdownMenuItem(
-                              value: durationHour,
-                              child: Text(
-                                durationHour == AroundDurationHours.CUSTOM && _customDuration != null
-                                    ? formatDuration(_customDuration!)
-                                    : When.fromDurationHoursToString(durationHour),
+                        child:
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<AroundDurationHours?>(
+                                onTap: () => FocusScope.of(context).unfocus(),
+                                value: _selectedDurationHours,
+                                hint: Text(translate('forms.task.duration_hint')),
+                                icon: Icon(Icons.timer_outlined),
+                                isExpanded: true,
+                                onChanged: (value) {
+                                  if (value == AroundDurationHours.CUSTOM) {
+                                    final initialDuration = _customDuration ?? Duration(minutes: 1);
+                                    showDurationPickerDialog(
+                                      context: context,
+                                      initialDuration: initialDuration,
+                                      onChanged: (duration) => _tempSelectedDuration = duration,
+                                    ).then((okPressed) {
+                                      if (okPressed ?? false) {
+                                        setState(() => _customDuration = _tempSelectedDuration ?? initialDuration);
+                                      }
+                                    });
+                                  }
+                                  setState(() {
+                                    _selectedDurationHours = value;
+                                  });
+                                },
+                                items: AroundDurationHours.values.map((AroundDurationHours durationHour) {
+                                  return DropdownMenuItem(
+                                    value: durationHour,
+                                    child: Text(
+                                      durationHour == AroundDurationHours.CUSTOM && _customDuration != null
+                                          ? formatDuration(_customDuration!)
+                                          : When.fromDurationHoursToString(durationHour),
+                                    ),
+                                  );
+                                }).toList()..sort((d1, d2) {
+                                  final duration1 = When.fromDurationHoursToDuration(d1.value!, Duration(days: 10000));
+                                  final duration2 = When.fromDurationHoursToDuration(d2.value!, Duration(days: 10000));
+                                  return duration1.compareTo(duration2);
+                                }),
                               ),
-                            );
-                          }).toList()..sort((d1, d2) {
-                            final duration1 = When.fromDurationHoursToDuration(d1.value!, Duration(days: 10000));
-                            final duration2 = When.fromDurationHoursToDuration(d2.value!, Duration(days: 10000));
-                            return duration1.compareTo(duration2);
-                          }),
+                            ),
+                            Visibility(
+                              visible: _selectedDurationHours != null,
+                              child: IconButton(
+                                icon: Icon(Icons.clear_outlined),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedDurationHours = null;
+                                  });
+                                },
+                              ),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 20.0),
                         child:
-                        DropdownButtonFormField<AroundWhenAtDay?>(
-                          onTap: () => FocusScope.of(context).unfocus(),
-                          value: _selectedWhenAtDay,
-                          hint: Text(
-                            'Choose when at',
-                          ),
-                          icon: Icon(Icons.watch_later_outlined),
-                          isExpanded: true,
-                          onChanged: (value) {
-                            if (value == AroundWhenAtDay.CUSTOM) {
-                              final initialWhenAt = _customWhenAt ?? TimeOfDay.now();
-                              showTimePicker(
-                                initialTime: initialWhenAt,
-                                context: context,
-                              ).then((selectedTimeOfDay) {
-                                if (selectedTimeOfDay != null) {
-                                  setState(() => _customWhenAt = selectedTimeOfDay);
-                                }
-                              });
-                            }
-                            setState(() {
-                              _selectedWhenAtDay = value;
-                            });
-                          },
-                          items: AroundWhenAtDay.values.map((AroundWhenAtDay whenAtDay) {
-                            return DropdownMenuItem(
-                              value: whenAtDay,
-                              child: Text(
-                                whenAtDay == AroundWhenAtDay.CUSTOM && _customWhenAt != null
-                                    ? formatTimeOfDay(_customWhenAt!)
-                                    : When.fromWhenAtDayToString(whenAtDay),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<AroundWhenAtDay?>(
+                                onTap: () => FocusScope.of(context).unfocus(),
+                                value: _selectedWhenAtDay,
+                                hint: Text(translate('forms.task.when_at_hint')),
+                                icon: Icon(Icons.watch_later_outlined),
+                                isExpanded: true,
+                                onChanged: (value) {
+                                  if (value == AroundWhenAtDay.CUSTOM) {
+                                    final initialWhenAt = _customWhenAt ?? TimeOfDay.now();
+                                    showTimePicker(
+                                      initialTime: initialWhenAt,
+                                      context: context,
+                                    ).then((selectedTimeOfDay) {
+                                      if (selectedTimeOfDay != null) {
+                                        setState(() => _customWhenAt = selectedTimeOfDay);
+                                      }
+                                    });
+                                  }
+                                  setState(() {
+                                    _selectedWhenAtDay = value;
+                                  });
+                                },
+                                items: AroundWhenAtDay.values.map((AroundWhenAtDay whenAtDay) {
+                                  return DropdownMenuItem(
+                                    value: whenAtDay,
+                                    child: Text(
+                                      whenAtDay == AroundWhenAtDay.CUSTOM && _customWhenAt != null
+                                          ? formatTimeOfDay(_customWhenAt!)
+                                          : When.fromWhenAtDayToString(whenAtDay),
+                                    ),
+                                  );
+                                }).toList(),
                               ),
-                            );
-                          }).toList(),
+                            ),
+                            Visibility(
+                              visible: _selectedWhenAtDay != null,
+                              child: IconButton(
+                                icon: Icon(Icons.clear_outlined),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedWhenAtDay = null;
+                                  });
+                                },
+                              ),
+                            )
+                          ],
                         ),
                       ),
                       Align(
@@ -336,7 +369,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                                 }
                               }
                             },
-                            child: Text('Save'),
+                            child: Text(translate('forms.common.button_save')),
                           ),
                         ),
                       ),

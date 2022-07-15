@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
@@ -123,14 +124,14 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                       TextFormField(
                         controller: titleController,
                         decoration: InputDecoration(
-                          hintText: "Enter a title",
+                          hintText: translate('forms.schedule.title_hint'),
                           icon: _taskGroup.getIcon(true),
                         ),
                         maxLength: 50,
                         keyboardType: TextInputType.text,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a title';
+                            return translate('forms.common.title_emphasis');
                           }
                           return null;
                         },
@@ -138,7 +139,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                       TextFormField(
                         controller: descriptionController,
                         decoration: InputDecoration(
-                          hintText: "An optional description",
+                          hintText: translate('forms.common.description_hint'),
                           icon: Icon(Icons.info_outline),
                         ),
                         maxLength: 500,
@@ -394,7 +395,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 Navigator.pop(context, scheduledTask);
                               }
                             },
-                            child: Text('Save'),
+                            child: Text(translate('forms.common.button_save')),
                           ),
                         ),
                       ),

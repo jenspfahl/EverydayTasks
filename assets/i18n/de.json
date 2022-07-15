@@ -11,18 +11,33 @@
     }
   },
   "forms": {
+    "common": {
+      "title_emphasis": "Bitte gib einen Titel ein",
+      "description_hint": "Eine optionale Beschreibung",
+      "button_save": "Speichern"
+    },
     "task_event": {
+      "title_hint": "Kurzer Titel der Tätigkeit",
+      "category_hint": "Zugehörige Kategorie",
+      "category_emphasis": "Bitte wähle eine Kategorie aus",
+      "duration_hint": "Dauer der Tätigkeit",
+      "duration_emphasis": "Bitte wähle eine Dauer aus",
+      "when_at_hint": "Startzeit",
+      "when_at_emphasis": "Wähle wann die Tätigkeit begann",
+      "when_on_hint": "Datum",
+      "when_on_emphasis": "Wähle an welchem Tag die Tätigkeit begann",
       "create": {
-        "title": "Erfasse Eintrag",
-        "title_from_schedule": "Erfasse Eintrag aus Zeitplan",
-        "success": "Ein neuer Eintrag '{title}' wurde im Verlauf erfasst"
+        "title": "Erfasse Tätigkeit",
+        "title_from_schedule": "Erfasse Tätigkeit aus Zeitplan",
+        "success": "Eine neue Tätigkeit '{title}' wurde im Verlauf erfasst"
       },
       "change": {
-        "title": "Ändere Eintrag '{title}'",
-        "success": "Erfassten Eintrag '{title}' geändert"
+        "title": "Ändere Tätigkeit '{title}'",
+        "success": "Erfasste Tätigkeit '{title}' geändert"
       }
     },
     "schedule": {
+      "title_hint": "Kurzer Titel des Zeitplans",
       "create": {
         "title": "Neuer Zeitplan",
         "success": "Neuer Zeitplan '{title}' wurde angelegt"
@@ -31,6 +46,11 @@
         "title": "Ändere Zeitplan '{title}'",
         "success": "Zeitplan '{title}' geändert"
       }
+    },
+    "task": {
+      "title_hint": "Kurzer Titel der Aufgabe",
+      "duration_hint": "Gewöhnliche Dauer",
+      "when_at_hint": "Gewöhnliche Startzeit"
     }
   },
   "pages": {
@@ -57,7 +77,7 @@
           "description": "Wähle eine Aufgabe oder Variante aus."
         },
         "new_journal_entry": {
-          "title": "Neuer Eintrag",
+          "title": "Neue Tätigkeit",
           "description": "Wähle eine Kategorie, eine Aufgabe oder eine Variante aus."
         }
       },
@@ -74,7 +94,7 @@
     "journal": {
       "title": "Verlauf",
       "action": {
-        "description" : "Von was willst du einen neuen Eintrag erfassen?",
+        "description" : "Von was willst du eine neue Tätigkeit erfassen?",
         "from_scratch": {
           "title": "Von Grund auf"
         },
@@ -83,9 +103,9 @@
           "description": "Wähle eine Kategorie, eine Aufgabe oder eine Variante aus."
         },
         "deletion": {
-          "title": "Lösche Eintrag",
-          "message": "Soll der Eintrag '{title}' wirklich gelöscht werden?",
-          "success": "Eintrag '{title}' gelöscht"
+          "title": "Lösche Tätigkeit",
+          "message": "Soll die Tätigkeit '{title}' wirklich gelöscht werden?",
+          "success": "Tätigkeit '{title}' gelöscht"
         }
       },
       "details": {
@@ -374,16 +394,16 @@
         "other": "Sekunden"
       },
       "item": {
-        "zero": "Einträge",
-        "one": "Eintrag",
-        "two": "Einträge",
-        "other": "Einträge"
+        "zero": "Tätigkeiten",
+        "one": "Tätigkeit",
+        "two": "Tätigkeiten",
+        "other": "Tätigkeiten"
       },
       "item_dative": {
-        "zero": "Einträgen",
-        "one": "Eintrag",
-        "two": "Einträgen",
-        "other": "Einträgen"
+        "zero": "Tätigkeiten",
+        "one": "Tätigkeit",
+        "two": "Tätigkeiten",
+        "other": "Tätigkeiten"
       },
       "schedule": {
         "zero": "Zeitpläne",

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
@@ -197,14 +198,14 @@ class _TaskEventFormState extends State<TaskEventForm> {
                         TextFormField(
                           controller: _titleController,
                           decoration: InputDecoration(
-                            hintText: "Enter a title",
+                            hintText: translate('forms.task_event.title_hint'),
                             icon: Icon(Icons.event_available),
                           ),
                           maxLength: 50,
                           keyboardType: TextInputType.text,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter a title';
+                              return translate('forms.common.title_emphasis');
                             }
                             return null;
                           },
@@ -212,7 +213,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                         TextFormField(
                           controller: _descriptionController,
                           decoration: InputDecoration(
-                            hintText: "An optional description",
+                            hintText: translate('forms.common.description_hint'),
                             icon: Icon(Icons.info_outline),
                           ),
                           maxLength: 500,
@@ -223,9 +224,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           onTap: () => FocusScope.of(context).unfocus(),
                           value: _selectedTaskGroup,
                           icon: const Icon(Icons.category_outlined),
-                          hint: Text(
-                            'Belongs to a category',
-                          ),
+                          hint: Text(translate('forms.task_event.category_hint')),
                           isExpanded: true,
                           onChanged: (value) {
                             setState(() {
@@ -240,7 +239,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           }).toList(),
                           validator: (TaskGroup? value) {
                             if (value == null) {
-                              return "Please select a category";
+                              return translate('forms.task_event.category_emphasis');
                             } else {
                               return null;
                             }
@@ -260,9 +259,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           child: DropdownButtonFormField<AroundDurationHours?>(
                             onTap: () => FocusScope.of(context).unfocus(),
                             value: _selectedDurationHours,
-                            hint: Text(
-                              'Choose a duration',
-                            ),
+                            hint: Text(translate('forms.task_event.duration_hint')),
                             icon: Icon(Icons.timer_outlined),
                             iconDisabledColor: _trackingStart != null ? Colors.redAccent : null,
                             isExpanded: true,
@@ -285,7 +282,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                             },
                             validator: (AroundDurationHours? value) {
                               if (value == null || (value == AroundDurationHours.CUSTOM && _customDuration == null)) {
-                                return "Please select a duration";
+                                return translate('forms.task_event.duration_emphasis');
                               } else {
                                 return null;
                               }
@@ -317,9 +314,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                 child: DropdownButtonFormField<AroundWhenAtDay?>(
                                   onTap: () => FocusScope.of(context).unfocus(),
                                   value: _selectedWhenAtDay,
-                                  hint: Text(
-                                    'Choose when at',
-                                  ),
+                                  hint: Text(translate('forms.task_event.when_at_hint')),
                                   icon: Icon(Icons.watch_later_outlined),
                                   iconDisabledColor: _trackingStart != null ? Colors.redAccent : null,
                                   isExpanded: true,
@@ -341,7 +336,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   },
                                   validator: (AroundWhenAtDay? value) {
                                     if (value == null || (value == AroundWhenAtDay.CUSTOM && _customWhenAt == null)) {
-                                      return "Please select when the task starts";
+                                      return translate('forms.task_event.when_at_emphasis');
                                     } else {
                                       return null;
                                     }
@@ -364,9 +359,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                 child: DropdownButtonFormField<WhenOnDate?>(
                                   onTap: () => FocusScope.of(context).unfocus(),
                                   value: _selectedWhenOnDate,
-                                  hint: Text(
-                                    'Choose when on',
-                                  ),
+                                  hint: Text(translate('forms.task_event.when_on_hint')),
                                   icon: Icon(Icons.date_range),
                                   iconDisabledColor: _trackingStart != null ? Colors.redAccent : null,
                                   isExpanded: true,
@@ -405,7 +398,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   },
                                   validator: (WhenOnDate? value) {
                                     if (value == null || (value == WhenOnDate.CUSTOM && _customWhenOn == null)) {
-                                      return "Please select which day the task starts";
+                                      return translate('forms.task_event.when_on_emphasis');
                                     } else {
                                       return null;
                                     }
@@ -506,7 +499,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   Navigator.pop(context, taskEvent);
                                 }
                               },
-                              child: Text('Save'),
+                              child: Text(translate('forms.common.button_save')),
                             ),
                           ],),
                         ),

@@ -12,7 +12,21 @@
   },
 
   "forms": {
+    "common": {
+      "title_emphasis": "Please enter a title",
+      "description_hint": "An optional description",
+      "button_save": "Save"
+    },
     "task_event": {
+      "title_hint": "Title of the journal entry",
+      "category_hint": "Belongs to category",
+      "category_emphasis": "Please select a category",
+      "duration_hint": "Duration",
+      "duration_emphasis": "Please select a duration",
+      "when_at_hint": "Start time",
+      "when_at_emphasis": "Select when the task starts",
+      "when_on_hint": "Start date",
+      "when_on_emphasis": "Select which day the task starts",
       "create": {
         "title": "Create new journal entry",
         "title_from_schedule": "Create new journal entry from schedule",
@@ -24,6 +38,7 @@
       }
     },
     "schedule": {
+      "title_hint": "Title of the shedule",
       "create": {
         "title": "Create new schedule",
         "success": "New schedule with name '{title}' has been created"
@@ -32,6 +47,11 @@
         "title": "Change schedule '{title}'",
         "success": "Schedule with name '{title}' changed"
       }
+    },
+    "task": {
+      "title_hint": "Title of the task",
+      "duration_hint": "A usual duration",
+      "when_at_hint": "A usual start time"
     }
   },
   "pages": {
