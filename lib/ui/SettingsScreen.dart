@@ -21,9 +21,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   int _dateFormatSelection = 1;
   int _languageSelection = 0;
-  bool? _showTimeOfDayAsText;
-  bool? _showWeekdays;
-  bool? _showActionNotifications;
+  bool _showTimeOfDayAsText = false;
+  bool _showWeekdays = false;
+  bool _showActionNotifications = false;
   int _showActionNotificationDurationSelection = 1;
 
   @override
@@ -123,8 +123,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _preferenceService.setInt(PreferenceService.PREF_DATE_FORMAT_SELECTION, _dateFormatSelection)
                       .then((value) {
                         _preferenceService.dateFormatSelection = _dateFormatSelection;
-                        setState(() {});
                       });
+                      setState(() {});
                     },
                     cancelPressed: () {
                       Navigator.pop(context);
@@ -143,8 +143,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               initialValue: _showWeekdays,
               onToggle: (bool value) {
                 _preferenceService.showWeekdays = value;
-                _preferenceService.setBool(PreferenceService.PREF_SHOW_WEEKDAYS, value)
-                    .then((value) => setState(() => _showWeekdays = value));
+                _preferenceService.setBool(PreferenceService.PREF_SHOW_WEEKDAYS, value);
+                setState(() => _showWeekdays = value);
               },
             ),
             SettingsTile.switchTile(
@@ -156,8 +156,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               initialValue: _showTimeOfDayAsText,
               onToggle: (bool value) {
                 _preferenceService.showTimeOfDayAsText = value;
-                _preferenceService.setBool(PreferenceService.PREF_SHOW_TIME_OF_DAY_AS_TEXT, value)
-                    .then((value) => setState(() => _showTimeOfDayAsText = value));
+                _preferenceService.setBool(PreferenceService.PREF_SHOW_TIME_OF_DAY_AS_TEXT, value);
+                 setState(() => _showTimeOfDayAsText = value);
               },
             ),
           ],
@@ -170,8 +170,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               description: Text(translate('pages.settings.action_feedback.show_action_feedback.description')),
               initialValue: _showActionNotifications,
               onToggle: (bool value) {
-                _preferenceService.setBool(PreferenceService.PREF_SHOW_ACTION_NOTIFICATIONS, value)
-                  .then((value) => setState(() => _showActionNotifications = value));
+                _preferenceService.setBool(PreferenceService.PREF_SHOW_ACTION_NOTIFICATIONS, value);
+                setState(() => _showActionNotifications = value);
               },
             ),
             SettingsTile(
@@ -195,7 +195,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Navigator.pop(context);
                     setState(() {
                       _loadAllPrefs();
-                    });                  },
+                    });
+                  },
                   selectionChanged: (selection) {
                     _showActionNotificationDurationSelection = selection;
                   }
@@ -226,12 +227,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     final showTimeOfDayAsText = await _preferenceService.getBool(PreferenceService.PREF_SHOW_TIME_OF_DAY_AS_TEXT);
-    _showTimeOfDayAsText = showTimeOfDayAsText??true;
-    _preferenceService.showTimeOfDayAsText = showTimeOfDayAsText!;
+    if (showTimeOfDayAsText != null) {
+      _showTimeOfDayAsText = showTimeOfDayAsText;
+      _preferenceService.showTimeOfDayAsText = showTimeOfDayAsText;
+    }
+    else {
+      _showTimeOfDayAsText = true; // default
+    }
     
     final showWeekdays = await _preferenceService.getBool(PreferenceService.PREF_SHOW_WEEKDAYS);
-    _showWeekdays = showWeekdays??true;
-    _preferenceService.showWeekdays = _showWeekdays!;
+    if (showWeekdays != null) {
+      _showWeekdays = showWeekdays;
+      _preferenceService.showWeekdays = showWeekdays;
+    }
+    else {
+      _showWeekdays = true; // default
+    }
 
     final dateFormatSelection = await _preferenceService.getInt(PreferenceService.PREF_DATE_FORMAT_SELECTION);
     if (dateFormatSelection != null) {
@@ -240,7 +251,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     final showActionNotifications = await _preferenceService.getBool(PreferenceService.PREF_SHOW_ACTION_NOTIFICATIONS);
-    _showActionNotifications = showActionNotifications??true;
+    if (showActionNotifications != null) {
+      _showActionNotifications = showActionNotifications;
+    }
+    else {
+      _showActionNotifications = true; // default
+    }
 
     final showActionNotificationDurationSelection = await _preferenceService.getInt(PreferenceService.PREF_SHOW_ACTION_NOTIFICATION_DURATION_SELECTION);
     if (showActionNotificationDurationSelection != null) {
