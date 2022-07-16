@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
@@ -11,6 +12,7 @@ import 'package:personaltasklogger/util/dates.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import "package:collection/collection.dart";
+import 'package:personaltasklogger/util/extensions.dart';
 
 import '../model/Template.dart';
 import '../util/units.dart';
@@ -62,7 +64,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Journal Statistics"),
+        title: Text(translate('stats.title')),
         actions: [
           TaskEventFilter(
               initialTaskFilterSettings: widget.taskEventListState.taskFilterSettings,
@@ -283,7 +285,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
               padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                return snapshot.data!.length > index ? snapshot.data![index] : Text("-unknown-");
+                return snapshot.data!.length > index ? snapshot.data![index] : Text("-${translate('common.words.unknown')}-");
               },
             );
           }
@@ -312,14 +314,14 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     
       final template = data.templateId != null ? await TemplateRepository.findById(data.templateId!) : null;
 
-      var title = "-unknown-";
+      var title = "-${translate('common.words.unknown')}-";
       if (template != null) {
         title = template.translatedTitle;
       }
       else if (taskGroup != null) {
         title = _groupBy == GroupBy.TASK_GROUP
             ? taskGroup.translatedName
-            : "-others-";
+            : "-${translate('common.words.others')}-";
       }
       final groupedByPresentation = Row(
           children: [
@@ -376,7 +378,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       : Items(totalValue.toInt());
     
     legendElementFutures.insert(0, Future.value(Container(
-      height: 30, child: Text("Total $totalValueAsString",
+      height: 30, child: Text("${translate('common.words.total').capitalize()} $totalValueAsString",
         textAlign: TextAlign.center,
         style: TextStyle(
           fontWeight: FontWeight.bold)))
@@ -421,7 +423,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.timer_outlined),
-              const Text("Duration", textAlign: TextAlign.center),
+              Text(translate('stats.total_duration'), textAlign: TextAlign.center),
             ],
           )
         ),
@@ -431,7 +433,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.numbers_outlined),
-              const Text("Total count", textAlign: TextAlign.center),
+              Text(translate('stats.total_count'), textAlign: TextAlign.center),
             ],
           )
         ),
@@ -463,7 +465,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.category_outlined,),
-                const Text("Categories", textAlign: TextAlign.center),
+                Text(translate('stats.by_categories'), textAlign: TextAlign.center),
               ],
             )
         ),
@@ -473,7 +475,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.task_alt),
-                const Text("Tasks", textAlign: TextAlign.center),
+                Text(translate('stats.by_tasks'), textAlign: TextAlign.center),
               ],
             )
         ),

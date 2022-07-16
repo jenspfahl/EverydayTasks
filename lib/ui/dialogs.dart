@@ -6,6 +6,7 @@ import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/ui/DurationPicker.dart';
 import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
+import 'package:personaltasklogger/util/extensions.dart';
 
 import 'ChoiceWidget.dart';
 import 'RepetitionPicker.dart';
@@ -208,7 +209,7 @@ Future<bool?> showSeverityPicker(BuildContext context, Severity? initialSeverity
     bool showText, ValueChanged<Severity?> onChanged) {
 
   Widget clearButton = TextButton(
-    child: Text("Clear"),
+    child: Text(translate('common.words.clear').capitalize()),
     onPressed: () {
       onChanged(null);
     },

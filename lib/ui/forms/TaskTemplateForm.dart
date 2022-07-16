@@ -118,12 +118,12 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
               child: IconButton(
                 icon: const Icon(Icons.undo),
                 onPressed: () {
-                  final taskOrVariant = template!.isVariant() ? "variant" : "task";
-
                   showConfirmationDialog(
                     context,
-                    "Restore default",
-                    "This will restore the current $taskOrVariant '${template?.translatedTitle}' to the predefined default.",
+                    translate('forms.task.reset.title'),
+                    template!.isVariant()
+                      ? translate('forms.task.reset.message_variant', args: {"title": template!.translatedTitle})
+                      : translate('forms.task.reset.message_task', args: {"title": template!.translatedTitle}),
                     icon: const Icon(Icons.undo),
                     okPressed: () {
                       Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow

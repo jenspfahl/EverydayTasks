@@ -32,8 +32,16 @@
         "success": "Eine neue Tätigkeit '{title}' wurde im Verlauf erfasst"
       },
       "change": {
-        "title": "Ändere Tätigkeit '{title}'",
+        "title": "Tätigkeit '{title}' ändern",
         "success": "Erfasste Tätigkeit '{title}' geändert"
+      },
+      "tracking": {
+        "start_tracking_title": "Starte Tätigkeit",
+        "start_tracking_message": "Die bestehenden Zeiten werden überschrieben, wenn das Tracking der Tätigkeit gestartet wird. Fortfahren?",
+        "stop_tracking_first": "Bitte zuerst das Tracking stoppen!",
+        "tracking_started": "Tracking gestartet",
+        "tracking_started_at": "Tätigkeit gestartet um {when}",
+        "task_started_at": "'{title}' gestartet um {when}"
       }
     },
     "schedule": {
@@ -53,14 +61,19 @@
         "success": "Neuer Zeitplan '{title}' wurde angelegt"
       },
       "change": {
-        "title": "Ändere Zeitplan '{title}'",
+        "title": "Zeitplan '{title}' ändern",
         "success": "Zeitplan '{title}' geändert"
       }
     },
     "task": {
       "title_hint": "Kurzer Titel der Aufgabe",
       "duration_hint": "Gewöhnliche Dauer",
-      "when_at_hint": "Gewöhnliche Startzeit"
+      "when_at_hint": "Gewöhnliche Startzeit",
+      "reset": {
+        "title": "Aufgabe wiederherstellen",
+        "message_task": "Soll die vordefinierte Aufgabe '{title}' wiederhergestellt werden?",
+        "message_variant": "Soll die vordefinierte Variante '{title}' wiederhergestellt werden?"
+      }
     }
   },
   "pages": {
@@ -216,31 +229,35 @@
           "success": "Neue Aufgabe '{title}' hinzugefügt"
         },
         "change_task": {
-          "title": "Ändere Aufgabe",
+          "title": "Aufgabe ändern",
           "success": "Aufgabe '{title}' geändert"
         },
         "add_variant": {
           "title": "Neue Variante hinzufügen",
-          "variant": "Variante",
+          "variant_postfix": "Variante",
           "success": "Variante '{title}' hinzugefügt"
         },
         "change_variant": {
-          "title": "Ändere Variante",
+          "title": "Variante ändern",
           "success": "Variante '{title}' geändert"
         },
         "clone_variant": {
-          "title": "Klone Variante",
+          "title": "Variante klonen",
           "success": "Variante '{title}' geklont",
-          "cloned": "Klon"
+          "cloned_postfix": "Klon"
         },
-        "remove": {
+        "remove_task": {
           "error_has_children": "Bitte erst zugehörige Varianten entfernen!",
-          "task": "Aufgabe",
-          "variant": "Variante",
-          "title": "Entferne {what}",
-          "message_custom": "Die {what} '{title} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
-          "message_predefined": "Die {what} '{title}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
-          "success": "Die {what} '{title}' wurde entfernt"
+          "title": "Entferne Aufgabe",
+          "message_custom": "Die Aufgabe '{title} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
+          "message_predefined": "Die Aufgabe '{title}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
+          "success": "Die Aufgabe '{title}' wurde entfernt"
+        },
+        "remove_variant": {
+          "title": "Entferne Variante",
+          "message_custom": "Die Variante '{title} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
+          "message_predefined": "Die Variante '{title}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
+          "success": "Die Variante '{title}' wurde entfernt"
         }
       }
     },
@@ -315,7 +332,26 @@
       "message": "Everyday Tasks ist eine einfache App, um tägliche Aufgaben schnell und einfach zu erfassen, zu tracken oder zu planen."
     }
   },
-
+  "filter": {
+    "menu": {
+      "by_date_range": "Nach Zeitraum filtern",
+      "by_severity": "Nach Schwere filtern",
+      "by_favorites": "Favoriten filtern",
+      "by_schedule": "Nach Zeitplan filtern",
+      "by_task": "Nach Aufgabe filtern",
+      "clear_all": "Filter zurücksetzen"
+    },
+    "hint_filter_by_schedule": "Es wird nach Zeitplan '{title}' gefiltert. Klicke '{clearAll}' um alles zurückzusetzen.",
+    "filter_by_task_title": "Nach Aufgabe filtern",
+    "filter_by_task_description": "Wähle eine Kategorie, Aufgabe oder Variante zum filtern."
+  },
+  "stats": {
+    "title": "Statistiken",
+    "total_count": "Anzahl",
+    "total_duration": "Dauer",
+    "by_categories": "Kategorien",
+    "by_tasks": "Aufgaben"
+  },
   "common" : {
     "search": "Suche",
     "units": {
@@ -453,13 +489,20 @@
       "at_for_times": "um",
       "for_for_times": "seit",
       "in_for_times": "in",
+      "to_for_times": "bis",
       "ago_for_times": "vor {when}",
       "and": "und",
       "thereof": "davon",
       "custom": "benutzerdefiniert",
       "around": "ungefähr",
       "on_for_enabled": "an",
-      "off_for_disabled": "aus"
+      "off_for_disabled": "aus",
+      "clear": "zurücksetzen",
+      "value": "Wert",
+      "unit": "Einheit",
+      "unknown": "unbekannt",
+      "others": "andere",
+      "total": "insgesamt"
     }
   },
 

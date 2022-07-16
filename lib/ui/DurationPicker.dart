@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 class DurationPicker extends StatefulWidget {
@@ -58,13 +59,13 @@ class _DurationPickerState extends State<DurationPicker> {
       children: <Widget>[
         Column(
           children: [
-            Text("Hours"),
+            Text(translate('common.units.hour.other')),
             hoursPicker
           ],
         ),
         Column(
           children: [
-            Text("Minutes"),
+            Text(translate('common.units.minute.other')),
             minutesPicker,
           ],
         ),

@@ -1040,7 +1040,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
   void _schedule(int id, String title, TaskGroup taskGroup, Duration missingDuration, bool isFixed, bool isLast) {
-    var title = isFixed
+    var titleKey = isFixed
             ? translate('pages.schedules.notification.title_fixed_task')
             : translate('pages.schedules.notification.title_normal_task');
     var messageKey = isFixed
@@ -1052,7 +1052,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     _notificationService.scheduleNotification(
         widget.getRoutingKey(),
         id,
-        "$title (${taskGroup.translatedName})",
+        "$titleKey (${taskGroup.translatedName})",
         translate(messageKey, args: {"title": title}),
         missingDuration,
         CHANNEL_ID_SCHEDULES,

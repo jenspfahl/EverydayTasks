@@ -174,7 +174,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
     return WillPopScope(
       onWillPop: () async {
         if (_trackingStart != null) {
-          toastError(context, "Please stop tracking first!");
+          toastError(context, translate('forms.task_event.tracking.stop_tracking_first'));
           return false;
         }
         return true;
@@ -432,8 +432,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                         if (_customDuration != null || _customWhenAt != null || _customWhenOn != null) {
                                           showConfirmationDialog(
                                               context,
-                                              "Start tracking",
-                                              "There are some values which will be overwritten when starting the tracking. Continue?",
+                                              translate('forms.task_event.tracking.start_tracking_title'),
+                                              translate('forms.task_event.tracking.start_tracking_message'),
                                               icon: const Icon(Icons.warning_amber_outlined),
                                               okPressed: () {
                                                 setState(() {
@@ -471,7 +471,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                               ),
                               onPressed: () {
                                 if (_trackingStart != null) {
-                                  toastError(context, "Please stop tracking first!");
+                                  toastError(context, translate('forms.task_event.tracking.stop_tracking_first'));
                                   return;
                                 }
                                 if (_formKey.currentState!.validate()) {
@@ -557,10 +557,12 @@ class _TaskEventFormState extends State<TaskEventForm> {
     _notificationService.showNotification(
         TASK_EVENT_LIST_ROUTING_KEY, //we route to task events and there it will be rerouted to here
         TRACKING_NOTIFICATION_ID,
-        "Tracking started",
+        translate('forms.task_event.tracking.tracking_started'),
         currentTitle.isNotEmpty
-            ? "'$currentTitle' started at ${formatToTime(_trackingStart!)}"
-            : "Tracking started at ${formatToTime(_trackingStart!)}",
+            ? translate('forms.task_event.tracking.task_started_at',
+                args: {"title": currentTitle ,"when": formatToTime(_trackingStart!)})
+            : translate('forms.task_event.tracking.tracking_started_at',
+                args: {"when": formatToTime(_trackingStart!)}),
         CHANNEL_ID_TRACKING,
         true,
         payload);

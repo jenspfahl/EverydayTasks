@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 import 'package:personaltasklogger/model/Schedule.dart';
+import 'package:personaltasklogger/util/extensions.dart';
 
 class RepetitionPicker extends StatefulWidget {
 
@@ -45,7 +47,7 @@ class _RepetitionPickerState extends State<RepetitionPicker> {
         widget.onChanged(_customRepetition);
       }),
     );
-    final unitDropDown = new DropdownButton<RepetitionUnit>(
+    final unitDropDown = new DropdownButton<RepetitionUnit>( //TODO use a Picker instead
       value: _customRepetition.repetitionUnit,
       items: RepetitionUnit.values.map((RepetitionUnit unit) {
         return DropdownMenuItem(
@@ -66,13 +68,13 @@ class _RepetitionPickerState extends State<RepetitionPicker> {
       children: <Widget>[
         Column(
           children: [
-            Text("Value"),
+            Text(translate('common.words.value').capitalize()),
             valuePicker
           ],
         ),
         Column(
           children: [
-            Text("Unit"),
+            Text(translate('common.words.unit').capitalize()),
             unitDropDown,
           ],
         ),

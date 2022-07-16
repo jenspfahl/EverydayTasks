@@ -483,7 +483,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
               return TaskTemplateForm(
                 taskGroup!,
                 formTitle: translate('pages.tasks.action.clone_variant.title'),
-                title: template!.translatedTitle + " (${translate('pages.tasks.action.clone_variant.cloned')})",
+                title: template!.translatedTitle + " (${translate('pages.tasks.action.clone_variant.cloned_postfix')})",
                 template: template,
                 createNew: true,
               );
@@ -547,7 +547,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 taskGroup!,
                 formTitle: translate('pages.tasks.action.add_variant.title'),
                 template: template,
-                title: template!.translatedTitle + " (${translate('pages.tasks.action.add_variant.variant')})",
+                title: template!.translatedTitle + " (${translate('pages.tasks.action.add_variant.variant_postfix')})",
                 createNew: true,
               );
             }));
@@ -627,31 +627,33 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   }
 
   Widget _createRemoveTemplateAction(Template template, bool hasChildren) {
-    final taskOrVariant = template.isVariant()
-        ? translate('pages.tasks.action.remove.variant')
-        : translate('pages.tasks.action.remove.task');
     var message = "";
     if (template.isPredefined()) {
-      message = translate('pages.tasks.action.remove.message_predefined',
-          args: {"what": taskOrVariant, "title": template.translatedTitle});
+      message = translate(template.isVariant()
+          ? 'pages.tasks.action.remove_variant.message_predefined'
+          : 'pages.tasks.action.remove_task.message_predefined',
+          args: {"title": template.translatedTitle});
     }
     else {
-      message = translate('pages.tasks.action.remove.message_custom',
-          args: {"what": taskOrVariant, "title": template.translatedTitle});
+      message = translate(template.isVariant()
+          ? 'pages.tasks.action.remove_variant.message_custom'
+          : 'pages.tasks.action.remove_task.message_custom',
+          args: {"title": template.translatedTitle});
     }
     return TextButton(
       child: const Icon(Icons.delete),
       onPressed: () {
         if (hasChildren) {
-          toastError(context, translate('pages.tasks.action.remove.error_has_children'));
+          toastError(context, translate('pages.tasks.action.remove_task.error_has_children'));
           Navigator.pop(context); // dismiss bottom sheet
           return;
         }
 
         showConfirmationDialog(
           context,
-          translate('pages.tasks.action.remove.title',
-            args: {"what": taskOrVariant}),
+          translate(template.isVariant()
+              ? 'pages.tasks.action.remove_variant.title'
+              : 'pages.tasks.action.remove_task.title'),
           message,
           icon: const Icon(Icons.warning_amber_outlined),
           okPressed: () {
@@ -660,8 +662,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
             TemplateRepository.delete(template).then((template) {
 
-              toastInfo(context, translate('pages.tasks.action.remove.success',
-                  args: {"what": taskOrVariant, "title": template.translatedTitle}));
+              toastInfo(context, translate(template.isVariant()
+                  ? 'pages.tasks.action.remove_variant.success'
+                  : 'pages.tasks.action.remove_task.success',
+                  args: {"title": template.translatedTitle}));
 
               _removeTemplate(template);
             });

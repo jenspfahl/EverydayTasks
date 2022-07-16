@@ -35,6 +35,14 @@
       "change": {
         "title": "Change journal entry '{title}'",
         "success": "Journal entry with name '{title}' changed"
+      },
+      "tracking": {
+        "start_tracking_title": "Start tracking",
+        "start_tracking_message": "There are some values which will be overwritten when starting the tracking. Continue?",
+        "stop_tracking_first": "Please stop tracking first!",
+        "tracking_started": "Tracking started",
+        "tracking_started_at": "Tracking started at {when}",
+        "task_started_at": "'{title}' started at {when}"
       }
     },
     "schedule": {
@@ -61,7 +69,12 @@
     "task": {
       "title_hint": "Title of the task",
       "duration_hint": "A usual duration",
-      "when_at_hint": "A usual start time"
+      "when_at_hint": "A usual start time",
+      "reset": {
+        "title": "Restore default",
+        "message_task": "This will restore the current task '{title}' to the predefined default.",
+        "message_variant": "This will restore the current variant '{title}' to the predefined default."
+      }
     }
   },
   "pages": {
@@ -222,7 +235,7 @@
         },
         "add_variant": {
           "title": "Add new variant",
-          "variant": "variant",
+          "variant_postfix": "variant",
           "success": "Variant with name '{title}' added"
         },
         "change_variant": {
@@ -232,16 +245,20 @@
         "clone_variant": {
           "title": "Clone variant",
           "success": "Variant with name '{title}' cloned",
-          "cloned": "cloned"
+          "cloned_postfix": "cloned"
         },
-        "remove": {
+        "remove_task": {
           "error_has_children": "Remove underneath variants first!",
-          "task": "task",
-          "variant": "variant",
-          "title": "Remove {what}",
-          "message_custom": "This will remove the current {what} '{title}'. This cannot be underdone!",
-          "message_predefined": "This will remove the current {what} '{title}' by hiding it. You can restore it by clicking on the restore action icon.",
-          "success": "The {what} '{title}' has been removed"
+          "title": "Remove task",
+          "message_custom": "This will remove the current task '{title}'. This cannot be underdone!",
+          "message_predefined": "This will remove the current task '{title}' by hiding it. You can restore it by clicking on the restore action icon.",
+          "success": "The task '{title}' has been removed"
+        },
+        "remove_variant": {
+          "title": "Remove variant",
+          "message_custom": "This will remove the current variant '{title}'. This cannot be underdone!",
+          "message_predefined": "This will remove the current variant '{title}' by hiding it. You can restore it by clicking on the restore action icon.",
+          "success": "The {variant '{title}' has been removed"
         }
       }
     },
@@ -316,7 +333,26 @@
       "message": "Everyday Tasks is an easy and quickly to use app to log, track and schedule daily tasks"
     }
   },
-
+  "filter": {
+    "menu": {
+      "by_date_range": "Filter by date range",
+      "by_severity": "Filter by severity",
+      "by_favorites": "Filter favorites",
+      "by_schedule": "Filter by schedule",
+      "by_task": "Filter by task",
+      "clear_all": "Clear filters"
+    },
+    "hint_filter_by_schedule": "Filter by schedule '{title}' is selected. Click '{clearAll}' to reset.",
+    "filter_by_task_title": "Filter by task",
+    "filter_by_task_description": "Select a category, task or variant to filter by."
+  },
+  "stats": {
+    "title": "Journal statistics",
+    "total_count": "Total count",
+    "total_duration": "Duration",
+    "by_categories": "Categories",
+    "by_tasks": "Tasks"
+  },
   "common" : {
     "search": "Search",
     "units": {
@@ -400,13 +436,20 @@
       "at_for_times": "at",
       "for_for_times": "for",
       "in_for_times": "in",
+      "to_for_times": "to",
       "ago_for_times": "{when} ago",
       "and": "and",
       "thereof": "thereof",
       "custom": "custom",
       "around": "around",
       "on_for_enabled": "on",
-      "off_for_disabled": "off"
+      "off_for_disabled": "off",
+      "clear": "clear",
+      "value": "value",
+      "unit": "unit",
+      "unknown": "unknown",
+      "others": "others",
+      "total": "total"
     }
   },
 

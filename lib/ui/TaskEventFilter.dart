@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
@@ -91,8 +92,8 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                         ),
                         const Spacer(),
                         Text(taskFilterSettings.filterByDateRange != null
-                            ?  "${formatToDateWithFormatSelection(taskFilterSettings.filterByDateRange!.start, context, 1, false)} to ${formatToDateWithFormatSelection(taskFilterSettings.filterByDateRange!.end, context, 1, false)}"
-                            : "Filter by date range"),
+                            ?  "${formatToDateWithFormatSelection(taskFilterSettings.filterByDateRange!.start, context, 1, false)} ${translate('common.words.to_for_times')} ${formatToDateWithFormatSelection(taskFilterSettings.filterByDateRange!.end, context, 1, false)}"
+                            : translate('filter.menu.by_date_range')),
                       ]
                   ),
                   value: '1'),
@@ -105,7 +106,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                         const Spacer(),
                         Text(taskFilterSettings.filterBySeverity != null
                             ? severityToString(taskFilterSettings.filterBySeverity!)
-                            : "Filter by severity"),
+                            : translate('filter.menu.by_severity')),
                       ]
                   ),
                   value: '2'),
@@ -117,7 +118,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                           color: taskFilterSettings.filterByFavorites ? Colors.blueAccent : null,
                         ),
                         const Spacer(),
-                        const Text("Filter favorites"),
+                        Text(translate('filter.menu.by_favorites')),
                       ]
                   ),
                   value: '3'),
@@ -137,7 +138,9 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                             ? taskFilterSettings.filterByTaskOrTemplate is TaskGroup
                             ? (taskFilterSettings.filterByTaskOrTemplate as TaskGroup).translatedName
                             : (taskFilterSettings.filterByTaskOrTemplate as Template).translatedTitle
-                            : (taskFilterSettings.filterByTaskEventIds != null ? "Filter by schedule" : "Filter by task")),
+                            : (taskFilterSettings.filterByTaskEventIds != null
+                              ? translate('filter.menu.by_schedule')
+                              : translate('filter.menu.by_task'))),
                       ]
                   ),
                   value: '4'),
@@ -149,7 +152,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                           color: taskFilterSettings.isFilterActive() ? Colors.blueAccent : null,
                         ),
                         const Spacer(),
-                        const Text("Clear filters"),
+                        Text(translate('filter.menu.clear_all')),
                       ]
                   ),
                   value: '5'),
@@ -168,7 +171,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                     return Theme(
                       data: Theme.of(context).copyWith(
                         colorScheme: ColorScheme.light(
-                          // TODO i don't know why but without that the app bar text id white here !!!
+                          // TODO i don't know why but without that the app bar text is white here !!!
                           onPrimary: Colors.black, // header text color
                         ),
 
@@ -211,12 +214,17 @@ class TaskEventFilterState extends State<TaskEventFilter> {
 
             case '4' : {
               if (taskFilterSettings.filterByTaskEventIds != null) {
-                toastInfo(context, "Filter by schedule '${taskFilterSettings.filterByScheduledTask!.translatedTitle}' is selected. Click 'Clear all' to reset.");
+                toastInfo(context, translate('filter.hint_filter_by_schedule',
+                    args: {
+                      "title": taskFilterSettings.filterByScheduledTask!.translatedTitle,
+                      "clearAll": translate('filter.menu.clear_all')}));
                 return;
               }
               //if (taskFilterSettings.filterByTaskOrTemplate == null) {
                 Object? selectedItem = null;
-                showTemplateDialog(context, "Filter by task", "Select a category or task to filter by.",
+                showTemplateDialog(context,
+                  translate('filter.filter_by_task_title'),
+                  translate('filter.filter_by_task_description'),
                   initialSelectedKey: taskFilterSettings.filterByTaskOrTemplate is TaskGroup
                     ? (taskFilterSettings.filterByTaskOrTemplate as TaskGroup).getKey()
                     : (taskFilterSettings.filterByTaskOrTemplate is Template
