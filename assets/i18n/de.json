@@ -346,7 +346,7 @@
     "filter_by_task_description": "Wähle eine Kategorie, Aufgabe oder Variante zum filtern."
   },
   "stats": {
-    "title": "Statistiken",
+    "title": "Verlaufsstatistik",
     "total_count": "Anzahl",
     "total_duration": "Dauer",
     "by_categories": "Kategorien",

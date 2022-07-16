@@ -175,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             SettingsTile(
-              enabled: _showActionNotifications??false,
+              enabled: _showActionNotifications,
               title: Text(translate('pages.settings.action_feedback.duration.title')),
               description: Text(translate('pages.settings.action_feedback.duration.description')),
               onPressed: (context) {
