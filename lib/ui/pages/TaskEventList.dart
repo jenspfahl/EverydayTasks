@@ -415,7 +415,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                   taskGroup.getIcon(true),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),
-                    child: Text(kReleaseMode ? taskEvent.translatedTitle : "${taskEvent.translatedTitle} (id=${taskEvent.id})"),
+                    child: Text(truncate(kReleaseMode ? taskEvent.translatedTitle : "${taskEvent.translatedTitle} (id=${taskEvent.id})", length: 30)),
                   )
               ],
             ),

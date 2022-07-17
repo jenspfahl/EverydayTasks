@@ -335,7 +335,7 @@
   "filter": {
     "menu": {
       "by_date_range": "Nach Zeitraum filtern",
-      "by_severity": "Nach Schwere filtern",
+      "by_severity": "Nach Schwierigkeit filtern",
       "by_favorites": "Favoriten filtern",
       "by_schedule": "Nach Zeitplan filtern",
       "by_task": "Nach Aufgabe filtern",

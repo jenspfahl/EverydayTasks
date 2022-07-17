@@ -304,7 +304,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
   Future<List<Container>> _createLegendElements(Iterable<SliceData> dataList, double totalValue) async {
     final legendElementFutures = dataList.mapIndexed((i, data) async {
       final isTouched = i == _touchedIndex;
-      final fontSize = isTouched ? 16.1 : 16.0;
+      final fontSize = isTouched ? 14.1 : 14.0;
       final fontWeight = isTouched ? FontWeight.bold : null;
     
       int? taskGroupId = data.taskGroupId;
@@ -323,22 +323,12 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             ? taskGroup.translatedName
             : "-${translate('common.words.others')}-";
       }
-      final groupedByPresentation = Row(
-          children: [
-            taskGroup?.getIcon(true) ?? Text("?"),
-            Text(truncate(title, length: 30), //TODO cutting this is not enough for long durarion strings
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: isTouched ? 14.1 : 14.0,
-                fontWeight: fontWeight)),
-          ]);
     
       var bgColor = data.templateId == null
             ? getSharpedColor(getTaskGroupColor(taskGroupId, false), 1.9)
             : getTaskGroupColor(taskGroupId, data.templateId!.isVariant);
       return Container(
-        height: 30,
+        height: 35,
        /* color: data.templateId == null
             ? (taskGroup != null ? taskGroup.backgroundColor : null)
             : getTaskGroupColor(taskGroupId, !data.templateId!.isVariant),*/
@@ -357,14 +347,32 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           },
           child: Row(
             children: [
-              groupedByPresentation,
-              Spacer(),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                child: Text(_getDataValueAsString(data.value),
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontWeight: fontWeight)
+              Expanded(
+                flex: 1,
+                child: taskGroup?.getIcon(true) ?? Text("?")
+              ),
+              Expanded(
+                flex: 5,
+                child: Text(title,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                    maxLines: 2,
+                    style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: fontWeight))
+              ),
+              //Spacer(),
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                  child: Text(_getDataValueAsString(data.value),
+                  softWrap: true,
+                  maxLines: 2,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: fontWeight)
+                  ),
                 ),
               )
             ],

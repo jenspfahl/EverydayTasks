@@ -434,7 +434,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 taskGroup.getIcon(true),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),
-                  child: Text(kReleaseMode ? scheduledTask.translatedTitle : "${scheduledTask.translatedTitle} (id=${scheduledTask.id})"),
+                  child: Text(truncate(kReleaseMode ? scheduledTask.translatedTitle : "${scheduledTask.translatedTitle} (id=${scheduledTask.id})", length: 30)),
                 )
               ],
             ),
