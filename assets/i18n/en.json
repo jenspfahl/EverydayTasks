@@ -399,10 +399,10 @@
         "other": "seconds"
       },
       "item": {
-        "zero": "items",
-        "one": "item",
-        "two": "items",
-        "other": "items"
+        "zero": "entries",
+        "one": "entry",
+        "two": "entries",
+        "other": "entries"
       },
       "schedule": {
         "zero": "schedules",
