@@ -7,7 +7,7 @@ import 'package:personaltasklogger/util/units.dart';
 import '../service/PreferenceService.dart';
 
 enum AroundWhenAtDay {NOW, MORNING, FORENOON, NOON, AFTERNOON, EVENING, NIGHT, CUSTOM}
-enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES}
+enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES, TWENTY_MINUTES, THREE_QUARTERS}
 
 enum WhenOnDate {TODAY, YESTERDAY, BEFORE_YESTERDAY, CUSTOM}
 
@@ -86,7 +86,9 @@ class When {
       case AroundDurationHours.FIVE_MINUTES: return Duration(minutes: 5);
       case AroundDurationHours.TEN_MINUTES: return Duration(minutes: 10);
       case AroundDurationHours.QUARTER: return Duration(minutes: 15);
+      case AroundDurationHours.TWENTY_MINUTES: return Duration(minutes: 20);
       case AroundDurationHours.HALF: return Duration(minutes: 30);
+      case AroundDurationHours.THREE_QUARTERS: return Duration(minutes: 45);
       case AroundDurationHours.ONE: return Duration(hours: 1);
       case AroundDurationHours.TWO: return Duration(hours: 2);
       case AroundDurationHours.THREE: return Duration(hours: 3);
@@ -99,7 +101,9 @@ class When {
       case AroundDurationHours.FIVE_MINUTES: return _translateAround(Minutes(5).toString());
       case AroundDurationHours.TEN_MINUTES: return _translateAround(Minutes(10).toString());
       case AroundDurationHours.QUARTER: return _translateAround(Minutes(15).toString());
+      case AroundDurationHours.TWENTY_MINUTES: return _translateAround(Minutes(20).toString());
       case AroundDurationHours.HALF: return _translateAround(translate('common.durations.half_an_hour'));
+      case AroundDurationHours.THREE_QUARTERS: return _translateAround(translate('common.durations.three_quarters_of_an_hour'));
       case AroundDurationHours.ONE: return _translateAround(translate('common.durations.an_hour'));
       case AroundDurationHours.TWO: return _translateAround(Hours(2).toString());
       case AroundDurationHours.THREE: return _translateAround(Hours(3).toString());

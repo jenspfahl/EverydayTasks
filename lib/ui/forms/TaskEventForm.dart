@@ -265,7 +265,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                             isExpanded: true,
                             onChanged:  _trackingStart != null ? null : (value) {
                               if (value == AroundDurationHours.CUSTOM) {
-                                final initialDuration = _customDuration ?? Duration(minutes: 1);
+                                final initialDuration = _customDuration ?? (_selectedDurationHours != null ? When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration) : Duration(minutes: 1));
                                 showDurationPickerDialog(
                                   context: context,
                                   initialDuration: initialDuration,

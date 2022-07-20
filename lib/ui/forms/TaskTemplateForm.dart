@@ -202,7 +202,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                                 isExpanded: true,
                                 onChanged: (value) {
                                   if (value == AroundDurationHours.CUSTOM) {
-                                    final initialDuration = _customDuration ?? Duration(minutes: 1);
+                                    final initialDuration = _customDuration ?? (_selectedDurationHours != null ? When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration) : Duration(minutes: 1));
                                     showDurationPickerDialog(
                                       context: context,
                                       initialDuration: initialDuration,
