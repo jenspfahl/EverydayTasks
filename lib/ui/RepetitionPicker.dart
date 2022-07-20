@@ -47,35 +47,46 @@ class _RepetitionPickerState extends State<RepetitionPicker> {
         widget.onChanged(_customRepetition);
       }),
     );
-    final unitDropDown = new DropdownButton<RepetitionUnit>( //TODO use a Picker instead
-      value: _customRepetition.repetitionUnit,
-      items: RepetitionUnit.values.map((RepetitionUnit unit) {
-        return DropdownMenuItem(
-          value: unit,
-          child: Text(Schedule.fromRepetitionUnitToString(unit)),
-        );
-      }).toList(),
-      onChanged: (value) => setState(() { 
-        if (value != null) {
-          _customRepetition.repetitionUnit = value;
-          widget.onChanged(_customRepetition);
+
+    final unitChildren = RepetitionUnit.values.map((unit) {
+      return RadioListTile<RepetitionUnit>(
+        dense: true,
+        visualDensity: VisualDensity(horizontal: 0, vertical: -4),
+        title: Text(Schedule.fromRepetitionUnitToString(unit)),
+        value: unit,
+        groupValue: _customRepetition.repetitionUnit ,
+        onChanged: (RepetitionUnit? value) {
+          setState(() {
+            if (value != null) {
+              _customRepetition.repetitionUnit = value;
+              widget.onChanged(_customRepetition);
+            }
+          });
         }
-      }),
-    );
+      );
+    }).toList();
+
     //scaffold the full homepage
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: <Widget>[
-        Column(
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text(translate('common.words.value').capitalize()),
-            valuePicker
+            Text(translate('common.words.unit').capitalize()),
           ],
         ),
-        Column(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Text(translate('common.words.unit').capitalize()),
-            unitDropDown,
+            Expanded(
+              child: valuePicker,
+            ),
+            Expanded(
+              child: Column(
+                children: unitChildren,
+              ),
+            ),
           ],
         ),
       ],

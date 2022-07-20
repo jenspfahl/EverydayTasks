@@ -63,7 +63,7 @@ Future<bool?> showDurationPickerDialog({
   );
 
   Dialog dialog = Dialog(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)), //this right here
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)), //this right here
     child: Container(
       height: 300.0,
       width: 300.0,

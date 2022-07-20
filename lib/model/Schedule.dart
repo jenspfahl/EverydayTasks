@@ -102,6 +102,21 @@ class Schedule {
     }
   }
 
+  static fromRepetitionStepToCustomRepetition(RepetitionStep repetitionStep, CustomRepetition? customRepetition) {
+    switch(repetitionStep) {
+      case RepetitionStep.DAILY: return CustomRepetition(1, RepetitionUnit.DAYS);
+      case RepetitionStep.EVERY_OTHER_DAY: return CustomRepetition(2, RepetitionUnit.DAYS);
+      case RepetitionStep.WEEKLY: return CustomRepetition(1, RepetitionUnit.WEEKS);
+      case RepetitionStep.EVERY_OTHER_WEEK: return CustomRepetition(2, RepetitionUnit.WEEKS);
+      case RepetitionStep.MONTHLY: return CustomRepetition(1, RepetitionUnit.MONTHS);
+      case RepetitionStep.EVERY_OTHER_MONTH: return CustomRepetition(2, RepetitionUnit.MONTHS);
+      case RepetitionStep.QUARTERLY: return CustomRepetition(3, RepetitionUnit.MONTHS);
+      case RepetitionStep.HALF_YEARLY: return CustomRepetition(6, RepetitionUnit.MONTHS);
+      case RepetitionStep.YEARLY: return CustomRepetition(1, RepetitionUnit.YEARS);
+      case RepetitionStep.CUSTOM: customRepetition!;
+    }
+  }
+
   static String fromRepetitionUnitToString(RepetitionUnit repetitionUnit) {
     switch(repetitionUnit) {
       case RepetitionUnit.DAYS: return translate('model.repetition_unit.days');
@@ -132,5 +147,6 @@ class Schedule {
 
     return "${translate('model.repetition_step.every')} $unit";
   }
+
 
 }

@@ -167,10 +167,15 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 icon: Icon(Icons.next_plan_outlined),
                                 onChanged: (value) {
                                   if (value == RepetitionStep.CUSTOM) {
-                                    var tempSelectedRepetition = _customRepetition ?? RepetitionPicker.DEFAULT_INIT_REPETITION;
+                                    final initialRepetition = _customRepetition ?? (
+                                        _selectedRepetitionStep != null && _selectedRepetitionStep != RepetitionStep.CUSTOM
+                                            ? Schedule.fromRepetitionStepToCustomRepetition(_selectedRepetitionStep!, _customRepetition)
+                                            : null); // null fallback to 0:01
+                                    var tempSelectedRepetition = initialRepetition ?? RepetitionPicker.DEFAULT_INIT_REPETITION;
+
                                     showRepetitionPickerDialog(
                                       context: context,
-                                      initialRepetition: _customRepetition,
+                                      initialRepetition: initialRepetition,
                                       onChanged: (repetition) => tempSelectedRepetition = repetition,
                                     ).then((okPressed) {
                                       if (okPressed ?? false) {

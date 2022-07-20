@@ -8,4 +8,9 @@ extension ListExtension<E> on List<E> {
     this.add(elem);
     return this;
   }
+
+  List<E> appendAll(List<E> elems) {
+    this.addAll(elems);
+    return this;
+  }
 }
