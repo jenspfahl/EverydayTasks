@@ -320,7 +320,10 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   isExpanded: true,
                                   onChanged:  _trackingStart != null ? null : (value) {
                                     if (value == AroundWhenAtDay.CUSTOM) {
-                                      final initialWhenAt = _customWhenAt ?? (_selectedWhenAtDay != null ? When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt) : TimeOfDay.now());
+                                      final initialWhenAt = _customWhenAt ?? (
+                                          _selectedWhenAtDay != null && _selectedWhenAtDay != AroundWhenAtDay.CUSTOM
+                                              ? When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt)
+                                              : TimeOfDay.now());
                                       showTimePicker(
                                         initialTime: initialWhenAt,
                                         context: context,

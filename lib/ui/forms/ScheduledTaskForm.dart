@@ -66,7 +66,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       _customRepetition = _scheduledTask!.schedule.customRepetition;
 
       _selectedStartAt = _scheduledTask!.schedule.aroundStartAt;
-      _customStartAt = _scheduledTask!.schedule.startAtExactly;
+      final startedAt = _scheduledTask!.schedule.startAtExactly;
+      if (startedAt != null && _selectedStartAt == AroundWhenAtDay.CUSTOM) {
+        _selectedStartAt = AroundWhenAtDay.CUSTOM; // Former NOW is now CUSTOM
+        _customStartAt = startedAt;
+      }
 
       if (_scheduledTask?.lastScheduledEventOn != null) {
         _selectedScheduleFrom = fromDateTimeToWhenOnDate(_scheduledTask!.lastScheduledEventOn!);
@@ -213,7 +217,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 isExpanded: true,
                                 onChanged: (value) {
                                   if (value == AroundWhenAtDay.CUSTOM) {
-                                    final initialWhenAt = _customStartAt ?? TimeOfDay.now();
+                                    final initialWhenAt = _customStartAt ?? (
+                                        _selectedStartAt != null && _selectedStartAt != AroundWhenAtDay.CUSTOM
+                                            ? When.fromWhenAtDayToTimeOfDay(_selectedStartAt!, _customStartAt)
+                                            : TimeOfDay.now());
                                     showTimePicker(
                                       initialTime: initialWhenAt,
                                       context: context,
