@@ -236,6 +236,8 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                             Visibility(
                               visible: _selectedDurationHours != null,
                               child: IconButton(
+                                padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+                                constraints: BoxConstraints(),
                                 icon: Icon(Icons.clear_outlined),
                                 onPressed: () {
                                   setState(() {
@@ -293,6 +295,8 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                             Visibility(
                               visible: _selectedWhenAtDay != null,
                               child: IconButton(
+                                padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+                                constraints: BoxConstraints(),
                                 icon: Icon(Icons.clear_outlined),
                                 onPressed: () {
                                   setState(() {
