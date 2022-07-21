@@ -9,8 +9,51 @@ import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
 import 'ChoiceWidget.dart';
+import 'PersonalTaskLoggerApp.dart';
 import 'RepetitionPicker.dart';
 import 'ToggleActionIcon.dart';
+
+Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate}) {
+  return showDatePicker(
+      context: context,
+      initialDate: initialDate ?? DateTime.now(),
+      firstDate: DateTime.now().subtract(Duration(days: 1500)), // around 5 years
+      lastDate: DateTime.now().add(Duration(days: 600)),  // around two years
+      builder: (BuildContext context, Widget? child) {
+        return _pickerTheme(context, child);
+      }
+  );
+}
+
+Future<DateTimeRange?> showTweakedDateRangePicker(BuildContext context, {DateTimeRange? initialDateRange}) {
+  return showDateRangePicker(
+      context: context,
+      initialDateRange: initialDateRange,
+      currentDate: DateTime.now(),
+      firstDate: DateTime.now().subtract(Duration(days: 1500)), // around 5 years
+      lastDate: DateTime.now().add(Duration(days: 600)),  // around two years
+      builder: (BuildContext context, Widget? child) {
+        return _pickerTheme(context, child);
+      }
+  );
+}
+
+Theme _pickerTheme(BuildContext context, Widget? child) {
+  return Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: ColorScheme.light(
+              primary: BUTTON_COLOR,
+              onPrimary: Colors.black,
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              primary: BUTTON_COLOR,
+            ),
+          ),
+        ),
+        child: child!,
+      );
+}
 
 void showConfirmationDialog(BuildContext context, String title, String message,
     {Icon? icon, Function()? okPressed, Function()? cancelPressed}) {

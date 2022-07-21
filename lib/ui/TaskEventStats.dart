@@ -16,6 +16,7 @@ import 'package:personaltasklogger/util/extensions.dart';
 
 import '../model/Template.dart';
 import '../util/units.dart';
+import 'PersonalTaskLoggerApp.dart';
 
 @immutable
 class TaskEventStats extends StatefulWidget {
@@ -423,7 +424,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       borderWidth: 1.5,
       borderColor: Colors.grey,
       color: Colors.grey.shade600,
-      selectedBorderColor: Colors.blue,
+      selectedBorderColor: BUTTON_COLOR,
       children: [
         SizedBox(
           width: 75,
@@ -465,7 +466,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       borderWidth: 1.5,
       borderColor: Colors.grey,
       color: Colors.grey.shade600,
-      selectedBorderColor: Colors.blue,
+      selectedBorderColor: BUTTON_COLOR,
       children: [
         SizedBox(
             width: 75,

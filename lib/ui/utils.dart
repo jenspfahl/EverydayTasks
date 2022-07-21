@@ -3,6 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 
+import 'PersonalTaskLoggerApp.dart';
+
 Color getTaskGroupColor(int? taskGroupId, bool lessShaded) {
   final taskGroupColor = taskGroupId != null ? findPredefinedTaskGroupById(taskGroupId).colorRGB : null;
   return getShadedColor(taskGroupColor, lessShaded);
@@ -45,7 +47,7 @@ Widget createCheckIcon(bool checked) {
   }
   return Icon(
     Icons.check,
-    color: Colors.blueAccent,
+    color: BUTTON_COLOR,
   );
 }
 

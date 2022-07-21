@@ -9,6 +9,7 @@ import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import 'PersonalTaskLoggerApp.dart';
 import 'utils.dart';
 
 @immutable
@@ -88,7 +89,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       children: [
                         Icon(
                           taskFilterSettings.filterByDateRange != null ? Icons.calendar_today : Icons.calendar_today_outlined,
-                          color: taskFilterSettings.filterByDateRange != null ? Colors.blueAccent : null,
+                          color: taskFilterSettings.filterByDateRange != null ? BUTTON_COLOR : null,
                         ),
                         const Spacer(),
                         Text(taskFilterSettings.filterByDateRange != null
@@ -101,7 +102,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                   child: Row(
                       children: [
                         taskFilterSettings.filterBySeverity != null
-                            ? severityToIcon(taskFilterSettings.filterBySeverity!, Colors.blueAccent)
+                            ? severityToIcon(taskFilterSettings.filterBySeverity!, BUTTON_COLOR)
                             : Icon(Icons.fitness_center_rounded),
                         const Spacer(),
                         Text(taskFilterSettings.filterBySeverity != null
@@ -115,7 +116,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       children: [
                         Icon(
                           taskFilterSettings.filterByFavorites ? Icons.favorite : Icons.favorite_border,
-                          color: taskFilterSettings.filterByFavorites ? Colors.blueAccent : null,
+                          color: taskFilterSettings.filterByFavorites ? BUTTON_COLOR : null,
                         ),
                         const Spacer(),
                         Text(translate('filter.menu.by_favorites')),
@@ -149,7 +150,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       children: [
                         Icon(
                           taskFilterSettings.isFilterActive() ? Icons.clear : Icons.clear_outlined,
-                          color: taskFilterSettings.isFilterActive() ? Colors.blueAccent : null,
+                          color: taskFilterSettings.isFilterActive() ? BUTTON_COLOR : null,
                         ),
                         const Spacer(),
                         Text(translate('filter.menu.clear_all')),
@@ -161,23 +162,8 @@ class TaskEventFilterState extends State<TaskEventFilter> {
           switch (selected) {
             case '1' : {
             //  if (taskFilterSettings.filterByDateRange == null) {
-                showDateRangePicker(
-                  context: context,
-                  firstDate: DateTime.now().subtract(Duration(days: 365)),
-                  lastDate: DateTime.now().add(Duration(days: 365)),
+              showTweakedDateRangePicker(context,
                   initialDateRange: taskFilterSettings.filterByDateRange,
-                  currentDate: DateTime.now(),
-                  builder: (context, child) {
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        colorScheme: ColorScheme.light(
-                          // TODO i don't know why but without that the app bar text is white here !!!
-                          onPrimary: Colors.black, // header text color
-                        ),
-
-                      ),
-                      child: child!,
-                    );},
                 ).then((dateRange) {
                   if (dateRange != null) {
                     taskFilterSettings.filterByDateRange = dateRange;

@@ -8,6 +8,7 @@ import 'package:settings_ui/settings_ui.dart';
 import '../service/PreferenceService.dart';
 import '../util/dates.dart';
 import '../util/i18n.dart';
+import 'PersonalTaskLoggerApp.dart';
 import 'dialogs.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -45,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return SettingsList(
       sections: [
         SettingsSection(
-          title: Text(translate('pages.settings.common.title'), style: TextStyle(color: Colors.lime[800])),
+          title: Text(translate('pages.settings.common.title'), style: TextStyle(color: ACCENT_COLOR)),
           tiles: [
             SettingsTile(
               title: Text(translate('pages.settings.common.language.title')),
@@ -95,7 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         SettingsSection(
-          title: Text(translate('pages.settings.date_n_time.title'), style: TextStyle(color: Colors.lime[800])),
+          title: Text(translate('pages.settings.date_n_time.title'), style: TextStyle(color: ACCENT_COLOR)),
           tiles: [
             SettingsTile(
               title: Text(translate('pages.settings.date_n_time.used_date_format.title')),
@@ -163,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         SettingsSection(
-          title: Text(translate('pages.settings.action_feedback.title'), style: TextStyle(color: Colors.lime[800])),
+          title: Text(translate('pages.settings.action_feedback.title'), style: TextStyle(color: ACCENT_COLOR)),
           tiles: [
             SettingsTile.switchTile(
               title: Text(translate('pages.settings.action_feedback.show_action_feedback.title')),
@@ -206,7 +207,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
         /*SettingsSection(
-          title: Text('Data', style: TextStyle(color: Colors.lime[800])),
+          title: Text('Data', style: TextStyle(color: ACCENT_COLOR)),
           tiles: [
             SettingsTile(
               title: Text('Delete old journal entries'),

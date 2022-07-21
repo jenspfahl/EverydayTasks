@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 
+import 'PersonalTaskLoggerApp.dart';
+
 class SeverityPicker extends StatefulWidget {
   final bool showText;
   final double singleButtonWidth;
@@ -50,7 +52,7 @@ class _SeverityPickerState extends State<SeverityPicker> {
       borderWidth: 1.5,
       borderColor: Colors.grey,
       color: Colors.grey.shade600,
-      selectedBorderColor: Colors.blue,
+      selectedBorderColor: BUTTON_COLOR,
       children: [
         SizedBox(
           width: widget.singleButtonWidth,

@@ -369,11 +369,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   onChanged: _trackingStart != null ? null : (value) {
                                     if (value == WhenOnDate.CUSTOM) {
                                       final initialWhenOn = _customWhenOn ?? truncToDate(DateTime.now());
-                                      showDatePicker(
-                                        context: context,
+                                      showTweakedDatePicker(context,
                                         initialDate: initialWhenOn,
-                                        firstDate: DateTime.now().subtract(Duration(days: 600)),
-                                        lastDate: DateTime.now(),
                                       ).then((selectedDate) {
                                         if (selectedDate != null) {
                                           setState(() {

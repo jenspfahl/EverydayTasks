@@ -6,6 +6,7 @@ import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/When.dart';
+import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
 import 'package:personaltasklogger/ui/RepetitionPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
@@ -292,11 +293,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 onChanged: (value) {
                                   if (value == WhenOnDate.CUSTOM) {
                                     final initialScheduleFrom = _customScheduleFrom ?? truncToDate(DateTime.now());
-                                    showDatePicker(
-                                      context: context,
+                                    showTweakedDatePicker(
+                                      context,
                                       initialDate: initialScheduleFrom,
-                                      firstDate: DateTime.now().subtract(Duration(days: 600)),
-                                      lastDate: DateTime.now().add(Duration(days: 600)),
                                     ).then((selectedDate) {
                                       if (selectedDate != null) {
                                         setState(() {

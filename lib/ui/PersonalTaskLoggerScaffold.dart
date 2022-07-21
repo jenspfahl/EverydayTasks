@@ -7,6 +7,7 @@ import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/service/BackupRestoreService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
+import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/QuickAddTaskEventPage.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
@@ -115,7 +116,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                 height: 150,
                 child: DrawerHeader(
                   decoration: BoxDecoration(
-                   color: Colors.green[50],
+                   color: PRIMARY_COLOR,
                   ),
                   child: Align(
                     alignment: AlignmentDirectional.bottomStart,
@@ -132,7 +133,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                                   fontWeight: FontWeight.bold
                                 ),
                               ),
-                              Icon(Icons.task_alt, color: Colors.lime[700]),
+                              Icon(Icons.task_alt, color: ACCENT_COLOR),
                             ],
                           ),
                         ),
@@ -221,15 +222,14 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                   Navigator.pop(context);
                   final packageInfo = await PackageInfo.fromPlatform();
                   final version = packageInfo.version;
-                  final build = packageInfo.buildNumber;
 
                   showConfirmationDialog(
                       context,
                       translate('pages.about.title'),
                       translate('pages.about.message') +
                           "\n\n© Jens Pfahl 2022"
-                          "\n\nVersion $version:$build",
-                      icon: Icon(Icons.task_alt, color: Colors.lime[700]),
+                          "\n\nVersion $version",
+                      icon: Icon(Icons.task_alt, color: ACCENT_COLOR),
                       okPressed: () =>  Navigator.pop(context),
                   );
                 },
@@ -244,7 +244,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                   final version = packageInfo.version;
                   final build = packageInfo.buildNumber;
 
-                  final title = Uri.encodeComponent("A bug in version $version:$build");
+                  final title = Uri.encodeComponent("A bug in version $version ($build)");
                   final body = Uri.encodeComponent("Please describe ..");
                   launchUrl("https://github.com/jenspfahl/everydaytasks/issues/new?title=$title&body=$body");
                 },
@@ -294,7 +294,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
             label: translate('pages.tasks.title'),
           ),
         ],
-        selectedItemColor: Colors.lime[800],
+        selectedItemColor: ACCENT_COLOR,
         unselectedItemColor: Colors.grey.shade600,
         currentIndex: _selectedNavigationIndex,
         onTap: (index) {

@@ -5,6 +5,10 @@ import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 
 import '../main.dart';
 
+final PRIMARY_COLOR = Colors.green[50]!;
+final BUTTON_COLOR = Colors.blue;
+final ACCENT_COLOR = Colors.lime[800];
+
 class PersonalTaskLoggerApp extends StatelessWidget {
 
   @override
@@ -25,11 +29,11 @@ class PersonalTaskLoggerApp extends StatelessWidget {
         locale: localizationDelegate.currentLocale,
         theme: ThemeData(
           brightness: Brightness.light,
-          primaryColor: Colors.green[50],
-          primarySwatch: Colors.blue,
+          primaryColor: PRIMARY_COLOR,
+          primarySwatch: BUTTON_COLOR,
 
           appBarTheme: AppBarTheme(
-            color: Colors.green[50],
+            color: PRIMARY_COLOR,
             foregroundColor: Colors.black
           )
          // accentColor: Colors.green,
