@@ -1,0 +1,17 @@
+<b>Track, log and schedule your Everyday Tasks</b>
+
+Do you have the need of remembering what you did? Do you need to know about what to do next? Are you lost in your daily household tasks? Do you think your roommate does less then you?
+
+If so, track and log your tasks with EverydayTasks and create schedules for repetitive tasks. See how many time you have spent for certain tasks, and get notified if a scheduled task is due.
+
+<b>Core features of the app</b>
+
+- log tasks you did fast and quickly
+- track your tasks to the minute
+- see statistics of your done tasks, e.g. how much time you spent on what
+- create schedules for repetitive tasks with a custom interval and get notified when they are due 
+- use dozens of predefined tasks and variants or create your own tasks 
+
+For more information see <a href="https://everydaytasks.jepfa.de">everydaytasks.jepfa.de</a>
+
+If you like the app please star it on <a href="https://github.com/jenspfahl/EverydayTasks">Github</a>!

@@ -1,0 +1,17 @@
+<b>Erfasse, tracke und plane deine täglichen Aufgaben</b>
+
+Willst du dich erinnern können was du so erledigt hast? Willst du wissen was als nächstes zu tun ist? Fühlst du dich mit deinen täglichen Haushaltsaufgaben überfordert? Denkst du dein Mitbewohner macht weniger im Haushalt als du?
+
+Wenn dem so ist, dann erfasse oder tracke einfach deine Tätigkeiten mit EverydayTasks und lege Zeitpläne für sich wiederholende Aufgaben an. Erfahre, wieviel Zeit du für bestimmte Aufgaben gebrauchst hast und lass dich benachrichtigen, wenn eine geplante Aufgabe fällig ist.
+
+<b>Kernfunktionen</b>
+
+- erfasse erledigte Aufgaben schnell und einfach im Nachhinein
+- tracke deine Tätigkeiten minutengenau 
+- betrachte Statistiken deiner erledigten Aufgaben, z.B. um zu sehen, wieviel Zeit du für bestimmte Aufgaben aufgewendet hast
+- lege Zeitpläne für wiederkehrende Aufgaben mit spezifischen Intervallen an und lasse dich benachrichtigen, wenn die Aufgaben fällig sind 
+- verwende dutzende von vorgefertigten Aufgaben und Varianten für deine eigenen Tätigkeiten oder lege eigene an
+
+Für mehr Informationen siehe <a href="https://everydaytasks.jepfa.de">everydaytasks.jepfa.de</a>
+
+Wenn du die App magst, gib ihr einen Stern auf <a href="https://github.com/jenspfahl/EverydayTasks">Github</a>!
