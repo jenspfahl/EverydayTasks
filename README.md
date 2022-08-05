@@ -12,13 +12,14 @@ Track and log your tasks with EverydayTasks and create schedules for repetitive 
 
 For more information see [https://everydaytasks.jepfa.de](https://everydaytasks.jepfa.de)
 
-You can download the latest release version [here](https://everydaytasks.jepfa.de/download/).
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/de.jepfa.personaltasklogger/)
 
+Otherwise, you can download the latest release version [here](https://everydaytasks.jepfa.de/download/).
 
 ## Development deteils
 
 To re-generate floor files execute:
 
 	flutter packages pub run build_runner build
-
-
