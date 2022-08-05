@@ -168,15 +168,26 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString, Cla
   var hours = Hours(duration.inHours, clause);
   var minutes = Minutes(duration.inMinutes, clause);
   var durationText = minutes.toString();
-  if (days.value.abs() >= 730) { // more than 2 years
-    var years = Years(days.value ~/ 365, clause);
-    durationText = years.toString();
-
+  if (days.value.abs() >= 700) { // more than almost 2 years
+    var aroundYears = (days.value / 365).round();
+    var years = Years(aroundYears, clause);
+    durationText = "${translate('common.words.around')} $years";
   }
-  else if (days.value.abs() >= 62) {
-    var months = Months(days.value ~/ 31, clause);
-    durationText = months.toString();
-
+  else if (days.value.abs() >= 365) { // more than 1 year
+    var years = Years(days.value ~/ 365, clause);
+    var aroundMonths = ((days.value - (365 * years.value)) / 30).round();
+    var remainingAroundMonths = Months(aroundMonths, clause);
+    if (remainingAroundMonths.value != 0) {
+      durationText = "${translate('common.words.around')} $years ${translate('common.words.and')} $remainingAroundMonths";
+    }
+    else {
+      durationText = "${translate('common.words.around')} $years";
+    }
+  }
+  else if (days.value.abs() >= 80) {
+    var aroundMonths = (days.value / 30).round();
+    var months = Months(aroundMonths, clause);
+    durationText = "${translate('common.words.around')} $months";
   }
   else if (days.value.abs() >= 7) {
     var remainingDays = Days(days.value % 7, clause);

@@ -816,7 +816,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       final dueString = scheduledTask.isNextScheduleOverdue(true)
           ? translate('pages.schedules.overview.overdue').capitalize()
           : translate('pages.schedules.overview.due').capitalize();
-      return "$dueString ${translate('common.words.for_for_times')} ${formatDuration(scheduledTask.getMissingDuration()!, true)} "
+      return "$dueString ${translate('common.words.for_for_times')} ${formatDuration(scheduledTask.getMissingDuration()!,
+          true, usedClause(context, Clause.dative))} "
               "\n"
               "(${formatToDateOrWord(
               scheduledTask.getNextSchedule()!, context, withPreposition: true,

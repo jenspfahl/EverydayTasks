@@ -13,12 +13,14 @@ import 'PersonalTaskLoggerApp.dart';
 import 'RepetitionPicker.dart';
 import 'ToggleActionIcon.dart';
 
+final int MAX_DAYS = 7300; // around 20 years
+
 Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate}) {
   return showDatePicker(
       context: context,
       initialDate: initialDate ?? DateTime.now(),
-      firstDate: DateTime.now().subtract(Duration(days: 1500)), // around 5 years
-      lastDate: DateTime.now().add(Duration(days: 600)),  // around two years
+      firstDate: DateTime.now().subtract(Duration(days: MAX_DAYS)),
+      lastDate: DateTime.now().add(Duration(days: MAX_DAYS)),
       builder: (BuildContext context, Widget? child) {
         return _pickerTheme(context, child);
       }
@@ -30,8 +32,8 @@ Future<DateTimeRange?> showTweakedDateRangePicker(BuildContext context, {DateTim
       context: context,
       initialDateRange: initialDateRange,
       currentDate: DateTime.now(),
-      firstDate: DateTime.now().subtract(Duration(days: 1500)), // around 5 years
-      lastDate: DateTime.now().add(Duration(days: 600)),  // around two years
+      firstDate: DateTime.now().subtract(Duration(days: MAX_DAYS)),
+      lastDate: DateTime.now().add(Duration(days: MAX_DAYS)),
       builder: (BuildContext context, Widget? child) {
         return _pickerTheme(context, child);
       }
