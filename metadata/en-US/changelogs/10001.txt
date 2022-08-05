@@ -1,0 +1,2 @@
+* bugfix issue #2 and #4
+* fix show durations for months and years for schedules 
