@@ -172,7 +172,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                         _selectedRepetitionStep != null && _selectedRepetitionStep != RepetitionStep.CUSTOM
                                             ? Schedule.fromRepetitionStepToCustomRepetition(_selectedRepetitionStep!, _customRepetition)
                                             : null); // null fallback to 0:01
-                                    var tempSelectedRepetition = initialRepetition ?? RepetitionPicker.DEFAULT_INIT_REPETITION;
+                                    var tempSelectedRepetition = initialRepetition ?? RepetitionPicker.createDefaultRepetition();
 
                                     showRepetitionPickerDialog(
                                       context: context,

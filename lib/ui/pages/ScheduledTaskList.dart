@@ -988,7 +988,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               ScheduledTaskRepository.insert(newScheduledTask).then((newScheduledTask) {
 
                 toastInfo(context, translate('forms.schedule.create.success',
-                  args: {"new": newScheduledTask.translatedTitle}));
+                  args: {"title": newScheduledTask.translatedTitle}));
 
                 _addScheduledTask(newScheduledTask);
               });

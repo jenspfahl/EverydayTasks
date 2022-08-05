@@ -7,8 +7,6 @@ import 'package:personaltasklogger/util/extensions.dart';
 
 class RepetitionPicker extends StatefulWidget {
 
-  static final DEFAULT_INIT_REPETITION = CustomRepetition(1, RepetitionUnit.DAYS);
-
   late final CustomRepetition _initialRepetition;
   final ValueChanged<CustomRepetition> onChanged;
 
@@ -16,13 +14,15 @@ class RepetitionPicker extends StatefulWidget {
     CustomRepetition? initialRepetition,
     required this.onChanged
   }) {
-    this._initialRepetition = initialRepetition ?? DEFAULT_INIT_REPETITION;
+    this._initialRepetition = initialRepetition ?? createDefaultRepetition();
   }
   
   @override
   _RepetitionPickerState createState() {
     return _RepetitionPickerState();
   }
+
+  static CustomRepetition createDefaultRepetition() => CustomRepetition(1, RepetitionUnit.DAYS);
 
 }
 
