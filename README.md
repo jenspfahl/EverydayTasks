@@ -12,6 +12,8 @@ Track and log your tasks with EverydayTasks and create schedules for repetitive 
 
 For more information see [https://everydaytasks.jepfa.de](https://everydaytasks.jepfa.de)
 
+## Download
+
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/de.jepfa.personaltasklogger/)
