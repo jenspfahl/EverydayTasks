@@ -7,6 +7,7 @@
       "restore_from_file": "Wiederherstellen",
       "online_help": "Online Hilfe",
       "about_the_app": "Über die App",
+      "help_translate": "App übersetzen",
       "report_a_bug": "Fehler melden"
     }
   },
@@ -329,7 +330,8 @@
     },
     "about" : {
       "title": "Über Everyday Tasks",
-      "message": "Everyday Tasks ist eine einfache App, um tägliche Aufgaben schnell und einfach zu erfassen, zu tracken oder zu planen."
+      "message": "Everyday Tasks ist eine einfache App, um tägliche Aufgaben schnell und einfach zu erfassen, zu tracken oder zu planen.",
+      "star_it": "Wenn du die App magt, gib ihr einen Stern auf {link}"
     }
   },
   "filter": {

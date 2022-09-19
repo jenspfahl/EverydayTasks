@@ -7,6 +7,7 @@
       "restore_from_file": "Restore from file",
       "online_help": "Online help",
       "about_the_app": "About the app",
+      "help_translate": "Help to translate",
       "report_a_bug": "Report a bug"
     }
   },
@@ -330,7 +331,8 @@
     },
     "about" : {
       "title": "About Everyday Tasks",
-      "message": "Everyday Tasks is an easy and quickly to use app to log, track and schedule daily tasks"
+      "message": "Everyday Tasks is an easy and quickly to use app to log, track and schedule daily tasks",
+      "star_it": "If you like the app, give a star on {link}"
     }
   },
   "filter": {

@@ -223,18 +223,42 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                   final packageInfo = await PackageInfo.fromPlatform();
                   final version = packageInfo.version;
 
-                  showConfirmationDialog(
-                      context,
-                      translate('pages.about.title'),
-                      translate('pages.about.message') +
-                          "\n\n© Jens Pfahl 2022"
-                          "\n\nVersion $version",
-                      icon: Icon(Icons.task_alt, color: ACCENT_COLOR),
-                      okPressed: () =>  Navigator.pop(context),
+                  showAboutDialog(
+                      context: context,
+                      applicationVersion: version,
+                      applicationName: APP_NAME,
+                      children: [
+                        Text(translate('pages.about.message')),
+                        Text(''),
+                        InkWell(
+                            child: Text.rich(
+                              TextSpan(
+                                text: translate('pages.about.star_it', args: {"link": ""}),
+                                children: <TextSpan>[
+                                  TextSpan(text: "github.com/jenspfahl/everydaytasks", style: TextStyle(decoration: TextDecoration.underline)),
+                                ],
+                              ),
+                            ),
+                            onTap: () {
+                              launchUrl("https://github.com/jenspfahl/everydaytasks");
+                            }),
+                        Divider(),
+                        Text('© Jens Pfahl 2022', style: TextStyle(fontSize: 12)),
+                      ],
+                      applicationIcon: Icon(Icons.task_alt, color: ACCENT_COLOR),
                   );
+
                 },
               ),
               Divider(),
+              ListTile(
+                leading: const Icon(Icons.translate),
+                title: Text(translate('navigation.menus.help_translate')),
+                onTap: () async {
+                  Navigator.pop(context);
+                  launchUrl("https://github.com/jenspfahl/EverydayTasks/blob/master/TRANSLATE.md");
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.bug_report_outlined),
                 title: Text(translate('navigation.menus.report_a_bug')),
