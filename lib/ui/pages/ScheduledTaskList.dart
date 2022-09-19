@@ -30,12 +30,15 @@ import '../../util/units.dart';
 import '../ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
+import 'QuickAddTaskEventPage.dart';
 import 'TaskEventList.dart';
 
 
 final String PREF_DISABLE_NOTIFICATIONS = "scheduledTasks/disableNotifications";
 final String PREF_SORT_BY = "scheduledTasks/sortedBy";
+final String PREF_PIN_SCHEDULES = "scheduledTasks/pinPage";
 
+final pinSchedulesPageIconKey = new GlobalKey<ToggleActionIconState>();
 final disableNotificationIconKey = new GlobalKey<ToggleActionIconState>();
 
 @immutable
@@ -78,6 +81,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   bool _disableNotification = false;
   SortBy _sortBy = SortBy.PROGRESS;
   bool _statusTileHidden = true;
+  bool _pinSchedulesPage = false;
 
   int _totalRunningSchedules = 0;
   int _totalDueSchedules = 0;
@@ -142,7 +146,17 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   @override
   List<Widget>? getActions(BuildContext context) {
+    final pinSchedulesPage = ToggleActionIcon(Icons.push_pin, Icons.push_pin_outlined, _pinSchedulesPage, pinSchedulesPageIconKey);
     final disableNotificationIcon = ToggleActionIcon(Icons.notifications_on_outlined, Icons.notifications_off_outlined, !_disableNotification, disableNotificationIconKey);
+
+    _preferenceService.getBool(PREF_PIN_SCHEDULES).then((value) {
+      if (value != null) {
+        _updatePinSchedulesPage(value, withSnackMsg: false);
+      }
+      else {
+        pinSchedulesPageIconKey.currentState?.refresh(_pinSchedulesPage);
+      }
+    });
     _preferenceService.getBool(PREF_DISABLE_NOTIFICATIONS).then((value) {
       if (value != null) {
         _updateDisableNotifications(value, withSnackMsg: false);
@@ -153,6 +167,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     });
     
     return [
+      IconButton(
+          icon: pinSchedulesPage,
+          onPressed: () {
+            _pinSchedulesPage = !_pinSchedulesPage;
+            _updatePinSchedulesPage(_pinSchedulesPage, withSnackMsg: true);
+          }),
       IconButton(
           icon: disableNotificationIcon,
           onPressed: () {
@@ -1181,6 +1201,31 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       child: Text(text, style: TextStyle(fontSize: 10)),
     );
   }
+
+
+  void _updatePinSchedulesPage(bool value, {required bool withSnackMsg}) {
+    setState(() {
+      _pinSchedulesPage = value;
+      pinSchedulesPageIconKey.currentState?.refresh(_pinSchedulesPage);
+      if (_pinSchedulesPage) {
+        if (withSnackMsg) {
+          toastInfo(context, translate('pages.schedules.menu.pinning.pinned'));
+        }
+
+      }
+      else {
+        if (withSnackMsg) {
+          toastInfo(context, translate('pages.schedules.menu.pinning.unpinned'));
+        }
+      }
+      _preferenceService.setBool(PREF_PIN_SCHEDULES, _pinSchedulesPage);
+      if (_pinSchedulesPage) {
+        _preferenceService.setBool(PREF_PIN_QUICK_ADD, false);
+        pinQuickAddPageIconKey.currentState?.refresh(false);
+      }
+    });
+  }
+  
 }
 
 

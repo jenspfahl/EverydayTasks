@@ -11,6 +11,7 @@ import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
+import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 
 import '../ToggleActionIcon.dart';
 import '../utils.dart';
@@ -20,6 +21,9 @@ import 'TaskEventList.dart';
 final String PREF_SORT_BY = "quickAdd/sortedBy";
 final String PREF_PIN_QUICK_ADD = "quickAdd/pinPage";
 final String PREF_GROUP_BY_CATEGORY = "quickAdd/groupByCategory";
+
+final pinQuickAddPageIconKey = new GlobalKey<ToggleActionIconState>();
+final groupByCategoryIconKey = new GlobalKey<ToggleActionIconState>();
 
 @immutable
 class QuickAddTaskEventPage extends PageScaffold<QuickAddTaskEventPageState> {
@@ -55,9 +59,6 @@ class QuickAddTaskEventPage extends PageScaffold<QuickAddTaskEventPageState> {
 enum SortBy {GROUP, TITLE,}
 
 class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage> with AutomaticKeepAliveClientMixin<QuickAddTaskEventPage> {
-
-  final pinQuickAddPageIconKey = new GlobalKey<ToggleActionIconState>();
-  final groupByCategoryIconKey = new GlobalKey<ToggleActionIconState>();
 
   List<Template> _templates = [];
 
@@ -574,6 +575,10 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
         }
       }
       _preferenceService.setBool(PREF_PIN_QUICK_ADD, _pinQuickAddPage);
+      if (_pinQuickAddPage) {
+        _preferenceService.setBool(PREF_PIN_SCHEDULES, false);
+        pinSchedulesPageIconKey.currentState?.refresh(false);
+      }
     });
   }
 

@@ -85,7 +85,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     _notificationService.addActiveNotificationHandler(sendEventFromActiveNotification);
     _notificationService.handleAppLaunchNotification();
 
-    //this is a hack since this is QuickAdd related code here
+    //this is a hack since this is QuickAdd/ScheduledTask related code here
     _preferenceService.getBool(PREF_PIN_QUICK_ADD).then((pinQuickAddPage) {
       if (pinQuickAddPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schdeule Page
         setState(() {
@@ -93,9 +93,16 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
           _pageController.jumpToPage(_selectedNavigationIndex);
         });
       }
+      else _preferenceService.getBool(PREF_PIN_SCHEDULES).then((pinSchedulesPage) {
+        if (pinSchedulesPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schdeule Page
+          setState(() {
+            _selectedNavigationIndex = NAVIGATION_IDX_TASK_SCHEDULES;
+            _pageController.jumpToPage(_selectedNavigationIndex);
+          });
+        }
+      });
     });
   }
-
 
 
   PageScaffold getSelectedPage() {

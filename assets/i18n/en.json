@@ -83,8 +83,8 @@
       "title": "QuickAdd",
       "menu": {
         "pinning": {
-          "pinned": "QuickAdd page pinned",
-          "unpinned": "QuickAdd page pinned"
+          "pinned": "QuickAdd pinned as start page",
+          "unpinned": "Unpinned as start page"
         },
         "grouping": {
           "by_categories": "Group by categories",
@@ -149,6 +149,10 @@
     "schedules": {
       "title": "Schedules",
       "menu": {
+        "pinning": {
+          "pinned": "Schedules pinned as start page",
+          "unpinned": "Unpinned as start page"
+        },
         "sorting": {
           "by_progress": "Sort by progress",
           "by_remaining_time": "Sort by remaining time",

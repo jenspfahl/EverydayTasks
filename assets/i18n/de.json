@@ -148,6 +148,10 @@
     "schedules": {
       "title": "Zeitpläne",
       "menu": {
+        "pinning": {
+          "pinned": "Als Startseite markiert",
+          "unpinned": "Markierung entfernt"
+        },
         "sorting": {
           "by_progress": "Nach Fortschritt sortieren",
           "by_remaining_time": "Nach verbleibender Zeit sortieren",
