@@ -45,6 +45,7 @@ dependencies:
   path: ^1.8.0
   file_picker: ^4.5.1
   flutter_translate: ^4.0.3
+  csv: ^5.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

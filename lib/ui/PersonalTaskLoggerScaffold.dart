@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/service/BackupRestoreService.dart';
+import 'package:personaltasklogger/service/CsvService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
@@ -171,20 +172,56 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               ),
               Divider(),
               ListTile(
+                leading: const Icon(Icons.import_export),
+                title: Text(translate('navigation.menus.export_as_csv')),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  showConfirmationDialog(context,
+                      translate('navigation.menus.export_as_csv'),
+                      translate('pages.export.description'),
+                      cancelPressed: () => Navigator.pop(context),
+                      okPressed: () {
+                        Navigator.pop(context);
+                        CsvService().backup(context,
+                                (success, dstPath) {
+                              if (success) {
+                                toastInfo(context, translate('pages.export.export_created', args: {'dst_path' : dstPath }));
+                              }
+                              else {
+                                toastInfo(context, translate('pages.export.export_aborted'));
+                              }
+                            }, (errorMsg) => toastError(context, errorMsg));
+                      }
+                  );
+
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.save_alt_outlined),
                 title: Text(translate('navigation.menus.backup_as_file')),
                 onTap: () async {
                   Navigator.pop(context);
 
-                  await _backupRestoreService.backup(
-                          (success, dstPath) {
-                    if (success) {
-                      toastInfo(context, translate('pages.backup.backup_created', args: {'dst_path' : dstPath }));
-                    }
-                    else {
-                      toastInfo(context, translate('pages.backup.backup_aborted'));
-                    }
-                  }, (errorMsg) => toastError(context, errorMsg));
+                  showConfirmationDialog(context,
+                      translate('navigation.menus.backup_as_file'),
+                      translate('pages.backup.description'),
+                      cancelPressed: () => Navigator.pop(context),
+                      okPressed: () {
+                        Navigator.pop(context);
+
+                        _backupRestoreService.backup(
+                                (success, dstPath) {
+                              if (success) {
+                                toastInfo(context, translate('pages.backup.backup_created', args: {'dst_path' : dstPath }));
+                              }
+                              else {
+                                toastInfo(context, translate('pages.backup.backup_aborted'));
+                              }
+                            }, (errorMsg) => toastError(context, errorMsg));
+                      }
+                  );
+
                 },
               ),
               ListTile(

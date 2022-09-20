@@ -3,7 +3,8 @@
     "header_subtitle": "Track, log and schedule tasks",
     "menus": {
       "settings": "Settings",
-      "backup_as_file": "Backup as file",
+      "export_as_csv": "Export as CSV file",
+      "backup_as_file": "Create backup file",
       "restore_from_file": "Restore from file",
       "online_help": "Online help",
       "about_the_app": "About the app",
@@ -321,7 +322,13 @@
         }
       }
     },
+    "export": {
+      "description": "Here you can takeout all journal entries as CSV file. The export happens in the background and may take a while.",
+      "export_created" : "CSV file {dst_path} created",
+      "export_aborted" : "CSV export aborted!"
+    },
     "backup": {
+      "description": "Create a backup to be able to restore your data either on another device or after a fresh installation.",
       "backup_created" : "Backup file {dst_path} created",
       "backup_aborted" : "Backup aborted!"
     },
@@ -360,6 +367,8 @@
     "by_tasks": "Tasks"
   },
   "common" : {
+    "ok": "Ok",
+    "cancel": "Cancel",
     "search": "Search",
     "units": {
       "year": {
