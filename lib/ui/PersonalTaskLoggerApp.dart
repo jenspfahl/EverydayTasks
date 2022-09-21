@@ -27,6 +27,38 @@ class PersonalTaskLoggerApp extends StatelessWidget {
         ],
         supportedLocales: localizationDelegate.supportedLocales,
         locale: localizationDelegate.currentLocale,
+        darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            primaryColor: PRIMARY_COLOR,
+         //   primarySwatch: BUTTON_COLOR,
+            checkboxTheme: CheckboxThemeData(
+              fillColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? BUTTON_COLOR : Colors.grey),
+            ),
+            switchTheme: SwitchThemeData(
+              thumbColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? Colors.white : Colors.grey),
+              trackColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? BUTTON_COLOR : Colors.grey),
+            ),
+
+           // unselectedWidgetColor: BUTTON_COLOR,
+         /*   switchTheme: SwitchThemeData(
+              overlayColor: BUTTON_COLOR,
+            ),*/
+            buttonTheme: ButtonThemeData(
+              colorScheme: ColorScheme.dark(
+                background: BUTTON_COLOR,
+              )
+            ),
+            floatingActionButtonTheme: FloatingActionButtonThemeData(
+              foregroundColor: Colors.white,
+              backgroundColor: BUTTON_COLOR
+            ),
+            appBarTheme: AppBarTheme(
+                color: PRIMARY_COLOR,
+                foregroundColor: Colors.black
+            )
+          // accentColor: Colors.green,
+
+        ),
         theme: ThemeData(
           brightness: Brightness.light,
           primaryColor: PRIMARY_COLOR,

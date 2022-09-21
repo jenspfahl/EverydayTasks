@@ -421,8 +421,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
             ),
             subtitle: isExpanded ? _taskGroupPresentation(taskEvent) : _buildWhenText(taskEvent, small: true),
             children: expansionWidgets,
-            collapsedBackgroundColor: getTaskGroupColor(taskEvent.taskGroupId, true),
-            backgroundColor: getTaskGroupColor(taskEvent.taskGroupId, false),
+            collapsedBackgroundColor: taskGroup.backgroundColor,
+            backgroundColor: taskGroup.softColor,
             initiallyExpanded: isExpanded,
             onExpansionChanged: ((expanded) {
               setState(() {

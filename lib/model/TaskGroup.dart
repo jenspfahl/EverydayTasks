@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:personaltasklogger/ui/utils.dart';
 
 import '../util/i18n.dart';
 
@@ -38,11 +37,14 @@ class TaskGroup implements Comparable {
     }
   }
 
-  Color get backgroundColor => getShadedColor(colorRGB, true);
+  Color get backgroundColor => _getShadedColor(colorRGB, true);
+  Color get softColor => _getShadedColor(colorRGB, false);
+  Color get accentColor => _getSharpedColor(colorRGB, 1.2);
+  Color get foregroundColor => _getSharpedColor(colorRGB);
 
   Icon getIcon(bool useIconColor) {
     final icon = useIconColor
-      ? Icon(iconData, color: getSharpedColor(colorRGB))
+      ? Icon(iconData, color: _getSharpedColor(colorRGB))
       : Icon(iconData);
     return icon;
   }
@@ -80,6 +82,32 @@ List<TaskGroup> predefinedTaskGroups = [
 
 
 TaskGroup findPredefinedTaskGroupById(int id) => predefinedTaskGroups.firstWhere((element) => element.id == id);
+
+
+
+Color _getSharpedColor(Color? colorRGB, [double factor = 2.5]) {
+  var color = colorRGB ?? Colors.lime.shade100;
+  return _blend(color.withAlpha((color.alpha * factor).toInt()));
+}
+
+Color _getShadedColor(Color? colorRGB, bool lessShaded) {
+  var color = colorRGB ?? Colors.lime.shade100;
+  return _blend(_shadeColor(lessShaded, color));
+}
+
+Color _shadeColor(bool lessShaded, Color color) {
+  if (lessShaded) {
+    return color.withAlpha(color.alpha~/2.5);
+  }
+  else {
+    return color.withAlpha(color.alpha~/1.5);
+  }
+}
+
+Color _blend(Color color) {
+  return color.withAlpha((color.alpha * 1).toInt());
+  return Color.alphaBlend(color, Colors.grey);
+}
 
 
 

@@ -483,8 +483,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               ],
             ),
             children: expansionWidgets,
-            collapsedBackgroundColor: getTaskGroupColor(scheduledTask.taskGroupId, true),
-            backgroundColor: getTaskGroupColor(scheduledTask.taskGroupId, false),
+            collapsedBackgroundColor: taskGroup.backgroundColor,
+            backgroundColor: taskGroup.softColor,
             initiallyExpanded: isExpanded,
             onExpansionChanged: ((expanded) {
               setState(() {

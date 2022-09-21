@@ -198,8 +198,10 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       var percentValue = _valueToPercent(value, totalValue);
       return PieChartSectionData(
         color: data.templateId == null
-            ? getSharpedColor(getTaskGroupColor(taskGroupId, false), 2.2)
-            : getTaskGroupColor(taskGroupId, data.templateId!.isVariant),
+            ? taskGroup?.accentColor
+            : data.templateId!.isVariant
+              ? taskGroup?.backgroundColor
+              : taskGroup?.softColor,
         value: value,
         title: _valueToPercentString(percentValue, i),
         radius: radius,
@@ -326,14 +328,16 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       }
     
       var bgColor = data.templateId == null
-            ? getSharpedColor(getTaskGroupColor(taskGroupId, false), 1.9)
-            : getTaskGroupColor(taskGroupId, data.templateId!.isVariant);
+            ? taskGroup?.accentColor
+            : data.templateId!.isVariant
+              ? taskGroup?.backgroundColor
+              : taskGroup?.softColor;
       return Container(
         height: 35,
        /* color: data.templateId == null
             ? (taskGroup != null ? taskGroup.backgroundColor : null)
             : getTaskGroupColor(taskGroupId, !data.templateId!.isVariant),*/
-        color: bgColor.withAlpha((bgColor.alpha * 0.6).toInt()),
+        color: bgColor?.withAlpha((bgColor.alpha * 0.6).toInt()),
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTapDown: (details) {

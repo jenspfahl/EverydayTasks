@@ -264,7 +264,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
 
   Color _getColorFromScheduledTask(ScheduledTask scheduledTask) {
     final taskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
-    return getSharpedColor(taskGroup.colorRGB);
+    return taskGroup.foregroundColor;
   }
 
 }
