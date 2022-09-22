@@ -198,10 +198,10 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       var percentValue = _valueToPercent(value, totalValue);
       return PieChartSectionData(
         color: data.templateId == null
-            ? taskGroup?.accentColor
+            ? isDarkMode(context) ? taskGroup?.foregroundColor : taskGroup?.accentColor
             : data.templateId!.isVariant
-              ? taskGroup?.backgroundColor
-              : taskGroup?.softColor,
+              ? isDarkMode(context) ? taskGroup?.softColor : taskGroup?.backgroundColor
+              : isDarkMode(context) ? taskGroup?.accentColor : taskGroup?.softColor,
         value: value,
         title: _valueToPercentString(percentValue, i),
         radius: radius,
@@ -435,8 +435,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.timer_outlined),
-              Text(translate('stats.total_duration'), textAlign: TextAlign.center),
+              Icon(Icons.timer_outlined, color: isDarkMode(context) ? (_dataType == DataType.DURATION ? PRIMARY_COLOR : null) : null,),
+              Text(translate('stats.total_duration'), textAlign: TextAlign.center,
+                  style: TextStyle(color: isDarkMode(context) ? (_dataType == DataType.DURATION ? PRIMARY_COLOR : null) : null)),
             ],
           )
         ),
@@ -445,8 +446,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.numbers_outlined),
-              Text(translate('stats.total_count'), textAlign: TextAlign.center),
+              Icon(Icons.numbers_outlined, color: isDarkMode(context) ? (_dataType == DataType.COUNT ? PRIMARY_COLOR : null) : null),
+              Text(translate('stats.total_count'), textAlign: TextAlign.center,
+                  style: TextStyle(color: isDarkMode(context) ? (_dataType == DataType.COUNT ? PRIMARY_COLOR : null) : null)),
             ],
           )
         ),
@@ -477,8 +479,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.category_outlined,),
-                Text(translate('stats.by_categories'), textAlign: TextAlign.center),
+                Icon(Icons.category_outlined, color: isDarkMode(context) ? (_groupBy == GroupBy.TASK_GROUP ? PRIMARY_COLOR : null) : null),
+                Text(translate('stats.by_categories'), textAlign: TextAlign.center,
+                    style: TextStyle(color: isDarkMode(context) ? (_groupBy == GroupBy.TASK_GROUP ? PRIMARY_COLOR : null) : null)),
               ],
             )
         ),
@@ -487,8 +490,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.task_alt),
-                Text(translate('stats.by_tasks'), textAlign: TextAlign.center),
+                Icon(Icons.task_alt, color: isDarkMode(context) ? (_groupBy == GroupBy.TEMPLATE ? PRIMARY_COLOR : null) : null),
+                Text(translate('stats.by_tasks'), textAlign: TextAlign.center,
+                    style: TextStyle(color: isDarkMode(context) ? (_groupBy == GroupBy.TEMPLATE ? PRIMARY_COLOR : null) : null)),
               ],
             )
         ),

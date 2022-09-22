@@ -138,7 +138,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                               Text(APP_NAME,
                                 style: TextStyle(
                                   fontSize: 25,
-                                  fontWeight: FontWeight.bold
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black
                                 ),
                               ),
                               Icon(Icons.task_alt, color: ACCENT_COLOR),
@@ -386,8 +387,9 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       decoration: InputDecoration(
         hintText: "${translate('common.search')} ...",
         border: InputBorder.none,
+        hintStyle: TextStyle(fontSize: 16.0, color: Colors.black45),
       ),
-      style: TextStyle(fontSize: 16.0),
+      style: TextStyle(fontSize: 16.0, color: Colors.black),
       onChanged: (query) => updateSearchQuery(query),
     );
   }

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../ui/utils.dart';
 import '../util/i18n.dart';
 
 class TaskGroup implements Comparable {
@@ -62,7 +63,7 @@ List<TaskGroup> predefinedTaskGroups = [
   TaskGroup(id: -1, i18nName: 'cleaning_n_tidy_up', colorRGB: Color.fromARGB(100, 3, 138, 128), iconData: Icons.cleaning_services_outlined),
   TaskGroup(id: -2, i18nName: "laundry", colorRGB: Color.fromARGB(100, 223, 185, 0), iconData: Icons.local_laundry_service_outlined),
   TaskGroup(id: -3, i18nName: "cooking", colorRGB: Color.fromARGB(100, 222, 123, 8), iconData: Icons.lunch_dining_outlined),
-  TaskGroup(id: -4, i18nName: "dishes", colorRGB: Color.fromARGB(100, 2, 23, 228), iconData: Icons.local_cafe_outlined),
+  TaskGroup(id: -4, i18nName: "dishes", colorRGB: Color.fromARGB(100, 2, 123, 255), iconData: Icons.local_cafe_outlined),
   TaskGroup(id: -5, i18nName: "errands",colorRGB: Color.fromARGB(100, 183, 123, 8), iconData: Icons.shopping_basket_outlined),
   TaskGroup(id: -6, i18nName: "kids", colorRGB: Color.fromARGB(100, 223, 3, 128), iconData: Icons.child_friendly_outlined),
   TaskGroup(id: -7, i18nName: "indoor_plants", colorRGB: Color.fromARGB(100, 3, 208, 23), iconData: Icons.local_florist_outlined),
@@ -105,7 +106,7 @@ Color _shadeColor(bool lessShaded, Color color) {
 }
 
 Color _blend(Color color) {
-  return color.withAlpha((color.alpha * 1).toInt());
+  return color;//color.withAlpha((color.alpha * 1.2).toInt());
   return Color.alphaBlend(color, Colors.grey);
 }
 

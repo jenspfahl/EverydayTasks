@@ -89,7 +89,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       children: [
                         Icon(
                           taskFilterSettings.filterByDateRange != null ? Icons.calendar_today : Icons.calendar_today_outlined,
-                          color: taskFilterSettings.filterByDateRange != null ? BUTTON_COLOR : null,
+                          color: taskFilterSettings.filterByDateRange != null ? BUTTON_COLOR : getActionIconColor(context),
                         ),
                         const Spacer(),
                         Text(taskFilterSettings.filterByDateRange != null
@@ -103,7 +103,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       children: [
                         taskFilterSettings.filterBySeverity != null
                             ? severityToIcon(taskFilterSettings.filterBySeverity!, BUTTON_COLOR)
-                            : Icon(Icons.fitness_center_rounded),
+                            : Icon(Icons.fitness_center_rounded, color: getActionIconColor(context)),
                         const Spacer(),
                         Text(taskFilterSettings.filterBySeverity != null
                             ? severityToString(taskFilterSettings.filterBySeverity!)
@@ -116,7 +116,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       children: [
                         Icon(
                           taskFilterSettings.filterByFavorites ? Icons.favorite : Icons.favorite_border,
-                          color: taskFilterSettings.filterByFavorites ? BUTTON_COLOR : null,
+                          color: taskFilterSettings.filterByFavorites ? BUTTON_COLOR : getActionIconColor(context),
                         ),
                         const Spacer(),
                         Text(translate('filter.menu.by_favorites')),
@@ -133,7 +133,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                             : Icon(taskFilterSettings.filterByTaskEventIds != null ? Icons.checklist : Icons.task_alt,
                                 color: taskFilterSettings.filterByTaskEventIds != null
                                     ? _getColorFromScheduledTask(taskFilterSettings.filterByScheduledTask!)
-                                    : null),
+                                    : getActionIconColor(context)),
                         const Spacer(),
                         Text(taskFilterSettings.filterByTaskOrTemplate != null
                             ? taskFilterSettings.filterByTaskOrTemplate is TaskGroup
@@ -150,7 +150,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       children: [
                         Icon(
                           taskFilterSettings.isFilterActive() ? Icons.clear : Icons.clear_outlined,
-                          color: taskFilterSettings.isFilterActive() ? BUTTON_COLOR : null,
+                          color: taskFilterSettings.isFilterActive() ? BUTTON_COLOR : getActionIconColor(context),
                         ),
                         const Spacer(),
                         Text(translate('filter.menu.clear_all')),

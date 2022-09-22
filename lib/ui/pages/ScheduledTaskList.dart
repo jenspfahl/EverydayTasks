@@ -355,8 +355,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 _createStatusRow(Icons.warning_amber_outlined, Colors.red, translate('pages.schedules.overview.due_today'), _dueTodaySchedules),
                 _createStatusRow(Icons.schedule, Colors.blue, translate('pages.schedules.overview.due_tomorrow'), _dueTomorrowSchedules),
                 _createStatusRow(Icons.schedule, Colors.blue, translate('pages.schedules.overview.due_after_tomorrow'), _dueAfterTomorrowSchedules),
-                _createStatusRow(Icons.pause, Colors.black87, translate('pages.schedules.overview.paused_schedules'), _pausedSchedules),
-                _createStatusRow(Icons.check_box_outline_blank, Colors.black87, translate('pages.schedules.overview.inactive_schedules'), _inactiveSchedules),
+                _createStatusRow(Icons.pause, getActionIconColor(context), translate('pages.schedules.overview.paused_schedules'), _pausedSchedules),
+                _createStatusRow(Icons.check_box_outline_blank, getActionIconColor(context), translate('pages.schedules.overview.inactive_schedules'), _inactiveSchedules),
                 Divider(),
               ],
             ),
@@ -474,8 +474,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                             : null),
                       backgroundColor: scheduledTask.isNextScheduleOverdue(true)
                           ? ((scheduledTask.getNextRepetitionIndicatorValue()??0.0) > 1.3333
-                            ? Colors.red[200]
-                            : Colors.red[300])
+                            ? isDarkMode(context) ? Colors.red[900] : Colors.red[200]
+                            : isDarkMode(context) ? Colors.red[800] : Colors.red[300])
                           : null,
                     ),
                   ),

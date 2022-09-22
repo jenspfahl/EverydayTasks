@@ -96,7 +96,9 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
 
   @override
   Widget build(BuildContext context) {
-    final color = _groupedByTaskGroup?.backgroundColor;
+    final color = isDarkMode(context)
+        ? _groupedByTaskGroup?.softColor
+        : _groupedByTaskGroup?.backgroundColor;
     var goUp = OutlinedButton(
       child: Icon(Icons.arrow_back),
       style: OutlinedButton.styleFrom(
@@ -378,7 +380,9 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
             child: Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                  color: taskGroup.backgroundColor,
+                  color: isDarkMode(context)
+                      ? taskGroup.softColor
+                      : taskGroup.backgroundColor,
                   borderRadius: BorderRadius.circular(15)),
               child: Padding(
                 padding: EdgeInsets.all(8.0),
@@ -435,7 +439,9 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
             child: Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                  color: taskGroup.backgroundColor,
+                  color: isDarkMode(context)
+                      ? taskGroup.softColor
+                      : taskGroup.backgroundColor,
                   borderRadius: BorderRadius.circular(15)),
               child: Padding(
                 padding: EdgeInsets.all(8.0),

@@ -6,6 +6,15 @@ import 'PersonalTaskLoggerApp.dart';
 
 bool isDarkMode(BuildContext context) => Theme.of(context).brightness == Brightness.dark;
 
+Color getActionIconColor(BuildContext context) {
+  if (isDarkMode(context)) {
+    return Colors.white70;
+  }
+  else {
+    return Colors.black87;
+  }
+}
+
 String truncate(String text, { required int length, omission: '...' }) {
   if (length >= text.length) {
     return text;

@@ -71,7 +71,7 @@ class PersonalTaskLoggerApp extends StatelessWidget {
          // accentColor: Colors.green,
 
         ),
-        themeMode: ThemeMode.light,
+        themeMode: ThemeMode.dark,
         home: PersonalTaskLoggerScaffold(),
       ),
     );
