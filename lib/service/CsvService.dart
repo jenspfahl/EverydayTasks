@@ -115,7 +115,7 @@ class CsvService {
       final csv = [
         taskEvent.id?.toString()??"",
         taskEvent.translatedTitle,
-        taskEvent.description??"",
+        taskEvent.translatedDescription??"",
         taskGroupId != null ? findPredefinedTaskGroupById(taskGroupId).translatedName : "",
         formatToDateTime(taskEvent.createdAt, context),
         formatToDateTime(taskEvent.startedAt, context),
