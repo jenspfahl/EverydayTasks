@@ -200,8 +200,8 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         color: data.templateId == null
             ? isDarkMode(context) ? taskGroup?.foregroundColor : taskGroup?.accentColor
             : data.templateId!.isVariant
-              ? isDarkMode(context) ? taskGroup?.softColor : taskGroup?.backgroundColor
-              : isDarkMode(context) ? taskGroup?.accentColor : taskGroup?.softColor,
+              ? isDarkMode(context) ? tweakAlpha(taskGroup?.softColor, 1.3) : taskGroup?.backgroundColor
+              : isDarkMode(context) ? tweakAlpha(taskGroup?.accentColor, 1.3) : taskGroup?.softColor,
         value: value,
         title: _valueToPercentString(percentValue, i),
         radius: radius,
@@ -334,10 +334,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
               : taskGroup?.softColor;
       return Container(
         height: 35,
-       /* color: data.templateId == null
-            ? (taskGroup != null ? taskGroup.backgroundColor : null)
-            : getTaskGroupColor(taskGroupId, !data.templateId!.isVariant),*/
-        color: bgColor?.withAlpha((bgColor.alpha * 0.6).toInt()),
+        color: tweakAlpha(bgColor, 0.6),
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTapDown: (details) {

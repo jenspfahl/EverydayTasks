@@ -23,6 +23,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _dateFormatSelection = 1;
   int _languageSelection = 0;
   bool _showTimeOfDayAsText = false;
+  bool _darkTheme = false;
   bool _showWeekdays = false;
   bool _showActionNotifications = false;
   int _showActionNotificationDurationSelection = 1;
@@ -91,6 +92,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _languageSelection = selection;
                     }
                 );
+              },
+            ),
+            SettingsTile.switchTile(
+              title: Text(translate('pages.settings.common.theme.title')),
+              initialValue: _darkTheme,
+              onToggle: (bool value) {
+                _preferenceService.darkTheme = value;
+                _preferenceService.setBool(PreferenceService.PREF_DARK_THEME, value);
+                setState(() {
+                  _darkTheme = value;
+                  AppBuilder.of(context)?.rebuild();
+                });
               },
             ),
           ],
@@ -243,6 +256,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     else {
       _showWeekdays = true; // default
+    }
+
+    final darkTheme = await _preferenceService.getBool(PreferenceService.PREF_DARK_THEME);
+    if (darkTheme != null) {
+      _darkTheme = darkTheme;
+      _preferenceService.darkTheme = darkTheme;
+    }
+    else {
+      _darkTheme = false; // default
     }
 
     final dateFormatSelection = await _preferenceService.getInt(PreferenceService.PREF_DATE_FORMAT_SELECTION);

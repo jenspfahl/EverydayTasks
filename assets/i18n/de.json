@@ -280,6 +280,9 @@
               "german": "Deutsch"
             }
           }
+        },
+        "theme": {
+          "title": "Activiere Dunkles Design"
         }
       },
       "date_n_time": {

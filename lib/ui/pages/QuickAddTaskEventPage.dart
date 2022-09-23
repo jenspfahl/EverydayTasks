@@ -380,6 +380,9 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
             child: Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
+                  backgroundBlendMode: isDarkMode(context)
+                      ? BlendMode.lighten
+                      : null,
                   color: isDarkMode(context)
                       ? taskGroup.softColor
                       : taskGroup.backgroundColor,

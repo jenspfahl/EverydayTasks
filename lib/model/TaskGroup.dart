@@ -88,12 +88,12 @@ TaskGroup findPredefinedTaskGroupById(int id) => predefinedTaskGroups.firstWhere
 
 Color _getSharpedColor(Color? colorRGB, [double factor = 2.5]) {
   var color = colorRGB ?? Colors.lime.shade100;
-  return _blend(color.withAlpha((color.alpha * factor).toInt()));
+  return tweakAlpha(color, factor)!;
 }
 
 Color _getShadedColor(Color? colorRGB, bool lessShaded) {
   var color = colorRGB ?? Colors.lime.shade100;
-  return _blend(_shadeColor(lessShaded, color));
+  return _shadeColor(lessShaded, color);
 }
 
 Color _shadeColor(bool lessShaded, Color color) {
@@ -105,10 +105,6 @@ Color _shadeColor(bool lessShaded, Color color) {
   }
 }
 
-Color _blend(Color color) {
-  return color;//color.withAlpha((color.alpha * 1.2).toInt());
-  return Color.alphaBlend(color, Colors.grey);
-}
 
 
 

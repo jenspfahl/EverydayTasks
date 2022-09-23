@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:personaltasklogger/ui/utils.dart';
+
+import 'PersonalTaskLoggerApp.dart';
 
 class DurationPicker extends StatefulWidget {
   late final int _initialHours;
@@ -39,6 +42,12 @@ class _DurationPickerState extends State<DurationPicker> {
       value: _hours,
       minValue: 0,
       maxValue: 10, //TODO control this from outside
+      textStyle: isDarkMode(context)
+          ? TextStyle(color: Colors.grey, fontSize: 14)
+          : null,
+      selectedTextStyle: isDarkMode(context)
+          ? TextStyle(color: PRIMARY_COLOR, fontSize: 24)
+          : null,
       onChanged: (value) => setState(() { 
         _hours = value;
         widget.onChanged(_getSelectedDuration());
@@ -48,6 +57,12 @@ class _DurationPickerState extends State<DurationPicker> {
       value: _minutes,
       minValue: 0,
       maxValue: 59,
+      textStyle: isDarkMode(context)
+          ? TextStyle(color: Colors.grey, fontSize: 14)
+          : null,
+      selectedTextStyle: isDarkMode(context)
+          ? TextStyle(color: PRIMARY_COLOR, fontSize: 24)
+          : null,
       onChanged: (value) => setState(() { 
         _minutes = value;
         widget.onChanged(_getSelectedDuration());

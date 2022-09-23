@@ -281,6 +281,9 @@
               "german": "German (Deutsch)"
             }
           }
+        },
+        "theme": {
+          "title": "Enable dark theme"
         }
       },
       "date_n_time": {
