@@ -16,6 +16,7 @@ import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
 import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
@@ -423,6 +424,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
             children: expansionWidgets,
             collapsedBackgroundColor: taskGroup.backgroundColor,
             backgroundColor: taskGroup.softColor,
+            textColor: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR,
             initiallyExpanded: isExpanded,
             onExpansionChanged: ((expanded) {
               setState(() {
@@ -505,7 +507,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                   TaskEventRepository.update(taskEvent);
                   _updateTaskEvent(taskEvent, taskEvent);
                 },
-                child: Icon(taskEvent.favorite ? Icons.favorite : Icons.favorite_border),
+                child: Icon(taskEvent.favorite ? Icons.favorite : Icons.favorite_border,
+                  color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
               ),
             ],
           ),
@@ -528,7 +531,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                     _showInfoDialog(taskEvent, null, scheduledTask);
                   }
                 },
-                child: const Icon(Icons.info_outline),
+                child: Icon(Icons.info_outline,
+                  color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
               ),
             ]),
           ButtonBar(
@@ -553,7 +557,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                     });
                   }
                 },
-                child: const Icon(Icons.edit),
+                child: Icon(Icons.edit,
+                  color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
               ),
               TextButton(
                 onPressed: () {
@@ -585,7 +590,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                         Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
                   );
                 },
-                child: const Icon(Icons.delete),
+                child: Icon(Icons.delete,
+                    color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
               ),
             ],
           ),
