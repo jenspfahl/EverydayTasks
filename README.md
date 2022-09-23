@@ -25,3 +25,6 @@ Otherwise, you can download the latest release version [here](https://everydayta
 To re-generate floor files execute:
 
 	flutter packages pub run build_runner build
+
+## Contribute
+You are welcome to translate the app. See [TRANSLATE.md](TRANSLATE.md).

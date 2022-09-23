@@ -3,6 +3,8 @@ import 'package:flutter_translate/flutter_translate.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 import 'package:personaltasklogger/model/Schedule.dart';
+import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
+import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
 class RepetitionPicker extends StatefulWidget {
@@ -38,10 +40,16 @@ class _RepetitionPickerState extends State<RepetitionPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final valuePicker = new NumberPicker(
+    final valuePicker = NumberPicker(
       value: _customRepetition.repetitionValue,
       minValue: 1, //TODO control from outside
       maxValue: 10000, //TODO control this from outside
+      textStyle: isDarkMode(context)
+        ? TextStyle(color: Colors.grey, fontSize: 14)
+        : null,
+      selectedTextStyle: isDarkMode(context)
+        ? TextStyle(color: PRIMARY_COLOR, fontSize: 24)
+        : null,
       onChanged: (value) => setState(() { 
         _customRepetition.repetitionValue = value;
         widget.onChanged(_customRepetition);

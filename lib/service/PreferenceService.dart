@@ -10,6 +10,7 @@ class PreferenceService implements ITranslatePreferences {
 
   static final PREF_SHOW_TIME_OF_DAY_AS_TEXT = "common/showTimeOfDayAsText";
   
+  static final PREF_DARK_THEME = "common/darkTheme";
   static final PREF_SHOW_WEEKDAYS = "common/showWeekdays";
   static final PREF_DATE_FORMAT_SELECTION = "common/dateFormatSelection";
   
@@ -35,6 +36,12 @@ class PreferenceService implements ITranslatePreferences {
             showWeekdays = value;
           }
     });
+    getBool(PreferenceService.PREF_DARK_THEME)
+        .then((value) {
+          if (value != null) {
+            darkTheme = value;
+          }
+    });
     getInt(PreferenceService.PREF_DATE_FORMAT_SELECTION)
         .then((value) {
       if (value != null) {
@@ -45,6 +52,7 @@ class PreferenceService implements ITranslatePreferences {
 
   bool showTimeOfDayAsText = true;
   bool showWeekdays = true;
+  bool darkTheme = false;
   int dateFormatSelection = 1;
   int languageSelection = 0;
 

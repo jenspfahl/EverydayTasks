@@ -27,15 +27,19 @@ import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
 import '../../util/units.dart';
+import '../PersonalTaskLoggerApp.dart';
 import '../ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
+import 'QuickAddTaskEventPage.dart';
 import 'TaskEventList.dart';
 
 
 final String PREF_DISABLE_NOTIFICATIONS = "scheduledTasks/disableNotifications";
 final String PREF_SORT_BY = "scheduledTasks/sortedBy";
+final String PREF_PIN_SCHEDULES = "scheduledTasks/pinPage";
 
+final pinSchedulesPageIconKey = new GlobalKey<ToggleActionIconState>();
 final disableNotificationIconKey = new GlobalKey<ToggleActionIconState>();
 
 @immutable
@@ -78,6 +82,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   bool _disableNotification = false;
   SortBy _sortBy = SortBy.PROGRESS;
   bool _statusTileHidden = true;
+  bool _pinSchedulesPage = false;
 
   int _totalRunningSchedules = 0;
   int _totalDueSchedules = 0;
@@ -142,7 +147,17 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   @override
   List<Widget>? getActions(BuildContext context) {
+    final pinSchedulesPage = ToggleActionIcon(Icons.push_pin, Icons.push_pin_outlined, _pinSchedulesPage, pinSchedulesPageIconKey);
     final disableNotificationIcon = ToggleActionIcon(Icons.notifications_on_outlined, Icons.notifications_off_outlined, !_disableNotification, disableNotificationIconKey);
+
+    _preferenceService.getBool(PREF_PIN_SCHEDULES).then((value) {
+      if (value != null) {
+        _updatePinSchedulesPage(value, withSnackMsg: false);
+      }
+      else {
+        pinSchedulesPageIconKey.currentState?.refresh(_pinSchedulesPage);
+      }
+    });
     _preferenceService.getBool(PREF_DISABLE_NOTIFICATIONS).then((value) {
       if (value != null) {
         _updateDisableNotifications(value, withSnackMsg: false);
@@ -153,6 +168,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     });
     
     return [
+      IconButton(
+          icon: pinSchedulesPage,
+          onPressed: () {
+            _pinSchedulesPage = !_pinSchedulesPage;
+            _updatePinSchedulesPage(_pinSchedulesPage, withSnackMsg: true);
+          }),
       IconButton(
           icon: disableNotificationIcon,
           onPressed: () {
@@ -335,8 +356,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 _createStatusRow(Icons.warning_amber_outlined, Colors.red, translate('pages.schedules.overview.due_today'), _dueTodaySchedules),
                 _createStatusRow(Icons.schedule, Colors.blue, translate('pages.schedules.overview.due_tomorrow'), _dueTomorrowSchedules),
                 _createStatusRow(Icons.schedule, Colors.blue, translate('pages.schedules.overview.due_after_tomorrow'), _dueAfterTomorrowSchedules),
-                _createStatusRow(Icons.pause, Colors.black87, translate('pages.schedules.overview.paused_schedules'), _pausedSchedules),
-                _createStatusRow(Icons.check_box_outline_blank, Colors.black87, translate('pages.schedules.overview.inactive_schedules'), _inactiveSchedules),
+                _createStatusRow(Icons.pause, getActionIconColor(context), translate('pages.schedules.overview.paused_schedules'), _pausedSchedules),
+                _createStatusRow(Icons.check_box_outline_blank, getActionIconColor(context), translate('pages.schedules.overview.inactive_schedules'), _inactiveSchedules),
                 Divider(),
               ],
             ),
@@ -450,12 +471,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       color: scheduledTask.isNextScheduleOverdue(false)
                           ? Colors.red[500]
                           : (scheduledTask.isNextScheduleReached()
-                            ? Color(0xFF770C0C)
+                            ? (isDarkMode(context) ? Color(0xFF972C0C) : Color(0xFF770C0C))
                             : null),
                       backgroundColor: scheduledTask.isNextScheduleOverdue(true)
                           ? ((scheduledTask.getNextRepetitionIndicatorValue()??0.0) > 1.3333
-                            ? Colors.red[200]
-                            : Colors.red[300])
+                            ? isDarkMode(context) ? Colors.red[900] : Colors.red[200]
+                            : isDarkMode(context) ? Colors.red[800] : Colors.red[300])
                           : null,
                     ),
                   ),
@@ -463,8 +484,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               ],
             ),
             children: expansionWidgets,
-            collapsedBackgroundColor: getTaskGroupColor(scheduledTask.taskGroupId, true),
-            backgroundColor: getTaskGroupColor(scheduledTask.taskGroupId, false),
+            collapsedBackgroundColor: taskGroup.backgroundColor,
+            backgroundColor: taskGroup.softColor,
+            textColor: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR,
             initiallyExpanded: isExpanded,
             onExpansionChanged: ((expanded) {
               setState(() {
@@ -501,8 +523,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: scheduledTask.isNextScheduleOverdue(false) || scheduledTask.isDueNow()
-                    ? Icon(Icons.warning_amber_outlined, color: scheduledTask.isDueNow() ? Color(0xFF770C0C) : Colors.red)
-                    : const Icon(Icons.watch_later_outlined, color: Colors.black45), // in TaskEventList, the icons are not black without setting the color, donät know why ...
+                    ? Icon(Icons.warning_amber_outlined, color: scheduledTask.isDueNow()
+                      ? (isDarkMode(context) ? Color(0xFFC74C0C) : Color(0xFF770C0C))
+                      : Colors.red)
+                    : Icon(Icons.watch_later_outlined,
+                    color: isDarkMode(context) ? Colors.white : Colors.black45), // in TaskEventList, the icons are not black without setting the color, donät know why ...
               ),
               Text(_getDueMessage(scheduledTask), softWrap: true),
             ]
@@ -515,7 +540,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: const Icon(MdiIcons.arrowExpandRight, color: Colors.black45),
+                child: Icon(MdiIcons.arrowExpandRight,
+                    color: isDarkMode(context) ? Colors.white : Colors.black45),
               ),
               Text(_getScheduledMessage(scheduledTask)),
             ]
@@ -528,7 +554,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: const Icon(Icons.next_plan_outlined, color: Colors.black45),
+                child: Icon(Icons.next_plan_outlined,
+                    color: isDarkMode(context) ? Colors.white : Colors.black45),
               ),
               Text(scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
                   ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
@@ -559,7 +586,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 SizedBox(
                   width: 50,
                   child: TextButton(
-                    child: Icon(Icons.check),
+                    child: Icon(Icons.check,
+                        color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
                     onPressed: () async {
                       if (scheduledTask.isPaused) {
                         toastError(context, translate('pages.schedules.errors.cannot_resume'));
@@ -623,7 +651,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 SizedBox(
                   width: 50,
                   child: TextButton(
-                    child: const Icon(Icons.replay),
+                    child: Icon(Icons.replay,
+                        color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
                     onPressed: () {
                       if (scheduledTask.isPaused) {
                         toastError(context, translate('pages.schedules.errors.cannot_reset'));
@@ -679,7 +708,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 child: SizedBox(
                   width: 50,
                   child: TextButton(
-                      child: Icon(scheduledTask.isPaused ? Icons.play_arrow : Icons.pause),
+                      child: Icon(scheduledTask.isPaused ? Icons.play_arrow : Icons.pause,
+                          color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
                       onPressed: () {
                         if (scheduledTask.isPaused) {
                           scheduledTask.resume();
@@ -705,7 +735,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               SizedBox(
                 width: 50,
                 child: TextButton(
-                  child: const Icon(Icons.checklist),
+                  child: Icon(Icons.checklist,
+                      color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
                   onPressed: () {
                     ScheduledTaskEventRepository
                         .getByScheduledTaskIdPaged(scheduledTask.id, ChronologicalPaging.start(10000))
@@ -763,7 +794,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       });
                     }
                   },
-                  child: const Icon(Icons.edit),
+                  child: Icon(Icons.edit,
+                      color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
                 ),
               ),
               SizedBox(
@@ -798,7 +830,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                           Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
                     );
                   },
-                  child: const Icon(Icons.delete),
+                  child: Icon(Icons.delete,
+                      color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
                 ),
               ),
             ],
@@ -1181,6 +1214,31 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       child: Text(text, style: TextStyle(fontSize: 10)),
     );
   }
+
+
+  void _updatePinSchedulesPage(bool value, {required bool withSnackMsg}) {
+    setState(() {
+      _pinSchedulesPage = value;
+      pinSchedulesPageIconKey.currentState?.refresh(_pinSchedulesPage);
+      if (_pinSchedulesPage) {
+        if (withSnackMsg) {
+          toastInfo(context, translate('pages.schedules.menu.pinning.pinned'));
+        }
+
+      }
+      else {
+        if (withSnackMsg) {
+          toastInfo(context, translate('pages.schedules.menu.pinning.unpinned'));
+        }
+      }
+      _preferenceService.setBool(PREF_PIN_SCHEDULES, _pinSchedulesPage);
+      if (_pinSchedulesPage) {
+        _preferenceService.setBool(PREF_PIN_QUICK_ADD, false);
+        pinQuickAddPageIconKey.currentState?.refresh(false);
+      }
+    });
+  }
+  
 }
 
 

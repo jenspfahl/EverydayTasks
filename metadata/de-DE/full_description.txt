@@ -11,7 +11,9 @@ Wenn dem so ist, dann erfasse oder tracke einfach deine Tätigkeiten mit Everyda
 - betrachte Statistiken deiner erledigten Aufgaben, z.B. um zu sehen, wieviel Zeit du für bestimmte Aufgaben aufgewendet hast
 - lege Zeitpläne für wiederkehrende Aufgaben mit spezifischen Intervallen an und lasse dich benachrichtigen, wenn die Aufgaben fällig sind 
 - verwende dutzende von vorgefertigten Aufgaben und Varianten für deine eigenen Tätigkeiten oder lege eigene an
+- helles order dunkles Design
 
 Für mehr Informationen siehe <a href="https://everydaytasks.jepfa.de">everydaytasks.jepfa.de</a>
 
-Wenn du die App magst, gib ihr einen Stern auf <a href="https://github.com/jenspfahl/EverydayTasks">Github</a>!
+Wenn du die App magst, gib ihr einen Stern auf <a href="https://github.com/jenspfahl/EverydayTasks">Github</a>
+

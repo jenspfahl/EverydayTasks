@@ -63,14 +63,14 @@ void showConfirmationDialog(BuildContext context, String title, String message,
   List<Widget> actions = [];
   if (cancelPressed != null) {
     Widget cancelButton = TextButton(
-      child: Text("Cancel"),
+      child: Text(translate("common.cancel")),
       onPressed:  cancelPressed,
     );
     actions.add(cancelButton);
   }
   if (okPressed != null) {
     Widget okButton = TextButton(
-      child: Text("Ok"),
+      child: Text(translate("common.ok")),
       onPressed:  okPressed,
     );
     actions.add(okButton);
@@ -122,11 +122,11 @@ Future<bool?> showDurationPickerDialog({
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
             TextButton(
-              child: Text("Cancel"),
+              child: Text(translate("common.cancel")),
               onPressed:  () => Navigator.of(context).pop(false),
             ),
             TextButton(
-              child: Text("Ok"),
+              child: Text(translate("common.ok")),
               onPressed:  () => Navigator.of(context).pop(true),
             )
             ],)
@@ -169,11 +169,11 @@ Future<bool?> showRepetitionPickerDialog({
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
             TextButton(
-              child: Text("Cancel"),
+              child: Text(translate("common.cancel")),
               onPressed:  () => Navigator.of(context).pop(false),
             ),
             TextButton(
-              child: Text("Ok"),
+              child: Text(translate("common.ok")),
               onPressed:  () => Navigator.of(context).pop(true),
             )
             ],)
@@ -201,11 +201,11 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
       String? initialSelectedKey,
     }) {
   Widget cancelButton = TextButton(
-    child: Text("Cancel"),
+    child: Text(translate("common.cancel")),
     onPressed:  cancelPressed,
   );
   Widget okButton = TextButton(
-    child: Text("Ok"),
+    child: Text(translate("common.ok")),
     onPressed:  okPressed,
   );
 
@@ -284,11 +284,11 @@ Future<void> showChoiceDialog(BuildContext context, String title, List<String> c
   required ValueChanged<int> selectionChanged
 }) {
   Widget cancelButton = TextButton(
-    child: Text("Cancel"),
+    child: Text(translate("common.cancel")),
     onPressed:  cancelPressed,
   );
   Widget okButton = TextButton(
-    child: Text("Ok"),
+    child: Text(translate("common.ok")),
     onPressed:  okPressed,
   );
 

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/service/BackupRestoreService.dart';
+import 'package:personaltasklogger/service/CsvService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
@@ -85,7 +86,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     _notificationService.addActiveNotificationHandler(sendEventFromActiveNotification);
     _notificationService.handleAppLaunchNotification();
 
-    //this is a hack since this is QuickAdd related code here
+    //this is a hack since this is QuickAdd/ScheduledTask related code here
     _preferenceService.getBool(PREF_PIN_QUICK_ADD).then((pinQuickAddPage) {
       if (pinQuickAddPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schdeule Page
         setState(() {
@@ -93,9 +94,16 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
           _pageController.jumpToPage(_selectedNavigationIndex);
         });
       }
+      else _preferenceService.getBool(PREF_PIN_SCHEDULES).then((pinSchedulesPage) {
+        if (pinSchedulesPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schdeule Page
+          setState(() {
+            _selectedNavigationIndex = NAVIGATION_IDX_TASK_SCHEDULES;
+            _pageController.jumpToPage(_selectedNavigationIndex);
+          });
+        }
+      });
     });
   }
-
 
 
   PageScaffold getSelectedPage() {
@@ -130,7 +138,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                               Text(APP_NAME,
                                 style: TextStyle(
                                   fontSize: 25,
-                                  fontWeight: FontWeight.bold
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black
                                 ),
                               ),
                               Icon(Icons.task_alt, color: ACCENT_COLOR),
@@ -164,20 +173,56 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               ),
               Divider(),
               ListTile(
+                leading: const Icon(Icons.import_export),
+                title: Text(translate('navigation.menus.export_as_csv')),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  showConfirmationDialog(context,
+                      translate('navigation.menus.export_as_csv'),
+                      translate('pages.export.description'),
+                      cancelPressed: () => Navigator.pop(context),
+                      okPressed: () {
+                        Navigator.pop(context);
+                        CsvService().backup(context,
+                                (success, dstPath) {
+                              if (success) {
+                                toastInfo(context, translate('pages.export.export_created', args: {'dst_path' : dstPath }));
+                              }
+                              else {
+                                toastInfo(context, translate('pages.export.export_aborted'));
+                              }
+                            }, (errorMsg) => toastError(context, errorMsg));
+                      }
+                  );
+
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.save_alt_outlined),
                 title: Text(translate('navigation.menus.backup_as_file')),
                 onTap: () async {
                   Navigator.pop(context);
 
-                  await _backupRestoreService.backup(
-                          (success, dstPath) {
-                    if (success) {
-                      toastInfo(context, translate('pages.backup.backup_created', args: {'dst_path' : dstPath }));
-                    }
-                    else {
-                      toastInfo(context, translate('pages.backup.backup_aborted'));
-                    }
-                  }, (errorMsg) => toastError(context, errorMsg));
+                  showConfirmationDialog(context,
+                      translate('navigation.menus.backup_as_file'),
+                      translate('pages.backup.description'),
+                      cancelPressed: () => Navigator.pop(context),
+                      okPressed: () {
+                        Navigator.pop(context);
+
+                        _backupRestoreService.backup(
+                                (success, dstPath) {
+                              if (success) {
+                                toastInfo(context, translate('pages.backup.backup_created', args: {'dst_path' : dstPath }));
+                              }
+                              else {
+                                toastInfo(context, translate('pages.backup.backup_aborted'));
+                              }
+                            }, (errorMsg) => toastError(context, errorMsg));
+                      }
+                  );
+
                 },
               ),
               ListTile(
@@ -223,18 +268,42 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                   final packageInfo = await PackageInfo.fromPlatform();
                   final version = packageInfo.version;
 
-                  showConfirmationDialog(
-                      context,
-                      translate('pages.about.title'),
-                      translate('pages.about.message') +
-                          "\n\n© Jens Pfahl 2022"
-                          "\n\nVersion $version",
-                      icon: Icon(Icons.task_alt, color: ACCENT_COLOR),
-                      okPressed: () =>  Navigator.pop(context),
+                  showAboutDialog(
+                      context: context,
+                      applicationVersion: version,
+                      applicationName: APP_NAME,
+                      children: [
+                        Text(translate('pages.about.message')),
+                        Text(''),
+                        InkWell(
+                            child: Text.rich(
+                              TextSpan(
+                                text: translate('pages.about.star_it', args: {"link": ""}),
+                                children: <TextSpan>[
+                                  TextSpan(text: "github.com/jenspfahl/everydaytasks", style: TextStyle(decoration: TextDecoration.underline)),
+                                ],
+                              ),
+                            ),
+                            onTap: () {
+                              launchUrl("https://github.com/jenspfahl/everydaytasks");
+                            }),
+                        Divider(),
+                        Text('© Jens Pfahl 2022', style: TextStyle(fontSize: 12)),
+                      ],
+                      applicationIcon: Icon(Icons.task_alt, color: ACCENT_COLOR),
                   );
+
                 },
               ),
               Divider(),
+              ListTile(
+                leading: const Icon(Icons.translate),
+                title: Text(translate('navigation.menus.help_translate')),
+                onTap: () async {
+                  Navigator.pop(context);
+                  launchUrl("https://github.com/jenspfahl/EverydayTasks/blob/master/TRANSLATE.md");
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.bug_report_outlined),
                 title: Text(translate('navigation.menus.report_a_bug')),
@@ -318,8 +387,9 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       decoration: InputDecoration(
         hintText: "${translate('common.search')} ...",
         border: InputBorder.none,
+        hintStyle: TextStyle(fontSize: 16.0, color: Colors.black45),
       ),
-      style: TextStyle(fontSize: 16.0),
+      style: TextStyle(fontSize: 16.0, color: Colors.black),
       onChanged: (query) => updateSearchQuery(query),
     );
   }

@@ -3,10 +3,12 @@
     "header_subtitle": "Track, log and schedule tasks",
     "menus": {
       "settings": "Settings",
-      "backup_as_file": "Backup as file",
+      "export_as_csv": "Export as CSV file",
+      "backup_as_file": "Create backup file",
       "restore_from_file": "Restore from file",
       "online_help": "Online help",
       "about_the_app": "About the app",
+      "help_translate": "Help to translate",
       "report_a_bug": "Report a bug"
     }
   },
@@ -82,8 +84,8 @@
       "title": "QuickAdd",
       "menu": {
         "pinning": {
-          "pinned": "QuickAdd page pinned",
-          "unpinned": "QuickAdd page pinned"
+          "pinned": "QuickAdd pinned as start page",
+          "unpinned": "Unpinned as start page"
         },
         "grouping": {
           "by_categories": "Group by categories",
@@ -148,6 +150,10 @@
     "schedules": {
       "title": "Schedules",
       "menu": {
+        "pinning": {
+          "pinned": "Schedules pinned as start page",
+          "unpinned": "Unpinned as start page"
+        },
         "sorting": {
           "by_progress": "Sort by progress",
           "by_remaining_time": "Sort by remaining time",
@@ -275,6 +281,9 @@
               "german": "German (Deutsch)"
             }
           }
+        },
+        "theme": {
+          "title": "Enable dark theme"
         }
       },
       "date_n_time": {
@@ -316,7 +325,13 @@
         }
       }
     },
+    "export": {
+      "description": "Here you can takeout all journal entries as CSV file. The export happens in the background and may take a while.",
+      "export_created" : "CSV file {dst_path} created",
+      "export_aborted" : "CSV export aborted!"
+    },
     "backup": {
+      "description": "Create a backup to be able to restore your data either on another device or after a fresh installation.",
       "backup_created" : "Backup file {dst_path} created",
       "backup_aborted" : "Backup aborted!"
     },
@@ -330,7 +345,8 @@
     },
     "about" : {
       "title": "About Everyday Tasks",
-      "message": "Everyday Tasks is an easy and quickly to use app to log, track and schedule daily tasks"
+      "message": "Everyday Tasks is an easy and quickly to use app to log, track and schedule daily tasks",
+      "star_it": "If you like the app, give a star on {link}"
     }
   },
   "filter": {
@@ -354,6 +370,8 @@
     "by_tasks": "Tasks"
   },
   "common" : {
+    "ok": "Ok",
+    "cancel": "Cancel",
     "search": "Search",
     "units": {
       "year": {

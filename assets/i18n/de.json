@@ -3,10 +3,12 @@
     "header_subtitle": "Track, log and schedule tasks",
     "menus": {
       "settings": "Einstellungen",
-      "backup_as_file": "Backup",
+      "export_as_csv": "Export als CSV-Datei",
+      "backup_as_file": "Erstelle Backup",
       "restore_from_file": "Wiederherstellen",
       "online_help": "Online Hilfe",
       "about_the_app": "Über die App",
+      "help_translate": "App übersetzen",
       "report_a_bug": "Fehler melden"
     }
   },
@@ -147,6 +149,10 @@
     "schedules": {
       "title": "Zeitpläne",
       "menu": {
+        "pinning": {
+          "pinned": "Als Startseite markiert",
+          "unpinned": "Markierung entfernt"
+        },
         "sorting": {
           "by_progress": "Nach Fortschritt sortieren",
           "by_remaining_time": "Nach verbleibender Zeit sortieren",
@@ -274,6 +280,9 @@
               "german": "Deutsch"
             }
           }
+        },
+        "theme": {
+          "title": "Activiere Dunkles Design"
         }
       },
       "date_n_time": {
@@ -315,7 +324,13 @@
         }
       }
     },
+    "export": {
+      "description": "Hier kannst du den kompletten Verlauf als CSV-Datei exportieren. Der Export passiert im Hintergrund und kann eine Weile dauern.",
+      "export_created" : "CSV-Datei {dst_path} erfolgreich angelegt",
+      "export_aborted" : "CSV-Export abgebrochen!"
+    },
     "backup": {
+      "description": "Erstelle ein Backup um deine Daten auf einem neuen Gerät oder nach einer Neuinstallation wiederherstellen zu können.",
       "backup_created" : "Backupdatei {dst_path} erfolgreich angelegt",
       "backup_aborted" : "Backup abgebrochen!"
     },
@@ -329,7 +344,8 @@
     },
     "about" : {
       "title": "Über Everyday Tasks",
-      "message": "Everyday Tasks ist eine einfache App, um tägliche Aufgaben schnell und einfach zu erfassen, zu tracken oder zu planen."
+      "message": "Everyday Tasks ist eine einfache App, um tägliche Aufgaben schnell und einfach zu erfassen, zu tracken oder zu planen.",
+      "star_it": "Wenn du die App magt, gib ihr einen Stern auf {link}"
     }
   },
   "filter": {
@@ -353,6 +369,8 @@
     "by_tasks": "Aufgaben"
   },
   "common" : {
+    "ok": "Ok",
+    "cancel": "Abbrechen",
     "search": "Suche",
     "units": {
       "year": {
@@ -761,7 +779,7 @@
           "description": "mit dem Hund"
         },
         "clean_aquarium_terrarium": {
-          "title": " Aquarium/Terrarium putzen"
+          "title": "Aquarium/Terrarium putzen"
         },
         "go_to_vet": {
           "title": "Zum Tierarzt gehen"

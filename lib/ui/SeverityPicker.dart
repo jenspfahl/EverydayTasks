@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/Severity.dart';
+import 'package:personaltasklogger/ui/utils.dart';
 
 import 'PersonalTaskLoggerApp.dart';
 
@@ -60,8 +61,9 @@ class _SeverityPickerState extends State<SeverityPicker> {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    severityToIcon(Severity.EASY),
-                    Text(severityToString(Severity.EASY), textAlign: TextAlign.center,),
+                    severityToIcon(Severity.EASY, isDarkMode(context) ? (_severityIndex == 0 ? PRIMARY_COLOR : null) : null),
+                    Text(severityToString(Severity.EASY), textAlign: TextAlign.center,
+                        style: TextStyle(color: isDarkMode(context) ? (_severityIndex == 0 ? PRIMARY_COLOR : null) : null)),
                   ],
                 )
               : severityToIcon(Severity.EASY),
@@ -72,8 +74,9 @@ class _SeverityPickerState extends State<SeverityPicker> {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    severityToIcon(Severity.MEDIUM),
-                    Text(severityToString(Severity.MEDIUM), textAlign: TextAlign.center,),
+                    severityToIcon(Severity.MEDIUM, isDarkMode(context) ? (_severityIndex == 1 ? PRIMARY_COLOR : null) : null),
+                    Text(severityToString(Severity.MEDIUM), textAlign: TextAlign.center,
+                        style: TextStyle(color: isDarkMode(context) ? (_severityIndex == 1 ? PRIMARY_COLOR : null) : null)),
                   ],
                 )
               : severityToIcon(Severity.MEDIUM),
@@ -84,8 +87,9 @@ class _SeverityPickerState extends State<SeverityPicker> {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    severityToIcon(Severity.HARD),
-                    Text(severityToString(Severity.HARD), textAlign: TextAlign.center,),
+                    severityToIcon(Severity.HARD, isDarkMode(context) ? (_severityIndex == 2 ? PRIMARY_COLOR : null) : null),
+                    Text(severityToString(Severity.HARD), textAlign: TextAlign.center,
+                        style: TextStyle(color: isDarkMode(context) ? (_severityIndex == 2 ? PRIMARY_COLOR : null) : null)),
                   ],
                 )
               : severityToIcon(Severity.HARD),

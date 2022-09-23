@@ -179,7 +179,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       key: group.getKey(),
       label: group.translatedName,
       icon: group.iconData,
-      iconColor: getSharpedColor(group.colorRGB),
+      iconColor: group.foregroundColor,
       parent: true,
       data: group,
       children: templates,
@@ -334,7 +334,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       key: template.getKey(),
       label: template.translatedTitle,
       icon: group.iconData,
-      iconColor: getShadedColor(group.colorRGB, false),
+      iconColor: group.softColor,
       data: template,
       children: templateVariants,
       expanded: _forceExpandOrCollapseAll != null
@@ -349,7 +349,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       key: variant.getKey(),
       label: variant.translatedTitle,
       icon: group.iconData,
-      iconColor: getShadedColor(group.colorRGB, true),
+      iconColor: group.backgroundColor,
       data: variant,
     );
   }

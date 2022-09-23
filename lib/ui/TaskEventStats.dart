@@ -198,8 +198,10 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       var percentValue = _valueToPercent(value, totalValue);
       return PieChartSectionData(
         color: data.templateId == null
-            ? getSharpedColor(getTaskGroupColor(taskGroupId, false), 2.2)
-            : getTaskGroupColor(taskGroupId, data.templateId!.isVariant),
+            ? isDarkMode(context) ? taskGroup?.foregroundColor : taskGroup?.accentColor
+            : data.templateId!.isVariant
+              ? isDarkMode(context) ? tweakAlpha(taskGroup?.softColor, 1.3) : taskGroup?.backgroundColor
+              : isDarkMode(context) ? tweakAlpha(taskGroup?.accentColor, 1.3) : taskGroup?.softColor,
         value: value,
         title: _valueToPercentString(percentValue, i),
         radius: radius,
@@ -326,14 +328,13 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       }
     
       var bgColor = data.templateId == null
-            ? getSharpedColor(getTaskGroupColor(taskGroupId, false), 1.9)
-            : getTaskGroupColor(taskGroupId, data.templateId!.isVariant);
+            ? taskGroup?.accentColor
+            : data.templateId!.isVariant
+              ? taskGroup?.backgroundColor
+              : taskGroup?.softColor;
       return Container(
         height: 35,
-       /* color: data.templateId == null
-            ? (taskGroup != null ? taskGroup.backgroundColor : null)
-            : getTaskGroupColor(taskGroupId, !data.templateId!.isVariant),*/
-        color: bgColor.withAlpha((bgColor.alpha * 0.6).toInt()),
+        color: tweakAlpha(bgColor, 0.6),
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTapDown: (details) {
@@ -431,8 +432,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.timer_outlined),
-              Text(translate('stats.total_duration'), textAlign: TextAlign.center),
+              Icon(Icons.timer_outlined, color: isDarkMode(context) ? (_dataType == DataType.DURATION ? PRIMARY_COLOR : null) : null,),
+              Text(translate('stats.total_duration'), textAlign: TextAlign.center,
+                  style: TextStyle(color: isDarkMode(context) ? (_dataType == DataType.DURATION ? PRIMARY_COLOR : null) : null)),
             ],
           )
         ),
@@ -441,8 +443,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.numbers_outlined),
-              Text(translate('stats.total_count'), textAlign: TextAlign.center),
+              Icon(Icons.numbers_outlined, color: isDarkMode(context) ? (_dataType == DataType.COUNT ? PRIMARY_COLOR : null) : null),
+              Text(translate('stats.total_count'), textAlign: TextAlign.center,
+                  style: TextStyle(color: isDarkMode(context) ? (_dataType == DataType.COUNT ? PRIMARY_COLOR : null) : null)),
             ],
           )
         ),
@@ -473,8 +476,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.category_outlined,),
-                Text(translate('stats.by_categories'), textAlign: TextAlign.center),
+                Icon(Icons.category_outlined, color: isDarkMode(context) ? (_groupBy == GroupBy.TASK_GROUP ? PRIMARY_COLOR : null) : null),
+                Text(translate('stats.by_categories'), textAlign: TextAlign.center,
+                    style: TextStyle(color: isDarkMode(context) ? (_groupBy == GroupBy.TASK_GROUP ? PRIMARY_COLOR : null) : null)),
               ],
             )
         ),
@@ -483,8 +487,9 @@ class _TaskEventStatsState extends State<TaskEventStats> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.task_alt),
-                Text(translate('stats.by_tasks'), textAlign: TextAlign.center),
+                Icon(Icons.task_alt, color: isDarkMode(context) ? (_groupBy == GroupBy.TEMPLATE ? PRIMARY_COLOR : null) : null),
+                Text(translate('stats.by_tasks'), textAlign: TextAlign.center,
+                    style: TextStyle(color: isDarkMode(context) ? (_groupBy == GroupBy.TEMPLATE ? PRIMARY_COLOR : null) : null)),
               ],
             )
         ),
