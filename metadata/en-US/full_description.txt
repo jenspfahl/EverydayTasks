@@ -14,4 +14,5 @@ If so, track and log your tasks with EverydayTasks and create schedules for repe
 
 For more information see <a href="https://everydaytasks.jepfa.de">everydaytasks.jepfa.de</a>
 
-If you like the app please star it on <a href="https://github.com/jenspfahl/EverydayTasks">Github</a>!
+If you like the app please star it on <a href="https://github.com/jenspfahl/EverydayTasks">Github</a>
+

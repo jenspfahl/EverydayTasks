@@ -1,0 +1,4 @@
+* pin Schedules page (#7)
+* add dark theme support (#8)
+* export full journal as CSV file
+* small improvements and fixes
