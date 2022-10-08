@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -51,14 +53,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           tiles: [
             SettingsTile(
               title: Text(translate('pages.settings.common.language.title')),
-              description: Text(_getLanguageSelectionAsString(_preferenceService.languageSelection)),
+              description: Text(_getLanguageSelectionAsString(_preferenceService.languageSelection, localizationDelegate)),
               onPressed: (context) {
 
                 showChoiceDialog(context, translate('pages.settings.common.language.dialog.title'),
                     [
-                      _getLanguageSelectionAsString(0),
-                      _getLanguageSelectionAsString(1),
-                      _getLanguageSelectionAsString(2),
+                      _getLanguageSelectionAsString(0, localizationDelegate),
+                      _getLanguageSelectionAsString(1, localizationDelegate),
+                      _getLanguageSelectionAsString(2, localizationDelegate),
                     ],
                     initialSelected: _languageSelection,
                     okPressed: () {
@@ -288,12 +290,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   }
 
-  String _getLanguageSelectionAsString(int languageSelection) {
+  String _getLanguageSelectionAsString(int languageSelection, LocalizationDelegate localizationDelegate) {
     switch (languageSelection) {
       case 1: return translate('pages.settings.common.language.dialog.options.english');
       case 2: return translate('pages.settings.common.language.dialog.options.german');
     }
-    return translate('pages.settings.common.language.dialog.options.system_default');
+    final systemLanguage = Platform.localeName
+        .split("_")
+        .first;
+    final appLanguages = localizationDelegate.supportedLocales
+        .map((e) => e.languageCode);
+
+    final systemLanguageSupported = appLanguages.contains(systemLanguage);
+    final label = translate('pages.settings.common.language.dialog.options.system_default');
+    if (systemLanguageSupported) {
+      return label;
+    }
+    else {
+      final hint = translate('pages.settings.common.language.language_not_supported',
+          args: {"languageCode" : systemLanguage});
+      return "$label\n($hint)";
+    }
+
   }
 
 }

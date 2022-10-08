@@ -276,11 +276,12 @@
           "dialog": {
             "title": "Choose a language",
             "options": {
-              "system_default": "System default",
+              "system_default": "System language",
               "english": "English",
               "german": "German (Deutsch)"
             }
-          }
+          },
+          "language_not_supported": "'{languageCode}' not supported"
         },
         "theme": {
           "title": "Dark theme"

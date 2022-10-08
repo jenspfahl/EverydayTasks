@@ -279,7 +279,8 @@
               "english": "Englisch (English)",
               "german": "Deutsch"
             }
-          }
+          },
+          "language_not_supported": "'{languageCode}' nicht unterstützt"
         },
         "theme": {
           "title": "Dunkles Design"

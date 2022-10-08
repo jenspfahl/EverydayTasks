@@ -522,7 +522,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: scheduledTask.isNextScheduleOverdue(false) || scheduledTask.isDueNow()
+                child: scheduledTask.isNextScheduleOverdue(true) || scheduledTask.isDueNow()
                     ? Icon(Icons.warning_amber_outlined, color: scheduledTask.isDueNow()
                       ? (isDarkMode(context) ? Color(0xFFC74C0C) : Color(0xFF770C0C))
                       : Colors.red)
