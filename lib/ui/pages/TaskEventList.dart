@@ -612,7 +612,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     else {
       var text = formatToDateTimeRange(
           taskEvent.aroundStartedAt, taskEvent.startedAt,
-          taskEvent.aroundDuration, taskEvent.duration, true);
+          taskEvent.aroundDuration, taskEvent.duration,
+          taskEvent.trackingFinishedAt, true);
       return Text(text);
     }
   }
@@ -660,6 +661,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
               boldedText("${translate('pages.journal.details.attrib_finished_at')}: "),
               Spacer(),
               Text(formatToDateTime(taskEvent.finishedAt, context)),
+            ],
+          ),
+          Row(
+            children: [
+              boldedText("${translate('pages.journal.details.attrib_duration')}: "),
+              Spacer(),
+              Text(formatToDuration(taskEvent.aroundDuration, taskEvent.duration, false)),
             ],
           ),
           Divider(),

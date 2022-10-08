@@ -14,6 +14,7 @@ class TaskEvent extends TitleAndDescription implements Comparable {
   AroundWhenAtDay aroundStartedAt;
   Duration duration;
   AroundDurationHours aroundDuration;
+  DateTime? trackingFinishedAt;
   Severity severity = Severity.MEDIUM;
   bool favorite = false;
 
@@ -28,13 +29,14 @@ class TaskEvent extends TitleAndDescription implements Comparable {
       this.aroundStartedAt,
       this.duration,
       this.aroundDuration,
+      this.trackingFinishedAt,
       this.severity,
       this.favorite,
       )
   : super(title, description);
 
 
-  DateTime get finishedAt => startedAt.add(duration);
+  DateTime get finishedAt => trackingFinishedAt ?? startedAt.add(duration);
 
 
   @override

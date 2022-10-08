@@ -143,6 +143,7 @@
         "attrib_created_at": "Created at",
         "attrib_started_at": "Started at",
         "attrib_finished_at": "Finished at",
+        "attrib_duration": "Actual duration",
         "associated_task": "Associated task",
         "associated_schedule": "Associated schedule",
         "value_uncategorized": "uncategorized",

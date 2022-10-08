@@ -142,6 +142,7 @@
         "attrib_created_at": "Erfasst am",
         "attrib_started_at": "Begonnen am",
         "attrib_finished_at": "Beendet am",
+        "attrib_duration": "Tatsächliche Dauer",
         "associated_task": "Zugehörige Aufgabe",
         "associated_schedule": "Zugehöriger Zeitplan",
         "value_uncategorized": "unkategorisiert",

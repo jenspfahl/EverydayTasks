@@ -266,6 +266,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                             iconDisabledColor: _isTrackingRunning() ? Colors.redAccent : null,
                             isExpanded: true,
                             onChanged:  _isTrackingRunning() ? null : (value) {
+                              _resetTracking();
                               if (value == AroundDurationHours.CUSTOM) {
                                 final initialDuration = _customDuration ?? (_selectedDurationHours != null ? When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration) : Duration(minutes: 1));
                                 showDurationPickerDialog(
@@ -510,6 +511,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                     _selectedWhenAtDay == AroundWhenAtDay.NOW ? AroundWhenAtDay.CUSTOM : _selectedWhenAtDay!,
                                     duration,
                                     _selectedDurationHours!,
+                                    _isTrackingPaused() ? _trackingPaused : null,
                                     _severity,
                                     _taskEvent?.favorite ?? false,
                                   );
@@ -627,13 +629,17 @@ class _TaskEventFormState extends State<TaskEventForm> {
     _preferenceService.remove(getPrefKeyFromTrackingId());
     _timer?.cancel();
     if (stop) {
-      _trackingStart = null;
-      _trackingPauses = null;
-      _trackingPaused = null;
+      _resetTracking();
     }
     else {
       _trackingPaused = DateTime.now();
     }
+  }
+
+  void _resetTracking() {
+    _trackingStart = null;
+    _trackingPauses = null;
+    _trackingPaused = null;
   }
 
   Map<String, dynamic> toJson() => {

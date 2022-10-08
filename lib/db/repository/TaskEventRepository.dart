@@ -95,6 +95,9 @@ class TaskEventRepository {
         taskEvent.aroundStartedAt.index,
         durationToEntity(taskEvent.duration),
         taskEvent.aroundDuration.index,
+        taskEvent.trackingFinishedAt != null
+            ? dateTimeToEntity(taskEvent.trackingFinishedAt!)
+            : null,
         taskEvent.severity.index,
         taskEvent.favorite);
 
@@ -114,6 +117,9 @@ class TaskEventRepository {
         AroundWhenAtDay.values.elementAt(entity.aroundStartedAt),
         durationFromEntity(entity.duration),
         AroundDurationHours.values.elementAt(entity.aroundDuration),
+        entity.trackingFinishedAt != null
+          ? dateTimeFromEntity(entity.trackingFinishedAt!)
+          : null,
         Severity.values.elementAt(entity.severity),
         entity.favorite);
 

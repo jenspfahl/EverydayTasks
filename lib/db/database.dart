@@ -17,7 +17,7 @@ import 'entity/ScheduledTaskEventEntity.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 9, entities: [
+@Database(version: 10, entities: [
   TaskEventEntity, TaskTemplateEntity, TaskTemplateVariantEntity, ScheduledTaskEntity, ScheduledTaskEventEntity, SequencesEntity])
 abstract class AppDatabase extends FloorDatabase {
   TaskEventDao get taskEventDao;
@@ -75,8 +75,13 @@ final migration8To9 = new Migration(8, 9,
       await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `repetitionMode` INTEGER");
     });
 
+final migration9To10 = new Migration(9, 10,
+        (sqflite.Database database) async {
+      await database.execute("ALTER TABLE TaskEventEntity ADD COLUMN trackingFinishedAt INTEGER");
+    });
+
 
 Future<AppDatabase> getDb([String? name]) async => $FloorAppDatabase
     .databaseBuilder(name??'app_database.db')
-    .addMigrations([migration2To3, migration3To4, migration4To5, migration5To6, migration6To7, migration7To8, migration8To9])
+    .addMigrations([migration2To3, migration3To4, migration4To5, migration5To6, migration6To7, migration7To8, migration8To9, migration9To10])
     .build();

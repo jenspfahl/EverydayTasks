@@ -31,6 +31,7 @@ class TaskEventEntity {
   final int aroundStartedAt;
   final int duration;
   final int aroundDuration;
+  final int? trackingFinishedAt;
   final int severity;
   final bool favorite;
 
@@ -46,6 +47,7 @@ class TaskEventEntity {
       this.aroundStartedAt,
       this.duration,
       this.aroundDuration,
+      this.trackingFinishedAt,
       this.severity,
       this.favorite,
       );

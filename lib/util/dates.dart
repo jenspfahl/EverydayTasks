@@ -123,6 +123,7 @@ String formatToDateTimeRange(
     DateTime startedAt,
     AroundDurationHours aroundDurationHours,
     Duration duration,
+    DateTime? trackingFinishedAt,
     bool showAround) {
 
 
@@ -136,7 +137,7 @@ String formatToDateTimeRange(
     if (showAround && aroundDurationHours != AroundDurationHours.CUSTOM) {
       sb.write("~");
     }
-    final finishedAt = startedAt.add(duration);
+    final finishedAt = trackingFinishedAt ?? startedAt.add(duration);
     sb.write(formatToTime(finishedAt));
   }
 
