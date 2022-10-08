@@ -43,6 +43,8 @@
         "start_tracking_message": "There are some values which will be overwritten when starting the tracking. Continue?",
         "stop_tracking_first": "Please stop tracking first!",
         "tracking_started": "Tracking started",
+        "tracking_resumed": "Tracking resumed",
+        "tracking_stopped": "Tracking stopped",
         "tracking_started_at": "Tracking started at {when}",
         "task_started_at": "'{title}' started at {when}"
       }

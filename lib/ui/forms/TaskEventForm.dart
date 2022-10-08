@@ -68,6 +68,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
   DateTime? _customWhenOn;
 
   DateTime? _trackingStart;
+  DateTime? _trackingPaused;
+  Duration? _trackingPauses;
 
   Timer? _timer;
   final _notificationService = LocalNotificationService();
@@ -169,11 +171,11 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   @override
   Widget build(BuildContext context) {
-    final trackIcon = ToggleActionIcon(Icons.stop_circle_outlined, Icons.not_started_outlined, _trackingStart != null, trackIconKey);
+    final trackIcon = ToggleActionIcon(Icons.pause_circle_outline, Icons.not_started_outlined, _isTrackingRunning(), trackIconKey);
 
     return WillPopScope(
       onWillPop: () async {
-        if (_trackingStart != null) {
+        if (_isTrackingRunning()) {
           toastError(context, translate('forms.task_event.tracking.stop_tracking_first'));
           return false;
         }
@@ -261,9 +263,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
                             value: _selectedDurationHours,
                             hint: Text(translate('forms.task_event.duration_hint')),
                             icon: Icon(Icons.timer_outlined),
-                            iconDisabledColor: _trackingStart != null ? Colors.redAccent : null,
+                            iconDisabledColor: _isTrackingRunning() ? Colors.redAccent : null,
                             isExpanded: true,
-                            onChanged:  _trackingStart != null ? null : (value) {
+                            onChanged:  _isTrackingRunning() ? null : (value) {
                               if (value == AroundDurationHours.CUSTOM) {
                                 final initialDuration = _customDuration ?? (_selectedDurationHours != null ? When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration) : Duration(minutes: 1));
                                 showDurationPickerDialog(
@@ -316,9 +318,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   value: _selectedWhenAtDay,
                                   hint: Text(translate('forms.task_event.when_at_hint')),
                                   icon: Icon(Icons.watch_later_outlined),
-                                  iconDisabledColor: _trackingStart != null ? Colors.redAccent : null,
+                                  iconDisabledColor: _isTrackingRunning() ? Colors.redAccent : null,
                                   isExpanded: true,
-                                  onChanged:  _trackingStart != null ? null : (value) {
+                                  onChanged:  _isTrackingRunning() ? null : (value) {
                                     if (value == AroundWhenAtDay.CUSTOM) {
                                       final initialWhenAt = _customWhenAt ?? (
                                           _selectedWhenAtDay != null && _selectedWhenAtDay != AroundWhenAtDay.CUSTOM
@@ -364,9 +366,9 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                   value: _selectedWhenOnDate,
                                   hint: Text(translate('forms.task_event.when_on_hint')),
                                   icon: Icon(Icons.date_range),
-                                  iconDisabledColor: _trackingStart != null ? Colors.redAccent : null,
+                                  iconDisabledColor: _isTrackingRunning() ? Colors.redAccent : null,
                                   isExpanded: true,
-                                  onChanged: _trackingStart != null ? null : (value) {
+                                  onChanged: _isTrackingRunning() ? null : (value) {
                                     if (value == WhenOnDate.CUSTOM) {
                                       final initialWhenOn = _customWhenOn ?? truncToDate(DateTime.now());
                                       showTweakedDatePicker(context,
@@ -423,46 +425,60 @@ class _TaskEventFormState extends State<TaskEventForm> {
                           child: Column(children: [
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 6.0),
-                              child: FloatingActionButton(
-                                  child: trackIcon,
-                                  backgroundColor: _trackingStart != null ? Colors.redAccent : null,
-                                  onPressed: () {
+                              child: GestureDetector(
+                                onLongPress: () {
+                                  if (_isTrackingRunning() || _isTrackingPaused()) {
                                     setState(() {
-                                      if (_trackingStart == null) {
-                                        if (_customDuration != null || _customWhenAt != null || _customWhenOn != null) {
-                                          showConfirmationDialog(
-                                              context,
-                                              translate('forms.task_event.tracking.start_tracking_title'),
-                                              translate('forms.task_event.tracking.start_tracking_message'),
-                                              icon: const Icon(Icons.warning_amber_outlined),
-                                              okPressed: () {
-                                                setState(() {
-                                                  _startTracking();
-                                                  _showPermanentNotification();
-                                                  trackIconKey.currentState?.refresh(true);
-                                                });
-
-                                                Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
-                                              },
-                                              cancelPressed: () {
-                                                Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
-                                              },
-                                          );
-                                        }
-                                        else {
-                                          setState(() {
-                                            _startTracking();
-                                            _showPermanentNotification();
-                                            trackIconKey.currentState?.refresh(true);
-                                          });
-                                        }
-                                      }
-                                      else {
-                                        _stopTracking();
-                                        trackIconKey.currentState?.refresh(false);
-                                      }
+                                      _stopTracking(stop: true);
+                                      trackIconKey.currentState?.refresh(false);
+                                      toastInfo(context, translate('forms.task_event.tracking.tracking_stopped'));
                                     });
-                                  }),
+                                  }
+                                },
+                                child: FloatingActionButton(
+                                    child: trackIcon,
+                                    backgroundColor: _isTrackingRunning() ? Colors.redAccent : null,
+                                    onPressed: () {
+                                      setState(() {
+                                        if (_isTrackingPaused() || _isTrackingStopped()) {
+                                          if ((_customDuration != null || _customWhenAt != null || _customWhenOn != null)
+                                                && _isTrackingStopped()) {
+                                            showConfirmationDialog(
+                                                context,
+                                                translate('forms.task_event.tracking.start_tracking_title'),
+                                                translate('forms.task_event.tracking.start_tracking_message'),
+                                                icon: const Icon(Icons.warning_amber_outlined),
+                                                okPressed: () {
+                                                  setState(() {
+                                                    final isResume = _isTrackingPaused();
+                                                    _startTracking();
+                                                    _showPermanentNotification(isResume);
+                                                    trackIconKey.currentState?.refresh(true);
+                                                  });
+
+                                                  Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                                                },
+                                                cancelPressed: () {
+                                                  Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                                                },
+                                            );
+                                          }
+                                          else {
+                                            setState(() {
+                                              final isResume = _isTrackingPaused();
+                                              _startTracking();
+                                              _showPermanentNotification(isResume);
+                                              trackIconKey.currentState?.refresh(true);
+                                            });
+                                          }
+                                        }
+                                        else if (_isTrackingRunning()) {
+                                          _stopTracking(stop: false);
+                                          trackIconKey.currentState?.refresh(false);
+                                        }
+                                      });
+                                    }),
+                              ),
                             ),
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
@@ -470,11 +486,12 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                 Size(double.infinity, 40), // double.infinity is the width and 30 is the height
                               ),
                               onPressed: () {
-                                if (_trackingStart != null) {
+                                if (_isTrackingRunning()) {
                                   toastError(context, translate('forms.task_event.tracking.stop_tracking_first'));
                                   return;
                                 }
                                 if (_formKey.currentState!.validate()) {
+                                  debugPrint("paused duration = $_trackingPaused");
                                   final startedAtTimeOfDay =
                                     When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt);
                                   final date = When.fromWhenOnDateToDate(_selectedWhenOnDate!, _customWhenOn);
@@ -516,7 +533,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
   }
 
   String _formatDuration() {
-    if (_trackingStart != null && _timer != null) {
+    if ((_isTrackingRunning() || _isTrackingPaused()) && _timer != null) {
       final clock = ['|','/', '--', '\\', ];
       final ticker = _timer!.tick % clock.length;
       final exact = formatTrackingDuration(_customDuration!);
@@ -528,9 +545,57 @@ class _TaskEventFormState extends State<TaskEventForm> {
     }
   }
 
+  void _showPermanentNotification(bool isResume) {
+    final currentTitle = _titleController.text;
+
+    final stateAsJson = jsonEncode(this);
+    final payload = "onlyWhenAppLaunch:true-TaskEventForm-$stateAsJson";
+    
+    _notificationService.showNotification(
+        TASK_EVENT_LIST_ROUTING_KEY, //we route to task events and there it will be rerouted to here
+        TRACKING_NOTIFICATION_ID,
+        isResume
+            ? translate('forms.task_event.tracking.tracking_resumed')
+            : translate('forms.task_event.tracking.tracking_started'),
+        currentTitle.isNotEmpty
+            ? translate('forms.task_event.tracking.task_started_at',
+                args: {"title": currentTitle ,"when": formatToTime(_trackingStart!)})
+            : translate('forms.task_event.tracking.tracking_started_at',
+                args: {"when": formatToTime(_trackingStart!)}),
+        CHANNEL_ID_TRACKING,
+        true,
+        payload);
+
+    _preferenceService.setString(getPrefKeyFromTrackingId(), payload);
+  }
+
+  @override
+  void deactivate() {
+    _timer?.cancel();
+    if (_isTrackingRunning()) {
+      _notificationService.cancelNotification(TRACKING_NOTIFICATION_ID);
+      _preferenceService.remove(getPrefKeyFromTrackingId());
+    }
+    super.deactivate();
+  }
+
+  bool _isTrackingStopped() => _trackingStart == null && _trackingPaused == null;
+  bool _isTrackingRunning() => _trackingStart != null && _trackingPaused == null;
+  bool _isTrackingPaused() => _trackingStart != null && _trackingPaused != null;
+
   void _startTracking({DateTime? trackingStart}) {
 
-    _trackingStart = trackingStart ?? DateTime.now();
+    if (trackingStart != null || _isTrackingStopped()) {
+      _trackingStart = trackingStart ?? DateTime.now();
+    }
+    else if (_isTrackingPaused()) {
+      // resume pause
+      final pauseDuration = _trackingPaused?.difference(DateTime.now()).abs();
+      final totalPauseSeconds = (_trackingPauses?.inSeconds??0) + (pauseDuration?.inSeconds??0);
+      _trackingPauses = Duration(seconds: totalPauseSeconds);
+
+      _trackingPaused = null;
+    }
 
     _selectedWhenAtDay = AroundWhenAtDay.CUSTOM;
     _customWhenAt = TimeOfDay.fromDateTime(_trackingStart!);
@@ -548,57 +613,33 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   }
 
-  void _showPermanentNotification() {
-    final currentTitle = _titleController.text;
-
-    final stateAsJson = jsonEncode(this);
-    final payload = "onlyWhenAppLaunch:true-TaskEventForm-$stateAsJson";
-    
-    _notificationService.showNotification(
-        TASK_EVENT_LIST_ROUTING_KEY, //we route to task events and there it will be rerouted to here
-        TRACKING_NOTIFICATION_ID,
-        translate('forms.task_event.tracking.tracking_started'),
-        currentTitle.isNotEmpty
-            ? translate('forms.task_event.tracking.task_started_at',
-                args: {"title": currentTitle ,"when": formatToTime(_trackingStart!)})
-            : translate('forms.task_event.tracking.tracking_started_at',
-                args: {"when": formatToTime(_trackingStart!)}),
-        CHANNEL_ID_TRACKING,
-        true,
-        payload);
-
-    _preferenceService.setString(getPrefKeyFromTrackingId(), payload);
-  }
-
-  @override
-  void deactivate() {
-    _timer?.cancel();
-    if (_trackingStart != null) {
-      _notificationService.cancelNotification(TRACKING_NOTIFICATION_ID);
-      _preferenceService.remove(getPrefKeyFromTrackingId());
-    }
-    super.deactivate();
-  }
-
-
   void _updateTracking() {
     _selectedDurationHours = AroundDurationHours.CUSTOM;
     final now = DateTime.now();
-    _customDuration = now.difference(_trackingStart!);
+    final runningSeconds = now.difference(_trackingStart!).inSeconds;
+    final pauseSeconds = _trackingPauses?.inSeconds ?? 0;
+    _customDuration = Duration(seconds: runningSeconds - pauseSeconds);
   }
 
 
-  void _stopTracking() {
-    if (_trackingStart != null) {
-      _notificationService.cancelNotification(TRACKING_NOTIFICATION_ID);
-      _preferenceService.remove(getPrefKeyFromTrackingId());
-    }
-    _trackingStart = null;
+  void _stopTracking({required bool stop}) {
+    _notificationService.cancelNotification(TRACKING_NOTIFICATION_ID);
+    _preferenceService.remove(getPrefKeyFromTrackingId());
     _timer?.cancel();
+    if (stop) {
+      _trackingStart = null;
+      _trackingPauses = null;
+      _trackingPaused = null;
+    }
+    else {
+      _trackingPaused = DateTime.now();
+    }
   }
 
   Map<String, dynamic> toJson() => {
     'trackingStart' : _trackingStart?.millisecondsSinceEpoch,
+    'trackingPaused' : _trackingPaused?.millisecondsSinceEpoch,
+    'trackingPauses' : _trackingPauses?.inSeconds,
     'title': _titleController.text,
     'description': _descriptionController.text,
     'severity': _severity.index,
@@ -610,6 +651,17 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   void _setStateFromJson(Map<String, dynamic> jsonMap) {
     _trackingStart = DateTime.fromMillisecondsSinceEpoch(jsonMap['trackingStart']);
+
+    final trackingPausedJson = jsonMap['trackingPaused'];
+    if (trackingPausedJson != null) {
+      _trackingPaused = DateTime.fromMillisecondsSinceEpoch(trackingPausedJson);
+    }
+
+    final trackingPausesJson = jsonMap['trackingPauses'];
+    if (trackingPausesJson != null) {
+      _trackingPauses = Duration(seconds: trackingPausesJson);
+    }
+
     _titleController.text = jsonMap['title'];
     _descriptionController.text = jsonMap['description'];
     _severity = Severity.values.elementAt(jsonMap['severity']);

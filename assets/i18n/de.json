@@ -42,6 +42,8 @@
         "start_tracking_message": "Die bestehenden Zeiten werden überschrieben, wenn das Tracking der Tätigkeit gestartet wird. Fortfahren?",
         "stop_tracking_first": "Bitte zuerst das Tracking stoppen!",
         "tracking_started": "Tracking gestartet",
+        "tracking_resumed": "Tracking fortgesetzt",
+        "tracking_stopped": "Tracking gestoppt",
         "tracking_started_at": "Tätigkeit gestartet um {when}",
         "task_started_at": "'{title}' gestartet um {when}"
       }
