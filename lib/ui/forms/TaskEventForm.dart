@@ -497,7 +497,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
                                     When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt);
                                   final date = When.fromWhenOnDateToDate(_selectedWhenOnDate!, _customWhenOn);
                                   final startedAt = DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour,
-                                      startedAtTimeOfDay.minute);
+                                      startedAtTimeOfDay.minute, _trackingStart?.second ?? 0);
                                   final duration =
                                   When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration);
                                   var taskEvent = TaskEvent(
@@ -618,7 +618,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
   void _updateTracking() {
     _selectedDurationHours = AroundDurationHours.CUSTOM;
     final now = DateTime.now();
-    final runningSeconds = now.difference(_trackingStart!).inSeconds;
+    final runningSeconds = now.difference(_trackingStart!).inSeconds + 1;
     final pauseSeconds = _trackingPauses?.inSeconds ?? 0;
     _customDuration = Duration(seconds: runningSeconds - pauseSeconds);
   }
