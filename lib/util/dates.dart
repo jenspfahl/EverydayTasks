@@ -168,6 +168,7 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString, Cla
   var days = Days(duration.inDays, clause);
   var hours = Hours(duration.inHours, clause);
   var minutes = Minutes(duration.inMinutes, clause);
+  var seconds = Seconds(duration.inSeconds, clause);
   var durationText = minutes.toString();
   if (days.value.abs() >= 700) { // more than almost 2 years
     var aroundYears = (days.value / 365).round();
@@ -216,6 +217,18 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString, Cla
     }
     else {
       durationText = hours.toString();
+    }
+  }
+  else {
+    var remainingSeconds = Seconds(seconds.value % 60, clause);
+    if (minutes.value == 0) {
+      durationText = seconds.toString();
+    }
+    else if (remainingSeconds.value != 0) {
+      durationText = "$minutes ${translate('common.words.and')} $remainingSeconds";
+    }
+    else {
+      durationText = minutes.toString();
     }
   }
   return durationText;

@@ -663,11 +663,10 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
               Text(formatToDateTime(taskEvent.finishedAt, context)),
             ],
           ),
-          Row(
+          Wrap(
             children: [
               boldedText("${translate('pages.journal.details.attrib_duration')}: "),
-              Spacer(),
-              Text(formatToDuration(taskEvent.aroundDuration, taskEvent.duration, false)),
+              Text(" " + formatTrackingDuration(taskEvent.duration)),
             ],
           ),
           Divider(),
