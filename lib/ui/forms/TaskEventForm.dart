@@ -42,7 +42,7 @@ class TaskEventForm extends StatefulWidget {
   }
 }
 
-class _TaskEventFormState extends State<TaskEventForm> {
+class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveClientMixin {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -79,6 +79,7 @@ class _TaskEventFormState extends State<TaskEventForm> {
 
   @override
   initState() {
+    super.initState();
     int? selectedTaskGroupId;
 
     AroundDurationHours? aroundDuration;
@@ -694,5 +695,8 @@ class _TaskEventFormState extends State<TaskEventForm> {
       });
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
 }

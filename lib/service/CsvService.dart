@@ -10,10 +10,12 @@ import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
+import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 import '../db/repository/ChronologicalPaging.dart';
 import '../db/repository/TaskEventRepository.dart';
+import '../util/units.dart';
 
 class CsvService {
   static final CsvService _service = CsvService._internal();
@@ -121,7 +123,7 @@ class CsvService {
         formatToDateTime(taskEvent.createdAt, context),
         formatToDateTime(taskEvent.startedAt, context),
         formatToDateTime(taskEvent.finishedAt, context),
-        formatToDuration(taskEvent.aroundDuration, taskEvent.duration, false),
+        _formatCsvDuration(taskEvent.aroundDuration, taskEvent.duration),
         severityToString(taskEvent.severity),
         taskEvent.favorite ? "x" : "",
         taskTitle,
@@ -137,4 +139,12 @@ class CsvService {
 
   String _getFullPath(String basePath, int? version) =>
       version != null ? "$basePath ($version).csv" : "$basePath.csv";
+
+  String _formatCsvDuration(AroundDurationHours aroundDuration, Duration customDuration) {
+    final duration = When.fromDurationHoursToDuration(aroundDuration, customDuration);
+    final hours = Hours(duration.inHours);
+    final minutes = Minutes(duration.inMinutes - (duration.inHours * 60));
+    final seconds = Seconds(duration.inSeconds - (duration.inMinutes * 60));
+    return "$hours $minutes $seconds";
+  }
 }
