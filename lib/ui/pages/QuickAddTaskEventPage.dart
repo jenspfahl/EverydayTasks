@@ -317,7 +317,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
             .currentState;
         if (taskEventListState != null) {
           taskEventListState.clearFilters();
-          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString());
+          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
         }
       }
     }
@@ -564,7 +564,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   }
 
   @override
-  handleNotificationClickRouted(bool isAppLaunch, String payload) {
+  handleNotificationClickRouted(bool isAppLaunch, String payload, String? actionId) {
   }
 
 

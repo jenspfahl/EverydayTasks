@@ -836,7 +836,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   }
 
   @override
-  handleNotificationClickRouted(bool isAppLaunch, String payload) async {
+  handleNotificationClickRouted(bool isAppLaunch, String payload, String? actionId) async {
     debugPrint("_handle TaskEventList: payload=$payload $isAppLaunch");
     if (payload == "noop") {
       debugPrint("nothing to do");

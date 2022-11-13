@@ -50,7 +50,7 @@
       }
     },
     "schedule": {
-      "title_hint": "Title of the shedule",
+      "title_hint": "Title of the schedule",
       "repetition_steps_hint": "Interval",
       "repetition_steps_emphasis": "Select an interval of the task",
       "due_at_hint": "Due at",
@@ -188,7 +188,9 @@
         "title_fixed_task": "Due scheduled fixed task",
         "message_normal_task": "Scheduled task '{title}' is due!",
         "message_fixed_task": "Scheduled fixed task '{title}' is due!",
-        "message_fixed_last_task": "Scheduled fixed task '{title}' is due! Please click to get future notifications!"
+        "message_fixed_last_task": "Scheduled fixed task '{title}' is due! Please click to get future notifications!",
+        "action_track": "Log or track",
+        "action_snooze": "Remind later"
       },
       "action": {
         "reset": {

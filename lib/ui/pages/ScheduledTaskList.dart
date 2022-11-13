@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
@@ -422,11 +423,14 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     );
   }
 
-  handleNotificationClickRouted(bool isAppLaunch, String payload) {
+  handleNotificationClickRouted(bool isAppLaunch, String payload, String? actionId) {
     if (_initialLoaded) {
       setState(() {
         final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == payload);
         _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
+        if (actionId == "track") {
+          _openAddJournalEntryFromSchedule(clickedScheduledTask);
+        }
       });
     }
     else {
@@ -599,58 +603,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         toastError(context, translate('pages.schedules.errors.cannot_resume'));
                         return;
                       }
-                      final templateId = scheduledTask.templateId;
-                      Template? template;
-                      if (templateId != null) {
-                        template = await TemplateRepository.findById(templateId);
-                      }
-
-                      TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                        String title = scheduledTask.translatedTitle;
-                        if (template != null) {
-                          return TaskEventForm(
-                              formTitle: translate('forms.task_event.create.title_from_schedule'),
-                              template: template,
-                              title: title);
-                        }
-                        else {
-                          final taskGroup = findPredefinedTaskGroupById(
-                              scheduledTask.taskGroupId);
-                          return TaskEventForm(
-                              formTitle: translate('forms.task_event.create.title_from_schedule'),
-                              taskGroup: taskGroup,
-                              title: title);
-                        }
-                      }));
-
-                      if (newTaskEvent != null) {
-                        TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                          toastInfo(context, translate('forms.task_event.create.success',
-                              args: {"title" : newTaskEvent.translatedTitle}));
-                          widget._pagesHolder
-                              .taskEventList
-                              ?.getGlobalKey()
-                              .currentState
-                              ?.addTaskEvent(newTaskEvent, justSetState: true);
-
-                          scheduledTask.executeSchedule(null);
-                          ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-                            _updateScheduledTask(scheduledTask, changedScheduledTask);
-                          });
-
-                          final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(newTaskEvent, scheduledTask);
-                          ScheduledTaskEventRepository.insert(scheduledTaskEvent);
-
-                          PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-                          if (root != null) {
-                            final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
-                            if (taskEventListState != null) {
-                              taskEventListState.clearFilters();
-                              root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString());
-                            }
-                          }
-                        });
-                      }
+                      await _openAddJournalEntryFromSchedule(scheduledTask);
                     },
                   ),
                 ),
@@ -756,7 +709,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                                 scheduledTask,
                                 scheduledTaskEvents.map((e) => e.taskEventId)
                             );
-                            root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, "noop");
+                            root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, "noop", null);
                           }
                         }
                       }
@@ -846,6 +799,61 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       ),
     ]);
     return expansionWidgets;
+  }
+
+  Future<void> _openAddJournalEntryFromSchedule(ScheduledTask scheduledTask) async {
+    final templateId = scheduledTask.templateId;
+    Template? template;
+    if (templateId != null) {
+      template = await TemplateRepository.findById(templateId);
+    }
+    
+    TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      String title = scheduledTask.translatedTitle;
+      if (template != null) {
+        return TaskEventForm(
+            formTitle: translate('forms.task_event.create.title_from_schedule'),
+            template: template,
+            title: title);
+      }
+      else {
+        final taskGroup = findPredefinedTaskGroupById(
+            scheduledTask.taskGroupId);
+        return TaskEventForm(
+            formTitle: translate('forms.task_event.create.title_from_schedule'),
+            taskGroup: taskGroup,
+            title: title);
+      }
+    }));
+    
+    if (newTaskEvent != null) {
+      TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+        toastInfo(context, translate('forms.task_event.create.success',
+            args: {"title" : newTaskEvent.translatedTitle}));
+        widget._pagesHolder
+            .taskEventList
+            ?.getGlobalKey()
+            .currentState
+            ?.addTaskEvent(newTaskEvent, justSetState: true);
+    
+        scheduledTask.executeSchedule(null);
+        ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+          _updateScheduledTask(scheduledTask, changedScheduledTask);
+        });
+    
+        final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(newTaskEvent, scheduledTask);
+        ScheduledTaskEventRepository.insert(scheduledTaskEvent);
+    
+        PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
+        if (root != null) {
+          final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
+          if (taskEventListState != null) {
+            taskEventListState.clearFilters();
+            root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
+          }
+        }
+      });
+    }
   }
 
   String _getDueMessage(ScheduledTask scheduledTask) {
@@ -1096,7 +1104,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         translate(messageKey, args: {"title": title}),
         missingDuration,
         CHANNEL_ID_SCHEDULES,
-        taskGroup.backgroundColor);
+        taskGroup.backgroundColor,
+        [
+          AndroidNotificationAction("track", translate('pages.schedules.notification.action_track'), showsUserInterface: true),
+          AndroidNotificationAction("snooze", translate('pages.schedules.notification.action_snooze'), showsUserInterface: false),
+        ]
+    );
   }
 
   void _cancelNotification(ScheduledTask scheduledTask, {alsoFixedMode = true}) {

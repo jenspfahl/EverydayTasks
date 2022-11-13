@@ -187,7 +187,9 @@
         "title_fixed_task": "Fällige geplante feste Aufgabe",
         "message_normal_task": "Geplante Aufgabe '{title}' ist fällig!",
         "message_fixed_task": "Geplante feste Aufgabe '{title}' ist fällig!",
-        "message_fixed_last_task": "Geplante feste Aufgabe '{title}' ist fällig! Bitte klicken um weitere Benachrichtigungen zu erhalten!"
+        "message_fixed_last_task": "Geplante feste Aufgabe '{title}' ist fällig! Bitte klicken um weitere Benachrichtigungen zu erhalten!",
+        "action_track": "Erfassen",
+        "action_snooze": "Später erinnern"
       },
       "action": {
         "reset": {

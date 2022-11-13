@@ -493,13 +493,13 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       _preferenceService.getString(getPrefKeyFromTrackingId()).then((payload) {
         if (payload != null) {
           // simulate click on notification
-          sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, true, payload);
+          sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, true, payload, null);
         }
       });
     }
   }
 
-  sendEventFromClicked(String receiverKey, bool isAppLaunch, String payload) {
+  sendEventFromClicked(String receiverKey, bool isAppLaunch, String payload, String? actionId) {
     debugPrint("sendEventFromClicked $receiverKey $payload");
 
     var onlyWhenAppLaunchIndicator = "";
@@ -522,7 +522,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
         final selectedPageState = getSelectedPage().getGlobalKey().currentState;
         if (selectedPageState != null) {
           debugPrint("explicit call notification handler on $selectedPageState");
-          selectedPageState.handleNotificationClickRouted(isAppLaunch, payload);
+          selectedPageState.handleNotificationClickRouted(isAppLaunch, payload, actionId);
         }
         else {
           // If the destination page state is not initialized yet we need to call the handler callback later manually
@@ -531,7 +531,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
             if (selectedPageState != null) {
               timer.cancel();
               debugPrint("delayed call notification handler on $selectedPageState");
-              selectedPageState.handleNotificationClickRouted(isAppLaunch, payload);
+              selectedPageState.handleNotificationClickRouted(isAppLaunch, payload, actionId);
             }
           });
         }
