@@ -131,6 +131,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         _initialLoaded = true;
         _sortList();
         _calcOverallStats();
+        _preferenceService.getBool(PreferenceService.DATA_SHOW_SCHEDULED_SUMMARY)
+            .then((value) {
+              if (value != null) {
+                setState(() => _statusTileHidden = !value);
+              }
+        });
     
       });
     });
@@ -343,7 +349,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           ),
           onPressed: () {
             setState(() {
-              _statusTileHidden = !_statusTileHidden;
+              _setStatusTileHidden(!_statusTileHidden);
             });
           },
         ),
@@ -363,13 +369,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             ),
             onTapDown: (_) {
               setState(() {
-                _statusTileHidden = true;
+                _setStatusTileHidden(true);
               });
             },
             onPanUpdate: (details) {
               if (details.delta.dy < 0) {
                 setState(() {
-                  _statusTileHidden = true;
+                  _setStatusTileHidden(true);
                 });
               }
             },
@@ -1237,6 +1243,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         pinQuickAddPageIconKey.currentState?.refresh(false);
       }
     });
+  }
+
+  void _setStatusTileHidden(bool value) {
+    _statusTileHidden = value;
+    _preferenceService.setBool(PreferenceService.DATA_SHOW_SCHEDULED_SUMMARY, !value);
   }
   
 }

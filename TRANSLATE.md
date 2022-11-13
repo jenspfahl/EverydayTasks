@@ -31,3 +31,5 @@ Here don't translate `title` and `when` but replace the rest!
 3. Create a new issue [here](https://github.com/jenspfahl/everydaytasks/issues/new). (Github account needed)
 4. Insert your complete tanslation in the description field and write the language name in the title and submit it.
 5. I will integrate the translation in the next release.
+
+If you are used to work with Git branches and JSON files you can also create a new one for your translated language and create a Pull Request to get them integrated in the next release.

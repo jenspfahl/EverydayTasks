@@ -17,6 +17,9 @@ class PreferenceService implements ITranslatePreferences {
   static final PREF_SHOW_ACTION_NOTIFICATIONS = "common/showActionNotifications";
   static final PREF_SHOW_ACTION_NOTIFICATION_DURATION_SELECTION = "common/showActionNotificationDurationSelection";
 
+  static final DATA_SHOW_SCHEDULED_SUMMARY = "data/showScheduledSummary";
+
+
   static final PreferenceService _service = PreferenceService._internal();
 
   factory PreferenceService() {
