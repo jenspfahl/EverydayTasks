@@ -107,7 +107,7 @@ class LocalNotificationService {
         .then((notification) {
           final payload = notification?.notificationResponse?.payload;
           if (payload != null) {
-            _handlePayload(true, payload, null);
+            _handlePayload(true, payload, notification?.notificationResponse?.actionId);
           }
     });
 
