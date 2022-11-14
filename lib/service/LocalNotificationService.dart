@@ -1,3 +1,6 @@
+import 'dart:collection';
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -44,8 +47,42 @@ class LocalNotificationService {
   }
 
   @pragma('vm:entry-point')
-  static Future<void> bgHandleSnooze(NotificationResponse response) async {
-    debugPrint('bg action pressed: ${response.actionId}');
+  static Future<void> handleNotificationResponseInBackground(NotificationResponse response) async {
+    debugPrint('bg action pressed: ${response.actionId} p=${response.payload}');
+    if (response.actionId == "snooze") {
+      final payload = response.payload;
+      if (payload != null) {
+        final firstIndex = payload.indexOf("-###");
+        if (firstIndex != -1) {
+          final parametersAsString = payload.substring(firstIndex + 4);
+          debugPrint("extracted params=$parametersAsString");
+          Map<String, dynamic> parameters = jsonDecode(parametersAsString);
+
+          List<dynamic>? actionsStrings = parameters['actions'];
+          List<AndroidNotificationAction>? actions = actionsStrings != null
+              ? actionsStrings
+              .map((s) => s.split("-"))
+              .map((splitted) => AndroidNotificationAction(splitted[0], splitted[2], showsUserInterface: splitted[1]=="true"))
+              .toList()
+              : null;
+
+          final notificationService = LocalNotificationService();
+          await notificationService.init();
+          notificationService.scheduleNotification(
+              parameters['receiverKey'],
+              parameters['id'],
+              parameters['title'],
+              parameters['message'],
+              Duration(hours: 1), //TODO make this configurable
+              parameters['channelId'],
+              parameters['color'] != null ? Color(parameters['color']): null,
+              actions);
+        }
+      }
+      else {
+        debugPrint("cannot reschedule notification");
+      }
+    }
   }
 
   Future<void> init() async {
@@ -67,7 +104,7 @@ class LocalNotificationService {
             }
           }
         },
-        onDidReceiveBackgroundNotificationResponse: bgHandleSnooze
+        onDidReceiveBackgroundNotificationResponse: handleNotificationResponseInBackground
     );
   }
 
@@ -83,6 +120,18 @@ class LocalNotificationService {
 
   Future<void> scheduleNotification(String receiverKey, int id, String title, message, Duration duration, String channelId, [Color? color, List<AndroidNotificationAction>? actions]) async {
     final when = tz.TZDateTime.now(tz.local).add(duration);
+
+    final parameterMap = {
+      'receiverKey' : receiverKey,
+      'id' : id,
+      'title' : title,
+      'message' : message,
+      'channelId' : channelId,
+      'color' : color?.value,
+      'actions' : actions?.map((a) => a.id + "-" + a.showsUserInterface.toString() + "-" + a.title).toList(),
+    };
+    final parametersAsJson = jsonEncode(parameterMap);
+
     await _flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         title,
@@ -91,7 +140,7 @@ class LocalNotificationService {
         NotificationDetails(android: _createNotificationDetails(color, channelId, false, actions)),
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        payload: receiverKey + "-" + id.toString());
+        payload: receiverKey + "-" + id.toString() + "-###" + parametersAsJson);
   }
 
   Future<void> cancelNotification(int id) async {
@@ -127,11 +176,12 @@ class LocalNotificationService {
   void _handlePayload(bool isAppLaunch, String payload, String? actionId) {
     debugPrint("_handlePayload=$payload $isAppLaunch");
 
-    var index = payload.indexOf("-");
-    if (index != -1) {
-      final receiverKey = payload.substring(0, index);
-      final actualPayload = payload.substring(index + 1);
-      _notificationClickedHandler.forEach((h) => h.call(receiverKey, isAppLaunch, actualPayload, actionId));
+    var splitted = payload.split("-");
+    if (splitted.length >= 2) {
+      final receiverKey = splitted[0];
+      final actualPayload = splitted[1];
+      _notificationClickedHandler.forEach((h) =>
+          h.call(receiverKey, isAppLaunch, actualPayload, actionId));
     }
   }
   

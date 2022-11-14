@@ -425,27 +425,28 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   handleNotificationClickRouted(bool isAppLaunch, String payload, String? actionId) {
     if (_initialLoaded) {
-      setState(() {
-        final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == payload);
-        _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
-        if (actionId == "track") {
-          _openAddJournalEntryFromSchedule(clickedScheduledTask);
-        }
-      });
+      _handleNotificationClicked(payload, actionId);
     }
     else {
+      // wait until loaded
       Timer.periodic(Duration(milliseconds: 100), (timer) {
         if (_initialLoaded) {
           timer.cancel();
           debugPrint("jump to schedule after initial load");
-          setState(() {
-            final clickedScheduledTask = _scheduledTasks.firstWhere((
-                scheduledTask) => scheduledTask.id.toString() == payload);
-            _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
-          });
+          _handleNotificationClicked(payload, actionId);
         }
       });
     }
+  }
+
+  void _handleNotificationClicked(String payload, String? actionId) {
+    setState(() {
+      final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == payload);
+      _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
+      if (actionId == "track") {
+        _openAddJournalEntryFromSchedule(clickedScheduledTask);
+      }
+    });
   }
 
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
