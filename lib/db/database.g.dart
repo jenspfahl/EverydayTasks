@@ -73,8 +73,11 @@ class _$AppDatabase extends AppDatabase {
 
   SequencesDao? _sequencesDaoInstance;
 
-  Future<sqflite.Database> open(String path, List<Migration> migrations,
-      [Callback? callback]) async {
+  Future<sqflite.Database> open(
+    String path,
+    List<Migration> migrations, [
+    Callback? callback,
+  ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
       version: 10,
       onConfigure: (database) async {
@@ -156,8 +159,10 @@ class _$AppDatabase extends AppDatabase {
 }
 
 class _$TaskEventDao extends TaskEventDao {
-  _$TaskEventDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database, changeListener),
+  _$TaskEventDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
         _taskEventEntityInsertionAdapter = InsertionAdapter(
             database,
             'TaskEventEntity',
@@ -238,7 +243,10 @@ class _$TaskEventDao extends TaskEventDao {
 
   @override
   Future<List<TaskEventEntity>> findAllBeginningByStartedAt(
-      int lastStartedAt, int lastId, int limit) async {
+    int lastStartedAt,
+    int lastId,
+    int limit,
+  ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM TaskEventEntity WHERE startedAt < ?1 AND id < ?2 ORDER BY startedAt DESC, id DESC LIMIT ?3',
         mapper: (Map<String, Object?> row) => TaskEventEntity(row['id'] as int?, row['taskGroupId'] as int?, row['originTaskTemplateId'] as int?, row['originTaskTemplateVariantId'] as int?, row['title'] as String, row['description'] as String?, row['createdAt'] as int, row['startedAt'] as int, row['aroundStartedAt'] as int, row['duration'] as int, row['aroundDuration'] as int, row['trackingFinishedAt'] as int?, row['severity'] as int, (row['favorite'] as int) != 0),
@@ -289,8 +297,10 @@ class _$TaskEventDao extends TaskEventDao {
 }
 
 class _$TaskTemplateDao extends TaskTemplateDao {
-  _$TaskTemplateDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database, changeListener),
+  _$TaskTemplateDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
         _taskTemplateEntityInsertionAdapter = InsertionAdapter(
             database,
             'TaskTemplateEntity',
@@ -417,8 +427,10 @@ class _$TaskTemplateDao extends TaskTemplateDao {
 }
 
 class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
-  _$TaskTemplateVariantDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database, changeListener),
+  _$TaskTemplateVariantDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
         _taskTemplateVariantEntityInsertionAdapter = InsertionAdapter(
             database,
             'TaskTemplateVariantEntity',
@@ -574,8 +586,10 @@ class _$TaskTemplateVariantDao extends TaskTemplateVariantDao {
 }
 
 class _$ScheduledTaskDao extends ScheduledTaskDao {
-  _$ScheduledTaskDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database, changeListener),
+  _$ScheduledTaskDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
         _scheduledTaskEntityInsertionAdapter = InsertionAdapter(
             database,
             'ScheduledTaskEntity',
@@ -746,8 +760,10 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
 }
 
 class _$ScheduledTaskEventDao extends ScheduledTaskEventDao {
-  _$ScheduledTaskEventDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database, changeListener),
+  _$ScheduledTaskEventDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
         _scheduledTaskEventEntityInsertionAdapter = InsertionAdapter(
             database,
             'ScheduledTaskEventEntity',
@@ -798,7 +814,10 @@ class _$ScheduledTaskEventDao extends ScheduledTaskEventDao {
 
   @override
   Future<List<ScheduledTaskEventEntity>> findByScheduledTaskId(
-      int scheduledTaskId, int lastId, int limit) async {
+    int scheduledTaskId,
+    int lastId,
+    int limit,
+  ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM ScheduledTaskEventEntity WHERE scheduledTaskId = ?1 AND id < ?2 ORDER BY createdAt DESC, id DESC LIMIT ?3',
         mapper: (Map<String, Object?> row) => ScheduledTaskEventEntity(row['id'] as int?, row['taskEventId'] as int, row['scheduledTaskId'] as int, row['createdAt'] as int),
@@ -850,8 +869,10 @@ class _$ScheduledTaskEventDao extends ScheduledTaskEventDao {
 }
 
 class _$SequencesDao extends SequencesDao {
-  _$SequencesDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database, changeListener),
+  _$SequencesDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
         _sequencesEntityInsertionAdapter = InsertionAdapter(
             database,
             'SequencesEntity',
