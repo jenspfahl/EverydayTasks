@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -73,7 +74,7 @@ class LocalNotificationService {
               parameters['id'],
               parameters['title'],
               parameters['message'],
-              Duration(hours: 1), //TODO make this configurable
+              kReleaseMode ? Duration(hours: 1) : Duration(minutes: 1), //TODO make this configurable
               parameters['channelId'],
               parameters['color'] != null ? Color(parameters['color']): null,
               actions);
@@ -196,10 +197,10 @@ class LocalNotificationService {
     return AndroidNotificationDetails(
       channelId,
       channelId == CHANNEL_ID_SCHEDULES
-          ? 'Notifications about due scheduled tasks'
+          ? translate("system.notifications.channel_schedules")
           : channelId == CHANNEL_ID_TRACKING
-          ? 'Tracking notifications'
-          : "Common notifications",
+          ? translate("system.notifications.channel_tracking")
+          : translate("system.notifications.channel_others"),
       color: color,
       playSound: !keepAsProgress,
       indeterminate: keepAsProgress,

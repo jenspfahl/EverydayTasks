@@ -12,6 +12,16 @@
       "report_a_bug": "Fehler melden"
     }
   },
+
+  "system" : {
+    "notifications" : {
+      "channel_schedules": "Benachrichtigungen über fällige Aufgaben",
+      "channel_tracking": "Benachrichtigungen während Tracken von Aufgaben",
+      "channel_others": "Allgemeine Benachrichtigungen",
+      "denied_permission_message": "Ohne diese Berechtigung können keine Benachrichtigungen empfangen werden."
+    }
+  },
+
   "forms": {
     "common": {
       "title_emphasis": "Bitte gib einen Titel ein",

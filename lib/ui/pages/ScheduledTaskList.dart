@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
@@ -77,6 +78,10 @@ class ScheduledTaskList extends PageScaffold<ScheduledTaskListState> {
 enum SortBy {PROGRESS, REMAINING_TIME, GROUP, TITLE,}
 
 class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with AutomaticKeepAliveClientMixin<ScheduledTaskList> {
+
+  final ID_MULTIPLIER_FOR_FIXED_SCHEDULES = 1000000;
+
+
   List<ScheduledTask> _scheduledTasks = [];
   bool _initialLoaded = false;
   int _selectedTile = -1;
@@ -122,6 +127,14 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     });
 
     _loadSchedules();
+
+    Permission.notification.request().then((status) {
+      debugPrint("notification permission = $status");
+      if (status == PermissionStatus.denied) {
+        toastInfo(context, translate("system.notifications.denied_permission_message"));
+      }
+    });
+
   }
 
   void _loadSchedules() {
@@ -441,10 +454,20 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   void _handleNotificationClicked(String payload, String? actionId) {
     setState(() {
-      final clickedScheduledTask = _scheduledTasks.firstWhere((scheduledTask) => scheduledTask.id.toString() == payload);
-      _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
-      if (actionId == "track") {
-        _openAddJournalEntryFromSchedule(clickedScheduledTask);
+      final notificationId = int.tryParse(payload);
+      if (notificationId != null) {
+        int scheduleId = notificationId;
+        if (notificationId > ID_MULTIPLIER_FOR_FIXED_SCHEDULES) {
+          scheduleId = notificationId ~/ ID_MULTIPLIER_FOR_FIXED_SCHEDULES;
+        }
+        debugPrint("scheduleId = $scheduleId");
+        final clickedScheduledTask = _scheduledTasks.firstWhereOrNull((scheduledTask) => scheduledTask.id == scheduleId);
+        if (clickedScheduledTask != null) {
+          _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
+          if (actionId == "track") {
+            _openAddJournalEntryFromSchedule(clickedScheduledTask);
+          }
+        }
       }
     });
   }
@@ -1130,8 +1153,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   forFixedNotificationIds(int scheduledTaskId, Function(int, bool) f) {
     const amount = 10;
-    const multiplier = 1000000;
-    int base = scheduledTaskId * multiplier;
+    int base = scheduledTaskId * ID_MULTIPLIER_FOR_FIXED_SCHEDULES;
     List.generate(amount, (baseId) => base + baseId + 1)
         .forEach((id) => f(id, id - base  == amount));
   }

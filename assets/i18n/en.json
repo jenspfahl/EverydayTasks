@@ -13,6 +13,15 @@
     }
   },
 
+  "system" : {
+    "notifications" : {
+      "channel_schedules": "Notifications about due scheduled tasks",
+      "channel_tracking": "Tracking notifications",
+      "channel_others": "Common notifications",
+      "denied_permission_message": "Without this permission it wont be possible to receive notifications."
+    }
+  },
+
   "forms": {
     "common": {
       "title_emphasis": "Please enter a title",

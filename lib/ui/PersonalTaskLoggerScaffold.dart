@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:personaltasklogger/service/BackupRestoreService.dart';
 import 'package:personaltasklogger/service/CsvService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
@@ -103,6 +104,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
         }
       });
     });
+
   }
 
 

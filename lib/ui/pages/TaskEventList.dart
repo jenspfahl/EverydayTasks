@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
@@ -91,6 +92,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     });
 
     _loadTaskEvents();
+
+    Permission.notification.request().then((status) {
+      debugPrint("notification permission = $status");
+      if (status == PermissionStatus.denied) {
+        toastInfo(context, translate("system.notifications.denied_permission_message"));
+      }
+    });
   }
 
   void _loadTaskEvents() {
