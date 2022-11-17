@@ -43,9 +43,9 @@ class TaskGroup implements Comparable {
   Color get accentColor => _getSharpedColor(colorRGB, 1.2);
   Color get foregroundColor => _getSharpedColor(colorRGB);
 
-  Icon getIcon(bool useIconColor) {
+  Icon getIcon(bool useIconColor, {Color? color}) {
     final icon = useIconColor
-      ? Icon(iconData, color: _getSharpedColor(colorRGB))
+      ? Icon(iconData, color: color ?? _getSharpedColor(colorRGB))
       : Icon(iconData);
     return icon;
   }

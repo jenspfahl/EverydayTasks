@@ -833,20 +833,18 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     }
     
     TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      String title = scheduledTask.translatedTitle;
       if (template != null) {
         return TaskEventForm(
             formTitle: translate('forms.task_event.create.title_from_schedule'),
             template: template,
-            title: title);
+            );
       }
       else {
         final taskGroup = findPredefinedTaskGroupById(
             scheduledTask.taskGroupId);
         return TaskEventForm(
             formTitle: translate('forms.task_event.create.title_from_schedule'),
-            taskGroup: taskGroup,
-            title: title);
+            taskGroup: taskGroup);
       }
     }));
     

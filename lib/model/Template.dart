@@ -33,6 +33,12 @@ abstract class Template extends TitleAndDescription implements Comparable {
     return tId!.compareTo(other.tId);
   }
 
+  Widget getTemplateRepresentation() {
+    final text = Text(" " + translatedTitle);
+    var icon = getIcon(true);
+    return Row(children: [icon, text]);
+
+  }
 
   @override
   String toString() {
@@ -49,8 +55,8 @@ abstract class Template extends TitleAndDescription implements Comparable {
 
   getKey() => tId.toString();
 
-  Icon getIcon(bool useColor) {
+  Icon getIcon(bool useColor, {Color? color}) {
     final taskGroup = findPredefinedTaskGroupById(taskGroupId);
-    return taskGroup.getIcon(useColor);
+    return taskGroup.getIcon(useColor, color: color);
   }
 }
