@@ -858,7 +858,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             .currentState
             ?.addTaskEvent(newTaskEvent, justSetState: true);
     
-        scheduledTask.executeSchedule(null);
+        scheduledTask.executeSchedule(newTaskEvent);
         ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
           _updateScheduledTask(scheduledTask, changedScheduledTask);
         });
