@@ -825,9 +825,10 @@ class _$ScheduledTaskEventDao extends ScheduledTaskEventDao {
   }
 
   @override
-  Future<ScheduledTaskEventEntity?> findByTaskEventId(int taskEventId) async {
-    return _queryAdapter.query(
-        'SELECT * FROM ScheduledTaskEventEntity WHERE taskEventId = ?1 ORDER BY createdAt DESC LIMIT 1',
+  Future<List<ScheduledTaskEventEntity>> findByTaskEventId(
+      int taskEventId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM ScheduledTaskEventEntity WHERE taskEventId = ?1 ORDER BY createdAt DESC LIMIT 10',
         mapper: (Map<String, Object?> row) => ScheduledTaskEventEntity(row['id'] as int?, row['taskEventId'] as int, row['scheduledTaskId'] as int, row['createdAt'] as int),
         arguments: [taskEventId]);
   }

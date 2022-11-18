@@ -108,10 +108,10 @@ class CsvService {
         taskTitle = template?.translatedTitle??"";
       }
     
-      final scheduledTaskEvent = await ScheduledTaskEventRepository.findByTaskEventId(taskEvent.id!);
+      final scheduledTaskEvents = await ScheduledTaskEventRepository.findByTaskEventId(taskEvent.id!);
       var scheduleTitle = "";
-      if (scheduledTaskEvent != null) {
-        final scheduledTask = await ScheduledTaskRepository.findById(scheduledTaskEvent.scheduledTaskId);
+      if (scheduledTaskEvents.isNotEmpty) {
+        final scheduledTask = await ScheduledTaskRepository.findById(scheduledTaskEvents.first.scheduledTaskId);
         scheduleTitle = scheduledTask?.translatedTitle??"";
       }
     

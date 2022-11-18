@@ -525,18 +525,16 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
             children: [
               TextButton(
                 onPressed: () async {
-                  final scheduledTaskEvent = await ScheduledTaskEventRepository.findByTaskEventId(taskEvent.id);
-                  final scheduledTask = scheduledTaskEvent != null
-                      ? await ScheduledTaskRepository.findById(scheduledTaskEvent.scheduledTaskId)
-                      : null;
+                  final scheduledTaskEvents = await ScheduledTaskEventRepository.findByTaskEventId(taskEvent.id);
+                  final scheduledTaskIds = scheduledTaskEvents.map((e) => e.scheduledTaskId);
 
                   if (taskEvent.originTemplateId != null) {
                     TemplateRepository.findById(taskEvent.originTemplateId!).then((template) {
-                      _showInfoDialog(taskEvent, template, scheduledTask);
+                      _showInfoDialog(taskEvent, template, scheduledTaskIds);
                     });
                   }
                   else {
-                    _showInfoDialog(taskEvent, null, scheduledTask);
+                    _showInfoDialog(taskEvent, null, scheduledTaskIds);
                   }
                 },
                 child: Icon(Icons.info_outline,
@@ -582,10 +580,12 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
                           ScheduledTaskEventRepository
                               .findByTaskEventId(taskEvent.id!)
                               .then((scheduledTaskEvent) {
-                                if (scheduledTaskEvent != null) {
-                                  ScheduledTaskEventRepository.delete(
-                                      scheduledTaskEvent);
-                                }
+                                  scheduledTaskEvent.forEach((scheduledTaskEvent) {
+                                    if (scheduledTaskEvent != null) {
+                                      ScheduledTaskEventRepository.delete(
+                                          scheduledTaskEvent);
+                                    }
+                                  });
                           });
                           toastInfo(context, translate('pages.journal.action.deletion.success',
                               args: {"title" : taskEvent.translatedTitle}));
@@ -626,7 +626,23 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     }
   }
 
-  void _showInfoDialog(TaskEvent taskEvent, Template? originTemplate, ScheduledTask? scheduledTask) {
+  Future<void> _showInfoDialog(TaskEvent taskEvent, Template? originTemplate, Iterable<int> scheduledTaskIds) async {
+    final associatedSchedulesWidgets = <Widget>[boldedText("${translate('pages.journal.details.associated_schedule')}: ")];
+    if (scheduledTaskIds.isEmpty) {
+      final widget = _createScheduleInfo(null);
+      associatedSchedulesWidgets.add(widget);
+    }
+    else {
+      for (final id in scheduledTaskIds) {
+        final schedule = await ScheduledTaskRepository.findById(id);
+
+        if (schedule != null) {
+          final widget = _createScheduleInfo(schedule);
+          associatedSchedulesWidgets.add(widget);
+        }
+      }
+    }
+
     final alert = AlertDialog(
       title: Row(children: [
         Padding(
@@ -686,10 +702,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           ),
           Divider(),
           Wrap(
-            children: [
-              boldedText("${translate('pages.journal.details.associated_schedule')}: "),
-              _createScheduleInfo(scheduledTask),
-            ],
+            children: associatedSchedulesWidgets,
           ),
         ],
       ),

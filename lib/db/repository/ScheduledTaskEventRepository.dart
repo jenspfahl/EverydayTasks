@@ -54,12 +54,12 @@ class ScheduledTaskEventRepository {
         .then((entities) => _mapFromEntities(entities));
   }
 
-  static Future<ScheduledTaskEvent?> findByTaskEventId(taskEventId, [String? dbName]) async {
+  static Future<List<ScheduledTaskEvent>> findByTaskEventId(taskEventId, [String? dbName]) async {
     final database = await getDb(dbName);
 
     final scheduledTaskEventDao = database.scheduledTaskEventDao;
     return scheduledTaskEventDao.findByTaskEventId(taskEventId)
-        .then((entity) => entity != null ? _mapFromEntity(entity) : null);
+        .then((entities) => _mapFromEntities(entities));
   }
 
   static Future<ScheduledTaskEvent> getById(int id) async {

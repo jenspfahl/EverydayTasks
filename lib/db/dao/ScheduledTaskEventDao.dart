@@ -9,8 +9,8 @@ abstract class ScheduledTaskEventDao {
       'WHERE scheduledTaskId = :scheduledTaskId AND id < :lastId ORDER BY createdAt DESC, id DESC LIMIT :limit')
   Future<List<ScheduledTaskEventEntity>> findByScheduledTaskId(int scheduledTaskId, int lastId, int limit);
 
-  @Query('SELECT * FROM ScheduledTaskEventEntity WHERE taskEventId = :taskEventId ORDER BY createdAt DESC LIMIT 1')
-  Future<ScheduledTaskEventEntity?> findByTaskEventId(int taskEventId);
+  @Query('SELECT * FROM ScheduledTaskEventEntity WHERE taskEventId = :taskEventId ORDER BY createdAt DESC LIMIT 10')
+  Future<List<ScheduledTaskEventEntity>> findByTaskEventId(int taskEventId);
 
   @Query('SELECT * FROM ScheduledTaskEventEntity WHERE id = :id')
   Stream<ScheduledTaskEventEntity?> findById(int id);
