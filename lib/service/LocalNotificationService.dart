@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -16,6 +15,8 @@ const CHANNEL_ID_TRACKING = 'de.jepfa.ptl.notifications.tracking';
 
 // stolen from https://github.com/iloveteajay/flutter_local_notification/https://github.com/iloveteajay/flutter_local_notification/
 class LocalNotificationService {
+
+  static final int RESCHEDULED_IDS_RANGE = 10000000;
 
   static final LocalNotificationService _notificationService = LocalNotificationService._internal();
 
@@ -68,16 +69,23 @@ class LocalNotificationService {
               : null;
 
           final notificationService = LocalNotificationService();
+          int id = parameters['id'];
+
+          // hack to move the id out of ScheduledTaskId range to not overwrite them
+          int newId = id < RESCHEDULED_IDS_RANGE ? RESCHEDULED_IDS_RANGE + id : id;
+
           await notificationService.init();
           notificationService.scheduleNotification(
               parameters['receiverKey'],
-              parameters['id'],
+              newId,
               parameters['title'],
               parameters['message'],
               kReleaseMode ? Duration(hours: 1) : Duration(minutes: 1), //TODO make this configurable
               parameters['channelId'],
               parameters['color'] != null ? Color(parameters['color']): null,
-              actions);
+              actions,
+              false
+          );
         }
       }
       else {
@@ -114,12 +122,13 @@ class LocalNotificationService {
       id,
       title, 
       message,
-      NotificationDetails(android: _createNotificationDetails(color, channelId, keepAsProgress, actions)),
+      NotificationDetails(android: _createNotificationDetails(color, channelId, keepAsProgress, actions, true)),
       payload: receiverKey + "-" + payload,
     );
   }
 
-  Future<void> scheduleNotification(String receiverKey, int id, String title, message, Duration duration, String channelId, [Color? color, List<AndroidNotificationAction>? actions]) async {
+  Future<void> scheduleNotification(String receiverKey, int id, String title, message, Duration duration, String channelId,
+      [Color? color, List<AndroidNotificationAction>? actions, bool withTranslation = true]) async {
     final when = tz.TZDateTime.now(tz.local).add(duration);
 
     final parameterMap = {
@@ -138,7 +147,7 @@ class LocalNotificationService {
         title,
         message,
         when.subtract(Duration(seconds: when.second)), // trunc seconds
-        NotificationDetails(android: _createNotificationDetails(color, channelId, false, actions)),
+        NotificationDetails(android: _createNotificationDetails(color, channelId, false, actions, withTranslation)),
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         payload: receiverKey + "-" + id.toString() + "-###" + parametersAsJson);
@@ -193,14 +202,14 @@ class LocalNotificationService {
 
 
   AndroidNotificationDetails _createNotificationDetails(Color? color, String channelId,
-      bool keepAsProgress, List<AndroidNotificationAction>? actions) {
+      bool keepAsProgress, List<AndroidNotificationAction>? actions, bool withTranslation) {
     return AndroidNotificationDetails(
       channelId,
       channelId == CHANNEL_ID_SCHEDULES
-          ? translate("system.notifications.channel_schedules")
+          ? withTranslation ? translate("system.notifications.channel_schedules") : APP_NAME
           : channelId == CHANNEL_ID_TRACKING
-          ? translate("system.notifications.channel_tracking")
-          : translate("system.notifications.channel_others"),
+          ? withTranslation ? translate("system.notifications.channel_tracking") : APP_NAME
+          : withTranslation ? translate("system.notifications.channel_others") : APP_NAME,
       color: color,
       playSound: !keepAsProgress,
       indeterminate: keepAsProgress,

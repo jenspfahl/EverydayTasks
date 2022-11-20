@@ -456,10 +456,17 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     setState(() {
       final notificationId = int.tryParse(payload);
       if (notificationId != null) {
+        debugPrint("notificationId = $notificationId");
         int scheduleId = notificationId;
-        if (notificationId > ID_MULTIPLIER_FOR_FIXED_SCHEDULES) {
-          scheduleId = notificationId ~/ ID_MULTIPLIER_FOR_FIXED_SCHEDULES;
+        // first remove mask for rescheduled notifications
+        if (scheduleId >= LocalNotificationService.RESCHEDULED_IDS_RANGE) {
+          scheduleId = scheduleId % LocalNotificationService.RESCHEDULED_IDS_RANGE;
         }
+        // then remove mask for fixed further notifications
+        if (scheduleId > ID_MULTIPLIER_FOR_FIXED_SCHEDULES) {
+          scheduleId = scheduleId % ID_MULTIPLIER_FOR_FIXED_SCHEDULES;
+        }
+
         debugPrint("scheduleId = $scheduleId");
         final clickedScheduledTask = _scheduledTasks.firstWhereOrNull((scheduledTask) => scheduledTask.id == scheduleId);
         if (clickedScheduledTask != null) {
@@ -664,12 +671,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         icon: const Icon(Icons.replay),
                         okPressed: () {
                           scheduledTask.executeSchedule(null);
-
                           ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-                            toastInfo(context, translate('pages.schedules.action.reset.success',
-                              args: {"title": changedScheduledTask.translatedTitle}));
-
+                            _cancelSnoozedNotification(scheduledTask);
                             _updateScheduledTask(scheduledTask, changedScheduledTask);
+
+                            toastInfo(context, translate('pages.schedules.action.reset.success',
+                                args: {"title": changedScheduledTask.translatedTitle}));
                           });
                           Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
                         },
@@ -702,6 +709,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         }
                         ScheduledTaskRepository.update(scheduledTask)
                             .then((changedScheduledTask) {
+                          _cancelSnoozedNotification(scheduledTask);
                           _updateScheduledTask(scheduledTask, changedScheduledTask);
 
                           var msg = changedScheduledTask.isPaused
@@ -769,11 +777,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                     if (changedScheduledTask != null) {
                       ScheduledTaskRepository.update(changedScheduledTask).then((changedScheduledTask) {
+                        _cancelSnoozedNotification(changedScheduledTask);
+                        _updateScheduledTask(scheduledTask, changedScheduledTask);
 
                         toastInfo(context, translate('forms.schedule.change.success',
                             args: {"title": changedScheduledTask.translatedTitle}));
-
-                        _updateScheduledTask(scheduledTask, changedScheduledTask);
                       });
                     }
                   },
@@ -860,6 +868,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     
         scheduledTask.executeSchedule(newTaskEvent);
         ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+          _cancelSnoozedNotification(scheduledTask);
           _updateScheduledTask(scheduledTask, changedScheduledTask);
         });
     
@@ -876,6 +885,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         }
       });
     }
+  }
+
+  void _cancelSnoozedNotification(ScheduledTask scheduledTask) {
+    _notificationService.cancelNotification(scheduledTask.id! + LocalNotificationService.RESCHEDULED_IDS_RANGE);
   }
 
   String _getDueMessage(ScheduledTask scheduledTask) {

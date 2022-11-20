@@ -27,6 +27,7 @@ import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 import '../../model/When.dart';
+import '../../service/LocalNotificationService.dart';
 import '../../util/units.dart';
 import '../PersonalTaskLoggerScaffold.dart';
 import '../TaskEventStats.dart';
@@ -237,6 +238,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           .then((scheduledTasks) {
             scheduledTasks.forEach((scheduledTask) {
               scheduledTask.executeSchedule(taskEvent);
+              _cancelSnoozedNotification(scheduledTask);
+
               debugPrint("schedule ${scheduledTask.id} executed: ${scheduledTask.lastScheduledEventOn}");
               ScheduledTaskRepository.update(scheduledTask).then((
                   changedScheduledTask) {
@@ -262,6 +265,10 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         _selectedTile = _filteredTaskEvents?.indexOf(taskEvent)??-1;
       }
     });
+  }
+
+  void _cancelSnoozedNotification(ScheduledTask scheduledTask) {
+    LocalNotificationService().cancelNotification(scheduledTask.id! + LocalNotificationService.RESCHEDULED_IDS_RANGE);
   }
 
   void _updateTaskEvent(TaskEvent origin, TaskEvent updated) {
