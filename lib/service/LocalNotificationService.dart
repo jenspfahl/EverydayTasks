@@ -16,7 +16,7 @@ const CHANNEL_ID_TRACKING = 'de.jepfa.ptl.notifications.tracking';
 // stolen from https://github.com/iloveteajay/flutter_local_notification/https://github.com/iloveteajay/flutter_local_notification/
 class LocalNotificationService {
 
-  static final int RESCHEDULED_IDS_RANGE = 10000000;
+  static final int RESCHEDULED_IDS_RANGE = 100000000;
 
   static final LocalNotificationService _notificationService = LocalNotificationService._internal();
 

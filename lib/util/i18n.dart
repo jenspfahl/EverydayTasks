@@ -21,7 +21,7 @@ String translateCapitalize(String key) {
 String translateI18nKey(String string) {
   if (isI18nKey(string)) {
     final key = extractI18nKey(string);
-    debugPrint("extracted i18n key: $key");
+    //debugPrint("extracted i18n key: $key");
     return translate(key);
   }
   else {

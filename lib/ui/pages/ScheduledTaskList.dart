@@ -463,8 +463,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           scheduleId = scheduleId % LocalNotificationService.RESCHEDULED_IDS_RANGE;
         }
         // then remove mask for fixed further notifications
-        if (scheduleId > ID_MULTIPLIER_FOR_FIXED_SCHEDULES) {
-          scheduleId = scheduleId % ID_MULTIPLIER_FOR_FIXED_SCHEDULES;
+        if (scheduleId >= ID_MULTIPLIER_FOR_FIXED_SCHEDULES) {
+          scheduleId = int.parse(scheduleId.toString().substring(1));
         }
 
         debugPrint("scheduleId = $scheduleId");
@@ -1158,11 +1158,21 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         debugPrint("cancel fixed $notificationId");
         _notificationService.cancelNotification(notificationId);
       });
+      forFixedNotificationIdsLegacy(scheduledTask.id!, (notificationId, _) {
+        debugPrint("legacy cancel fixed $notificationId");
+        _notificationService.cancelNotification(notificationId);
+      });
     }
 
   }
 
   forFixedNotificationIds(int scheduledTaskId, Function(int, bool) f) {
+    const amount = 10;
+    List.generate(amount, (baseId) => ID_MULTIPLIER_FOR_FIXED_SCHEDULES * (baseId + 1) + scheduledTaskId)
+        .forEach((id) => f(id, id ~/ ID_MULTIPLIER_FOR_FIXED_SCHEDULES  == amount));
+  }
+
+  forFixedNotificationIdsLegacy(int scheduledTaskId, Function(int, bool) f) {
     const amount = 10;
     int base = scheduledTaskId * ID_MULTIPLIER_FOR_FIXED_SCHEDULES;
     List.generate(amount, (baseId) => base + baseId + 1)

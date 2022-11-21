@@ -8,7 +8,7 @@ enum Clause {dative}
 
 Clause? usedClause(BuildContext context, Clause clause) {
   final locale = currentLocale(context);
-  debugPrint("locale $locale for clause $clause");
+  // debugPrint("locale $locale for clause $clause");
   if (locale.languageCode == 'de') {
     return clause;
   }
@@ -30,7 +30,7 @@ abstract class Unit {
       final clauseName = clause.toString().split('.').last;
       key = '${key}_$clauseName';
     }
-    debugPrint("key=$key");
+    //debugPrint("key=$key");
     return translatePlural(key, value);
   }
 
