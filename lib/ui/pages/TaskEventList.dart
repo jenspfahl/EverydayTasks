@@ -17,6 +17,7 @@ import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
 import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
@@ -236,19 +237,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     if (!justSetState && taskEvent.originTemplateId != null) {
       ScheduledTaskRepository.getByTemplateId(taskEvent.originTemplateId!)
           .then((scheduledTasks) {
-            scheduledTasks.forEach((scheduledTask) {
-              scheduledTask.executeSchedule(taskEvent);
-              _cancelSnoozedNotification(scheduledTask);
-
-              debugPrint("schedule ${scheduledTask.id} executed: ${scheduledTask.lastScheduledEventOn}");
-              ScheduledTaskRepository.update(scheduledTask).then((
-                  changedScheduledTask) {
-                debugPrint("schedule ${changedScheduledTask.id} notified: ${changedScheduledTask.lastScheduledEventOn}");
-                widget._pagesHolder.scheduledTaskList?.getGlobalKey().currentState?.updateScheduledTask(changedScheduledTask);
-
-                final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(taskEvent, changedScheduledTask);
-                ScheduledTaskEventRepository.insert(scheduledTaskEvent).then((value) => debugPrint(value.toString()));
-              });
+            final schedulesToConsider = scheduledTasks
+                .where((scheduledTask) => scheduledTask.active && !scheduledTask.isPaused)
+                .toList();
+            PreferenceService().getBool(PreferenceService.PREF_EXECUTE_SCHEDULES_ON_TASK_EVENT).then((value) {
+              if (value != false) {
+                _executeAllSchedules(scheduledTasks, taskEvent);
+              }
             });
       });
     }
@@ -264,6 +259,23 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         _filteredTaskEvents?..sort();
         _selectedTile = _filteredTaskEvents?.indexOf(taskEvent)??-1;
       }
+    });
+  }
+
+  void _executeAllSchedules(List<ScheduledTask> scheduledTasks, TaskEvent taskEvent) {
+    scheduledTasks.forEach((scheduledTask) {
+      scheduledTask.executeSchedule(taskEvent);
+      _cancelSnoozedNotification(scheduledTask);
+    
+      debugPrint("schedule ${scheduledTask.id} executed: ${scheduledTask.lastScheduledEventOn}");
+      ScheduledTaskRepository.update(scheduledTask).then((
+          changedScheduledTask) {
+        debugPrint("schedule ${changedScheduledTask.id} notified: ${changedScheduledTask.lastScheduledEventOn}");
+        widget._pagesHolder.scheduledTaskList?.getGlobalKey().currentState?.updateScheduledTask(changedScheduledTask);
+    
+        final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(taskEvent, changedScheduledTask);
+        ScheduledTaskEventRepository.insert(scheduledTaskEvent).then((value) => debugPrint(value.toString()));
+      });
     });
   }
 

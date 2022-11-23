@@ -117,7 +117,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
     });
 
-    _timer = Timer.periodic(Duration(seconds: 20), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 10), (timer) {
       setState(() {
         // update all
         _sortList();

@@ -29,6 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _showWeekdays = false;
   bool _showActionNotifications = false;
   int _showActionNotificationDurationSelection = 1;
+  bool _executeSchedulesOnTaskEvent = true;
 
   @override
   Widget build(BuildContext context) {
@@ -221,16 +222,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ],
         ),
-        /*SettingsSection(
-          title: Text('Data', style: TextStyle(color: ACCENT_COLOR)),
+        SettingsSection(
+          title: Text(translate('pages.settings.behaviour.title'), style: TextStyle(color: ACCENT_COLOR)),
           tiles: [
-            SettingsTile(
-              title: Text('Delete old journal entries'),
-              onPressed: (context) {
+            SettingsTile.switchTile(
+              title: Text(translate('pages.settings.behaviour.set_schedules_automatically_done.title')),
+              description: Text(translate('pages.settings.behaviour.set_schedules_automatically_done.description')),
+              initialValue: _executeSchedulesOnTaskEvent,
+              onToggle: (bool value) {
+                _preferenceService.setBool(PreferenceService.PREF_EXECUTE_SCHEDULES_ON_TASK_EVENT, value);
+                setState(() => _executeSchedulesOnTaskEvent = value);
               },
             ),
           ],
-        ),*/
+        ),
       ],
     );
   }
@@ -288,6 +293,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _showActionNotificationDurationSelection = showActionNotificationDurationSelection;
     }
 
+    final executeSchedulesOnTaskEvent = await _preferenceService.getBool(PreferenceService.PREF_EXECUTE_SCHEDULES_ON_TASK_EVENT);
+    if (executeSchedulesOnTaskEvent != null) {
+      _executeSchedulesOnTaskEvent = executeSchedulesOnTaskEvent;
+    }
+    else {
+      _executeSchedulesOnTaskEvent = true; // default
+    }
   }
 
   String _getLanguageSelectionAsString(int languageSelection, LocalizationDelegate localizationDelegate) {

@@ -338,6 +338,13 @@
             }
           }
         }
+      },
+      "behaviour": {
+        "title": "Verhalten",
+        "set_schedules_automatically_done": {
+          "title": "Setze Zeitpläne automatisch auf erledigt",
+          "description" : "Wenn neue Tätigkeiten von einer Aufgabe erfasst werden, setze alle zugehörigen Zeitpläne auf erledigt."
+        }
       }
     },
     "export": {
