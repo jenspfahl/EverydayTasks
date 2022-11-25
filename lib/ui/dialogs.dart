@@ -147,11 +147,13 @@ Future<bool?> showRepetitionPickerDialog({
   required BuildContext context,
   CustomRepetition? initialRepetition,
   required ValueChanged<CustomRepetition> onChanged,
+  List<RepetitionUnit>? supportedUnits
 }) {
 
   final repetitionPicker = RepetitionPicker(
     initialRepetition: initialRepetition,
     onChanged: onChanged,
+    supportedUnits: supportedUnits ?? [RepetitionUnit.DAYS, RepetitionUnit.WEEKS, RepetitionUnit.MONTHS, RepetitionUnit.YEARS],
   );
 
   Dialog dialog = Dialog(

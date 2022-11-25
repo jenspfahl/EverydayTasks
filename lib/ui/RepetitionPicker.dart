@@ -4,6 +4,7 @@ import 'package:numberpicker/numberpicker.dart';
 
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
+import 'package:personaltasklogger/ui/DynamicPicker.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
@@ -11,12 +12,16 @@ class RepetitionPicker extends StatefulWidget {
 
   late final CustomRepetition _initialRepetition;
   final ValueChanged<CustomRepetition> onChanged;
+  final List<RepetitionUnit> supportedUnits;
 
   RepetitionPicker({
     CustomRepetition? initialRepetition,
-    required this.onChanged
+    required this.onChanged,
+    required this.supportedUnits
   }) {
-    this._initialRepetition = initialRepetition ?? createDefaultRepetition();
+    this._initialRepetition = initialRepetition != null
+        ? CustomRepetition(initialRepetition.repetitionValue, initialRepetition.repetitionUnit)
+        : createDefaultRepetition();
   }
   
   @override
@@ -56,23 +61,21 @@ class _RepetitionPickerState extends State<RepetitionPicker> {
       }),
     );
 
-    final unitChildren = RepetitionUnit.values.map((unit) {
-      return RadioListTile<RepetitionUnit>(
-        dense: true,
-        visualDensity: VisualDensity(horizontal: 0, vertical: -4),
-        title: Text(Schedule.fromRepetitionUnitToString(unit)),
-        value: unit,
-        groupValue: _customRepetition.repetitionUnit ,
-        onChanged: (RepetitionUnit? value) {
-          setState(() {
-            if (value != null) {
-              _customRepetition.repetitionUnit = value;
-              widget.onChanged(_customRepetition);
-            }
-          });
-        }
-      );
-    }).toList();
+    final unitPicker = DynamicPicker<RepetitionUnit>(
+      value: _customRepetition.repetitionUnit,
+      values: widget.supportedUnits,
+      textMapper: (unit) => Schedule.fromRepetitionUnitToString(unit),
+      textStyle: isDarkMode(context)
+          ? TextStyle(color: Colors.grey, fontSize: 14)
+          : null,
+      selectedTextStyle: isDarkMode(context)
+          ? TextStyle(color: PRIMARY_COLOR, fontSize: 24)
+          : null,
+      onChanged: (value) => setState(() {
+        _customRepetition.repetitionUnit = value;
+        widget.onChanged(_customRepetition);
+      }),
+    );
 
     //scaffold the full homepage
     return Column(
@@ -91,9 +94,7 @@ class _RepetitionPickerState extends State<RepetitionPicker> {
               child: valuePicker,
             ),
             Expanded(
-              child: Column(
-                children: unitChildren,
-              ),
+              child: unitPicker,
             ),
           ],
         ),

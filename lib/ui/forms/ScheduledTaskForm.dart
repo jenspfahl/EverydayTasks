@@ -42,6 +42,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
   RepetitionStep? _selectedRepetitionStep;
   CustomRepetition? _customRepetition;
+  CustomRepetition _reminderRepetition = CustomRepetition(1, RepetitionUnit.HOURS); //TODO
 
   AroundWhenAtDay? _selectedStartAt;
   TimeOfDay? _customStartAt;
@@ -342,9 +343,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                               children: [
                                 Container(
                                   height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) - 25,
+                                  width: (MediaQuery.of(context).size.width / 2) - 60,
                                   child: CheckboxListTile(
                                     title: Text(translate('forms.schedule.activate_schedule')),
+                                    dense: true,
+                                    contentPadding: EdgeInsets.zero,
                                     value: _isActive,
                                     onChanged: (bool? value) {
                                       setState(() {
@@ -355,7 +358,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 ),
                                 Container(
                                   height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) - 25,
+                                  width: (MediaQuery.of(context).size.width / 2) - 5,
                                   child: DropdownButtonFormField<WhenOnDate?>(
                                     onTap: () => FocusScope.of(context).unfocus(),
                                     value: _selectedScheduleFrom,
@@ -419,6 +422,67 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                             ),
                           ),
                           Padding(
+                            padding: EdgeInsets.only(top: 20.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                    height: 64.0,
+                                    width: (MediaQuery.of(context).size.width / 2) - 60,
+                                    child: CheckboxListTile(
+                                      title: Text(/*translate('forms.schedule.activate_schedule')*/ "Activate reminders"),
+                                      contentPadding: EdgeInsets.zero,
+                                      dense: true,
+                                      value: _isActive,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          if (value != null) _isActive = value;
+                                        });
+                                      },
+                                    )
+                                ),
+                                Container(
+                                  height: 64.0,
+                                  width: (MediaQuery.of(context).size.width / 2),
+                                  child: DropdownButtonFormField<CustomRepetition>(
+                                    onTap: () {
+                                      FocusScope.of(context).unfocus();
+                                      Navigator.pop(context);
+
+                                      CustomRepetition? tempSelectedRepetition = null;
+                                      showRepetitionPickerDialog(
+                                        context: context,
+                                        initialRepetition: _reminderRepetition,
+                                        supportedUnits: [RepetitionUnit.MINUTES, RepetitionUnit.HOURS, RepetitionUnit.DAYS, RepetitionUnit.WEEKS],
+                                        onChanged: (repetition) {
+                                         tempSelectedRepetition = repetition;
+                                        },
+                                      ).then((okPressed) {
+                                        if (okPressed ?? false) {
+                                          setState(() {
+                                            //TODO map back to predefined repetition steps if custom matches
+                                            if (tempSelectedRepetition != null) {
+                                              _reminderRepetition =
+                                                  tempSelectedRepetition!;
+                                            }
+                                          });
+                                        }
+                                      });
+                                    },
+                                    value: _reminderRepetition,
+                                    isExpanded: true,
+                                    icon: Icon(Icons.notifications_paused),
+                                    onChanged: (value) {},
+                                    items: [DropdownMenuItem(
+                                        value: _reminderRepetition,
+                                        child: Text("Remind after ${Schedule.fromCustomRepetitionToUnit(_reminderRepetition)}"))
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
                             padding: EdgeInsets.only(top: 10.0),
                             child: SwitchListTile(
                               contentPadding: EdgeInsets.zero,
@@ -438,10 +502,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 });
                               },)
                           ),
-                        Align(
+                          Align(
                             alignment: Alignment.bottomCenter,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 26.0),
+                              padding: const EdgeInsets.symmetric(vertical: 6.0),
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   minimumSize:

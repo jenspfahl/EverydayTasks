@@ -16,6 +16,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   DateTime? lastScheduledEventOn;
   bool active = true;
   DateTime? pausedAt;
+//  Duration? reminderNotification;
 
   ScheduledTask({
     this.id,

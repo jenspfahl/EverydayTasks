@@ -513,6 +513,8 @@
       "every": "Every"
     },
     "repetition_unit": {
+      "minutes": "Minutes",
+      "hours": "Hours",
       "days": "Days",
       "weeks": "Weeks",
       "months": "Months",

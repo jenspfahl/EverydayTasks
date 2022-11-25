@@ -567,6 +567,8 @@
       "every": "Aller"
     },
     "repetition_unit": {
+      "minutes": "Minuten",
+      "hours": "Stunden",
       "days": "Tage",
       "weeks": "Wochen",
       "months": "Monate",

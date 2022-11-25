@@ -8,7 +8,7 @@ import '../util/units.dart';
 import 'When.dart';
 
 enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, EVERY_OTHER_MONTH, QUARTERLY, HALF_YEARLY, YEARLY, CUSTOM}
-enum RepetitionUnit {DAYS, WEEKS, MONTHS, YEARS}
+enum RepetitionUnit {DAYS, WEEKS, MONTHS, YEARS, MINUTES, HOURS}
 enum RepetitionMode {DYNAMIC, FIXED}
 
 class CustomRepetition {
@@ -20,6 +20,8 @@ class CustomRepetition {
   DateTime getNextRepetitionFrom(DateTime from) {
     var jiffy = Jiffy(from);
     switch(repetitionUnit) {
+      case RepetitionUnit.MINUTES: return jiffy.add(minutes: repetitionValue).dateTime;
+      case RepetitionUnit.HOURS: return jiffy.add(hours: repetitionValue).dateTime;
       case RepetitionUnit.DAYS: return jiffy.add(days: repetitionValue).dateTime;
       case RepetitionUnit.WEEKS: return jiffy.add(weeks: repetitionValue).dateTime;
       case RepetitionUnit.MONTHS: return jiffy.add(months: repetitionValue).dateTime;
@@ -119,6 +121,8 @@ class Schedule {
 
   static String fromRepetitionUnitToString(RepetitionUnit repetitionUnit) {
     switch(repetitionUnit) {
+      case RepetitionUnit.MINUTES: return translate('model.repetition_unit.minutes');
+      case RepetitionUnit.HOURS: return translate('model.repetition_unit.hours');
       case RepetitionUnit.DAYS: return translate('model.repetition_unit.days');
       case RepetitionUnit.WEEKS: return translate('model.repetition_unit.weeks');
       case RepetitionUnit.MONTHS: return translate('model.repetition_unit.months');
@@ -137,16 +141,19 @@ class Schedule {
     if (customRepetition == null) {
       return translate('common.words.custom').capitalize() + "...";
     }
-    Unit unit;
-    switch(customRepetition.repetitionUnit) {
-      case RepetitionUnit.DAYS: unit = Days(customRepetition.repetitionValue); break;
-      case RepetitionUnit.WEEKS: unit = Weeks(customRepetition.repetitionValue); break;
-      case RepetitionUnit.MONTHS: unit = Months(customRepetition.repetitionValue); break;
-      case RepetitionUnit.YEARS: unit = Years(customRepetition.repetitionValue); break;
-    }
-
+    final unit = fromCustomRepetitionToUnit(customRepetition);
     return "${translate('model.repetition_step.every')} $unit";
   }
 
+  static Unit fromCustomRepetitionToUnit(CustomRepetition customRepetition) {
+    switch(customRepetition.repetitionUnit) {
+      case RepetitionUnit.MINUTES: return Minutes(customRepetition.repetitionValue);
+      case RepetitionUnit.HOURS: return Hours(customRepetition.repetitionValue);
+      case RepetitionUnit.DAYS: return Days(customRepetition.repetitionValue);
+      case RepetitionUnit.WEEKS: return Weeks(customRepetition.repetitionValue);
+      case RepetitionUnit.MONTHS: return Months(customRepetition.repetitionValue);
+      case RepetitionUnit.YEARS: return Years(customRepetition.repetitionValue);
+    }
+  }
 
 }
