@@ -146,11 +146,13 @@ Future<bool?> showDurationPickerDialog({
 Future<bool?> showRepetitionPickerDialog({
   required BuildContext context,
   CustomRepetition? initialRepetition,
+  required String description,
   required ValueChanged<CustomRepetition> onChanged,
   List<RepetitionUnit>? supportedUnits
 }) {
 
   final repetitionPicker = RepetitionPicker(
+    description: description,
     initialRepetition: initialRepetition,
     onChanged: onChanged,
     supportedUnits: supportedUnits ?? [RepetitionUnit.DAYS, RepetitionUnit.WEEKS, RepetitionUnit.MONTHS, RepetitionUnit.YEARS],
@@ -159,7 +161,7 @@ Future<bool?> showRepetitionPickerDialog({
   Dialog dialog = Dialog(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)), //this right here
     child: Container(
-      height: 300.0,
+      height: 350.0,
       width: 300.0,
 
       child: Column(

@@ -249,6 +249,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
                                         showRepetitionPickerDialog(
                                           context: context,
+                                          description: translate('forms.schedule.custom_repetition_steps_description'),
                                           initialRepetition: initialRepetition,
                                           onChanged: (repetition) => tempSelectedRepetition = repetition,
                                         ).then((okPressed) {
@@ -358,7 +359,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 ),
                                 Container(
                                   height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) - 5,
+                                  width: (MediaQuery.of(context).size.width / 2) + 5,
                                   child: DropdownButtonFormField<WhenOnDate?>(
                                     onTap: () => FocusScope.of(context).unfocus(),
                                     value: _selectedScheduleFrom,
@@ -430,7 +431,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     height: 64.0,
                                     width: (MediaQuery.of(context).size.width / 2) - 60,
                                     child: CheckboxListTile(
-                                      title: Text(/*translate('forms.schedule.activate_schedule')*/ "Activate reminders"),
+                                      title: Text(translate('forms.schedule.activate_reminders')),
                                       contentPadding: EdgeInsets.zero,
                                       dense: true,
                                       value: _isActive,
@@ -443,7 +444,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 ),
                                 Container(
                                   height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2),
+                                  width: (MediaQuery.of(context).size.width / 2) + 5,
                                   child: DropdownButtonFormField<CustomRepetition>(
                                     onTap: () {
                                       FocusScope.of(context).unfocus();
@@ -452,6 +453,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       CustomRepetition? tempSelectedRepetition = null;
                                       showRepetitionPickerDialog(
                                         context: context,
+                                        description: translate('forms.schedule.remind_again_delay_description'),
                                         initialRepetition: _reminderRepetition,
                                         supportedUnits: [RepetitionUnit.MINUTES, RepetitionUnit.HOURS, RepetitionUnit.DAYS, RepetitionUnit.WEEKS],
                                         onChanged: (repetition) {
@@ -460,7 +462,6 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       ).then((okPressed) {
                                         if (okPressed ?? false) {
                                           setState(() {
-                                            //TODO map back to predefined repetition steps if custom matches
                                             if (tempSelectedRepetition != null) {
                                               _reminderRepetition =
                                                   tempSelectedRepetition!;
@@ -475,7 +476,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     onChanged: (value) {},
                                     items: [DropdownMenuItem(
                                         value: _reminderRepetition,
-                                        child: Text("Remind after ${Schedule.fromCustomRepetitionToUnit(_reminderRepetition)}"))
+                                        child: Text(translate('forms.schedule.remind_after',
+                                            args: {"when": Schedule.fromCustomRepetitionToUnit(_reminderRepetition)})
+                                        ))
                                     ],
                                   ),
                                 ),

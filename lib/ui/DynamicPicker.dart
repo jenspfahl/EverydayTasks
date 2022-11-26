@@ -62,11 +62,14 @@ class DynamicPicker<T> extends StatefulWidget {
   })  :super(key: key);
 
   @override
-  _DynamicPickerState<T> createState() => _DynamicPickerState<T>();
+  _DynamicPickerState<T> createState() => _DynamicPickerState<T>(this.onChanged);
 }
 
 class _DynamicPickerState<T> extends State<DynamicPicker> {
   late ScrollController _scrollController;
+  final ValueChanged<T> onChanged; // needed, otherwise T is erased
+
+  _DynamicPickerState(this.onChanged) {}
 
   @override
   void initState() {
@@ -89,11 +92,12 @@ class _DynamicPickerState<T> extends State<DynamicPicker> {
     } else {
       indexOfMiddleElement = indexOfMiddleElement.clamp(0, itemCount - 1);
     }
-    final intValueInTheMiddle =
+    final valueInTheMiddle =
         _getValueFromIndex(indexOfMiddleElement + additionalItemsOnEachSide);
 
-    if (widget.value != intValueInTheMiddle) {
-      widget.onChanged(intValueInTheMiddle);
+    debugPrint("valueInTheMiddle=$valueInTheMiddle");
+    if (widget.value != valueInTheMiddle) {
+      onChanged(valueInTheMiddle);
       if (widget.haptics) {
         HapticFeedback.selectionClick();
       }
@@ -204,6 +208,7 @@ class _DynamicPickerState<T> extends State<DynamicPicker> {
   T _getValueFromIndex(int index) {
     index -= additionalItemsOnEachSide;
     index %= itemCount;
+    debugPrint("index=$index");
     return widget.values.elementAt(index);
   }
 

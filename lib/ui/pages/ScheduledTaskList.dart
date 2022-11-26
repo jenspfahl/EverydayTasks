@@ -852,7 +852,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             scheduledTask.taskGroupId);
         return TaskEventForm(
             formTitle: translate('forms.task_event.create.title_from_schedule'),
-            taskGroup: taskGroup);
+            taskGroup: taskGroup,
+            title: scheduledTask.translatedTitle,
+            description:  scheduledTask.translatedDescription
+        );
       }
     }));
     

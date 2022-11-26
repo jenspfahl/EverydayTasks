@@ -31,14 +31,15 @@ class TaskEventForm extends StatefulWidget {
   final TaskGroup? taskGroup;
   final Template? template;
   final String? title;
+  final String? description;
   final Map<String, dynamic>? stateAsJson;
 
   TaskEventForm({required this.formTitle, this.taskEvent, 
-    this.taskGroup, this.template, this.title, this.stateAsJson});
+    this.taskGroup, this.template, this.title, this.description, this.stateAsJson});
 
   @override
   State<StatefulWidget> createState() {
-    return _TaskEventFormState(taskEvent, taskGroup, template, title);
+    return _TaskEventFormState(taskEvent, taskGroup, template, title, description);
   }
 }
 
@@ -48,6 +49,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
   final _descriptionController = TextEditingController();
 
   final String? _title;
+  final String? _description;
 
   TaskEvent? _taskEvent;
   TaskGroup? _taskGroup;
@@ -75,7 +77,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
   final _notificationService = LocalNotificationService();
   final _preferenceService = PreferenceService();
 
-  _TaskEventFormState([this._taskEvent, this._taskGroup, this._template, this._title]);
+  _TaskEventFormState([this._taskEvent, this._taskGroup, this._template, this._title, this._description]);
 
   @override
   initState() {
@@ -132,6 +134,9 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
 
     if (_title != null) {
       _titleController.text = _title!;
+    }
+    if (_description != null) {
+      _descriptionController.text = _description!;
     }
 
     if (selectedTaskGroupId != null) {
