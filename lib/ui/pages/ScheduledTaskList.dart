@@ -1151,7 +1151,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         [
           AndroidNotificationAction("track", translate('pages.schedules.notification.action_track'), showsUserInterface: true),
           AndroidNotificationAction("snooze", translate('pages.schedules.notification.action_snooze',
-            args: {"when" : Schedule.fromCustomRepetitionToUnit(snooze, Clause.dative)}), showsUserInterface: false),
+            args: {"when" : Schedule.fromCustomRepetitionToUnit(snooze, usedClause(context, Clause.dative))}), showsUserInterface: false),
         ],
         true,
         snooze,

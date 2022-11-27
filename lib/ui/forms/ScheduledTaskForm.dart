@@ -488,7 +488,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     items: [DropdownMenuItem(
                                         value: _reminderRepetition,
                                         child: Text(translate('forms.schedule.remind_after',
-                                            args: {"when": Schedule.fromCustomRepetitionToUnit(_reminderRepetition, Clause.dative)})
+                                            args: {"when": Schedule.fromCustomRepetitionToUnit(_reminderRepetition, usedClause(context, Clause.dative))})
                                         ))
                                     ],
                                   ),
