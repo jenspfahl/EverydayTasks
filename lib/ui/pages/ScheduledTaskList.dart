@@ -1092,6 +1092,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   void _rescheduleNotification(ScheduledTask scheduledTask,
       {bool withCancel = true, withCancelFixedMode = true}) {
+    if (scheduledTask.reminderNotificationEnabled == false) {
+      _cancelNotification(scheduledTask, alsoFixedMode: true);
+      return;
+    }
     final missingDuration = scheduledTask.getMissingDuration();
     if (missingDuration != null && !missingDuration.isNegative) {
       debugPrint("reschedule ${scheduledTask.id!} with missing duration: $missingDuration");
@@ -1115,17 +1119,17 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       forFixedNotificationIds(scheduledTask.id!, (notificationId, isLast) {
         final nextMissingDuration = scheduledTask.getMissingDurationAfter(lastScheduled);
         debugPrint("schedule $notificationId, lastScheduled $lastScheduled nextMissingDuration $nextMissingDuration isLast $isLast");
-        _schedule(notificationId, scheduledTask.translatedTitle, taskGroup, nextMissingDuration, true, isLast);
+        _schedule(notificationId, scheduledTask, taskGroup, nextMissingDuration, true, isLast);
 
         lastScheduled = scheduledTask.getNextScheduleAfter(lastScheduled)!;
       });
     }
     else {
-      _schedule(scheduledTask.id!, scheduledTask.translatedTitle, taskGroup, missingDuration, false, false);
+      _schedule(scheduledTask.id!, scheduledTask, taskGroup, missingDuration, false, false);
     }
   }
 
-  void _schedule(int id, String title, TaskGroup taskGroup, Duration missingDuration, bool isFixed, bool isLast) {
+  void _schedule(int id, ScheduledTask scheduledTask, TaskGroup taskGroup, Duration missingDuration, bool isFixed, bool isLast) {
     var titleKey = isFixed
             ? translate('pages.schedules.notification.title_fixed_task')
             : translate('pages.schedules.notification.title_normal_task');
@@ -1135,18 +1139,22 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               : 'pages.schedules.notification.message_fixed_task'
             : 'pages.schedules.notification.message_normal_task';
 
+    final snooze = scheduledTask.reminderNotificationRepetition??CustomRepetition(1, RepetitionUnit.HOURS);
     _notificationService.scheduleNotification(
         widget.getRoutingKey(),
         id,
         "$titleKey (${taskGroup.translatedName})",
-        translate(messageKey, args: {"title": title}),
+        translate(messageKey, args: {"title": scheduledTask.translatedTitle}),
         missingDuration,
         CHANNEL_ID_SCHEDULES,
         taskGroup.backgroundColor,
         [
           AndroidNotificationAction("track", translate('pages.schedules.notification.action_track'), showsUserInterface: true),
-          AndroidNotificationAction("snooze", translate('pages.schedules.notification.action_snooze'), showsUserInterface: false),
-        ]
+          AndroidNotificationAction("snooze", translate('pages.schedules.notification.action_snooze',
+            args: {"when" : Schedule.fromCustomRepetitionToUnit(snooze, Clause.dative)}), showsUserInterface: false),
+        ],
+        true,
+        snooze,
     );
   }
 
@@ -1166,6 +1174,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         _notificationService.cancelNotification(notificationId);
       });
     }
+
+    _cancelSnoozedNotification(scheduledTask);
 
   }
 

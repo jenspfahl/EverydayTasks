@@ -203,7 +203,7 @@
         "message_fixed_task": "Geplante feste Aufgabe '{title}' ist fällig!",
         "message_fixed_last_task": "Geplante feste Aufgabe '{title}' ist fällig! Bitte klicken um weitere Benachrichtigungen zu erhalten!",
         "action_track": "Erfassen",
-        "action_snooze": "Später erinnern"
+        "action_snooze": "In {when} erinnern"
       },
       "action": {
         "reset": {

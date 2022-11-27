@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -71,6 +72,16 @@ class LocalNotificationService {
           final notificationService = LocalNotificationService();
           int id = parameters['id'];
 
+          var snoozePeriodValue = 1;
+          var snoozePeriodUnit = RepetitionUnit.HOURS;
+          if (parameters['snooze_period_value'] != null) {
+            snoozePeriodValue = parameters['snooze_period_value'];
+          }
+          if (parameters['snooze_period_unit'] != null) {
+            snoozePeriodUnit = RepetitionUnit.values.elementAt(parameters['snooze_period_unit']);
+          }
+          CustomRepetition snooze = CustomRepetition(snoozePeriodValue, snoozePeriodUnit);
+
           // hack to move the id out of ScheduledTaskId range to not overwrite them
           int newId = id < RESCHEDULED_IDS_RANGE ? RESCHEDULED_IDS_RANGE + id : id;
 
@@ -80,11 +91,12 @@ class LocalNotificationService {
               newId,
               parameters['title'],
               parameters['message'],
-              kReleaseMode ? Duration(hours: 1) : Duration(minutes: 1), //TODO make this configurable
+              snooze.toDuration(),
               parameters['channelId'],
               parameters['color'] != null ? Color(parameters['color']): null,
               actions,
-              false
+              false,
+              snooze,
           );
         }
       }
@@ -128,7 +140,7 @@ class LocalNotificationService {
   }
 
   Future<void> scheduleNotification(String receiverKey, int id, String title, message, Duration duration, String channelId,
-      [Color? color, List<AndroidNotificationAction>? actions, bool withTranslation = true]) async {
+      [Color? color, List<AndroidNotificationAction>? actions, bool withTranslation = true, CustomRepetition? snoozePeriod]) async {
     final when = tz.TZDateTime.now(tz.local).add(duration);
 
     final parameterMap = {
@@ -139,6 +151,8 @@ class LocalNotificationService {
       'channelId' : channelId,
       'color' : color?.value,
       'actions' : actions?.map((a) => a.id + "-" + a.showsUserInterface.toString() + "-" + a.title).toList(),
+      'snooze_period_value' : snoozePeriod?.repetitionValue,
+      'snooze_period_unit' : snoozePeriod?.repetitionUnit.index,
     };
     final parametersAsJson = jsonEncode(parameterMap);
 

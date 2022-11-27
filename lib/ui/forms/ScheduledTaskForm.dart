@@ -12,6 +12,8 @@ import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
+import '../../util/units.dart';
+
 class ScheduledTaskForm extends StatefulWidget {
   final String formTitle;
   final ScheduledTask? scheduledTask;
@@ -486,7 +488,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     items: [DropdownMenuItem(
                                         value: _reminderRepetition,
                                         child: Text(translate('forms.schedule.remind_after',
-                                            args: {"when": Schedule.fromCustomRepetitionToUnit(_reminderRepetition)})
+                                            args: {"when": Schedule.fromCustomRepetitionToUnit(_reminderRepetition, Clause.dative)})
                                         ))
                                     ],
                                   ),

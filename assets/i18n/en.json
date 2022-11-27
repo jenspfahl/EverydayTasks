@@ -203,7 +203,7 @@
         "message_fixed_task": "Scheduled fixed task '{title}' is due!",
         "message_fixed_last_task": "Scheduled fixed task '{title}' is due! Please click to get future notifications!",
         "action_track": "Log or track",
-        "action_snooze": "Remind later"
+        "action_snooze": "Remind in {when}"
       },
       "action": {
         "reset": {

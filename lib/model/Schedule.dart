@@ -33,6 +33,17 @@ class CustomRepetition {
   String toString() {
     return 'CustomRepetition{repetitionValue: $repetitionValue, repetitionUnit: $repetitionUnit}';
   }
+
+  Duration toDuration() {
+    switch(repetitionUnit) {
+      case RepetitionUnit.MINUTES: return Duration(minutes: repetitionValue);
+      case RepetitionUnit.HOURS: return Duration(hours: repetitionValue);
+      case RepetitionUnit.DAYS: return Duration(days: repetitionValue);
+      case RepetitionUnit.WEEKS: return Duration(days: repetitionValue * 7);
+      case RepetitionUnit.MONTHS: return Duration(days: repetitionValue * 30);
+      case RepetitionUnit.YEARS: return Duration(days: repetitionValue * 365);
+    }
+  }
 }
 
 class Schedule {
@@ -145,14 +156,14 @@ class Schedule {
     return "${translate('model.repetition_step.every')} $unit";
   }
 
-  static Unit fromCustomRepetitionToUnit(CustomRepetition customRepetition) {
+  static Unit fromCustomRepetitionToUnit(CustomRepetition customRepetition, [Clause? clause]) {
     switch(customRepetition.repetitionUnit) {
-      case RepetitionUnit.MINUTES: return Minutes(customRepetition.repetitionValue);
-      case RepetitionUnit.HOURS: return Hours(customRepetition.repetitionValue);
-      case RepetitionUnit.DAYS: return Days(customRepetition.repetitionValue);
-      case RepetitionUnit.WEEKS: return Weeks(customRepetition.repetitionValue);
-      case RepetitionUnit.MONTHS: return Months(customRepetition.repetitionValue);
-      case RepetitionUnit.YEARS: return Years(customRepetition.repetitionValue);
+      case RepetitionUnit.MINUTES: return Minutes(customRepetition.repetitionValue, clause);
+      case RepetitionUnit.HOURS: return Hours(customRepetition.repetitionValue, clause);
+      case RepetitionUnit.DAYS: return Days(customRepetition.repetitionValue, clause);
+      case RepetitionUnit.WEEKS: return Weeks(customRepetition.repetitionValue, clause);
+      case RepetitionUnit.MONTHS: return Months(customRepetition.repetitionValue, clause);
+      case RepetitionUnit.YEARS: return Years(customRepetition.repetitionValue, clause);
     }
   }
 
