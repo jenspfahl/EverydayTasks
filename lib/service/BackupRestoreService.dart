@@ -11,6 +11,7 @@ import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../db/database.dart';
 import '../db/repository/TemplateRepository.dart';
 
 class BackupRestoreService {
@@ -115,8 +116,10 @@ class BackupRestoreService {
           final replacedDbFile = await restoreDbFile.copy(dbPath);
           debugPrint("file replaced: ${replacedDbFile.path}");
           restoreDbFile.delete();
+
           //reopening
-          await openDatabase(replacedDbFile.path, readOnly: false);
+          (await getDb()).close();
+          await getDb();
 
 
         } catch (e) {

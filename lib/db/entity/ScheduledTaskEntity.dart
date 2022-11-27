@@ -25,6 +25,10 @@ class ScheduledTaskEntity {
 
   final int? repetitionMode;
 
+  bool? reminderNotificationEnabled;
+  int? reminderNotificationPeriod;
+  int? reminderNotificationUnit;
+
   ScheduledTaskEntity(
       this.id,
       this.taskGroupId,
@@ -41,6 +45,9 @@ class ScheduledTaskEntity {
       this.lastScheduledEventAt,
       this.active,
       this.pausedAt,
-      this.repetitionMode
+      this.repetitionMode,
+      this.reminderNotificationEnabled,
+      this.reminderNotificationPeriod,
+      this.reminderNotificationUnit,
       );
 }

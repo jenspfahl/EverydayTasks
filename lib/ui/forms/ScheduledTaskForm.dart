@@ -42,7 +42,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
   RepetitionStep? _selectedRepetitionStep;
   CustomRepetition? _customRepetition;
-  CustomRepetition _reminderRepetition = CustomRepetition(1, RepetitionUnit.HOURS); //TODO
+  
+  bool _isRemindersEnabled = true;
+  CustomRepetition _reminderRepetition = CustomRepetition(1, RepetitionUnit.HOURS);
 
   AroundWhenAtDay? _selectedStartAt;
   TimeOfDay? _customStartAt;
@@ -83,6 +85,13 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
       _isActive = _scheduledTask!.active;
       _repetitionMode = _scheduledTask!.schedule.repetitionMode;
+
+      if (_scheduledTask!.reminderNotificationEnabled != null) {
+        _isRemindersEnabled = _scheduledTask!.reminderNotificationEnabled!;
+      }
+      if (_scheduledTask!.reminderNotificationRepetition != null) {
+        _reminderRepetition = _scheduledTask!.reminderNotificationRepetition!;
+      }
     }
     else if (_template != null) {
       titleController.text = _template!.translatedTitle;
@@ -434,10 +443,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       title: Text(translate('forms.schedule.activate_reminders')),
                                       contentPadding: EdgeInsets.zero,
                                       dense: true,
-                                      value: _isActive,
+                                      value: _isRemindersEnabled,
                                       onChanged: (bool? value) {
                                         setState(() {
-                                          if (value != null) _isActive = value;
+                                          if (value != null) _isRemindersEnabled = value;
                                         });
                                       },
                                     )
@@ -539,7 +548,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       schedule: schedule,
                                       lastScheduledEventOn: scheduleFrom,
                                       active: _isActive,
+                                      reminderNotificationEnabled: _isRemindersEnabled,
+                                      reminderNotificationRepetition: _reminderRepetition
                                     );
+
+                                    debugPrint("_isRemindersEnabled=$_isRemindersEnabled $_reminderRepetition");
                                     Navigator.pop(context, scheduledTask);
                                   }
                                 },

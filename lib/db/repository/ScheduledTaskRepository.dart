@@ -109,7 +109,10 @@ class ScheduledTaskRepository {
         scheduledTask.lastScheduledEventOn != null ? dateTimeToEntity(scheduledTask.lastScheduledEventOn!) : null,
         scheduledTask.active,
         scheduledTask.pausedAt != null ? dateTimeToEntity(scheduledTask.pausedAt!) : null,
-        scheduledTask.schedule.repetitionMode != null ? scheduledTask.schedule.repetitionMode.index : null,
+        scheduledTask.schedule.repetitionMode.index,
+        scheduledTask.reminderNotificationEnabled,
+        scheduledTask.reminderNotificationRepetition?.repetitionValue,
+        scheduledTask.reminderNotificationRepetition?.repetitionUnit.index,
     );
 
   static ScheduledTask _mapFromEntity(ScheduledTaskEntity entity) {
@@ -138,6 +141,10 @@ class ScheduledTaskRepository {
         lastScheduledEventOn: entity.lastScheduledEventAt != null ? dateTimeFromEntity(entity.lastScheduledEventAt!) : null,
         active: entity.active,
         pausedAt: entity.pausedAt != null ? dateTimeFromEntity(entity.pausedAt!) : null,
+        reminderNotificationEnabled: entity.reminderNotificationEnabled,
+        reminderNotificationRepetition: entity.reminderNotificationPeriod != null  && entity.reminderNotificationUnit != null
+            ? CustomRepetition(entity.reminderNotificationPeriod!, RepetitionUnit.values.elementAt(entity.reminderNotificationUnit!) )
+            : null,
     );
 
     if (scheduledTask.templateId != null) {
