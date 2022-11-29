@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../ui/utils.dart';
 import '../util/i18n.dart';
@@ -76,6 +77,9 @@ List<TaskGroup> predefinedTaskGroups = [
   TaskGroup(id: -14, i18nName: "health",colorRGB: Color.fromARGB(100, 200, 240, 3), iconData: Icons.healing_outlined),
   TaskGroup(id: -15, i18nName: "sport",colorRGB: Color.fromARGB(100, 240, 122, 3), iconData: Icons.sports_tennis_outlined),
   TaskGroup(id: -16, i18nName: "work",colorRGB: Color.fromARGB(100, 240, 3, 3), iconData: Icons.work_outline),
+  TaskGroup(id: -17, i18nName: "private",colorRGB: Color.fromARGB(100, 200, 30, 123), iconData: Icons.groups),
+  TaskGroup(id: -18, i18nName: "hygiene",colorRGB: Color.fromARGB(100, 3, 200, 205), iconData: Icons.bathtub_outlined),
+  TaskGroup(id: -19, i18nName: "voluntary",colorRGB: Color.fromARGB(100, 190, 140, 90), iconData: Icons.bloodtype_outlined),
 
   //last one
   TaskGroup(id: 0, i18nName: "others", colorRGB: Color.fromARGB(100, 128, 128, 128), iconData: Icons.lightbulb_outline),

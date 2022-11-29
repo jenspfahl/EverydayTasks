@@ -867,6 +867,45 @@
       }
     },
 
+    "private": {
+      "name": "Privat",
+      "templates": {
+        "call_a_friend": {
+          "title": "Einen Freund anrufen"
+        },
+        "visit_family": {
+          "title": "Die Familie besuchen"
+        }
+      }
+    },
+
+    "hygiene": {
+      "name": "Hygiene",
+      "templates": {
+        "brush_toots": {
+          "title": "Zähneputzen"
+        },
+        "take_a_shower": {
+          "title": "Duschen"
+        },
+        "go_to_the_hairdresser": {
+          "title": "Zum Friseur gehen"
+        }
+      }
+    },
+
+    "voluntary": {
+      "name": "Ehrenamtlich",
+      "templates": {
+        "donate_blood": {
+          "title": "Blut spenden"
+        },
+        "support_others": {
+          "title": "Anderen helfen"
+        }
+      }
+    },
+
     "others": {
       "name": "Anderes"
     }

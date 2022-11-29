@@ -2,7 +2,6 @@ import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
 
-import '../util/i18n.dart';
 import 'Severity.dart';
 import 'TitleAndDescription.dart';
 import 'When.dart';
@@ -147,6 +146,18 @@ List<TaskTemplate> predefinedTaskTemplates = [
   TaskTemplate.data(subId: -1, i18nTitle: "submit_expenses", taskGroupId: -16),
   TaskTemplate.data(subId: -2, i18nTitle: "negotiate_salary", taskGroupId: -16),
 
+  // Private
+  TaskTemplate.data(subId: -1, i18nTitle: "call_a_friend", taskGroupId: -17),
+  TaskTemplate.data(subId: -2, i18nTitle: "visit_family", taskGroupId: -17),
+
+  // Hygiene
+  TaskTemplate.data(subId: -1, i18nTitle: "brush_toots", taskGroupId: -18, when: When.aroundDuration(AroundDurationHours.FIVE_MINUTES)),
+  TaskTemplate.data(subId: -2, i18nTitle: "take_a_shower", taskGroupId: -18),
+  TaskTemplate.data(subId: -3, i18nTitle: "go_to_the_hairdresser", taskGroupId: -18),
+
+  // Voluntary
+  TaskTemplate.data(subId: -1, i18nTitle: "donate_blood", taskGroupId: -19),
+  TaskTemplate.data(subId: -2, i18nTitle: "support_others", taskGroupId: -19),
 
 
 ];

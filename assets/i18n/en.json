@@ -813,6 +813,45 @@
       }
     },
 
+    "private": {
+      "name": "Private",
+      "templates": {
+        "call_a_friend": {
+          "title": "Call a friend"
+        },
+        "visit_family": {
+          "title": "Visit family"
+        }
+      }
+    },
+
+    "hygiene": {
+      "name": "Hygiene",
+      "templates": {
+        "brush_toots": {
+          "title": "Brush toots"
+        },
+        "take_a_shower": {
+          "title": "Take a shower"
+        },
+        "go_to_the_hairdresser": {
+          "title": "Go to the hairdresser"
+        }
+      }
+    },
+
+    "voluntary": {
+      "name": "Voluntary",
+      "templates": {
+        "donate_blood": {
+          "title": "Donate blood"
+        },
+        "support_others": {
+          "title": "Support others"
+        }
+      }
+    },
+
     "others": {
       "name": "Others"
     }
