@@ -16,6 +16,7 @@ const CHANNEL_ID_TRACKING = 'de.jepfa.ptl.notifications.tracking';
 
 // stolen from https://github.com/iloveteajay/flutter_local_notification/https://github.com/iloveteajay/flutter_local_notification/
 class LocalNotificationService {
+  static final RESCHEDULE_JSON_START_MARKER = "-###";
 
   static final int RESCHEDULED_IDS_RANGE = 100000000;
 
@@ -55,7 +56,7 @@ class LocalNotificationService {
     if (response.actionId == "snooze") {
       final payload = response.payload;
       if (payload != null) {
-        final firstIndex = payload.indexOf("-###");
+        final firstIndex = payload.indexOf(RESCHEDULE_JSON_START_MARKER);
         if (firstIndex != -1) {
           final parametersAsString = payload.substring(firstIndex + 4);
           debugPrint("extracted params=$parametersAsString");
@@ -164,7 +165,7 @@ class LocalNotificationService {
         NotificationDetails(android: _createNotificationDetails(color, channelId, false, actions, withTranslation)),
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        payload: receiverKey + "-" + id.toString() + "-###" + parametersAsJson);
+        payload: receiverKey + "-" + id.toString() + RESCHEDULE_JSON_START_MARKER + parametersAsJson);
   }
 
   Future<void> cancelNotification(int id) async {
@@ -200,10 +201,11 @@ class LocalNotificationService {
   void _handlePayload(bool isAppLaunch, String payload, String? actionId) {
     debugPrint("_handlePayload=$payload $isAppLaunch");
 
-    var splitted = payload.split("-");
-    if (splitted.length >= 2) {
-      final receiverKey = splitted[0];
-      final actualPayload = splitted[1];
+    var payloadStartIndex = payload.indexOf("-");
+    var payloadEndIndex = payload.indexOf(RESCHEDULE_JSON_START_MARKER);
+    if (payloadStartIndex != -1) {
+      final receiverKey = payload.substring(0, payloadStartIndex);
+      final actualPayload = payload.substring(payloadStartIndex + 1, payloadEndIndex != -1 ? payloadEndIndex : null);
       _notificationClickedHandler.forEach((h) =>
           h.call(receiverKey, isAppLaunch, actualPayload, actionId));
     }

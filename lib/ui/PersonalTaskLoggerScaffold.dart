@@ -56,6 +56,7 @@ final NAVIGATION_IDX_TEMPLATES = 3;
 final DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX = NAVIGATION_IDX_TASK_EVENTS;
 
 class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> {
+
   int _selectedNavigationIndex = DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX;
   PageController _pageController = PageController(initialPage: DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX);
 
