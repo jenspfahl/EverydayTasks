@@ -283,12 +283,12 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                               TextSpan(
                                 text: translate('pages.about.star_it', args: {"link": ""}),
                                 children: <TextSpan>[
-                                  TextSpan(text: "github.com/jenspfahl/everydaytasks", style: TextStyle(decoration: TextDecoration.underline)),
+                                  TextSpan(text: "github.com/jenspfahl/EverydayTasks", style: TextStyle(decoration: TextDecoration.underline)),
                                 ],
                               ),
                             ),
                             onTap: () {
-                              launchUrl("https://github.com/jenspfahl/everydaytasks");
+                              launchUrl("https://github.com/jenspfahl/EverydayTasks");
                             }),
                         Divider(),
                         Text('© Jens Pfahl 2022', style: TextStyle(fontSize: 12)),
@@ -318,7 +318,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
                   final title = Uri.encodeComponent("A bug in version $version ($build)");
                   final body = Uri.encodeComponent("Please describe ..");
-                  launchUrl("https://github.com/jenspfahl/everydaytasks/issues/new?title=$title&body=$body");
+                  launchUrl("https://github.com/jenspfahl/EverydayTasks/issues/new?title=$title&body=$body");
                 },
               ),
             ],

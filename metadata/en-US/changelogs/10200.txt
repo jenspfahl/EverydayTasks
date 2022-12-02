@@ -1,0 +1,6 @@
+* notification actions to capture or remind later a due scheduled task
+* manage reminder of a schedule
+* change associated task of a schedule
+* pause/resume ongoing tracking
+* a few new predefined tasks
+* small improvements and fixes
