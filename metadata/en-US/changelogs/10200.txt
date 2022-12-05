@@ -4,3 +4,4 @@
 * pause/resume ongoing tracking
 * a few new predefined tasks
 * small improvements and fixes
+* changed minimum supported Android version to Android 8 (Oreo)
