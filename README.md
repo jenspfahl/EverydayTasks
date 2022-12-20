@@ -20,7 +20,7 @@ For more information see [https://everydaytasks.jepfa.de](https://everydaytasks.
 
 Otherwise, you can download the latest release version [here](https://everydaytasks.jepfa.de/download/).
 
-## Development deteils
+## Development details
 
 To re-generate floor files execute:
 
