@@ -126,7 +126,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       });
     });
 
-    _loadSchedules();
+    _loadSchedules(rescheduleNotification: false); // reschedule is done after loading global notification disabled preference
 
     Permission.notification.request().then((status) {
       debugPrint("notification permission = $status");
@@ -137,7 +137,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   }
 
-  void _loadSchedules() {
+  void _loadSchedules({required bool rescheduleNotification}) {
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 10000);
     ScheduledTaskRepository.getAllPaged(paging).then((scheduledTasks) {
       setState(() {
@@ -145,6 +145,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         _initialLoaded = true;
         _sortList();
         _calcOverallStats();
+        if (rescheduleNotification) {
+          _rescheduleAllSchedules();
+        }
         _preferenceService.getBool(PreferenceService.DATA_SHOW_SCHEDULED_SUMMARY)
             .then((value) {
               if (value != null) {
@@ -158,7 +161,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   @override
   reload() {
-    _loadSchedules();
+    _notificationService.cancelAllNotifications();
+    _loadSchedules(rescheduleNotification: true);
   }
 
   @override
@@ -286,17 +290,21 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
       }
       else {
-        _scheduledTasks.forEach((scheduledTask) =>
-            _rescheduleNotification(scheduledTask,
-                withCancel: false,
-                withCancelFixedMode: scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED)
-        );
+        _rescheduleAllSchedules();
         if (withSnackMsg) {
           toastInfo(context, translate('pages.schedules.menu.notifications.enabled'));
         }
       }
       _preferenceService.setBool(PREF_DISABLE_NOTIFICATIONS, _disableNotification);
     });
+  }
+
+  void _rescheduleAllSchedules() {
+    _scheduledTasks.forEach((scheduledTask) =>
+        _rescheduleNotification(scheduledTask,
+            withCancel: false,
+            withCancelFixedMode: scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED)
+    );
   }
 
   @override
