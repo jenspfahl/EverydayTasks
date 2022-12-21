@@ -161,8 +161,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   @override
   reload() {
-    _notificationService.cancelAllNotifications();
-    _loadSchedules(rescheduleNotification: true);
+    _notificationService.cancelAllNotifications().then((value) {
+      _loadSchedules(rescheduleNotification: true);
+    });
   }
 
   @override
