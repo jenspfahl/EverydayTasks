@@ -184,12 +184,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
     });
     _preferenceService.getBool(PREF_DISABLE_NOTIFICATIONS).then((value) {
-      if (value != null) {
-        _updateDisableNotifications(value, withSnackMsg: false);
-      }
-      else {
-        disableNotificationIconKey.currentState?.refresh(!_disableNotification);
-      }
+        _updateDisableNotifications(value??false, withSnackMsg: false);
     });
     
     return [
