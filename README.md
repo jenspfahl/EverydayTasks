@@ -18,6 +18,11 @@ For more information see [https://everydaytasks.jepfa.de](https://everydaytasks.
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/de.jepfa.personaltasklogger/)
 
+
+[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+alt="Get it on Google Play"
+height="80">](https://play.google.com/store/apps/details?id=de.jepfa.personaltasklogger)
+
 Otherwise, you can download the latest release version [here](https://everydaytasks.jepfa.de/download/).
 
 ## Development details
