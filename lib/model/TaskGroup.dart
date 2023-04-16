@@ -12,8 +12,9 @@ class TaskGroup implements Comparable {
   String? description;
   Color? colorRGB;
   IconData? iconData;
+  bool? hidden;
 
-  TaskGroup({this.id, required String i18nName, this.description, this.colorRGB, this.iconData}) 
+  TaskGroup({this.id, required String i18nName, this.description, this.colorRGB, this.iconData, this.hidden})
   : this.name = wrapToI18nKey('task_groups.${i18nName}.name');
 
   String get translatedName => translateI18nKey(name);
@@ -38,6 +39,10 @@ class TaskGroup implements Comparable {
       return text;
     }
   }
+
+  bool isPredefined() => isIdPredefined(id??0);
+
+  static bool isIdPredefined(int id) => id < 0;
 
   Color get backgroundColor => _getShadedColor(colorRGB, true);
   Color get softColor => _getShadedColor(colorRGB, false);

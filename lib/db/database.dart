@@ -4,12 +4,14 @@ import 'package:personaltasklogger/db/dao/SequencesDao.dart';
 import 'package:personaltasklogger/db/dao/TaskEventDao.dart';
 import 'package:personaltasklogger/db/entity/SequencesEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
+import 'package:personaltasklogger/db/entity/TaskGroupEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateVariantEntity.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 import 'dao/ScheduledTaskDao.dart';
 import 'dao/ScheduledTaskEventDao.dart';
+import 'dao/TaskGroupDao.dart';
 import 'dao/TaskTemplateDao.dart';
 import 'dao/TaskTemplateVariantDao.dart';
 import 'entity/ScheduledTaskEntity.dart';
@@ -17,9 +19,10 @@ import 'entity/ScheduledTaskEventEntity.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 11, entities: [
-  TaskEventEntity, TaskTemplateEntity, TaskTemplateVariantEntity, ScheduledTaskEntity, ScheduledTaskEventEntity, SequencesEntity])
+@Database(version: 12, entities: [
+  TaskGroupEntity, TaskEventEntity, TaskTemplateEntity, TaskTemplateVariantEntity, ScheduledTaskEntity, ScheduledTaskEventEntity, SequencesEntity])
 abstract class AppDatabase extends FloorDatabase {
+  TaskGroupDao get taskGroupDao;
   TaskEventDao get taskEventDao;
   TaskTemplateDao get taskTemplateDao;
   TaskTemplateVariantDao get taskTemplateVariantDao;
@@ -87,9 +90,15 @@ final migration10To11 = new Migration(10, 11,
           await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `reminderNotificationUnit` INTEGER");
     });
 
+final migration11To12 = new Migration(11, 12,
+        (sqflite.Database database) async {
+          await database.execute('CREATE TABLE `TaskGroupEntity` (`id` INTEGER, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `colorRGB` INTEGER, `iconCodePoint` INTEGER, `iconFontFamily` TEXT, `iconFontPackage` TEXT, `hidden` INTEGER, PRIMARY KEY (`id`))');
+          await database.execute("INSERT INTO `SequencesEntity` (`table`, `lastId`) VALUES ('TaskGroupEntity', 1000)");
+        });
+
 
 Future<AppDatabase> getDb([String? name]) async => $FloorAppDatabase
     .databaseBuilder(name??'app_database.db')
     .addMigrations([migration2To3, migration3To4, migration4To5, migration5To6, migration6To7, migration7To8,
-        migration8To9, migration9To10, migration10To11])
+        migration8To9, migration9To10, migration10To11, migration11To12])
     .build();

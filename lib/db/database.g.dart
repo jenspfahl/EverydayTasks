@@ -61,6 +61,8 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
+  TaskGroupDao? _taskGroupDaoInstance;
+
   TaskEventDao? _taskEventDaoInstance;
 
   TaskTemplateDao? _taskTemplateDaoInstance;
@@ -79,7 +81,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 11,
+      version: 12,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -94,6 +96,8 @@ class _$AppDatabase extends AppDatabase {
         await callback?.onUpgrade?.call(database, startVersion, endVersion);
       },
       onCreate: (database, version) async {
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `TaskGroupEntity` (`id` INTEGER, `name` TEXT NOT NULL, `description` TEXT, `colorRGB` INTEGER, `iconCodePoint` INTEGER, `iconFontFamily` TEXT, `iconFontPackage` TEXT, `hidden` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `TaskEventEntity` (`id` INTEGER, `taskGroupId` INTEGER, `originTaskTemplateId` INTEGER, `originTaskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `startedAt` INTEGER NOT NULL, `aroundStartedAt` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `aroundDuration` INTEGER NOT NULL, `trackingFinishedAt` INTEGER, `severity` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
@@ -121,6 +125,11 @@ class _$AppDatabase extends AppDatabase {
       },
     );
     return sqfliteDatabaseFactory.openDatabase(path, options: databaseOptions);
+  }
+
+  @override
+  TaskGroupDao get taskGroupDao {
+    return _taskGroupDaoInstance ??= _$TaskGroupDao(database, changeListener);
   }
 
   @override
@@ -155,6 +164,120 @@ class _$AppDatabase extends AppDatabase {
   @override
   SequencesDao get sequencesDao {
     return _sequencesDaoInstance ??= _$SequencesDao(database, changeListener);
+  }
+}
+
+class _$TaskGroupDao extends TaskGroupDao {
+  _$TaskGroupDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
+        _taskGroupEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'TaskGroupEntity',
+            (TaskGroupEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'description': item.description,
+                  'colorRGB': item.colorRGB,
+                  'iconCodePoint': item.iconCodePoint,
+                  'iconFontFamily': item.iconFontFamily,
+                  'iconFontPackage': item.iconFontPackage,
+                  'hidden': item.hidden == null ? null : (item.hidden! ? 1 : 0)
+                },
+            changeListener),
+        _taskGroupEntityUpdateAdapter = UpdateAdapter(
+            database,
+            'TaskGroupEntity',
+            ['id'],
+            (TaskGroupEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'description': item.description,
+                  'colorRGB': item.colorRGB,
+                  'iconCodePoint': item.iconCodePoint,
+                  'iconFontFamily': item.iconFontFamily,
+                  'iconFontPackage': item.iconFontPackage,
+                  'hidden': item.hidden == null ? null : (item.hidden! ? 1 : 0)
+                },
+            changeListener),
+        _taskGroupEntityDeletionAdapter = DeletionAdapter(
+            database,
+            'TaskGroupEntity',
+            ['id'],
+            (TaskGroupEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'description': item.description,
+                  'colorRGB': item.colorRGB,
+                  'iconCodePoint': item.iconCodePoint,
+                  'iconFontFamily': item.iconFontFamily,
+                  'iconFontPackage': item.iconFontPackage,
+                  'hidden': item.hidden == null ? null : (item.hidden! ? 1 : 0)
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<TaskGroupEntity> _taskGroupEntityInsertionAdapter;
+
+  final UpdateAdapter<TaskGroupEntity> _taskGroupEntityUpdateAdapter;
+
+  final DeletionAdapter<TaskGroupEntity> _taskGroupEntityDeletionAdapter;
+
+  @override
+  Future<List<TaskGroupEntity>> findAll() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM TaskGroupEntity ORDER BY id DESC',
+        mapper: (Map<String, Object?> row) => TaskGroupEntity(
+            row['id'] as int?,
+            row['name'] as String,
+            row['description'] as String?,
+            row['colorRGB'] as int?,
+            row['iconCodePoint'] as int?,
+            row['iconFontFamily'] as String?,
+            row['iconFontPackage'] as String?,
+            row['hidden'] == null ? null : (row['hidden'] as int) != 0));
+  }
+
+  @override
+  Stream<TaskGroupEntity?> findById(int id) {
+    return _queryAdapter.queryStream(
+        'SELECT * FROM TaskGroupEntity WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => TaskGroupEntity(
+            row['id'] as int?,
+            row['name'] as String,
+            row['description'] as String?,
+            row['colorRGB'] as int?,
+            row['iconCodePoint'] as int?,
+            row['iconFontFamily'] as String?,
+            row['iconFontPackage'] as String?,
+            row['hidden'] == null ? null : (row['hidden'] as int) != 0),
+        arguments: [id],
+        queryableName: 'TaskGroupEntity',
+        isView: false);
+  }
+
+  @override
+  Future<int> insertTaskGroup(TaskGroupEntity taskGroup) {
+    return _taskGroupEntityInsertionAdapter.insertAndReturnId(
+        taskGroup, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> updateTaskGroup(TaskGroupEntity taskGroup) {
+    return _taskGroupEntityUpdateAdapter.updateAndReturnChangedRows(
+        taskGroup, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> deleteTaskGroup(TaskGroupEntity taskGroup) {
+    return _taskGroupEntityDeletionAdapter
+        .deleteAndReturnChangedRows(taskGroup);
   }
 }
 

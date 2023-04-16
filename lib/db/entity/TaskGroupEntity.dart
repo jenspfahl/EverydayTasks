@@ -6,9 +6,13 @@ class TaskGroupEntity {
   final int? id;
 
   final String name;
-  final String description;
+  final String? description;
   final int? colorRGB;
+  final int? iconCodePoint;
+  final String? iconFontFamily;
+  final String? iconFontPackage;
+  final bool? hidden;
 
   TaskGroupEntity(this.id,
-      this.name, this.description, this.colorRGB);
+      this.name, this.description, this.colorRGB, this.iconCodePoint, this.iconFontFamily, this.iconFontPackage, this.hidden);
 }

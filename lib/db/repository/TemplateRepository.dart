@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:personaltasklogger/db/entity/SequencesEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateVariantEntity.dart';
+import 'package:personaltasklogger/db/repository/SequenceRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
@@ -48,7 +49,7 @@ class TemplateRepository {
       final taskTemplateDao = database.taskTemplateDao;
 
       if (template.tId == null) {
-        int nextId = await nextSequenceId(database, "TaskTemplateEntity");
+        int nextId = await SequenceRepository.nextSequenceId(database, "TaskTemplateEntity");
         template.tId = TemplateId.forTaskTemplate(nextId);
       }
       final entity = _mapTemplateToEntity(template);
@@ -62,7 +63,7 @@ class TemplateRepository {
       final taskTemplateVariantDao = database.taskTemplateVariantDao;
 
       if (template.tId == null) {
-        int nextId = await nextSequenceId(database, "TaskTemplateVariantEntity");
+        int nextId = await SequenceRepository.nextSequenceId(database, "TaskTemplateVariantEntity");
         template.tId = TemplateId.forTaskTemplateVariant(nextId);
       }
 
@@ -336,21 +337,6 @@ class TemplateRepository {
 
   static List<TaskTemplateVariant> _mapTemplateVariantsFromEntities(List<TaskTemplateVariantEntity> entities) =>
       entities.map(_mapTemplateVariantFromEntity).toList();
-
-  static Future<int> nextSequenceId(AppDatabase database, String entityName) async {
-    final sequencesDao = await database.sequencesDao;
-    var sequencesEntity = await sequencesDao.findByTable(entityName).first;
-    if (sequencesEntity == null) {
-      debugPrint("Sequence for $entityName not initialized, do it now");
-      sequencesEntity = SequencesEntity(null, entityName, 1000);
-      final sequencesEntityId = await sequencesDao.insertSequence(sequencesEntity);
-      sequencesEntity.id = sequencesEntityId;
-    }
-    sequencesEntity.lastId = sequencesEntity.lastId + 1;
-    sequencesDao.updateSequence(sequencesEntity);
-
-    return sequencesEntity.lastId;
-  }
 
   static cacheParentFor(TemplateId tId) async {
     if (!tId.isVariant) {
