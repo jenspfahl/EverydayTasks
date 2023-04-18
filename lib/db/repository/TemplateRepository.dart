@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
-import 'package:personaltasklogger/db/entity/SequencesEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateVariantEntity.dart';
 import 'package:personaltasklogger/db/repository/SequenceRepository.dart';
@@ -12,7 +11,6 @@ import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/model/When.dart';
 
-import '../../util/i18n.dart';
 import '../database.dart';
 import 'mapper.dart';
 

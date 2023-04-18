@@ -12,8 +12,10 @@ import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/forms/TaskTemplateForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 
+import '../../db/repository/TaskGroupRepository.dart';
 import '../ToggleActionIcon.dart';
 import '../dialogs.dart';
+import '../forms/TaskGroupForm.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
 
@@ -80,25 +82,27 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   void initState() {
     super.initState();
 
-    _loadTemplates();
+    _loadTemplates(widget.initialSelectedKey);
   }
 
-  void _loadTemplates() {
+  void _loadTemplates(String? selectedNodeKey) {
     final taskTemplatesFuture = TemplateRepository.getAllTaskTemplates(widget.onlyHidden??false);
     final taskTemplateVariantsFuture = TemplateRepository.getAllTaskTemplateVariants(widget.onlyHidden??false);
     
-    _nodes = predefinedTaskGroups.map((group) => _createTaskGroupNode(group, [], widget.expandAll??false)).toList();
+    _nodes = TaskGroupRepository.getAllCached(inclHidden: false)
+        .map((group) => _createTaskGroupNode(group, [], widget.expandAll??false))
+        .toList();
     
     Future.wait([taskTemplatesFuture, taskTemplateVariantsFuture]).then((allTemplates) {
     
       setState(() {
         _allTemplates = allTemplates;
-        _selectedNodeKey = widget.initialSelectedKey; // before fillNodes to expand selection
+        _selectedNodeKey = selectedNodeKey; // before fillNodes to expand selection
         // filter only hidden but non-hidden if have hidden leaves
         _fillNodes(allTemplates, widget.hideEmptyNodes??false, widget.expandAll??false);
     
         if (_selectedNodeKey != null) {
-          _updateSelection(widget.initialSelectedKey!);
+          _updateSelection(_selectedNodeKey!);
         }
       });
     });
@@ -113,14 +117,14 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   
   @override
   reload() {
-    _loadTemplates();
+    _loadTemplates(widget.initialSelectedKey);
   }
 
   void _fillNodes(List<List<Template>> allTemplates, bool hideEmptyNodes, bool expandAll) {
     final taskTemplates = allTemplates[0] as List<TaskTemplate>;
     final taskTemplateVariants = allTemplates[1] as List<TaskTemplateVariant>;
     
-    _nodes = predefinedTaskGroups
+    _nodes = TaskGroupRepository.getAllCached(inclHidden: false)
         .map((group) =>
         _createTaskGroupNode(
             group,
@@ -241,7 +245,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                       toastInfo(context, translate('pages.tasks.menu.restore_a_task.success_task',
                           args: {"title" : template.translatedTitle}));
 
-                      final taskGroup = findPredefinedTaskGroupById(taskTemplate.taskGroupId);
+                      final taskGroup = TaskGroupRepository.findByIdFromCache(taskTemplate.taskGroupId);
                       setState(() {
                         _addTaskTemplate(template as TaskTemplate, taskGroup);
                       });
@@ -255,7 +259,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                       if (foundParentInDb != null && foundParentInDb.hidden == true) {
                         // restore parent first
                         TemplateRepository.undelete(foundParentInDb).then((template) {
-                          final taskGroup = findPredefinedTaskGroupById(foundParentInDb.taskGroupId);
+                          final taskGroup = TaskGroupRepository.findByIdFromCache(foundParentInDb.taskGroupId);
                           setState(() {
                             _addTaskTemplate(template as TaskTemplate, taskGroup);
                           });
@@ -267,7 +271,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                             toastInfo(context, translate('pages.tasks.menu.restore_a_task.success_variant_parent_task',
                                 args: {"title" : template.translatedTitle}));
 
-                            final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
+                            final taskGroup = TaskGroupRepository.findByIdFromCache(template.taskGroupId);
                             setState(() {
                               _addTaskTemplateVariant(taskTemplateVariant, taskGroup, foundParentInDb as TaskTemplate);
                             });
@@ -283,12 +287,12 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                               args: {"title" : template.translatedTitle}));
 
                           if (foundParentInDb is TaskTemplate) {
-                            final taskGroup = findPredefinedTaskGroupById(
+                            final taskGroup = TaskGroupRepository.findByIdFromCache(
                                 template.taskGroupId);
                             setState(() {
                               _addTaskTemplateVariant(
                                   taskTemplateVariant, taskGroup,
-                                  foundParentInDb as TaskTemplate);
+                                  foundParentInDb);
                             });
                           }
                         });
@@ -413,6 +417,18 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     widget._pagesHolder?.quickAddTaskEventPage?.getGlobalKey().currentState?.updateTemplate(template);
   }
 
+  void _updateTaskGroup(TaskGroup taskGroup) {
+    setState(() {
+      /*_treeViewController = _treeViewController.withUpdateNode(
+          taskGroup.getKey(),
+          _createTaskGroupNode(taskGroup, false)
+      );*/
+      widget.expandIconKey.currentState?.refresh(false); // expand all is false
+      _loadTemplates(taskGroup.getKey());
+    });
+    //widget._pagesHolder?.quickAddTaskEventPage?.getGlobalKey().currentState?.updateTemplate(template);
+  }
+
   void _removeTemplate(Template template) {
     if (template.isVariant()) {
       _allTemplates[1].remove(template);
@@ -467,10 +483,35 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
           }
         },
       );
+      changeAction = TextButton(
+        child: const Icon(Icons.edit),
+        onPressed: () async {
+          Navigator.pop(context);
+          TaskGroup? changedTaskGroup = await Navigator.push(
+              context, MaterialPageRoute(builder: (context) {
+            return TaskGroupForm(
+              taskGroup,
+              formTitle: translate('pages.tasks.action.change_task_group.title'),
+            );
+          }));
+
+          if (changedTaskGroup != null) {
+            TaskGroupRepository.save(changedTaskGroup)
+                .then((changedTaskGroup) {
+
+              toastInfo(context, translate('pages.tasks.action.change_task_group.success',
+                  args: {"name": changedTaskGroup.translatedName}));
+
+              _updateTaskGroup(changedTaskGroup);
+            });
+          }
+        },
+      );
+      deleteAction = _createRemoveTaskGroupAction(taskGroup, hasChildren);
     }
     else if (selectedItem is Template) {
-      template = selectedItem as Template;
-      taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
+      template = selectedItem;
+      taskGroup = TaskGroupRepository.findByIdFromCache(template.taskGroupId);
       if (template.isVariant()) {
         message = translate('pages.tasks.action.description_variant',
             args: {"title" : template.translatedTitle});
@@ -668,6 +709,49 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                   args: {"title": template.translatedTitle}));
 
               _removeTemplate(template);
+            });
+          },
+          cancelPressed: () =>
+              Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+        );
+      },
+    );
+  }
+
+  Widget _createRemoveTaskGroupAction(TaskGroup taskGroup, bool hasChildren) {
+    var message = "";
+    if (taskGroup.isPredefined()) {
+      message = translate('pages.tasks.action.remove_task_group.message_predefined',
+          args: {"name": taskGroup.translatedName});
+    }
+    else {
+      message = translate('pages.tasks.action.remove_task_group.message_custom',
+          args: {"name": taskGroup.translatedName});
+    }
+    return TextButton(
+      child: const Icon(Icons.delete),
+      onPressed: () {
+        if (hasChildren) {
+          toastError(context, translate('pages.tasks.action.remove_task_group.error_has_children')); //TODO allow hiding with children
+          Navigator.pop(context); // dismiss bottom sheet
+          return;
+        }
+
+        showConfirmationDialog(
+          context,
+          translate('pages.tasks.action.remove_task_group.title'),
+          message,
+          icon: const Icon(Icons.warning_amber_outlined),
+          okPressed: () {
+            Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
+            Navigator.pop(context); // dismiss bottom sheet
+
+            TaskGroupRepository.delete(taskGroup).then((taskGroup) {
+
+              toastInfo(context, translate('pages.tasks.action.remove_task_group.success',
+                  args: {"name": taskGroup.translatedName}));
+
+              //_removeTaskGroup(taskGroup);
             });
           },
           cancelPressed: () =>

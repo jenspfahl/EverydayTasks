@@ -28,6 +28,7 @@ import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
+import '../../db/repository/TaskGroupRepository.dart';
 import '../../util/units.dart';
 import '../PersonalTaskLoggerApp.dart';
 import '../ToggleActionIcon.dart';
@@ -413,7 +414,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   itemCount: _scheduledTasks.length,
                   itemBuilder: (context, index) {
                     var scheduledTask = _scheduledTasks[index];
-                    var taskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
+                    var taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
                     return _buildRow(index, scheduledTask, taskGroup);
                   }),
             ),
@@ -775,7 +776,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                           formTitle: translate('forms.schedule.change.title',
                               args: {"title": scheduledTask.translatedTitle}),
                           scheduledTask: scheduledTask,
-                          taskGroup: findPredefinedTaskGroupById(scheduledTask.taskGroupId),
+                          taskGroup: TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId),
                       );
                     }));
 
@@ -852,7 +853,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             );
       }
       else {
-        final taskGroup = findPredefinedTaskGroupById(
+        final taskGroup = TaskGroupRepository.findByIdFromCache(
             scheduledTask.taskGroupId);
         return TaskEventForm(
             formTitle: translate('forms.task_event.create.title_from_schedule'),
@@ -1066,7 +1067,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               return ScheduledTaskForm(
                 formTitle: translate('forms.schedule.create.title'),
                 taskGroup: selectedTemplateItem is Template
-                  ? findPredefinedTaskGroupById((selectedTemplateItem as Template).taskGroupId)
+                  ? TaskGroupRepository.findByIdFromCache((selectedTemplateItem as Template).taskGroupId)
                   : selectedTemplateItem as TaskGroup,
                 template: selectedTemplateItem is Template
                   ? selectedTemplateItem as Template
@@ -1109,7 +1110,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
 
       if (scheduledTask.active && !scheduledTask.isPaused && _disableNotification == false) {
-        final taskGroup = findPredefinedTaskGroupById(
+        final taskGroup = TaskGroupRepository.findByIdFromCache(
             scheduledTask.taskGroupId);
         _scheduleNotification(scheduledTask, taskGroup, missingDuration);
       }

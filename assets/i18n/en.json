@@ -92,6 +92,13 @@
         "message_task": "This will restore the current task '{title}' to the predefined default.",
         "message_variant": "This will restore the current variant '{title}' to the predefined default."
       }
+    },
+    "task_group": {
+      "title_hint": "Name of the category",
+      "reset": {
+        "title": "Restore default",
+        "message": "This will restore the current category '{name}' to the predefined default"
+      }
     }
   },
   "pages": {
@@ -246,7 +253,7 @@
       },
       "action": {
         "error_nothing_selected": "Please select an item first!",
-        "description_group": "Add a new task underneath '{groupName}'.",
+        "description_group": "Add a new task underneath '{groupName}' or change the current selected category.",
         "description_task": "Change or remove the selected task '{title}' or add a new variant underneath it.",
         "description_variant": "Change or remove the selected variant '{title}' or clone it as a new one.",
         "add_task": {
@@ -282,8 +289,19 @@
           "title": "Remove variant",
           "message_custom": "This will remove the current variant '{title}'. This cannot be underdone!",
           "message_predefined": "This will remove the current variant '{title}' by hiding it. You can restore it by clicking on the restore action icon.",
-          "success": "The {variant '{title}' has been removed"
-        }
+          "success": "The variant '{title}' has been removed"
+        },
+        "change_task_group": {
+          "title": "Change category",
+          "success": "Category '{name}' changed"
+        },
+        "remove_task_group": {
+          "error_has_children": "Remove underneath tasks first!",
+          "title": "Remove category",
+          "message_custom": "This will remove the current category '{name}'. This cannot be underdone!",
+          "message_predefined": "This will remove the current category '{name}' by hiding it. You can restore it by clicking on the restore action icon.",
+          "success": "The category '{name}' has been removed"
+        },
       }
     },
     "settings": {

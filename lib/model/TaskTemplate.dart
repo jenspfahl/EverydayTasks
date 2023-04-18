@@ -1,3 +1,4 @@
+import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
@@ -53,7 +54,10 @@ class TaskTemplate extends Template {
   }
   
   static String? _createI18nKey(int taskGroupId, String? i18nKey, String subKey) {
-    final taskGroup = findPredefinedTaskGroupById(taskGroupId);
+    if (!TaskGroup.isIdPredefined(taskGroupId)) {
+      return null;
+    }
+    final taskGroup = TaskGroupRepository.findPredefinedTaskGroupById(taskGroupId);
     final taskGroupName = taskGroup.name;
     return TitleAndDescription.createPredefinedI18nKey(taskGroupName, i18nKey, "name", "templates", subKey);
   }

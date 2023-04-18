@@ -9,15 +9,18 @@ import '../../util/i18n.dart';
 import '../database.dart';
 
 class TaskGroupRepository {
+
+  static Map<int, TaskGroup> _taskGroupCache = HashMap();
   
   static Future<TaskGroup> save(TaskGroup taskGroup) async {
 
     // try map texts to i18n keys
     if (taskGroup.isPredefined()) {
-      tryWrapI18nForNamedDescription(taskGroup, taskGroup.id!);
+      tryWrapI18nForName(taskGroup, taskGroup.id!);
     }
 
     if (taskGroup.id != null) {
+      _taskGroupCache[taskGroup.id!] = taskGroup;
       final foundTaskGroup = await findByIdJustDb(taskGroup.id!);
       if (foundTaskGroup != null) {
         return update(taskGroup);
@@ -89,8 +92,16 @@ class TaskGroupRepository {
     final entity = _mapTaskGroupToEntity(taskGroup);
 
     await taskGroupDao.deleteTaskGroup(entity);
+    _taskGroupCache.remove(taskGroup);
     return taskGroup;
     
+  }
+
+  static TaskGroup findPredefinedTaskGroupById(int id) => predefinedTaskGroups.firstWhere((element) => element.id == id);
+
+  static List<TaskGroup> getAllCached({required bool inclHidden}) {
+    return _taskGroupCache.values.toList().reversed.toList()  //TODO sort nonpref at last
+      ..where((element) => inclHidden ? element.hidden == true : true);
   }
 
   static Future<List<TaskGroup>> getAll(bool inclHidden, [String? dbName]) async {
@@ -106,7 +117,10 @@ class TaskGroupRepository {
           final taskGroupList = taskGroups
               .where((element) => inclHidden || !(element.hidden??false))
               .toList()..sort();
-    
+
+          taskGroups.forEach((element) {
+            _taskGroupCache[element.id!] = element;
+          });
           return taskGroupList;
         });
   }
@@ -125,6 +139,7 @@ class TaskGroupRepository {
   static Future<TaskGroup?> findById(int id) async {
     final foundInDb = await findByIdJustDb(id);
     if (foundInDb != null) {
+      _taskGroupCache[id] = foundInDb;
       return Future.value(foundInDb);
     }
     if (TaskGroup.isIdPredefined(id)) {
@@ -133,11 +148,18 @@ class TaskGroupRepository {
     return null;
   }
 
+  static TaskGroup findByIdFromCache(int id) {
+    final cachedTaskGroup = _taskGroupCache[id];
+    if (cachedTaskGroup != null) {
+      return cachedTaskGroup;
+    }
+    else return findPredefinedTaskGroupById(id);
+  }
+
   static TaskGroupEntity _mapTaskGroupToEntity(TaskGroup taskGroup) =>
     TaskGroupEntity(
         taskGroup.id,
         taskGroup.name,
-        taskGroup.description,
         taskGroup.colorRGB?.value,
         taskGroup.iconData?.codePoint,
         taskGroup.iconData?.fontFamily,
@@ -148,13 +170,12 @@ class TaskGroupRepository {
   static TaskGroup _mapTaskGroupFromEntity(TaskGroupEntity entity) =>
     TaskGroup(
         id: entity.id,
-        i18nName: entity.name,
-        description: entity.description,
+        name: entity.name,
         colorRGB: entity.colorRGB  != null ? Color(entity.colorRGB!) : null,
         iconData: entity.iconCodePoint  != null 
             ? IconData(entity.iconCodePoint!, 
-                fontFamily: entity.iconFontFamily!, 
-                fontPackage: entity.iconFontPackage!) 
+                fontFamily: entity.iconFontFamily,
+                fontPackage: entity.iconFontPackage)
             : null,
         hidden: entity.hidden,
     );
@@ -165,19 +186,12 @@ class TaskGroupRepository {
       entities.map(_mapTaskGroupFromEntity).toList();
 
 
-  static void tryWrapI18nForNamedDescription(
+  static void tryWrapI18nForName(
       TaskGroup modelToChange, int predefinedTaskGroupId) {
     final predefinedTaskGroup = findPredefinedTaskGroupById(predefinedTaskGroupId);
 
     final wrappedName = tryWrapToI18nKey(modelToChange.name, predefinedTaskGroup.name);
     modelToChange.name = wrappedName;
-
-    if (modelToChange.description != null &&
-        predefinedTaskGroup.description != null) {
-      final wrappedDescription = tryWrapToI18nKey(
-          modelToChange.description!, predefinedTaskGroup.description!);
-      modelToChange.description = wrappedDescription;
-    }
   }
 
 }

@@ -92,6 +92,13 @@
         "message_task": "Soll die vordefinierte Aufgabe '{title}' wiederhergestellt werden?",
         "message_variant": "Soll die vordefinierte Variante '{title}' wiederhergestellt werden?"
       }
+    },
+    "task_group": {
+      "title_hint": "Kurzer Name der Kategorie",
+      "reset": {
+        "title": "Kategorie wiederherstellen",
+        "message": "Soll die vordefinierte Kategorie '{name}' wiederhergestellt werden?"
+      }
     }
   },
   "pages": {
@@ -246,7 +253,7 @@
       },
       "action": {
         "error_nothing_selected": "Bitte erst ein Element auswählen!",
-        "description_group": "Neue Aufgabe unter '{groupName}' hinzufügen",
+        "description_group": "Füge eine neue Aufgabe unter '{groupName}' hinzu oder ändere die gewählte Kategorie.",
         "description_task": "Ändere oder entferne die ausgewählte Aufgabe '{title}' oder füge eine neue Variante davon hinzu.",
         "description_variant": "Ändere oder entferne die ausgewählte Variante '{title}' oder klone sie als Vorlage für eine neue Variante.",
         "add_task": {
@@ -283,6 +290,17 @@
           "message_custom": "Die Variante '{title} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
           "message_predefined": "Die Variante '{title}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
           "success": "Die Variante '{title}' wurde entfernt"
+        },
+        "change_task_group": {
+          "title": "Kategorie ändern",
+          "success": "Kategorie '{name}' geändert"
+        },
+        "remove_task_group": {
+          "error_has_children": "Bitte erst zugehörige Aufgaben entfernen!",
+          "title": "Entferne Kategorie",
+          "message_custom": "Die Kategorie '{name} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
+          "message_predefined": "Die Kategorie '{name}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
+          "success": "Die Kategorie '{name}' wurde entfernt"
         }
       }
     },

@@ -97,7 +97,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `TaskGroupEntity` (`id` INTEGER, `name` TEXT NOT NULL, `description` TEXT, `colorRGB` INTEGER, `iconCodePoint` INTEGER, `iconFontFamily` TEXT, `iconFontPackage` TEXT, `hidden` INTEGER, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `TaskGroupEntity` (`id` INTEGER, `name` TEXT NOT NULL, `colorRGB` INTEGER, `iconCodePoint` INTEGER, `iconFontFamily` TEXT, `iconFontPackage` TEXT, `hidden` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `TaskEventEntity` (`id` INTEGER, `taskGroupId` INTEGER, `originTaskTemplateId` INTEGER, `originTaskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `startedAt` INTEGER NOT NULL, `aroundStartedAt` INTEGER NOT NULL, `duration` INTEGER NOT NULL, `aroundDuration` INTEGER NOT NULL, `trackingFinishedAt` INTEGER, `severity` INTEGER NOT NULL, `favorite` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
@@ -178,7 +178,6 @@ class _$TaskGroupDao extends TaskGroupDao {
             (TaskGroupEntity item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'description': item.description,
                   'colorRGB': item.colorRGB,
                   'iconCodePoint': item.iconCodePoint,
                   'iconFontFamily': item.iconFontFamily,
@@ -193,7 +192,6 @@ class _$TaskGroupDao extends TaskGroupDao {
             (TaskGroupEntity item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'description': item.description,
                   'colorRGB': item.colorRGB,
                   'iconCodePoint': item.iconCodePoint,
                   'iconFontFamily': item.iconFontFamily,
@@ -208,7 +206,6 @@ class _$TaskGroupDao extends TaskGroupDao {
             (TaskGroupEntity item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'description': item.description,
                   'colorRGB': item.colorRGB,
                   'iconCodePoint': item.iconCodePoint,
                   'iconFontFamily': item.iconFontFamily,
@@ -236,7 +233,6 @@ class _$TaskGroupDao extends TaskGroupDao {
         mapper: (Map<String, Object?> row) => TaskGroupEntity(
             row['id'] as int?,
             row['name'] as String,
-            row['description'] as String?,
             row['colorRGB'] as int?,
             row['iconCodePoint'] as int?,
             row['iconFontFamily'] as String?,
@@ -251,7 +247,6 @@ class _$TaskGroupDao extends TaskGroupDao {
         mapper: (Map<String, Object?> row) => TaskGroupEntity(
             row['id'] as int?,
             row['name'] as String,
-            row['description'] as String?,
             row['colorRGB'] as int?,
             row['iconCodePoint'] as int?,
             row['iconFontFamily'] as String?,

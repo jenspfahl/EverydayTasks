@@ -92,7 +92,7 @@ final migration10To11 = new Migration(10, 11,
 
 final migration11To12 = new Migration(11, 12,
         (sqflite.Database database) async {
-          await database.execute('CREATE TABLE `TaskGroupEntity` (`id` INTEGER, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `colorRGB` INTEGER, `iconCodePoint` INTEGER, `iconFontFamily` TEXT, `iconFontPackage` TEXT, `hidden` INTEGER, PRIMARY KEY (`id`))');
+          await database.execute('CREATE TABLE `TaskGroupEntity` (`id` INTEGER, `name` TEXT NOT NULL, `colorRGB` INTEGER, `iconCodePoint` INTEGER, `iconFontFamily` TEXT, `iconFontPackage` TEXT, `hidden` INTEGER, PRIMARY KEY (`id`))');
           await database.execute("INSERT INTO `SequencesEntity` (`table`, `lastId`) VALUES ('TaskGroupEntity', 1000)");
         });
 

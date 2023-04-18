@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 
+import '../db/repository/TaskGroupRepository.dart';
 import 'TitleAndDescription.dart';
 import 'Severity.dart';
 import 'TemplateId.dart';
@@ -9,7 +10,7 @@ import 'When.dart';
 abstract class Template extends TitleAndDescription implements Comparable {
   TemplateId? tId;
   int taskGroupId;
-
+  TaskGroup? taskGroup;
 
   When? when;
   Severity? severity;
@@ -56,7 +57,7 @@ abstract class Template extends TitleAndDescription implements Comparable {
   getKey() => tId.toString();
 
   Icon getIcon(bool useColor, {Color? color}) {
-    final taskGroup = findPredefinedTaskGroupById(taskGroupId);
+    final taskGroup = TaskGroupRepository.findByIdFromCache(taskGroupId);
     return taskGroup.getIcon(useColor, color: color);
   }
 }
