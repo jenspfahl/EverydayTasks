@@ -12,8 +12,57 @@ import 'ChoiceWidget.dart';
 import 'PersonalTaskLoggerApp.dart';
 import 'RepetitionPicker.dart';
 import 'ToggleActionIcon.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
+
+import 'taskGroupIcons.dart';
+
 
 final int MAX_DAYS = 7300; // around 20 years
+
+Future<IconData?> showIconPicker(BuildContext context, Icon initialIcon) {
+
+  return FlutterIconPicker.showIconPicker(context,
+      //iconColor: ,
+      iconSize: 32.0,
+      title: Text("Select an icon"),
+ //     iconColor: Colors.blue,
+      searchHintText: "Search..",
+      noResultsText: "Not found",
+      showTooltips: true,
+      customIconPack: getAllTaskGroupIcons(),
+      iconPackModes: [IconPack.custom],
+  );
+}
+
+Future<bool?> showColorPicker(BuildContext context, {required Color initialColor, required Function(Color) onColorChanged, required Function() onOkClicked}) {
+  final dialog = AlertDialog(
+      title: const Text('Pick a color!'),
+      content: SingleChildScrollView(
+        child: ColorPicker(
+          pickerColor: initialColor.withOpacity(1.0),
+          enableAlpha: false,
+          onColorChanged: onColorChanged,
+        ),
+      ),
+      actions: <Widget>[
+        ElevatedButton(
+          child: const Text('Ok'),
+          onPressed: () {
+            onOkClicked();
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return dialog;
+    },
+  );
+}
 
 Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate}) {
   return showDatePicker(

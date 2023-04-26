@@ -1,17 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
-import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
-import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
-import 'package:personaltasklogger/model/TaskTemplate.dart';
-import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
-import 'package:personaltasklogger/model/Template.dart';
-import 'package:personaltasklogger/model/When.dart';
-import 'package:personaltasklogger/ui/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
-import 'package:personaltasklogger/util/dates.dart';
-import 'package:personaltasklogger/util/extensions.dart';
 
 class TaskGroupForm extends StatefulWidget {
   final TaskGroup? _taskGroup;
@@ -123,14 +114,46 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
                           return null;
                         },
                       ),
+                      ButtonBar(
+                        alignment: MainAxisAlignment.center,
+                        //    buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: () async {
+                              final iconData = await showIconPicker(context, _taskGroup!.getIcon(false));
+                              if (iconData != null) {
+                                setState(() => _taskGroup!.iconData = iconData);
+                              }
+                            },
+                            icon: _taskGroup!.getIcon(false), //TODO if new group, use Icons.token_outlined
+                            label: const Text("Change icon"),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              Color? _color;
+                              showColorPicker(
+                                  context,
+                                  initialColor: _taskGroup!.foregroundColor,
+                                  onColorChanged: (color) => _color = color,
+                                  onOkClicked: () {
+                                    setState(() => _taskGroup!.colorRGB = _color?.withAlpha(100));
+                                  }
+                              );
+                            },
+                            icon: Icon(Icons.palette_outlined, color: _taskGroup!.foregroundColor,),
+                            label: const Text("Change color"),
+
+                          ),
+
+                        ],
+                      ),
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 26.0),
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              minimumSize:
-                              Size(double.infinity, 40), // double.infinity is the width and 30 is the height
+                              minimumSize: Size(double.infinity, 40), // double.infinity is the width and 30 is the height
                             ),
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
@@ -159,6 +182,7 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
       ),
     );
   }
+
 
 
 }
