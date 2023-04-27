@@ -98,6 +98,14 @@
       "reset": {
         "title": "Kategorie wiederherstellen",
         "message": "Soll die vordefinierte Kategorie '{name}' wiederhergestellt werden?"
+      },
+      "change_icon": {
+        "title": "Symbol ändern",
+        "message": "Wähle ein Symbol"
+      },
+      "change_color": {
+        "title": "Farbe ändern",
+        "message": "Wähle eine Farbe"
       }
     }
   },

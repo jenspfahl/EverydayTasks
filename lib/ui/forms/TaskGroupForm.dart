@@ -76,7 +76,8 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
 
                       final predefinedTaskGroup = TaskGroupRepository.findPredefinedTaskGroupById(_taskGroup!.id!);
                       _taskGroup?.name = predefinedTaskGroup.name;
-                      //TODO color and icon
+                      _taskGroup?.colorRGB = predefinedTaskGroup.colorRGB;
+                      _taskGroup?.iconData = predefinedTaskGroup.iconData;
                       setState(() {
                         _updateState();
                       });
@@ -120,19 +121,20 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
                         children: [
                           OutlinedButton.icon(
                             onPressed: () async {
-                              final iconData = await showIconPicker(context, _taskGroup!.getIcon(false));
+                              final iconData = await showIconPicker(context, translate('forms.task_group.change_icon.message'));
                               if (iconData != null) {
                                 setState(() => _taskGroup!.iconData = iconData);
                               }
                             },
                             icon: _taskGroup!.getIcon(false), //TODO if new group, use Icons.token_outlined
-                            label: const Text("Change icon"),
+                            label: Text(translate('forms.task_group.change_icon.title')),
                           ),
                           OutlinedButton.icon(
                             onPressed: () {
                               Color? _color;
                               showColorPicker(
                                   context,
+                                  title: translate('forms.task_group.change_color.message'),
                                   initialColor: _taskGroup!.foregroundColor,
                                   onColorChanged: (color) => _color = color,
                                   onOkClicked: () {
@@ -141,7 +143,7 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
                               );
                             },
                             icon: Icon(Icons.palette_outlined, color: _taskGroup!.foregroundColor,),
-                            label: const Text("Change color"),
+                            label: Text(translate('forms.task_group.change_color.title')),
 
                           ),
 

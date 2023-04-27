@@ -20,24 +20,28 @@ import 'taskGroupIcons.dart';
 
 final int MAX_DAYS = 7300; // around 20 years
 
-Future<IconData?> showIconPicker(BuildContext context, Icon initialIcon) {
+Future<IconData?> showIconPicker(BuildContext context, String title) {
 
   return FlutterIconPicker.showIconPicker(context,
       //iconColor: ,
       iconSize: 32.0,
-      title: Text("Select an icon"),
+      title: Text(title),
  //     iconColor: Colors.blue,
-      searchHintText: "Search..",
-      noResultsText: "Not found",
+      searchHintText: "${translate('common.search')} ...",
+ //     noResultsText: "Not found",
+      closeChild: TextButton(
+        child: Text(translate("common.ok")),
+        onPressed:  () => Navigator.of(context).pop(true),
+      ),
       showTooltips: true,
       customIconPack: getAllTaskGroupIcons(),
       iconPackModes: [IconPack.custom],
   );
 }
 
-Future<bool?> showColorPicker(BuildContext context, {required Color initialColor, required Function(Color) onColorChanged, required Function() onOkClicked}) {
+Future<bool?> showColorPicker(BuildContext context, {required String title, required Color initialColor, required Function(Color) onColorChanged, required Function() onOkClicked}) {
   final dialog = AlertDialog(
-      title: const Text('Pick a color!'),
+      title: Text(title),
       content: SingleChildScrollView(
         child: ColorPicker(
           pickerColor: initialColor.withOpacity(1.0),
@@ -46,8 +50,8 @@ Future<bool?> showColorPicker(BuildContext context, {required Color initialColor
         ),
       ),
       actions: <Widget>[
-        ElevatedButton(
-          child: const Text('Ok'),
+        TextButton(
+          child: Text(translate("common.ok")),
           onPressed: () {
             onOkClicked();
             Navigator.of(context).pop();

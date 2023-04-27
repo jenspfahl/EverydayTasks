@@ -98,6 +98,14 @@
       "reset": {
         "title": "Restore default",
         "message": "This will restore the current category '{name}' to the predefined default"
+      },
+      "change_icon": {
+        "title": "Change icon",
+        "message": "Select an icon"
+      },
+      "change_color": {
+        "title": "Change color",
+        "message": "Pick a color"
       }
     }
   },
@@ -301,7 +309,7 @@
           "message_custom": "This will remove the current category '{name}'. This cannot be underdone!",
           "message_predefined": "This will remove the current category '{name}' by hiding it. You can restore it by clicking on the restore action icon.",
           "success": "The category '{name}' has been removed"
-        },
+        }
       }
     },
     "settings": {
