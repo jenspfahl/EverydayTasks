@@ -254,6 +254,7 @@
         "restore_a_task": {
           "title": "Restore a task",
           "description": "Select a previously removed predefined task or variant to be restored.",
+          "success_group": "Category '{name}' restored.",
           "success_task": "Task '{title}' restored.",
           "success_variant": "Variant '{title}' restored.",
           "success_variant_parent_task": "Variant '{title}' and parent task restored."

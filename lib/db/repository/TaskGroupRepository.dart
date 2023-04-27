@@ -100,8 +100,9 @@ class TaskGroupRepository {
   static TaskGroup findPredefinedTaskGroupById(int id) => predefinedTaskGroups.firstWhere((element) => element.id == id);
 
   static List<TaskGroup> getAllCached({required bool inclHidden}) {
-    return _taskGroupCache.values.toList().reversed.toList()  //TODO sort nonpref at last
-      ..where((element) => inclHidden ? element.hidden == true : true);
+    return _taskGroupCache.values
+        .where((element) => inclHidden || !(element.hidden??false))
+        .toList().reversed.toList();  //TODO sort nonpref at last;
   }
 
   static Future<List<TaskGroup>> getAll(bool inclHidden, [String? dbName]) async {

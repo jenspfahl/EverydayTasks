@@ -42,7 +42,7 @@ class TaskGroup implements Comparable {
 
   bool isPredefined() => isIdPredefined(id??0);
 
-  static bool isIdPredefined(int id) => id < 0;
+  static bool isIdPredefined(int id) => id <= 0;
 
   Color get backgroundColor => _getShadedColor(colorRGB, true);
   Color get softColor => _getShadedColor(colorRGB, false);

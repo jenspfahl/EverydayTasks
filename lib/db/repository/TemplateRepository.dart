@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskTemplateVariantEntity.dart';
 import 'package:personaltasklogger/db/repository/SequenceRepository.dart';
+import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
@@ -120,6 +121,10 @@ class TemplateRepository {
 
   static Future<Template> undelete(Template template) async {
     template.hidden = false;
+    final taskGroup = await TaskGroupRepository.findById(template.taskGroupId);
+    if (taskGroup != null) {
+      await TaskGroupRepository.undelete(taskGroup);
+    }
     return save(template);
   }
 

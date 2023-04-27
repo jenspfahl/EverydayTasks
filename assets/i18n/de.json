@@ -254,6 +254,7 @@
         "restore_a_task": {
           "title": "Aufgabe wiederherstellen",
           "description": "Wähle eine vordefinierte Aufgabe oder Variante zum wiederherstellen.",
+          "success_group": "Kategorie '{name}' wiederhergestellt.",
           "success_task": "Aufgabe '{title}' wiederhergestellt.",
           "success_variant": "Variante '{title}' wiederhergestellt.",
           "success_variant_parent_task": "Variante '{title}' mit zugehöriger Aufgabe wiederhergestellt."
