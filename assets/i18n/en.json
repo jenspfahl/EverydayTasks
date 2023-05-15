@@ -262,6 +262,7 @@
       },
       "action": {
         "error_nothing_selected": "Please select an item first!",
+        "description_nothing_selected": "Create a new category.",
         "description_group": "Add a new task underneath '{groupName}' or change the current selected category.",
         "description_task": "Change or remove the selected task '{title}' or add a new variant underneath it.",
         "description_variant": "Change or remove the selected variant '{title}' or clone it as a new one.",
@@ -299,6 +300,10 @@
           "message_custom": "This will remove the current variant '{title}'. This cannot be underdone!",
           "message_predefined": "This will remove the current variant '{title}' by hiding it. You can restore it by clicking on the restore action icon.",
           "success": "The variant '{title}' has been removed"
+        },
+        "create_task_group": {
+          "title": "Create category",
+          "success": "Category '{name}' created"
         },
         "change_task_group": {
           "title": "Change category",

@@ -40,7 +40,7 @@ class TaskGroup implements Comparable {
     }
   }
 
-  bool isPredefined() => isIdPredefined(id??0);
+  bool isPredefined() => id != null && isIdPredefined(id!);
 
   static bool isIdPredefined(int id) => id <= 0;
 

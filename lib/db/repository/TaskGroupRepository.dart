@@ -20,7 +20,6 @@ class TaskGroupRepository {
     }
 
     if (taskGroup.id != null) {
-      _taskGroupCache[taskGroup.id!] = taskGroup;
       final foundTaskGroup = await findByIdJustDb(taskGroup.id!);
       if (foundTaskGroup != null) {
         return update(taskGroup);
@@ -49,6 +48,8 @@ class TaskGroupRepository {
     final id = await taskGroupDao.insertTaskGroup(entity);
     taskGroup.id = id;
 
+    _taskGroupCache[taskGroup.id!] = taskGroup;
+
     return taskGroup;
   }
 
@@ -59,6 +60,8 @@ class TaskGroupRepository {
     final taskGroupDao = database.taskGroupDao;
     final entity = _mapTaskGroupToEntity(taskGroup);
     await taskGroupDao.updateTaskGroup(entity);
+
+    _taskGroupCache[taskGroup.id!] = taskGroup;
 
     return taskGroup;
     

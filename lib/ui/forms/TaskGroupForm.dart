@@ -36,6 +36,8 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
     else {
       _taskGroup = TaskGroup(
         name: "",
+        colorRGB: Colors.lime.shade800,
+        iconData: Icons.token_outlined,
       );
     }
  
@@ -126,7 +128,7 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
                                 setState(() => _taskGroup!.iconData = iconData);
                               }
                             },
-                            icon: _taskGroup!.getIcon(false), //TODO if new group, use Icons.token_outlined
+                            icon: _taskGroup!.getIcon(false),
                             label: Text(translate('forms.task_group.change_icon.title')),
                           ),
                           OutlinedButton.icon(
@@ -138,7 +140,12 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
                                   initialColor: _taskGroup!.foregroundColor,
                                   onColorChanged: (color) => _color = color,
                                   onOkClicked: () {
-                                    setState(() => _taskGroup!.colorRGB = _color?.withAlpha(100));
+                                    setState(() {
+                                      if (_color != null) {
+                                        _taskGroup!.colorRGB =
+                                            _color!.withAlpha(100);
+                                      }
+                                    });
                                   }
                               );
                             },
