@@ -311,8 +311,9 @@
         },
         "remove_task_group": {
           "error_has_children": "Bitte erst zugehörige Aufgaben entfernen!",
+          "error_has_schedules": "Bitte erst zugehörige Zeitpläne entfernen!",
           "title": "Entferne Kategorie",
-          "message_custom": "Die Kategorie '{name} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
+          "message_custom": "Die Kategorie '{name}' soll entfernt werden. Dies kann nicht rückgängig gemacht werden!",
           "message_predefined": "Die Kategorie '{name}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
           "success": "Die Kategorie '{name}' wurde entfernt"
         }
@@ -940,6 +941,10 @@
 
     "others": {
       "name": "Anderes"
+    },
+
+    "deleted": {
+      "name": ""
     }
   }
 }

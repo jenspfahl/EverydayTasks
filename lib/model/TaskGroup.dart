@@ -99,7 +99,9 @@ List<TaskGroup> predefinedTaskGroups = [
   TaskGroup.data(id: 0, i18nName: "others", colorRGB: Color.fromARGB(100, 128, 128, 128), iconData: Icons.lightbulb_outline),
 ];
 
-
+int deletedDefaultTaskGroupId = -1000000;
+TaskGroup deletedDefaultTaskGroup = TaskGroup.data(id: deletedDefaultTaskGroupId, i18nName: "deleted", colorRGB: Color.fromARGB(
+    100, 185, 185, 185), iconData: Icons.question_mark_outlined);
 
 
 Color _getSharpedColor(Color? colorRGB, [double factor = 2.5]) {

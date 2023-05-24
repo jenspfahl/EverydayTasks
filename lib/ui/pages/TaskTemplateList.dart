@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:flutter_treeview/flutter_treeview.dart';
+import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
+import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TaskTemplate.dart';
@@ -765,9 +767,15 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     }
     return TextButton(
       child: const Icon(Icons.delete),
-      onPressed: () {
+      onPressed: () async {
         if (hasChildren) {
           toastError(context, translate('pages.tasks.action.remove_task_group.error_has_children')); //TODO allow hiding with children
+          Navigator.pop(context); // dismiss bottom sheet
+          return;
+        }
+        final usedTaskGroupCount = await ScheduledTaskRepository.countByTaskGroupId(taskGroup.id!);
+        if (usedTaskGroupCount != null && usedTaskGroupCount > 0) {
+          toastError(context, translate('pages.tasks.action.remove_task_group.error_has_schedules'));
           Navigator.pop(context); // dismiss bottom sheet
           return;
         }

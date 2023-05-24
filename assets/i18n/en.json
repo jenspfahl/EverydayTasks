@@ -311,6 +311,7 @@
         },
         "remove_task_group": {
           "error_has_children": "Remove underneath tasks first!",
+          "error_has_schedules": "Remove associated schedules first!",
           "title": "Remove category",
           "message_custom": "This will remove the current category '{name}'. This cannot be underdone!",
           "message_predefined": "This will remove the current category '{name}' by hiding it. You can restore it by clicking on the restore action icon.",
@@ -886,6 +887,9 @@
 
     "others": {
       "name": "Others"
+    },
+    "deleted": {
+      "name": ""
     }
 
   }

@@ -48,7 +48,7 @@ class TaskGroupRepository {
     final id = await taskGroupDao.insertTaskGroup(entity);
     taskGroup.id = id;
 
-    _taskGroupCache[taskGroup.id!] = taskGroup;
+    _setCached(taskGroup.id!, taskGroup);
 
     return taskGroup;
   }
@@ -61,7 +61,7 @@ class TaskGroupRepository {
     final entity = _mapTaskGroupToEntity(taskGroup);
     await taskGroupDao.updateTaskGroup(entity);
 
-    _taskGroupCache[taskGroup.id!] = taskGroup;
+    _setCached(taskGroup.id!, taskGroup);
 
     return taskGroup;
     
@@ -100,6 +100,12 @@ class TaskGroupRepository {
     
   }
 
+  static _setCached(int id, TaskGroup taskGroup) {
+    if (taskGroup.id != deletedDefaultTaskGroupId) {
+      _taskGroupCache[id] = taskGroup;
+    }
+  }
+
   static TaskGroup findPredefinedTaskGroupById(int id) => predefinedTaskGroups.firstWhere((element) => element.id == id);
 
   static List<TaskGroup> getAllCached({required bool inclHidden}) {
@@ -123,7 +129,7 @@ class TaskGroupRepository {
               .toList()..sort();
 
           taskGroups.forEach((element) {
-            _taskGroupCache[element.id!] = element;
+            _setCached(element.id!, element);
           });
           return taskGroupList;
         });
@@ -143,7 +149,7 @@ class TaskGroupRepository {
   static Future<TaskGroup?> findById(int id) async {
     final foundInDb = await findByIdJustDb(id);
     if (foundInDb != null) {
-      _taskGroupCache[id] = foundInDb;
+      _setCached(id, foundInDb);
       return Future.value(foundInDb);
     }
     if (TaskGroup.isIdPredefined(id)) {
@@ -157,7 +163,12 @@ class TaskGroupRepository {
     if (cachedTaskGroup != null) {
       return cachedTaskGroup;
     }
-    else return findPredefinedTaskGroupById(id);
+    else if (TaskGroup.isIdPredefined(id)) {
+      return findPredefinedTaskGroupById(id);
+    }
+    else {
+      return deletedDefaultTaskGroup;
+    }
   }
 
   static TaskGroupEntity _mapTaskGroupToEntity(TaskGroup taskGroup) =>
@@ -192,10 +203,14 @@ class TaskGroupRepository {
 
   static void tryWrapI18nForName(
       TaskGroup modelToChange, int predefinedTaskGroupId) {
-    final predefinedTaskGroup = findPredefinedTaskGroupById(predefinedTaskGroupId);
+    if (TaskGroup.isIdPredefined(predefinedTaskGroupId)) {
+      final predefinedTaskGroup = findPredefinedTaskGroupById(
+          predefinedTaskGroupId);
 
-    final wrappedName = tryWrapToI18nKey(modelToChange.name, predefinedTaskGroup.name);
-    modelToChange.name = wrappedName;
+      final wrappedName = tryWrapToI18nKey(
+          modelToChange.name, predefinedTaskGroup.name);
+      modelToChange.name = wrappedName;
+    }
   }
 
 }

@@ -856,6 +856,16 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
   }
 
   @override
+  Stream<int?> countByTaskGroupId(int taskGroupId) {
+    return _queryAdapter.queryStream(
+        'SELECT count(*) FROM ScheduledTaskEntity WHERE taskGroupId = ?1',
+        mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [taskGroupId],
+        queryableName: 'ScheduledTaskEntity',
+        isView: false);
+  }
+
+  @override
   Stream<ScheduledTaskEntity?> findById(int id) {
     return _queryAdapter.queryStream(
         'SELECT * FROM ScheduledTaskEntity WHERE id = ?1',

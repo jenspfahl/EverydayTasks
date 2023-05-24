@@ -141,7 +141,13 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
     }
 
     if (selectedTaskGroupId != null) {
-      _selectedTaskGroup = TaskGroupRepository.findByIdFromCache(selectedTaskGroupId);
+      if (_isTaskGroupDeleted(selectedTaskGroupId)) {
+        _selectedTaskGroup = null;
+      }
+      else {
+        _selectedTaskGroup =
+            TaskGroupRepository.findByIdFromCache(selectedTaskGroupId);
+      }
     }
 
     _selectedDurationHours = aroundDuration;
@@ -680,7 +686,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
     _severity = Severity.values.elementAt(jsonMap['severity']);
 
     int? taskGroupId = jsonMap['taskGroupId'];
-    if (taskGroupId != null) {
+    if (taskGroupId != null && taskGroupId != deletedDefaultTaskGroupId) {
       _selectedTaskGroup = TaskGroupRepository.findByIdFromCache(taskGroupId);
     }
 
@@ -704,5 +710,10 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
 
   @override
   bool get wantKeepAlive => true;
+
+  bool _isTaskGroupDeleted(int taskGroupId) {
+    final taskGroup = TaskGroupRepository.findByIdFromCache(taskGroupId);
+    return taskGroup.id == deletedDefaultTaskGroupId;
+  }
 
 }
