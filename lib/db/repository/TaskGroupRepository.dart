@@ -95,9 +95,10 @@ class TaskGroupRepository {
     final entity = _mapTaskGroupToEntity(taskGroup);
 
     await taskGroupDao.deleteTaskGroup(entity);
-    _taskGroupCache.remove(taskGroup);
+    _taskGroupCache.remove(taskGroup.id);
+
     return taskGroup;
-    
+
   }
 
   static _setCached(int id, TaskGroup taskGroup) {

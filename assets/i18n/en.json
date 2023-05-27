@@ -262,8 +262,8 @@
       },
       "action": {
         "error_nothing_selected": "Please select an item first!",
-        "description_nothing_selected": "Create a new category.",
-        "description_group": "Add a new task underneath '{groupName}' or change the current selected category.",
+        "description_nothing_selected": "Create a new category. To change an existing category, select it first.",
+        "description_group": "Add a new task underneath '{groupName}' or change or delete the current selected category.",
         "description_task": "Change or remove the selected task '{title}' or add a new variant underneath it.",
         "description_variant": "Change or remove the selected variant '{title}' or clone it as a new one.",
         "add_task": {

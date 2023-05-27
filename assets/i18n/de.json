@@ -262,8 +262,8 @@
       },
       "action": {
         "error_nothing_selected": "Bitte erst ein Element auswählen!",
-        "description_nothing_selected": "Lege eine neue Kategorie an.",
-        "description_group": "Füge eine neue Aufgabe unter '{groupName}' hinzu oder ändere die gewählte Kategorie.",
+        "description_nothing_selected": "Lege eine neue Kategorie an. Um eine bestehende Kategorie zu ändern, wähle dieser erst aus.",
+        "description_group": "Füge eine neue Aufgabe unter '{groupName}' hinzu oder ändere oder lösche die gewählte Kategorie.",
         "description_task": "Ändere oder entferne die ausgewählte Aufgabe '{title}' oder füge eine neue Variante davon hinzu.",
         "description_variant": "Ändere oder entferne die ausgewählte Variante '{title}' oder klone sie als Vorlage für eine neue Variante.",
         "add_task": {
