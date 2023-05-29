@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
@@ -158,7 +159,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
 
   setNextSchedule(DateTime nextDueDate) {
     final customRepetition = Schedule.fromRepetitionStepToCustomRepetition(schedule.repetitionStep, schedule.customRepetition);
-    lastScheduledEventOn = nextDueDate.subtract(customRepetition?.toDuration()??Duration(seconds: 0));
+    lastScheduledEventOn = nextDueDate.subtract(customRepetition.toDuration());
   }
 
   DateTime? simulateExecuteSchedule(TaskEvent? taskEvent) {
