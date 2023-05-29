@@ -31,5 +31,9 @@ To re-generate floor files execute:
 
 	flutter packages pub run build_runner build
 
+To build the release with custom icon data:
+
+    flutter build apk --release --no-tree-shake-icons
+
 ## Contribute
 You are welcome to translate the app. See [TRANSLATE.md](TRANSLATE.md).

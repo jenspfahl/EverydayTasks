@@ -2,6 +2,7 @@ import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 import 'Schedule.dart';
+import 'Schedule.dart';
 import 'Template.dart';
 import 'TemplateId.dart';
 import 'TitleAndDescription.dart';
@@ -153,6 +154,11 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
 
   executeSchedule(TaskEvent? taskEvent) {
     lastScheduledEventOn = _calcLastScheduledEventOn(taskEvent);
+  }
+
+  setNextSchedule(DateTime nextDueDate) {
+    final customRepetition = Schedule.fromRepetitionStepToCustomRepetition(schedule.repetitionStep, schedule.customRepetition);
+    lastScheduledEventOn = nextDueDate.subtract(customRepetition?.toDuration()??Duration(seconds: 0));
   }
 
   DateTime? simulateExecuteSchedule(TaskEvent? taskEvent) {

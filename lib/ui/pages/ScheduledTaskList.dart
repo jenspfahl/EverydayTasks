@@ -682,11 +682,34 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                             toastInfo(context, translate('pages.schedules.action.reset.success',
                                 args: {"title": changedScheduledTask.translatedTitle}));
-                          });
-                          Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
+                          });                          Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
                         },
                         cancelPressed: () =>
                             Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                        neutralButton: TextButton(
+                          child: Text(translate('common.words.custom').capitalize() + "..."),
+                          onPressed:  () {
+                            showTweakedDatePicker(
+                              context,
+                              helpText: translate('pages.schedules.action.reset.title_custom',
+                                  args: {"title": scheduledTask.translatedTitle}),
+                              initialDate: newNextDueDate,
+                            ).then((selectedDate) {
+                              if (selectedDate != null) {
+                                scheduledTask.setNextSchedule(selectedDate);
+                                ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+                                  _cancelSnoozedNotification(scheduledTask);
+                                  _updateScheduledTask(scheduledTask, changedScheduledTask);
+
+                                  toastInfo(context, translate('pages.schedules.action.reset.success_custom',
+                                      args: {"title": changedScheduledTask.translatedTitle}));
+                                });                                Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
+                              }
+                              else {
+                                Navigator.pop(context);
+                              }
+                            });
+                          }),
                       );
                     },
                   ),

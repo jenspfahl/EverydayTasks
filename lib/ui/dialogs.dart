@@ -23,15 +23,14 @@ final int MAX_DAYS = 7300; // around 20 years
 Future<IconData?> showIconPicker(BuildContext context, String title) {
 
   return FlutterIconPicker.showIconPicker(context,
-      //iconColor: ,
       iconSize: 32.0,
       title: Text(title),
- //     iconColor: Colors.blue,
+      iconColor: BUTTON_COLOR,
       searchHintText: "${translate('common.search')} ...",
  //     noResultsText: "Not found",
       closeChild: TextButton(
-        child: Text(translate("common.ok")),
-        onPressed:  () => Navigator.of(context).pop(true),
+        child: Text(translate("common.cancel")),
+        onPressed:  () => Navigator.of(context).pop(),
       ),
       showTooltips: true,
       customIconPack: getAllTaskGroupIcons(),
@@ -51,6 +50,12 @@ Future<bool?> showColorPicker(BuildContext context, {required String title, requ
       ),
       actions: <Widget>[
         TextButton(
+          child: Text(translate("common.cancel")),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
           child: Text(translate("common.ok")),
           onPressed: () {
             onOkClicked();
@@ -68,9 +73,10 @@ Future<bool?> showColorPicker(BuildContext context, {required String title, requ
   );
 }
 
-Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate}) {
+Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate, String? helpText}) {
   return showDatePicker(
       context: context,
+      helpText: helpText,
       initialDate: initialDate ?? DateTime.now(),
       firstDate: DateTime.now().subtract(Duration(days: MAX_DAYS)),
       lastDate: DateTime.now().add(Duration(days: MAX_DAYS)),
@@ -111,9 +117,12 @@ Theme _pickerTheme(BuildContext context, Widget? child) {
 }
 
 void showConfirmationDialog(BuildContext context, String title, String message,
-    {Icon? icon, Function()? okPressed, Function()? cancelPressed}) {
+    {Icon? icon, Function()? okPressed, Function()? cancelPressed, Widget? neutralButton}) {
 
   List<Widget> actions = [];
+  if (neutralButton != null) {
+    actions.add(neutralButton);
+  }
   if (cancelPressed != null) {
     Widget cancelButton = TextButton(
       child: Text(translate("common.cancel")),

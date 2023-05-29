@@ -115,7 +115,7 @@ class Schedule {
     }
   }
 
-  static fromRepetitionStepToCustomRepetition(RepetitionStep repetitionStep, CustomRepetition? customRepetition) {
+  static CustomRepetition? fromRepetitionStepToCustomRepetition(RepetitionStep repetitionStep, CustomRepetition? customRepetition) {
     switch(repetitionStep) {
       case RepetitionStep.DAILY: return CustomRepetition(1, RepetitionUnit.DAYS);
       case RepetitionStep.EVERY_OTHER_DAY: return CustomRepetition(2, RepetitionUnit.DAYS);
@@ -128,6 +128,7 @@ class Schedule {
       case RepetitionStep.YEARLY: return CustomRepetition(1, RepetitionUnit.YEARS);
       case RepetitionStep.CUSTOM: customRepetition!;
     }
+    return null;
   }
 
   static String fromRepetitionUnitToString(RepetitionUnit repetitionUnit) {

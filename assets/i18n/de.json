@@ -225,7 +225,9 @@
           "title": "Fortschritt zurücksetzen",
           "message_then": "Soll der Fortschritt des Zeitplans '{title}' wirklich zurückgesetzt werden ? Die nächste Fälligkeit ist dann {nextDueDate} um {newNextDueDate}.",
           "message_still": "Soll der Fortschritt des Zeitplans '{title}' wirklich zurückgesetzt werden ? Die nächste Fälligkeit ist immernoch {nextDueDate} um {newNextDueDate}.",
-          "success": "Fortschritt für '{title}' wurde zurückgesetzt"
+          "success": "Fortschritt für '{title}' wurde zurückgesetzt",
+          "title_custom": "Nächste Fälligkeit für '{title}' ist ...",
+          "success_custom": "Die nächste Fälligkeit für '{title}' wurde angepasst"
         },
         "pause_resume": {
           "paused": "Zeitplan '{title}' pausiert",

@@ -225,7 +225,9 @@
           "title": "Reset progress",
           "message_then": "Are you sure to reset the progress of '{title}' ? The schedule is then due {nextDueDate} at {newNextDueDate}.",
           "message_still": "Are you sure to reset the progress of '{title}' ? The schedule is still due {nextDueDate} at {newNextDueDate}.",
-          "success": "Progress for '{title}' reset to now"
+          "success": "Progress for '{title}' reset to now",
+          "title_custom": "Next due date for '{title}' is ...",
+          "success_custom": "Next due date for '{title}' updated"
         },
         "pause_resume": {
           "paused": "Schedule '{title}' paused",
