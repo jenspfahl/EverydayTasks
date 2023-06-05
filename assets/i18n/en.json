@@ -68,7 +68,7 @@
       "activate_schedule": "Activate schedule",
       "scheduled_from_hint": "Scheduled from",
       "scheduled_from_emphasis": "Select when the schedule starts",
-      "activate_reminders": "Activate reminders",
+      "activate_reminders": "Activate reminder",
       "remind_again_delay_description": "Choose a delay when to remind again.",
       "remind_after": "Again after {when}",
       "repetition_mode": "Dynamic repetition mode",
@@ -192,8 +192,8 @@
           "by_title": "Sort by title"
         },
         "notifications": {
-          "enabled": "Due notifications enabled",
-          "disabled": "Due notifications disabled"
+          "enabled": "All reminders and notifications enabled",
+          "disabled": "All reminders and notifications disabled"
         }
       },
       "overview": {
@@ -209,7 +209,11 @@
         "due_tomorrow": "Due tomorrow",
         "due_after_tomorrow": "Due after tomorrow",
         "paused_schedules": "Paused schedules",
-        "inactive_schedules": "Inactive schedules"
+        "inactive_schedules": "Inactive schedules",
+        "reminder_activated" : "Reminder activated",
+        "reminder_passed" : "Reminder passed",
+        "remind_again" : "Remind again",
+        "remind_again_successful" : "Reminder will appear again in {when}"
       },
       "notification": {
         "title_normal_task": "Due scheduled task",

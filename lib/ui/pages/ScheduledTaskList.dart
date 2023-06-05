@@ -573,7 +573,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       ? (isDarkMode(context) ? Color(0xFFC74C0C) : Color(0xFF770C0C))
                       : Colors.red)
                     : Icon(Icons.watch_later_outlined,
-                    color: isDarkMode(context) ? Colors.white : Colors.black45), // in TaskEventList, the icons are not black without setting the color, donät know why ...
+                    color: _getIconColorForMode()), // in TaskEventList, the icons are not black without setting the color, donät know why ...
               ),
               Text(_getDueMessage(scheduledTask), softWrap: true),
             ]
@@ -587,7 +587,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Icon(MdiIcons.arrowExpandRight,
-                    color: isDarkMode(context) ? Colors.white : Colors.black45),
+                    color: _getIconColorForMode()),
               ),
               Text(_getScheduledMessage(scheduledTask)),
             ]
@@ -601,7 +601,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Icon(Icons.next_plan_outlined,
-                    color: isDarkMode(context) ? Colors.white : Colors.black45),
+                    color: _getIconColorForMode()),
               ),
               Text(scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
                   ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
@@ -609,6 +609,67 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             ]
           ),
       );
+      if (scheduledTask.active && !scheduledTask.isPaused && scheduledTask.reminderNotificationEnabled == true && !_disableNotification) {
+
+        if (scheduledTask.isNextScheduleOverdue(true) || scheduledTask.isDueNow()) {
+          content.add(const Text(""));
+          content.add(
+            Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Icon(Icons.notifications_active_outlined,
+                        color: _getIconColorForMode()),
+                  ),
+                  Flexible(
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      children: [
+                        Text(translate('pages.schedules.overview.reminder_passed') + "   "),
+                        Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: GestureDetector(
+                            child: Text(translate('pages.schedules.overview.remind_again').capitalize(),
+                              style: TextStyle(color: BUTTON_COLOR, fontWeight: FontWeight.w500),
+                            ),
+                            onTap: () {
+                              final taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
+                              final remindIn = scheduledTask.reminderNotificationRepetition??CustomRepetition(1, RepetitionUnit.HOURS);
+
+                              _schedule(scheduledTask.id!, scheduledTask, taskGroup,
+                                  remindIn.toDuration(),
+                                  scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED, false);
+                              toastInfo(context, translate('pages.schedules.overview.remind_again_successful',
+                                  args: {"when": Schedule.fromCustomRepetitionToUnit(remindIn, usedClause(context, Clause.dative))}));
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ]
+            ),
+          );
+        }
+        else {
+          content.add(const Text(""));
+          content.add(
+            Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Icon(Icons.notifications_none,
+                        color: _getIconColorForMode()),
+                  ),
+                  Text(translate('pages.schedules.overview.reminder_activated')),
+                ]
+            ),
+          );
+        }
+
+      }
     }
 
     expansionWidgets.addAll([
@@ -860,6 +921,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     ]);
     return expansionWidgets;
   }
+
+  Color _getIconColorForMode() => isDarkMode(context) ? Colors.white : Colors.black45;
 
   Future<void> _openAddJournalEntryFromSchedule(ScheduledTask scheduledTask) async {
     final templateId = scheduledTask.templateId;

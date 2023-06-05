@@ -68,7 +68,7 @@
       "activate_schedule": "Aktiviere den Zeitplan",
       "scheduled_from_hint": "Geplant ab",
       "scheduled_from_emphasis": "Wähle ab wann der Zeitplan gilt",
-      "activate_reminders": "Aktiviere Erinnerungen",
+      "activate_reminders": "Aktiviere Erinnerung",
       "remind_again_delay_description": "Wähle wann erneut erinnert werden soll.",
       "remind_after": "Erneut nach {when}",
       "repetition_mode": "Dynamische Wiederholung",
@@ -209,7 +209,11 @@
         "due_tomorrow": "Morgen fällig",
         "due_after_tomorrow": "Übermorgen fällig",
         "paused_schedules": "Pausierte Zeitpläne",
-        "inactive_schedules": "Inaktive Zeitpläne"
+        "inactive_schedules": "Inaktive Zeitpläne",
+        "reminder_activated" : "Erinnerung aktiviert",
+        "reminder_passed" : "Erinnerung abgelaufen",
+        "remind_again" : "Nochmal erinnern",
+        "remind_again_successful" : "Erinnerung erneut eingestellt in {when}"
       },
       "notification": {
         "title_normal_task": "Fällige geplante Aufgabe",
