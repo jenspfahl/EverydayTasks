@@ -121,7 +121,6 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     });
 
     _preferenceService.getBool(PREF_HIDE_INACTIVE).then((value) {
-      debugPrint("XXX value=$value");
       if (value != null) {
         setState(() {
           _hideInactive = value;
@@ -521,7 +520,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
     final expansionWidgets = _createExpansionWidgets(scheduledTask);
     final isExpanded = index == _selectedTile;
-    if (_hideInactive && (scheduledTask.isPaused || !scheduledTask.active)) {
+    if (_hideInactive && !scheduledTask.active) {
       return Container();
     }
     return Padding(
@@ -1325,7 +1324,6 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     _preferenceService.setBool(PREF_HIDE_INACTIVE, hideInactive);
     setState(() {
       _sortBy = sortBy;
-      debugPrint("xxx _hideInactive=$_hideInactive new=$hideInactive");
 
       _hideInactive = hideInactive;
       _sortList();

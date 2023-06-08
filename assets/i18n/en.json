@@ -190,7 +190,7 @@
           "by_remaining_time": "Sort by remaining time",
           "by_category": "Sort by category",
           "by_title": "Sort by title",
-          "hide_non_active": "Hide non active"
+          "hide_non_active": "Hide inactive"
         },
         "notifications": {
           "enabled": "All reminders and notifications enabled",
