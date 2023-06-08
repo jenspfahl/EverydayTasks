@@ -189,7 +189,8 @@
           "by_progress": "Nach Fortschritt sortieren",
           "by_remaining_time": "Nach verbleibender Zeit sortieren",
           "by_category": "Nach Kategorien sortieren",
-          "by_title": "Nach Titel sortieren"
+          "by_title": "Nach Titel sortieren",
+          "hide_non_active": "Nicht aktive verbergen"
         },
         "notifications": {
           "enabled": "Fälligkeitsbenachrichtigung aktiviert",

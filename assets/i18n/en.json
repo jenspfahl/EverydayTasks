@@ -189,7 +189,8 @@
           "by_progress": "Sort by progress",
           "by_remaining_time": "Sort by remaining time",
           "by_category": "Sort by category",
-          "by_title": "Sort by title"
+          "by_title": "Sort by title",
+          "hide_non_active": "Hide non active"
         },
         "notifications": {
           "enabled": "All reminders and notifications enabled",

@@ -40,6 +40,7 @@ import 'TaskEventList.dart';
 
 final String PREF_DISABLE_NOTIFICATIONS = "scheduledTasks/disableNotifications";
 final String PREF_SORT_BY = "scheduledTasks/sortedBy";
+final String PREF_HIDE_INACTIVE = "scheduledTasks/hideInactive";
 final String PREF_PIN_SCHEDULES = "scheduledTasks/pinPage";
 
 final pinSchedulesPageIconKey = new GlobalKey<ToggleActionIconState>();
@@ -88,6 +89,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   int _selectedTile = -1;
   bool _disableNotification = false;
   SortBy _sortBy = SortBy.PROGRESS;
+  bool _hideInactive = false;
   bool _statusTileHidden = true;
   bool _pinSchedulesPage = false;
 
@@ -114,6 +116,15 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       if (value != null) {
         setState(() {
           _sortBy = SortBy.values.elementAt(value);
+        });
+      }
+    });
+
+    _preferenceService.getBool(PREF_HIDE_INACTIVE).then((value) {
+      debugPrint("XXX value=$value");
+      if (value != null) {
+        setState(() {
+          _hideInactive = value;
         });
       }
     });
@@ -244,28 +255,51 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         ]
                     ),
                     value: '4'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          Checkbox(
+                            value: _hideInactive,
+                            onChanged: (value) {
+                              if (value != null) {
+                                _updateSortBy(_sortBy, !_hideInactive);
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            visualDensity: VisualDensity(horizontal: VisualDensity.minimumDensity, vertical: 0.0),
+                          ),
+                          const Spacer(),
+                          Text(translate('pages.schedules.menu.sorting.hide_non_active')),
+                        ]
+                    ),
+                    value: '5'),
 
               ]
           ).then((selected) {
             switch (selected) {
               case '1' :
                 {
-                  _updateSortBy(SortBy.PROGRESS);
+                  _updateSortBy(SortBy.PROGRESS, _hideInactive);
                   break;
                 }
               case '2' :
                 {
-                  _updateSortBy(SortBy.REMAINING_TIME);
+                  _updateSortBy(SortBy.REMAINING_TIME, _hideInactive);
                   break;
                 }
               case '3' :
                 {
-                  _updateSortBy(SortBy.GROUP);
+                  _updateSortBy(SortBy.GROUP, _hideInactive);
                   break;
                 }
               case '4' :
                 {
-                  _updateSortBy(SortBy.TITLE);
+                  _updateSortBy(SortBy.TITLE, _hideInactive);
+                  break;
+                }
+              case '5' :
+                {
+                  _updateSortBy(_sortBy, !_hideInactive);
                   break;
                 }
             }
@@ -487,6 +521,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
     final expansionWidgets = _createExpansionWidgets(scheduledTask);
     final isExpanded = index == _selectedTile;
+    if (_hideInactive && (scheduledTask.isPaused || !scheduledTask.active)) {
+      return Container();
+    }
     return Padding(
         padding: EdgeInsets.all(4.0),
         child: Card(
@@ -611,7 +648,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       );
       if (scheduledTask.active && !scheduledTask.isPaused && scheduledTask.reminderNotificationEnabled == true && !_disableNotification) {
 
-        if (scheduledTask.isNextScheduleOverdue(true) || scheduledTask.isDueNow()) {
+        if (scheduledTask.isNextScheduleOverdue(false) || scheduledTask.isDueNow()) {
           content.add(const Text(""));
           content.add(
             Row(
@@ -1283,10 +1320,14 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         .forEach((id) => f(id, id - base  == amount));
   }
 
-  void _updateSortBy(SortBy sortBy) {
+  void _updateSortBy(SortBy sortBy, bool hideInactive) {
     _preferenceService.setInt(PREF_SORT_BY, sortBy.index);
+    _preferenceService.setBool(PREF_HIDE_INACTIVE, hideInactive);
     setState(() {
       _sortBy = sortBy;
+      debugPrint("xxx _hideInactive=$_hideInactive new=$hideInactive");
+
+      _hideInactive = hideInactive;
       _sortList();
     });
   }
