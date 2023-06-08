@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
@@ -263,7 +264,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
   }
 
   Color _getColorFromScheduledTask(ScheduledTask scheduledTask) {
-    final taskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
+    final taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
     return taskGroup.foregroundColor;
   }
 

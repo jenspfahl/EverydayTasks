@@ -68,7 +68,7 @@
       "activate_schedule": "Activate schedule",
       "scheduled_from_hint": "Scheduled from",
       "scheduled_from_emphasis": "Select when the schedule starts",
-      "activate_reminders": "Activate reminders",
+      "activate_reminders": "Activate reminder",
       "remind_again_delay_description": "Choose a delay when to remind again.",
       "remind_after": "Again after {when}",
       "repetition_mode": "Dynamic repetition mode",
@@ -91,6 +91,21 @@
         "title": "Restore default",
         "message_task": "This will restore the current task '{title}' to the predefined default.",
         "message_variant": "This will restore the current variant '{title}' to the predefined default."
+      }
+    },
+    "task_group": {
+      "title_hint": "Name of the category",
+      "reset": {
+        "title": "Restore default",
+        "message": "This will restore the current category '{name}' to the predefined default"
+      },
+      "change_icon": {
+        "title": "Change icon",
+        "message": "Select an icon"
+      },
+      "change_color": {
+        "title": "Change color",
+        "message": "Pick a color"
       }
     }
   },
@@ -174,11 +189,12 @@
           "by_progress": "Sort by progress",
           "by_remaining_time": "Sort by remaining time",
           "by_category": "Sort by category",
-          "by_title": "Sort by title"
+          "by_title": "Sort by title",
+          "hide_non_active": "Hide inactive"
         },
         "notifications": {
-          "enabled": "Due notifications enabled",
-          "disabled": "Due notifications disabled"
+          "enabled": "All reminders and notifications enabled",
+          "disabled": "All reminders and notifications disabled"
         }
       },
       "overview": {
@@ -194,7 +210,11 @@
         "due_tomorrow": "Due tomorrow",
         "due_after_tomorrow": "Due after tomorrow",
         "paused_schedules": "Paused schedules",
-        "inactive_schedules": "Inactive schedules"
+        "inactive_schedules": "Inactive schedules",
+        "reminder_activated" : "Reminder activated",
+        "reminder_passed" : "Reminder passed",
+        "remind_again" : "Remind again",
+        "remind_again_successful" : "Reminder will appear again in {when}"
       },
       "notification": {
         "title_normal_task": "Due scheduled task",
@@ -210,7 +230,9 @@
           "title": "Reset progress",
           "message_then": "Are you sure to reset the progress of '{title}' ? The schedule is then due {nextDueDate} at {newNextDueDate}.",
           "message_still": "Are you sure to reset the progress of '{title}' ? The schedule is still due {nextDueDate} at {newNextDueDate}.",
-          "success": "Progress for '{title}' reset to now"
+          "success": "Progress for '{title}' reset to now",
+          "title_custom": "Next due date for '{title}' is ...",
+          "success_custom": "Next due date for '{title}' updated"
         },
         "pause_resume": {
           "paused": "Schedule '{title}' paused",
@@ -239,6 +261,7 @@
         "restore_a_task": {
           "title": "Restore a task",
           "description": "Select a previously removed predefined task or variant to be restored.",
+          "success_group": "Category '{name}' restored.",
           "success_task": "Task '{title}' restored.",
           "success_variant": "Variant '{title}' restored.",
           "success_variant_parent_task": "Variant '{title}' and parent task restored."
@@ -246,7 +269,8 @@
       },
       "action": {
         "error_nothing_selected": "Please select an item first!",
-        "description_group": "Add a new task underneath '{groupName}'.",
+        "description_nothing_selected": "Create a new category. To change an existing category, select it first.",
+        "description_group": "Add a new task underneath '{groupName}' or change or delete the current selected category.",
         "description_task": "Change or remove the selected task '{title}' or add a new variant underneath it.",
         "description_variant": "Change or remove the selected variant '{title}' or clone it as a new one.",
         "add_task": {
@@ -282,7 +306,23 @@
           "title": "Remove variant",
           "message_custom": "This will remove the current variant '{title}'. This cannot be underdone!",
           "message_predefined": "This will remove the current variant '{title}' by hiding it. You can restore it by clicking on the restore action icon.",
-          "success": "The {variant '{title}' has been removed"
+          "success": "The variant '{title}' has been removed"
+        },
+        "create_task_group": {
+          "title": "Create category",
+          "success": "Category '{name}' created"
+        },
+        "change_task_group": {
+          "title": "Change category",
+          "success": "Category '{name}' changed"
+        },
+        "remove_task_group": {
+          "error_has_children": "Remove underneath tasks first!",
+          "error_has_schedules": "Remove associated schedules first!",
+          "title": "Remove category",
+          "message_custom": "This will remove the current category '{name}'. This cannot be underdone!",
+          "message_predefined": "This will remove the current category '{name}' by hiding it. You can restore it by clicking on the restore action icon.",
+          "success": "The category '{name}' has been removed"
         }
       }
     },
@@ -854,6 +894,9 @@
 
     "others": {
       "name": "Others"
+    },
+    "deleted": {
+      "name": ""
     }
 
   }

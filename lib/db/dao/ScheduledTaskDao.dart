@@ -16,6 +16,9 @@ abstract class ScheduledTaskDao {
       'ORDER BY createdAt DESC, id DESC')
   Future<List<ScheduledTaskEntity>> findByTaskTemplateVariantId(int taskTemplateVariantId);
 
+  @Query('SELECT count(*) FROM ScheduledTaskEntity WHERE taskGroupId = :taskGroupId ')
+  Stream<int?>  countByTaskGroupId(int taskGroupId);
+
   @Query('SELECT * FROM ScheduledTaskEntity WHERE id = :id')
   Stream<ScheduledTaskEntity?> findById(int id);
 

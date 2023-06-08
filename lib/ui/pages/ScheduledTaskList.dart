@@ -28,6 +28,7 @@ import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
+import '../../db/repository/TaskGroupRepository.dart';
 import '../../util/units.dart';
 import '../PersonalTaskLoggerApp.dart';
 import '../ToggleActionIcon.dart';
@@ -39,6 +40,7 @@ import 'TaskEventList.dart';
 
 final String PREF_DISABLE_NOTIFICATIONS = "scheduledTasks/disableNotifications";
 final String PREF_SORT_BY = "scheduledTasks/sortedBy";
+final String PREF_HIDE_INACTIVE = "scheduledTasks/hideInactive";
 final String PREF_PIN_SCHEDULES = "scheduledTasks/pinPage";
 
 final pinSchedulesPageIconKey = new GlobalKey<ToggleActionIconState>();
@@ -87,6 +89,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   int _selectedTile = -1;
   bool _disableNotification = false;
   SortBy _sortBy = SortBy.PROGRESS;
+  bool _hideInactive = false;
   bool _statusTileHidden = true;
   bool _pinSchedulesPage = false;
 
@@ -113,6 +116,14 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       if (value != null) {
         setState(() {
           _sortBy = SortBy.values.elementAt(value);
+        });
+      }
+    });
+
+    _preferenceService.getBool(PREF_HIDE_INACTIVE).then((value) {
+      if (value != null) {
+        setState(() {
+          _hideInactive = value;
         });
       }
     });
@@ -243,28 +254,51 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         ]
                     ),
                     value: '4'),
+                PopupMenuItem<String>(
+                    child: Row(
+                        children: [
+                          Checkbox(
+                            value: _hideInactive,
+                            onChanged: (value) {
+                              if (value != null) {
+                                _updateSortBy(_sortBy, !_hideInactive);
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            visualDensity: VisualDensity(horizontal: VisualDensity.minimumDensity, vertical: 0.0),
+                          ),
+                          const Spacer(),
+                          Text(translate('pages.schedules.menu.sorting.hide_non_active')),
+                        ]
+                    ),
+                    value: '5'),
 
               ]
           ).then((selected) {
             switch (selected) {
               case '1' :
                 {
-                  _updateSortBy(SortBy.PROGRESS);
+                  _updateSortBy(SortBy.PROGRESS, _hideInactive);
                   break;
                 }
               case '2' :
                 {
-                  _updateSortBy(SortBy.REMAINING_TIME);
+                  _updateSortBy(SortBy.REMAINING_TIME, _hideInactive);
                   break;
                 }
               case '3' :
                 {
-                  _updateSortBy(SortBy.GROUP);
+                  _updateSortBy(SortBy.GROUP, _hideInactive);
                   break;
                 }
               case '4' :
                 {
-                  _updateSortBy(SortBy.TITLE);
+                  _updateSortBy(SortBy.TITLE, _hideInactive);
+                  break;
+                }
+              case '5' :
+                {
+                  _updateSortBy(_sortBy, !_hideInactive);
                   break;
                 }
             }
@@ -413,7 +447,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   itemCount: _scheduledTasks.length,
                   itemBuilder: (context, index) {
                     var scheduledTask = _scheduledTasks[index];
-                    var taskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
+                    var taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
                     return _buildRow(index, scheduledTask, taskGroup);
                   }),
             ),
@@ -486,6 +520,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
     final expansionWidgets = _createExpansionWidgets(scheduledTask);
     final isExpanded = index == _selectedTile;
+    if (_hideInactive && !scheduledTask.active) {
+      return Container();
+    }
     return Padding(
         padding: EdgeInsets.all(4.0),
         child: Card(
@@ -572,7 +609,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       ? (isDarkMode(context) ? Color(0xFFC74C0C) : Color(0xFF770C0C))
                       : Colors.red)
                     : Icon(Icons.watch_later_outlined,
-                    color: isDarkMode(context) ? Colors.white : Colors.black45), // in TaskEventList, the icons are not black without setting the color, donät know why ...
+                    color: _getIconColorForMode()), // in TaskEventList, the icons are not black without setting the color, donät know why ...
               ),
               Text(_getDueMessage(scheduledTask), softWrap: true),
             ]
@@ -586,7 +623,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Icon(MdiIcons.arrowExpandRight,
-                    color: isDarkMode(context) ? Colors.white : Colors.black45),
+                    color: _getIconColorForMode()),
               ),
               Text(_getScheduledMessage(scheduledTask)),
             ]
@@ -600,7 +637,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Icon(Icons.next_plan_outlined,
-                    color: isDarkMode(context) ? Colors.white : Colors.black45),
+                    color: _getIconColorForMode()),
               ),
               Text(scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
                   ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
@@ -608,6 +645,67 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             ]
           ),
       );
+      if (scheduledTask.active && !scheduledTask.isPaused && scheduledTask.reminderNotificationEnabled == true && !_disableNotification) {
+
+        if (scheduledTask.isNextScheduleOverdue(false) || scheduledTask.isDueNow()) {
+          content.add(const Text(""));
+          content.add(
+            Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Icon(Icons.notifications_active_outlined,
+                        color: _getIconColorForMode()),
+                  ),
+                  Flexible(
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      children: [
+                        Text(translate('pages.schedules.overview.reminder_passed') + "   "),
+                        Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: GestureDetector(
+                            child: Text(translate('pages.schedules.overview.remind_again').capitalize(),
+                              style: TextStyle(color: BUTTON_COLOR, fontWeight: FontWeight.w500),
+                            ),
+                            onTap: () {
+                              final taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
+                              final remindIn = scheduledTask.reminderNotificationRepetition??CustomRepetition(1, RepetitionUnit.HOURS);
+
+                              _schedule(scheduledTask.id!, scheduledTask, taskGroup,
+                                  remindIn.toDuration(),
+                                  scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED, false);
+                              toastInfo(context, translate('pages.schedules.overview.remind_again_successful',
+                                  args: {"when": Schedule.fromCustomRepetitionToUnit(remindIn, usedClause(context, Clause.dative))}));
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ]
+            ),
+          );
+        }
+        else {
+          content.add(const Text(""));
+          content.add(
+            Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Icon(Icons.notifications_none,
+                        color: _getIconColorForMode()),
+                  ),
+                  Text(translate('pages.schedules.overview.reminder_activated')),
+                ]
+            ),
+          );
+        }
+
+      }
     }
 
     expansionWidgets.addAll([
@@ -681,11 +779,34 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                             toastInfo(context, translate('pages.schedules.action.reset.success',
                                 args: {"title": changedScheduledTask.translatedTitle}));
-                          });
-                          Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
+                          });                          Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
                         },
                         cancelPressed: () =>
                             Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                        neutralButton: TextButton(
+                          child: Text(translate('common.words.custom').capitalize() + "..."),
+                          onPressed:  () {
+                            showTweakedDatePicker(
+                              context,
+                              helpText: translate('pages.schedules.action.reset.title_custom',
+                                  args: {"title": scheduledTask.translatedTitle}),
+                              initialDate: newNextDueDate,
+                            ).then((selectedDate) {
+                              if (selectedDate != null) {
+                                scheduledTask.setNextSchedule(selectedDate);
+                                ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+                                  _cancelSnoozedNotification(scheduledTask);
+                                  _updateScheduledTask(scheduledTask, changedScheduledTask);
+
+                                  toastInfo(context, translate('pages.schedules.action.reset.success_custom',
+                                      args: {"title": changedScheduledTask.translatedTitle}));
+                                });                                Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
+                              }
+                              else {
+                                Navigator.pop(context);
+                              }
+                            });
+                          }),
                       );
                     },
                   ),
@@ -775,7 +896,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                           formTitle: translate('forms.schedule.change.title',
                               args: {"title": scheduledTask.translatedTitle}),
                           scheduledTask: scheduledTask,
-                          taskGroup: findPredefinedTaskGroupById(scheduledTask.taskGroupId),
+                          taskGroup: TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId),
                       );
                     }));
 
@@ -837,6 +958,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     return expansionWidgets;
   }
 
+  Color _getIconColorForMode() => isDarkMode(context) ? Colors.white : Colors.black45;
+
   Future<void> _openAddJournalEntryFromSchedule(ScheduledTask scheduledTask) async {
     final templateId = scheduledTask.templateId;
     Template? template;
@@ -852,7 +975,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             );
       }
       else {
-        final taskGroup = findPredefinedTaskGroupById(
+        final taskGroup = TaskGroupRepository.findByIdFromCache(
             scheduledTask.taskGroupId);
         return TaskEventForm(
             formTitle: translate('forms.task_event.create.title_from_schedule'),
@@ -1066,7 +1189,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               return ScheduledTaskForm(
                 formTitle: translate('forms.schedule.create.title'),
                 taskGroup: selectedTemplateItem is Template
-                  ? findPredefinedTaskGroupById((selectedTemplateItem as Template).taskGroupId)
+                  ? TaskGroupRepository.findByIdFromCache((selectedTemplateItem as Template).taskGroupId)
                   : selectedTemplateItem as TaskGroup,
                 template: selectedTemplateItem is Template
                   ? selectedTemplateItem as Template
@@ -1109,7 +1232,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
 
       if (scheduledTask.active && !scheduledTask.isPaused && _disableNotification == false) {
-        final taskGroup = findPredefinedTaskGroupById(
+        final taskGroup = TaskGroupRepository.findByIdFromCache(
             scheduledTask.taskGroupId);
         _scheduleNotification(scheduledTask, taskGroup, missingDuration);
       }
@@ -1196,10 +1319,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         .forEach((id) => f(id, id - base  == amount));
   }
 
-  void _updateSortBy(SortBy sortBy) {
+  void _updateSortBy(SortBy sortBy, bool hideInactive) {
     _preferenceService.setInt(PREF_SORT_BY, sortBy.index);
+    _preferenceService.setBool(PREF_HIDE_INACTIVE, hideInactive);
     setState(() {
       _sortBy = sortBy;
+
+      _hideInactive = hideInactive;
       _sortList();
     });
   }

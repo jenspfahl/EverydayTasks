@@ -1,0 +1,5 @@
+* change category color and icon
+* add / remove categories
+* reset scheduled tasks to a specific date
+* remind again option for due schedules
+* hide inactive schedules option

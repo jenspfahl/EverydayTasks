@@ -12,12 +12,71 @@ import 'ChoiceWidget.dart';
 import 'PersonalTaskLoggerApp.dart';
 import 'RepetitionPicker.dart';
 import 'ToggleActionIcon.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
+
+import 'taskGroupIcons.dart';
+
 
 final int MAX_DAYS = 7300; // around 20 years
 
-Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate}) {
+Future<IconData?> showIconPicker(BuildContext context, String title) {
+
+  return FlutterIconPicker.showIconPicker(context,
+      iconSize: 32.0,
+      title: Text(title),
+      iconColor: BUTTON_COLOR,
+      searchHintText: "${translate('common.search')} ...",
+ //     noResultsText: "Not found",
+      closeChild: TextButton(
+        child: Text(translate("common.cancel")),
+        onPressed:  () => Navigator.of(context).pop(),
+      ),
+      showTooltips: true,
+      customIconPack: getAllTaskGroupIcons(),
+      iconPackModes: [IconPack.custom],
+  );
+}
+
+Future<bool?> showColorPicker(BuildContext context, {required String title, required Color initialColor, required Function(Color) onColorChanged, required Function() onOkClicked}) {
+  final dialog = AlertDialog(
+      title: Text(title),
+      content: SingleChildScrollView(
+        child: ColorPicker(
+          pickerColor: initialColor.withOpacity(1.0),
+          enableAlpha: false,
+          onColorChanged: onColorChanged,
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: Text(translate("common.cancel")),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: Text(translate("common.ok")),
+          onPressed: () {
+            onOkClicked();
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return dialog;
+    },
+  );
+}
+
+Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate, String? helpText}) {
   return showDatePicker(
       context: context,
+      helpText: helpText,
       initialDate: initialDate ?? DateTime.now(),
       firstDate: DateTime.now().subtract(Duration(days: MAX_DAYS)),
       lastDate: DateTime.now().add(Duration(days: MAX_DAYS)),
@@ -58,9 +117,12 @@ Theme _pickerTheme(BuildContext context, Widget? child) {
 }
 
 void showConfirmationDialog(BuildContext context, String title, String message,
-    {Icon? icon, Function()? okPressed, Function()? cancelPressed}) {
+    {Icon? icon, Function()? okPressed, Function()? cancelPressed, Widget? neutralButton}) {
 
   List<Widget> actions = [];
+  if (neutralButton != null) {
+    actions.add(neutralButton);
+  }
   if (cancelPressed != null) {
     Widget cancelButton = TextButton(
       child: Text(translate("common.cancel")),

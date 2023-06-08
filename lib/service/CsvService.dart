@@ -15,6 +15,7 @@ import 'package:personaltasklogger/util/dates.dart';
 
 import '../db/repository/ChronologicalPaging.dart';
 import '../db/repository/TaskEventRepository.dart';
+import '../db/repository/TaskGroupRepository.dart';
 import '../util/units.dart';
 
 class CsvService {
@@ -119,7 +120,7 @@ class CsvService {
         taskEvent.id?.toString()??"",
         taskEvent.translatedTitle,
         taskEvent.translatedDescription??"",
-        taskGroupId != null ? findPredefinedTaskGroupById(taskGroupId).translatedName : "",
+        taskGroupId != null ? TaskGroupRepository.findByIdFromCache(taskGroupId).translatedName : "",
         formatToDateTime(taskEvent.createdAt, context),
         formatToDateTime(taskEvent.startedAt, context),
         formatToDateTime(taskEvent.finishedAt, context),

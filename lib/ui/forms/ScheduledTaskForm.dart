@@ -12,6 +12,7 @@ import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
+import '../../db/repository/TaskGroupRepository.dart';
 import '../../util/units.dart';
 
 class ScheduledTaskForm extends StatefulWidget {
@@ -207,7 +208,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                         else if (selectedTemplateItem is Template) {
                                           var selectedTemplate = (selectedTemplateItem as Template);
                                           _template = selectedTemplate;
-                                          _taskGroup = findPredefinedTaskGroupById(selectedTemplate.taskGroupId);
+                                          _taskGroup = TaskGroupRepository.findByIdFromCache(selectedTemplate.taskGroupId);
                                           _scheduledTask?.taskGroupId = selectedTemplate.taskGroupId;
                                           _scheduledTask?.templateId = selectedTemplate.tId;
                                         }

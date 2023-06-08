@@ -13,6 +13,7 @@ import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 
+import '../../db/repository/TaskGroupRepository.dart';
 import '../ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
@@ -333,7 +334,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
         itemCount: _templates.length,
         itemBuilder: (BuildContext ctx, index) {
           final template = _templates[index];
-          final taskGroup = findPredefinedTaskGroupById(template.taskGroupId);
+          final taskGroup = TaskGroupRepository.findByIdFromCache(template.taskGroupId);
           return GestureDetector(
             onLongPressStart: (details) {
               showConfirmationDialog(
@@ -403,7 +404,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
 
   GridView _buildTaskGroupTiles(Orientation orientation) {
     final taskGroups = _templates
-      .map((template) => findPredefinedTaskGroupById(template.taskGroupId))
+      .map((template) => TaskGroupRepository.findByIdFromCache(template.taskGroupId))
       .toSet()
       .toList();
 
@@ -496,7 +497,7 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   void updateTemplate(Template template) {
     setState(() {
       if (_groupByCategory) {
-        _groupedByTaskGroup = findPredefinedTaskGroupById(template.taskGroupId);
+        _groupedByTaskGroup = TaskGroupRepository.findByIdFromCache(template.taskGroupId);
       }
       _loadQuickAdds();
     });

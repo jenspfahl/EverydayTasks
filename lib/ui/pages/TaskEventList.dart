@@ -27,6 +27,7 @@ import 'package:personaltasklogger/ui/TaskEventFilter.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../../db/repository/TaskGroupRepository.dart';
 import '../../model/When.dart';
 import '../../service/LocalNotificationService.dart';
 import '../../util/units.dart';
@@ -390,7 +391,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
     final expansionWidgets = _createExpansionWidgets(taskEvent);
     final isExpanded = index == _selectedTile;
-    final taskGroup = findPredefinedTaskGroupById(taskEvent.taskGroupId!);
+    final taskGroup = TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!);
 
     final listTile = ListTile(
       dense: true,
@@ -474,7 +475,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
   Widget? _taskGroupPresentation(TaskEvent taskEvent) {
     if (taskEvent.taskGroupId != null) {
-      final taskGroup = findPredefinedTaskGroupById(taskEvent.taskGroupId!);
+      final taskGroup = TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!);
       return taskGroup.getTaskGroupRepresentation(useIconColor: true);
     }
     return null;
@@ -738,7 +739,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     if (originTemplate == null) {
       return Text("-${translate('pages.journal.details.value_none')}-");
     }
-    final originTaskGroup = findPredefinedTaskGroupById(originTemplate.taskGroupId);
+    final originTaskGroup = TaskGroupRepository.findByIdFromCache(originTemplate.taskGroupId);
     return Column(
       children: [
         Row(
@@ -755,7 +756,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     if (scheduledTask == null) {
       return Text("-${translate('pages.journal.details.value_none')}-");
     }
-    final originTaskGroup = findPredefinedTaskGroupById(scheduledTask.taskGroupId);
+    final originTaskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
     return Column(
       children: [
         Row(

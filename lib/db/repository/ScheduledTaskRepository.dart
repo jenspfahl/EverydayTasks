@@ -92,6 +92,14 @@ class ScheduledTaskRepository {
         .first;
   }
 
+  static Future<int?> countByTaskGroupId(int taskGroupId) async {
+
+    final database = await getDb();
+
+    final scheduledTaskDao = database.scheduledTaskDao;
+    return await scheduledTaskDao.countByTaskGroupId(taskGroupId).first;
+  }
+
   static ScheduledTaskEntity _mapToEntity(ScheduledTask scheduledTask) =>
     ScheduledTaskEntity(
         scheduledTask.id,

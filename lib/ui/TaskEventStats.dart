@@ -14,6 +14,7 @@ import 'package:fl_chart/fl_chart.dart';
 import "package:collection/collection.dart";
 import 'package:personaltasklogger/util/extensions.dart';
 
+import '../db/repository/TaskGroupRepository.dart';
 import '../model/Template.dart';
 import '../util/units.dart';
 import 'PersonalTaskLoggerApp.dart';
@@ -192,7 +193,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
       int? taskGroupId = data.taskGroupId;
       final taskGroup = taskGroupId != null
-          ? findPredefinedTaskGroupById(taskGroupId)
+          ? TaskGroupRepository.findByIdFromCache(taskGroupId)
           : null;
 
       var percentValue = _valueToPercent(value, totalValue);
@@ -312,7 +313,7 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     
       int? taskGroupId = data.taskGroupId;
       final taskGroup = taskGroupId != null
-          ? findPredefinedTaskGroupById(taskGroupId)
+          ? TaskGroupRepository.findByIdFromCache(taskGroupId)
           : null;
     
       final template = data.templateId != null ? await TemplateRepository.findById(data.templateId!) : null;
@@ -531,10 +532,10 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     }
     else if (widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate is Template) {
       final template = widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate as Template;
-      return findPredefinedTaskGroupById(template.taskGroupId);
+      return TaskGroupRepository.findByIdFromCache(template.taskGroupId);
     }
     else if (widget.taskEventListState.taskFilterSettings.filterByScheduledTask != null) {
-      return findPredefinedTaskGroupById(widget.taskEventListState.taskFilterSettings.filterByScheduledTask!.taskGroupId);
+      return TaskGroupRepository.findByIdFromCache(widget.taskEventListState.taskFilterSettings.filterByScheduledTask!.taskGroupId);
     }
     else {
       return null;

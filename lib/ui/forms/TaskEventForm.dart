@@ -19,6 +19,7 @@ import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../../db/repository/TaskGroupRepository.dart';
 import '../ToggleActionIcon.dart';
 
 final trackIconKey = new GlobalKey<ToggleActionIconState>();
@@ -140,7 +141,13 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
     }
 
     if (selectedTaskGroupId != null) {
-      _selectedTaskGroup = findPredefinedTaskGroupById(selectedTaskGroupId);
+      if (_isTaskGroupDeleted(selectedTaskGroupId)) {
+        _selectedTaskGroup = null;
+      }
+      else {
+        _selectedTaskGroup =
+            TaskGroupRepository.findByIdFromCache(selectedTaskGroupId);
+      }
     }
 
     _selectedDurationHours = aroundDuration;
@@ -239,7 +246,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                               _selectedTaskGroup = value;
                             });
                           },
-                          items: predefinedTaskGroups.map((TaskGroup group) {
+                          items: TaskGroupRepository.getAllCached(inclHidden: false).map((TaskGroup group) {
                             return DropdownMenuItem(
                               value: group,
                               child: group.getTaskGroupRepresentation(useIconColor: true),
@@ -679,8 +686,8 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
     _severity = Severity.values.elementAt(jsonMap['severity']);
 
     int? taskGroupId = jsonMap['taskGroupId'];
-    if (taskGroupId != null) {
-      _selectedTaskGroup = findPredefinedTaskGroupById(taskGroupId);
+    if (taskGroupId != null && taskGroupId != deletedDefaultTaskGroupId) {
+      _selectedTaskGroup = TaskGroupRepository.findByIdFromCache(taskGroupId);
     }
 
     int? templateId = jsonMap['templateId'];
@@ -703,5 +710,10 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
 
   @override
   bool get wantKeepAlive => true;
+
+  bool _isTaskGroupDeleted(int taskGroupId) {
+    final taskGroup = TaskGroupRepository.findByIdFromCache(taskGroupId);
+    return taskGroup.id == deletedDefaultTaskGroupId;
+  }
 
 }

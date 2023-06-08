@@ -68,7 +68,7 @@
       "activate_schedule": "Aktiviere den Zeitplan",
       "scheduled_from_hint": "Geplant ab",
       "scheduled_from_emphasis": "Wähle ab wann der Zeitplan gilt",
-      "activate_reminders": "Aktiviere Erinnerungen",
+      "activate_reminders": "Aktiviere Erinnerung",
       "remind_again_delay_description": "Wähle wann erneut erinnert werden soll.",
       "remind_after": "Erneut nach {when}",
       "repetition_mode": "Dynamische Wiederholung",
@@ -91,6 +91,21 @@
         "title": "Aufgabe wiederherstellen",
         "message_task": "Soll die vordefinierte Aufgabe '{title}' wiederhergestellt werden?",
         "message_variant": "Soll die vordefinierte Variante '{title}' wiederhergestellt werden?"
+      }
+    },
+    "task_group": {
+      "title_hint": "Kurzer Name der Kategorie",
+      "reset": {
+        "title": "Kategorie wiederherstellen",
+        "message": "Soll die vordefinierte Kategorie '{name}' wiederhergestellt werden?"
+      },
+      "change_icon": {
+        "title": "Symbol ändern",
+        "message": "Wähle ein Symbol"
+      },
+      "change_color": {
+        "title": "Farbe ändern",
+        "message": "Wähle eine Farbe"
       }
     }
   },
@@ -174,7 +189,8 @@
           "by_progress": "Nach Fortschritt sortieren",
           "by_remaining_time": "Nach verbleibender Zeit sortieren",
           "by_category": "Nach Kategorien sortieren",
-          "by_title": "Nach Titel sortieren"
+          "by_title": "Nach Titel sortieren",
+          "hide_non_active": "Nicht aktive verbergen"
         },
         "notifications": {
           "enabled": "Fälligkeitsbenachrichtigung aktiviert",
@@ -194,7 +210,11 @@
         "due_tomorrow": "Morgen fällig",
         "due_after_tomorrow": "Übermorgen fällig",
         "paused_schedules": "Pausierte Zeitpläne",
-        "inactive_schedules": "Inaktive Zeitpläne"
+        "inactive_schedules": "Inaktive Zeitpläne",
+        "reminder_activated" : "Erinnerung aktiviert",
+        "reminder_passed" : "Erinnerung abgelaufen",
+        "remind_again" : "Nochmal erinnern",
+        "remind_again_successful" : "Erinnerung erneut eingestellt in {when}"
       },
       "notification": {
         "title_normal_task": "Fällige geplante Aufgabe",
@@ -210,7 +230,9 @@
           "title": "Fortschritt zurücksetzen",
           "message_then": "Soll der Fortschritt des Zeitplans '{title}' wirklich zurückgesetzt werden ? Die nächste Fälligkeit ist dann {nextDueDate} um {newNextDueDate}.",
           "message_still": "Soll der Fortschritt des Zeitplans '{title}' wirklich zurückgesetzt werden ? Die nächste Fälligkeit ist immernoch {nextDueDate} um {newNextDueDate}.",
-          "success": "Fortschritt für '{title}' wurde zurückgesetzt"
+          "success": "Fortschritt für '{title}' wurde zurückgesetzt",
+          "title_custom": "Nächste Fälligkeit für '{title}' ist ...",
+          "success_custom": "Die nächste Fälligkeit für '{title}' wurde angepasst"
         },
         "pause_resume": {
           "paused": "Zeitplan '{title}' pausiert",
@@ -239,6 +261,7 @@
         "restore_a_task": {
           "title": "Aufgabe wiederherstellen",
           "description": "Wähle eine vordefinierte Aufgabe oder Variante zum wiederherstellen.",
+          "success_group": "Kategorie '{name}' wiederhergestellt.",
           "success_task": "Aufgabe '{title}' wiederhergestellt.",
           "success_variant": "Variante '{title}' wiederhergestellt.",
           "success_variant_parent_task": "Variante '{title}' mit zugehöriger Aufgabe wiederhergestellt."
@@ -246,7 +269,8 @@
       },
       "action": {
         "error_nothing_selected": "Bitte erst ein Element auswählen!",
-        "description_group": "Neue Aufgabe unter '{groupName}' hinzufügen",
+        "description_nothing_selected": "Lege eine neue Kategorie an. Um eine bestehende Kategorie zu ändern, wähle dieser erst aus.",
+        "description_group": "Füge eine neue Aufgabe unter '{groupName}' hinzu oder ändere oder lösche die gewählte Kategorie.",
         "description_task": "Ändere oder entferne die ausgewählte Aufgabe '{title}' oder füge eine neue Variante davon hinzu.",
         "description_variant": "Ändere oder entferne die ausgewählte Variante '{title}' oder klone sie als Vorlage für eine neue Variante.",
         "add_task": {
@@ -283,6 +307,22 @@
           "message_custom": "Die Variante '{title} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
           "message_predefined": "Die Variante '{title}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
           "success": "Die Variante '{title}' wurde entfernt"
+        },
+        "create_task_group": {
+          "title": "Kategorie anlegen",
+          "success": "Kategorie '{name}' angelegt"
+        },
+        "change_task_group": {
+          "title": "Kategorie ändern",
+          "success": "Kategorie '{name}' geändert"
+        },
+        "remove_task_group": {
+          "error_has_children": "Bitte erst zugehörige Aufgaben entfernen!",
+          "error_has_schedules": "Bitte erst zugehörige Zeitpläne entfernen!",
+          "title": "Entferne Kategorie",
+          "message_custom": "Die Kategorie '{name}' soll entfernt werden. Dies kann nicht rückgängig gemacht werden!",
+          "message_predefined": "Die Kategorie '{name}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
+          "success": "Die Kategorie '{name}' wurde entfernt"
         }
       }
     },
@@ -908,6 +948,10 @@
 
     "others": {
       "name": "Anderes"
+    },
+
+    "deleted": {
+      "name": ""
     }
   }
 }
