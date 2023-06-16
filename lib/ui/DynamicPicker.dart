@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:infinite_listview/infinite_listview.dart';
+import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
+import 'package:personaltasklogger/ui/utils.dart';
 
 // Copied from NumberPicker
 typedef TextMapper<T> = String Function(T value);
@@ -182,8 +184,7 @@ class _DynamicPickerState<T> extends State<DynamicPicker> {
   Widget _itemBuilder(BuildContext context, int index) {
     final themeData = Theme.of(context);
     final defaultStyle = widget.textStyle ?? themeData.textTheme.bodyText2;
-    final selectedStyle = widget.selectedTextStyle ??
-        themeData.textTheme.headline5?.copyWith(color: themeData.accentColor);
+    final selectedStyle = TextStyle(color: isDarkMode(context) ? Colors.white : BUTTON_COLOR, fontSize: 24);
 
     final value = _getValueFromIndex(index % itemCount);
     final isExtra = !widget.infiniteLoop &&
