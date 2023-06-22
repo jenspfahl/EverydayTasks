@@ -505,14 +505,18 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                                   return;
                                 }
                                 if (_formKey.currentState!.validate()) {
-                                  debugPrint("paused duration = $_trackingPaused");
+
+                                  final duration = When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration);
+
                                   final startedAtTimeOfDay =
                                     When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt);
                                   final date = When.fromWhenOnDateToDate(_selectedWhenOnDate!, _customWhenOn);
-                                  final startedAt = DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour,
+                                  var startedAt = DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour,
                                       startedAtTimeOfDay.minute, _trackingStart?.second ?? 0);
-                                  final duration =
-                                  When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration);
+                                  if (_selectedWhenAtDay == AroundWhenAtDay.NOW && _trackingStart == null) {
+                                    startedAt = startedAt.subtract(duration);
+                                  }
+
                                   var taskEvent = TaskEvent(
                                     _taskEvent?.id,
                                     _selectedTaskGroup?.id,

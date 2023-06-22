@@ -34,7 +34,7 @@
       "category_emphasis": "Bitte wähle eine Kategorie aus",
       "duration_hint": "Dauer der Tätigkeit",
       "duration_emphasis": "Bitte wähle eine Dauer aus",
-      "when_at_hint": "Startzeit",
+      "when_at_hint": "Ausführungszeit",
       "when_at_emphasis": "Wähle wann die Tätigkeit begann",
       "when_on_hint": "Datum",
       "when_on_emphasis": "Wähle an welchem Tag die Tätigkeit begann",
@@ -86,7 +86,7 @@
     "task": {
       "title_hint": "Kurzer Titel der Aufgabe",
       "duration_hint": "Gewöhnliche Dauer",
-      "when_at_hint": "Gewöhnliche Startzeit",
+      "when_at_hint": "Gewöhnliche Ausführungszeit",
       "reset": {
         "title": "Aufgabe wiederherstellen",
         "message_task": "Soll die vordefinierte Aufgabe '{title}' wiederhergestellt werden?",

@@ -34,7 +34,7 @@
       "category_emphasis": "Please select a category",
       "duration_hint": "Duration",
       "duration_emphasis": "Please select a duration",
-      "when_at_hint": "Start time",
+      "when_at_hint": "Execution time",
       "when_at_emphasis": "Select when the task starts",
       "when_on_hint": "Start date",
       "when_on_emphasis": "Select which day the task starts",
@@ -85,8 +85,8 @@
     },
     "task": {
       "title_hint": "Title of the task",
-      "duration_hint": "A usual duration",
-      "when_at_hint": "A usual start time",
+      "duration_hint": "Usual duration",
+      "when_at_hint": "Usual execution time",
       "reset": {
         "title": "Restore default",
         "message_task": "This will restore the current task '{title}' to the predefined default.",
