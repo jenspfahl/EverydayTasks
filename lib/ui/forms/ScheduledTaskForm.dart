@@ -52,8 +52,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   AroundWhenAtDay? _selectedStartAt;
   TimeOfDay? _customStartAt;
 
-  WhenOnDate? _selectedScheduleFrom;
-  DateTime? _customScheduleFrom;
+  WhenOnDateFuture? _selectedNextDueOn;
+  DateTime? _customNextDueOn;
 
   late bool _isActive;
   RepetitionMode _repetitionMode = RepetitionMode.DYNAMIC;
@@ -80,11 +80,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       }
 
       if (_scheduledTask?.lastScheduledEventOn != null) {
-        _selectedScheduleFrom = fromDateTimeToWhenOnDate(_scheduledTask!.lastScheduledEventOn!);
-        debugPrint("_selectedScheduleFrom=$_selectedScheduleFrom");
+        _selectedNextDueOn = fromDateTimeToWhenOnDateFuture(_scheduledTask!.lastScheduledEventOn!);
+        debugPrint("_selectedScheduleFrom=$_selectedNextDueOn");
       }
-      debugPrint("_customScheduleFrom=$_customScheduleFrom");
-      _customScheduleFrom = _scheduledTask!.lastScheduledEventOn;
+      debugPrint("_customScheduleFrom=$_customNextDueOn");
+      _customNextDueOn = _scheduledTask!.lastScheduledEventOn;
 
       _isActive = _scheduledTask!.active;
       _repetitionMode = _scheduledTask!.schedule.repetitionMode;
@@ -237,14 +237,31 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                   ],
 
                           ),
+
                           Padding(
                             padding: EdgeInsets.only(top: 20.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Container(
+                                    height: 64.0,
+                                    width: (MediaQuery.of(context).size.width / 2) - 60,
+                                    child: CheckboxListTile(
+                                      title: Text(translate('forms.schedule.activate_schedule')),
+                                      dense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                      value: _isActive,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          if (value != null) _isActive = value;
+                                        });
+                                      },
+                                    )
+                                ),
+
+                                Container(
                                   height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) - 25,
+                                  width: (MediaQuery.of(context).size.width / 2) + 5,
                                   child: DropdownButtonFormField<RepetitionStep?>(
                                     onTap: () => FocusScope.of(context).unfocus(),
                                     value: _selectedRepetitionStep,
@@ -278,15 +295,20 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                         setState(() {
                                           _selectedRepetitionStep = value;
                                           _customRepetition = null;
+
+                                          //TODO update due on to now/lastEvent + intervall
+
+                                         // _selectedNextDueOn =
+                                         // _customNextDueOn =
                                         });
                                       }
                                     },
                                     items: RepetitionStep.values.map((RepetitionStep repetitionStep) {
                                       return DropdownMenuItem(
-                                        value: repetitionStep,
-                                        child: Text(repetitionStep != RepetitionStep.CUSTOM
-                                            ? Schedule.fromRepetitionStepToString(repetitionStep)
-                                            : Schedule.fromCustomRepetitionToString(_customRepetition))
+                                          value: repetitionStep,
+                                          child: Text(repetitionStep != RepetitionStep.CUSTOM
+                                              ? Schedule.fromRepetitionStepToString(repetitionStep)
+                                              : Schedule.fromCustomRepetitionToString(_customRepetition))
                                       );
                                     }).toList(),
                                     validator: (RepetitionStep? value) {
@@ -298,6 +320,78 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     },
                                   ),
                                 ),
+                              ],
+                            ),
+                          ),
+
+                          Padding(
+                            padding: EdgeInsets.only(top: 20.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  height: 64.0,
+                                  width: (MediaQuery.of(context).size.width / 2) - 25,
+                                  child: DropdownButtonFormField<WhenOnDateFuture?>(
+                                    onTap: () => FocusScope.of(context).unfocus(),
+                                    value: _selectedNextDueOn,
+                                    hint: Text(translate('forms.schedule.scheduled_from_hint')),
+                                    icon: Icon(Icons.event_available),
+                                    isExpanded: true,
+                                    onChanged: (value) {
+                                      if (value == WhenOnDateFuture.CUSTOM) {
+                                        final initialScheduleFrom = _customNextDueOn ?? truncToDate(DateTime.now());
+                                        showTweakedDatePicker(
+                                          context,
+                                          initialDate: initialScheduleFrom,
+                                        ).then((selectedDate) {
+                                          if (selectedDate != null) {
+                                            setState(() {
+                                              if (isToday(selectedDate)) {
+                                                _selectedNextDueOn =
+                                                    WhenOnDateFuture.TODAY;
+                                                _customNextDueOn = null;
+                                              } else
+                                              if (isTomorrow(selectedDate)) {
+                                                _selectedNextDueOn =
+                                                    WhenOnDateFuture.TOMORROW;
+                                                _customNextDueOn = null;
+                                              } else
+                                              if (isAfterTomorrow(selectedDate)) {
+                                                _selectedNextDueOn =
+                                                    WhenOnDateFuture.AFTER_TOMORROW;
+                                                _customNextDueOn = null;
+                                              } else {
+                                                _customNextDueOn = selectedDate;
+                                              }
+                                            });
+                                          }
+                                        });
+                                      }
+                                      setState(() {
+                                        _selectedNextDueOn = value;
+                                      });
+                                    },
+                                    validator: (WhenOnDateFuture? value) {
+                                      if (value == null || (value == WhenOnDateFuture.CUSTOM && _customNextDueOn == null)) {
+                                        return translate('forms.schedule.scheduled_from_emphasis');
+                                      } else {
+                                        return null;
+                                      }
+                                    },
+                                    items: WhenOnDateFuture.values.map((WhenOnDateFuture whenOnDate) {
+                                      return DropdownMenuItem(
+                                        value: whenOnDate,
+                                        child: Text(
+                                          whenOnDate == WhenOnDateFuture.CUSTOM && _customNextDueOn != null && _isNotAWord(_customNextDueOn!)
+                                              ? formatToDateOrWord(_customNextDueOn!, context)
+                                              : When.fromWhenOnDateFutureString(whenOnDate),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+
                                 Container(
                                   height: 64.0,
                                   width: (MediaQuery.of(context).size.width / 2) - 25,
@@ -349,91 +443,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                               ],
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 20.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) - 60,
-                                  child: CheckboxListTile(
-                                    title: Text(translate('forms.schedule.activate_schedule')),
-                                    dense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                    value: _isActive,
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        if (value != null) _isActive = value;
-                                      });
-                                    },
-                                  )
-                                ),
-                                Container(
-                                  height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) + 5,
-                                  child: DropdownButtonFormField<WhenOnDate?>(
-                                    onTap: () => FocusScope.of(context).unfocus(),
-                                    value: _selectedScheduleFrom,
-                                    hint: Text(translate('forms.schedule.scheduled_from_hint')),
-                                    icon: Icon(MdiIcons.arrowExpandRight),
-                                    isExpanded: true,
-                                    onChanged: (value) {
-                                      if (value == WhenOnDate.CUSTOM) {
-                                        final initialScheduleFrom = _customScheduleFrom ?? truncToDate(DateTime.now());
-                                        showTweakedDatePicker(
-                                          context,
-                                          initialDate: initialScheduleFrom,
-                                        ).then((selectedDate) {
-                                          if (selectedDate != null) {
-                                            setState(() {
-                                              if (isToday(selectedDate)) {
-                                                _selectedScheduleFrom =
-                                                    WhenOnDate.TODAY;
-                                                _customScheduleFrom = null;
-                                              } else
-                                              if (isYesterday(selectedDate)) {
-                                                _selectedScheduleFrom =
-                                                    WhenOnDate.YESTERDAY;
-                                                _customScheduleFrom = null;
-                                              } else
-                                              if (isBeforeYesterday(selectedDate)) {
-                                                _selectedScheduleFrom =
-                                                    WhenOnDate.BEFORE_YESTERDAY;
-                                                _customScheduleFrom = null;
-                                              } else {
-                                                _customScheduleFrom = selectedDate;
-                                              }
-                                            });
-                                          }
-                                        });
-                                      }
-                                      setState(() {
-                                        _selectedScheduleFrom = value;
-                                      });
-                                    },
-                                    validator: (WhenOnDate? value) {
-                                      if (value == null || (value == WhenOnDate.CUSTOM && _customScheduleFrom == null)) {
-                                        return translate('forms.schedule.scheduled_from_emphasis');
-                                      } else {
-                                        return null;
-                                      }
-                                    },
-                                    items: WhenOnDate.values.map((WhenOnDate whenOnDate) {
-                                      return DropdownMenuItem(
-                                        value: whenOnDate,
-                                        child: Text(
-                                         whenOnDate == WhenOnDate.CUSTOM && _customScheduleFrom != null && _isNotAWord(_customScheduleFrom!)
-                                              ? formatToDateOrWord(_customScheduleFrom!, context)
-                                              : When.fromWhenOnDateToString(whenOnDate),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+
                           Padding(
                             padding: EdgeInsets.only(top: 20.0),
                             child: Row(
@@ -529,7 +539,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 onPressed: () {
                                   if (_formKey.currentState!.validate()) {
 
-                                    var scheduleFrom = When.fromWhenOnDateToDate(_selectedScheduleFrom!, _customScheduleFrom);
+                                    var scheduleFrom = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
                                     if (_selectedStartAt == AroundWhenAtDay.NOW) {
                                       _selectedStartAt = AroundWhenAtDay.CUSTOM;
                                       _customStartAt = TimeOfDay.now();
@@ -577,7 +587,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   }
 
   bool _isNotAWord(DateTime dateTime) {
-    final whenOn = fromDateTimeToWhenOnDate(dateTime);
-    return whenOn == WhenOnDate.CUSTOM;
+    final whenOn = fromDateTimeToWhenOnDateFuture(dateTime);
+    return whenOn == WhenOnDateFuture.CUSTOM;
   }
 }

@@ -9,7 +9,8 @@ import '../service/PreferenceService.dart';
 enum AroundWhenAtDay {NOW, MORNING, FORENOON, NOON, AFTERNOON, EVENING, NIGHT, CUSTOM}
 enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES, TWENTY_MINUTES, THREE_QUARTERS}
 
-enum WhenOnDate {TODAY, YESTERDAY, BEFORE_YESTERDAY, CUSTOM}
+enum WhenOnDatePast {TODAY, YESTERDAY, BEFORE_YESTERDAY, CUSTOM}
+enum WhenOnDateFuture {TODAY, TOMORROW, AFTER_TOMORROW, CUSTOM}
 
 
 class When {
@@ -153,20 +154,37 @@ class When {
     return "${translate('common.words.around').capitalize()} ${formatTimeOfDay(timeOfDay)}";
   }
 
-    static DateTime fromWhenOnDateToDate(WhenOnDate whenOnDate, DateTime? customDate) {
+  static DateTime fromWhenOnDatePastToDate(WhenOnDatePast whenOnDate, DateTime? customDate) {
     switch(whenOnDate) {
-      case WhenOnDate.TODAY: return truncToDate(DateTime.now());
-      case WhenOnDate.YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 1)));
-      case WhenOnDate.BEFORE_YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 2)));
-      case WhenOnDate.CUSTOM: return customDate!;
+      case WhenOnDatePast.TODAY: return truncToDate(DateTime.now());
+      case WhenOnDatePast.YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 1)));
+      case WhenOnDatePast.BEFORE_YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 2)));
+      case WhenOnDatePast.CUSTOM: return customDate!;
     }
   }
-  static String fromWhenOnDateToString(WhenOnDate whenOnDate) {
+  static DateTime fromWhenOnDateFutureToDate(WhenOnDateFuture whenOnDate, DateTime? customDate) {
     switch(whenOnDate) {
-      case WhenOnDate.TODAY: return translate('common.dates.today');
-      case WhenOnDate.YESTERDAY: return translate('common.dates.yesterday');
-      case WhenOnDate.BEFORE_YESTERDAY: return translate('common.dates.before_yesterday');
-      case WhenOnDate.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case WhenOnDateFuture.TODAY: return truncToDate(DateTime.now());
+      case WhenOnDateFuture.TOMORROW: return truncToDate(DateTime.now().add(Duration(days: 1)));
+      case WhenOnDateFuture.AFTER_TOMORROW: return truncToDate(DateTime.now().add(Duration(days: 2)));
+      case WhenOnDateFuture.CUSTOM: return customDate!;
+    }
+  }
+
+  static String fromWhenOnDatePastToString(WhenOnDatePast whenOnDate) {
+    switch(whenOnDate) {
+      case WhenOnDatePast.TODAY: return translate('common.dates.today');
+      case WhenOnDatePast.YESTERDAY: return translate('common.dates.yesterday');
+      case WhenOnDatePast.BEFORE_YESTERDAY: return translate('common.dates.before_yesterday');
+      case WhenOnDatePast.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+    }
+  }
+  static String fromWhenOnDateFutureString(WhenOnDateFuture whenOnDate) {
+    switch(whenOnDate) {
+      case WhenOnDateFuture.TODAY: return translate('common.dates.today');
+      case WhenOnDateFuture.TOMORROW: return translate('common.dates.tomorrow');
+      case WhenOnDateFuture.AFTER_TOMORROW: return translate('common.dates.after_tomorrow');
+      case WhenOnDateFuture.CUSTOM: return translate('common.words.custom').capitalize() + "...";
     }
   }
 

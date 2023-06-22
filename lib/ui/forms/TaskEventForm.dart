@@ -67,7 +67,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
   AroundWhenAtDay? _selectedWhenAtDay;
   TimeOfDay? _customWhenAt;
 
-  WhenOnDate? _selectedWhenOnDate;
+  WhenOnDatePast? _selectedWhenOnDate;
   DateTime? _customWhenOn;
 
   DateTime? _trackingStart;
@@ -162,8 +162,8 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
     }
 
     if (startedOn != null) {
-      _selectedWhenOnDate = fromDateTimeToWhenOnDate(startedOn);
-      if (_selectedWhenOnDate == WhenOnDate.CUSTOM) {
+      _selectedWhenOnDate = fromDateTimeToWhenOnDatePast(startedOn);
+      if (_selectedWhenOnDate == WhenOnDatePast.CUSTOM) {
         _customWhenOn = startedOn;
       }
     }
@@ -375,7 +375,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                               Container(
                                 height: 64.0,
                                 width: (MediaQuery.of(context).size.width / 2) - 30,
-                                child: DropdownButtonFormField<WhenOnDate?>(
+                                child: DropdownButtonFormField<WhenOnDatePast?>(
                                   onTap: () => FocusScope.of(context).unfocus(),
                                   value: _selectedWhenOnDate,
                                   hint: Text(translate('forms.task_event.when_on_hint')),
@@ -383,7 +383,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                                   iconDisabledColor: _isTrackingRunning() ? Colors.redAccent : null,
                                   isExpanded: true,
                                   onChanged: _isTrackingRunning() ? null : (value) {
-                                    if (value == WhenOnDate.CUSTOM) {
+                                    if (value == WhenOnDatePast.CUSTOM) {
                                       final initialWhenOn = _customWhenOn ?? truncToDate(DateTime.now());
                                       showTweakedDatePicker(context,
                                         initialDate: initialWhenOn,
@@ -391,15 +391,15 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                                         if (selectedDate != null) {
                                           setState(() {
                                             if (isToday(selectedDate)) {
-                                              _selectedWhenOnDate = WhenOnDate.TODAY;
+                                              _selectedWhenOnDate = WhenOnDatePast.TODAY;
                                               _customWhenOn = null;
                                             } else
                                             if (isYesterday(selectedDate)) {
-                                              _selectedWhenOnDate = WhenOnDate.YESTERDAY;
+                                              _selectedWhenOnDate = WhenOnDatePast.YESTERDAY;
                                               _customWhenOn = null;
                                             } else
                                             if (isBeforeYesterday(selectedDate)) {
-                                              _selectedWhenOnDate = WhenOnDate.BEFORE_YESTERDAY;
+                                              _selectedWhenOnDate = WhenOnDatePast.BEFORE_YESTERDAY;
                                               _customWhenOn = null;
                                             } else {
                                               _customWhenOn = selectedDate;
@@ -412,20 +412,20 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                                       _selectedWhenOnDate = value;
                                     });
                                   },
-                                  validator: (WhenOnDate? value) {
-                                    if (value == null || (value == WhenOnDate.CUSTOM && _customWhenOn == null)) {
+                                  validator: (WhenOnDatePast? value) {
+                                    if (value == null || (value == WhenOnDatePast.CUSTOM && _customWhenOn == null)) {
                                       return translate('forms.task_event.when_on_emphasis');
                                     } else {
                                       return null;
                                     }
                                   },
-                                  items: WhenOnDate.values.map((WhenOnDate whenOnDate) {
+                                  items: WhenOnDatePast.values.map((WhenOnDatePast whenOnDate) {
                                     return DropdownMenuItem(
                                       value: whenOnDate,
                                       child: Text(
-                                        whenOnDate == WhenOnDate.CUSTOM && _customWhenOn != null
+                                        whenOnDate == WhenOnDatePast.CUSTOM && _customWhenOn != null
                                             ? formatToDateOrWord(_customWhenOn!, context)
-                                            : When.fromWhenOnDateToString(whenOnDate),
+                                            : When.fromWhenOnDatePastToString(whenOnDate),
                                       ),
                                     );
                                   }).toList(),
@@ -510,7 +510,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
 
                                   final startedAtTimeOfDay =
                                     When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt);
-                                  final date = When.fromWhenOnDateToDate(_selectedWhenOnDate!, _customWhenOn);
+                                  final date = When.fromWhenOnDatePastToDate(_selectedWhenOnDate!, _customWhenOn);
                                   var startedAt = DateTime(date.year, date.month, date.day, startedAtTimeOfDay.hour,
                                       startedAtTimeOfDay.minute, _trackingStart?.second ?? 0);
                                   if (_selectedWhenAtDay == AroundWhenAtDay.NOW && _trackingStart == null) {
@@ -619,7 +619,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
     _selectedWhenAtDay = AroundWhenAtDay.CUSTOM;
     _customWhenAt = TimeOfDay.fromDateTime(_trackingStart!);
 
-    _selectedWhenOnDate = WhenOnDate.CUSTOM;
+    _selectedWhenOnDate = WhenOnDatePast.CUSTOM;
     _customWhenOn = truncToDate(_trackingStart!);
 
     _updateTracking();

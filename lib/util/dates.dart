@@ -264,14 +264,25 @@ bool isBeforeYesterday(DateTime? dateTime) {
   return truncToDate(dateTime) == truncToDate(DateTime.now().subtract(Duration(days: 2)));
 }
 
-WhenOnDate fromDateTimeToWhenOnDate(DateTime dateTime) {
+WhenOnDatePast fromDateTimeToWhenOnDatePast(DateTime dateTime) {
   if (isToday(dateTime)) {
-    return WhenOnDate.TODAY;
+    return WhenOnDatePast.TODAY;
   } else if (isYesterday(dateTime)) {
-    return WhenOnDate.YESTERDAY;
+    return WhenOnDatePast.YESTERDAY;
   } else if (isBeforeYesterday(dateTime)) {
-    return WhenOnDate.BEFORE_YESTERDAY;
+    return WhenOnDatePast.BEFORE_YESTERDAY;
   } else {
-    return WhenOnDate.CUSTOM;
+    return WhenOnDatePast.CUSTOM;
+  }
+}
+WhenOnDateFuture fromDateTimeToWhenOnDateFuture(DateTime dateTime) {
+  if (isToday(dateTime)) {
+    return WhenOnDateFuture.TODAY;
+  } else if (isTomorrow(dateTime)) {
+    return WhenOnDateFuture.TOMORROW;
+  } else if (isAfterTomorrow(dateTime)) {
+    return WhenOnDateFuture.AFTER_TOMORROW;
+  } else {
+    return WhenOnDateFuture.CUSTOM;
   }
 }
