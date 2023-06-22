@@ -29,6 +29,18 @@ class CustomRepetition {
     }
   }
 
+  DateTime getPreviousRepetitionFrom(DateTime from) {
+    var jiffy = Jiffy(from);
+    switch(repetitionUnit) {
+      case RepetitionUnit.MINUTES: return jiffy.subtract(minutes: repetitionValue).dateTime;
+      case RepetitionUnit.HOURS: return jiffy.subtract(hours: repetitionValue).dateTime;
+      case RepetitionUnit.DAYS: return jiffy.subtract(days: repetitionValue).dateTime;
+      case RepetitionUnit.WEEKS: return jiffy.subtract(weeks: repetitionValue).dateTime;
+      case RepetitionUnit.MONTHS: return jiffy.subtract(months: repetitionValue).dateTime;
+      case RepetitionUnit.YEARS: return jiffy.subtract(years: repetitionValue).dateTime;
+    }
+  }
+
   @override
   String toString() {
     return 'CustomRepetition{repetitionValue: $repetitionValue, repetitionUnit: $repetitionUnit}';
@@ -73,7 +85,18 @@ class Schedule {
       return customRepetition!.getNextRepetitionFrom(from);
     }
     else if (repetitionStep != RepetitionStep.CUSTOM) {
-      return fromRepetitionStepToDateTime(from, repetitionStep);
+      return addRepetitionStepToDateTime(from, repetitionStep);
+    }
+    throw new Exception("unknown repetition step");
+  }
+  
+  DateTime getPreviousRepetitionFrom(DateTime from) {
+    from = adjustScheduleFrom(from);
+    if (customRepetition != null) {
+      return customRepetition!.getPreviousRepetitionFrom(from);
+    }
+    else if (repetitionStep != RepetitionStep.CUSTOM) {
+      return subtractRepetitionStepToDateTime(from, repetitionStep);
     }
     throw new Exception("unknown repetition step");
   }
@@ -85,7 +108,7 @@ class Schedule {
         : When.fromWhenAtDayToString(aroundStartAt);
   }
 
-  static DateTime fromRepetitionStepToDateTime(DateTime from, RepetitionStep repetitionStep) {
+  static DateTime addRepetitionStepToDateTime(DateTime from, RepetitionStep repetitionStep) {
     switch(repetitionStep) {
       case RepetitionStep.DAILY: return from.add(Duration(days: 1));
       case RepetitionStep.EVERY_OTHER_DAY: return from.add(Duration(days: 2));
@@ -96,6 +119,21 @@ class Schedule {
       case RepetitionStep.QUARTERLY: return Jiffy(from).add(months: 3).dateTime;
       case RepetitionStep.HALF_YEARLY: return Jiffy(from).add(months: 6).dateTime;
       case RepetitionStep.YEARLY: return Jiffy(from).add(years: 1).dateTime;
+      case RepetitionStep.CUSTOM: throw new Exception("custom repetition step not allowed here");
+    }
+  }
+
+  static DateTime subtractRepetitionStepToDateTime(DateTime from, RepetitionStep repetitionStep) {
+    switch(repetitionStep) {
+      case RepetitionStep.DAILY: return from.subtract(Duration(days: 1));
+      case RepetitionStep.EVERY_OTHER_DAY: return from.subtract(Duration(days: 2));
+      case RepetitionStep.WEEKLY: return from.subtract(Duration(days: 7));
+      case RepetitionStep.EVERY_OTHER_WEEK: return from.subtract(Duration(days: 14));
+      case RepetitionStep.MONTHLY: return Jiffy(from).subtract(months: 1).dateTime;
+      case RepetitionStep.EVERY_OTHER_MONTH: return Jiffy(from).subtract(months: 2).dateTime;
+      case RepetitionStep.QUARTERLY: return Jiffy(from).subtract(months: 3).dateTime;
+      case RepetitionStep.HALF_YEARLY: return Jiffy(from).subtract(months: 6).dateTime;
+      case RepetitionStep.YEARLY: return Jiffy(from).subtract(years: 1).dateTime;
       case RepetitionStep.CUSTOM: throw new Exception("custom repetition step not allowed here");
     }
   }

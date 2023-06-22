@@ -80,11 +80,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       }
 
       if (_scheduledTask?.lastScheduledEventOn != null) {
-        _selectedNextDueOn = fromDateTimeToWhenOnDateFuture(_scheduledTask!.lastScheduledEventOn!);
-        debugPrint("_selectedScheduleFrom=$_selectedNextDueOn");
+        // adjust forth
+        final nextDueDate = _scheduledTask!.schedule.getNextRepetitionFrom(_scheduledTask!.lastScheduledEventOn!);
+        _selectedNextDueOn = fromDateTimeToWhenOnDateFuture(nextDueDate);
+        _customNextDueOn = nextDueDate;
       }
-      debugPrint("_customScheduleFrom=$_customNextDueOn");
-      _customNextDueOn = _scheduledTask!.lastScheduledEventOn;
 
       _isActive = _scheduledTask!.active;
       _repetitionMode = _scheduledTask!.schedule.repetitionMode;
@@ -287,6 +287,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                               //TODO map back to predefined repetition steps if custom matches
                                               _selectedRepetitionStep = RepetitionStep.CUSTOM;
                                               _customRepetition = tempSelectedRepetition;
+
+                                              // add interval to due date
+                                              _customNextDueOn = _customRepetition!.getNextRepetitionFrom(/*_scheduledTask?.lastScheduledEventOn ?? */DateTime.now());
+                                              _selectedNextDueOn = WhenOnDateFuture.CUSTOM;
                                             });
                                           }
                                         });
@@ -296,10 +300,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                           _selectedRepetitionStep = value;
                                           _customRepetition = null;
 
-                                          //TODO update due on to now/lastEvent + intervall
-
-                                         // _selectedNextDueOn =
-                                         // _customNextDueOn =
+                                          // add interval to due date
+                                          _customNextDueOn = Schedule.addRepetitionStepToDateTime(/*_scheduledTask?.lastScheduledEventOn ??*/ DateTime.now(), _selectedRepetitionStep!);
+                                          _selectedNextDueOn = WhenOnDateFuture.CUSTOM;
                                         });
                                       }
                                     },
@@ -383,7 +386,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       return DropdownMenuItem(
                                         value: whenOnDate,
                                         child: Text(
-                                          whenOnDate == WhenOnDateFuture.CUSTOM && _customNextDueOn != null && _isNotAWord(_customNextDueOn!)
+                                          (whenOnDate == WhenOnDateFuture.CUSTOM && _customNextDueOn != null) /*|| _dateCannotBeMappedToAWord(_customNextDueOn!)*/
                                               ? formatToDateOrWord(_customNextDueOn!, context)
                                               : When.fromWhenOnDateFutureString(whenOnDate),
                                         ),
@@ -539,11 +542,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 onPressed: () {
                                   if (_formKey.currentState!.validate()) {
 
-                                    var scheduleFrom = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
                                     if (_selectedStartAt == AroundWhenAtDay.NOW) {
                                       _selectedStartAt = AroundWhenAtDay.CUSTOM;
                                       _customStartAt = TimeOfDay.now();
                                     }
+
                                     var schedule = Schedule(
                                       aroundStartAt: _selectedStartAt!,
                                       startAtExactly: _customStartAt,
@@ -551,6 +554,12 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       customRepetition: _customRepetition,
                                       repetitionMode: _repetitionMode,
                                     );
+
+                                    // adjust back
+                                    var scheduleFrom = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
+                                    scheduleFrom = schedule.getPreviousRepetitionFrom(scheduleFrom);
+
+
                                     var scheduledTask = ScheduledTask(
                                       id: _scheduledTask?.id,
                                       taskGroupId: _taskGroup.id!,
@@ -586,7 +595,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     );
   }
 
-  bool _isNotAWord(DateTime dateTime) {
+  bool _dateCannotBeMappedToAWord(DateTime dateTime) {
     final whenOn = fromDateTimeToWhenOnDateFuture(dateTime);
     return whenOn == WhenOnDateFuture.CUSTOM;
   }
