@@ -81,7 +81,8 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   Duration? getPassedDuration() {
     if (lastScheduledEventOn != null) {
       final now = pausedAt != null ? pausedAt! : DateTime.now();
-      return now.difference(truncToMinutes(lastScheduledEventOn!));
+      // if last scheduled before actual creation date, cast it to creation date
+      return now.difference(truncToMinutes(lastScheduledEventOn!.isBefore(createdAt) ? createdAt : lastScheduledEventOn!));
     }
     return null;
   }

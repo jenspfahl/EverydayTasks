@@ -127,12 +127,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 final yMd = DateFormat.yMd(locale);
                 final yMMMd = DateFormat.yMMMd(locale);
                 final yMMMMd = DateFormat.yMMMMd(locale);
+                final iso = DateFormat('yyyy-MM-dd');
 
                 showChoiceDialog(context, translate('pages.settings.date_n_time.used_date_format.dialog.title'),
                     [
                       yMd.format(exampleDate),
                       yMMMd.format(exampleDate),
                       yMMMMd.format(exampleDate),
+                      iso.format(exampleDate),
                     ],
                     initialSelected: _dateFormatSelection,
                     okPressed: () {
