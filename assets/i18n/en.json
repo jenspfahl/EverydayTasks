@@ -66,7 +66,7 @@
       "due_at_hint": "Due at",
       "due_at_emphasis": "Select when the task is due",
       "activate_schedule": "Activate schedule",
-      "scheduled_from_hint": "Due on",
+      "due_on_hint": "Due on",
       "scheduled_from_emphasis": "Select when the schedule starts",
       "activate_reminders": "Activate reminder",
       "remind_again_delay_description": "Choose a delay when to remind again.",

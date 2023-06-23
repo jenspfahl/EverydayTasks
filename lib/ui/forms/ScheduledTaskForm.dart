@@ -289,8 +289,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                               _customRepetition = tempSelectedRepetition;
 
                                               // add interval to due date
-                                              _customNextDueOn = _customRepetition!.getNextRepetitionFrom(/*_scheduledTask?.lastScheduledEventOn ?? */DateTime.now());
-                                              _selectedNextDueOn = WhenOnDateFuture.CUSTOM;
+                                              final nextDueDate = _customRepetition!.getNextRepetitionFrom(DateTime.now());
+                                              _updateNextDueOn(nextDueDate);
                                             });
                                           }
                                         });
@@ -301,8 +301,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                           _customRepetition = null;
 
                                           // add interval to due date
-                                          _customNextDueOn = Schedule.addRepetitionStepToDateTime(/*_scheduledTask?.lastScheduledEventOn ??*/ DateTime.now(), _selectedRepetitionStep!);
-                                          _selectedNextDueOn = WhenOnDateFuture.CUSTOM;
+                                          final nextDueDate = Schedule.addRepetitionStepToDateTime(DateTime.now(), _selectedRepetitionStep!);
+                                          _updateNextDueOn(nextDueDate);
                                         });
                                       }
                                     },
@@ -338,7 +338,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                   child: DropdownButtonFormField<WhenOnDateFuture?>(
                                     onTap: () => FocusScope.of(context).unfocus(),
                                     value: _selectedNextDueOn,
-                                    hint: Text(translate('forms.schedule.scheduled_from_hint')),
+                                    hint: Text(translate('forms.schedule.due_on_hint')),
                                     icon: Icon(Icons.event_available),
                                     isExpanded: true,
                                     onChanged: (value) {
@@ -350,23 +350,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                         ).then((selectedDate) {
                                           if (selectedDate != null) {
                                             setState(() {
-                                              if (isToday(selectedDate)) {
-                                                _selectedNextDueOn =
-                                                    WhenOnDateFuture.TODAY;
-                                                _customNextDueOn = null;
-                                              } else
-                                              if (isTomorrow(selectedDate)) {
-                                                _selectedNextDueOn =
-                                                    WhenOnDateFuture.TOMORROW;
-                                                _customNextDueOn = null;
-                                              } else
-                                              if (isAfterTomorrow(selectedDate)) {
-                                                _selectedNextDueOn =
-                                                    WhenOnDateFuture.AFTER_TOMORROW;
-                                                _customNextDueOn = null;
-                                              } else {
-                                                _customNextDueOn = selectedDate;
-                                              }
+                                              _updateNextDueOn(selectedDate);
                                             });
                                           }
                                         });
@@ -377,7 +361,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     },
                                     validator: (WhenOnDateFuture? value) {
                                       if (value == null || (value == WhenOnDateFuture.CUSTOM && _customNextDueOn == null)) {
-                                        return translate('forms.schedule.scheduled_from_emphasis');
+                                        return translate('forms.schedule.due_at_emphasis');
                                       } else {
                                         return null;
                                       }
@@ -386,7 +370,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       return DropdownMenuItem(
                                         value: whenOnDate,
                                         child: Text(
-                                          (whenOnDate == WhenOnDateFuture.CUSTOM && _customNextDueOn != null) /*|| _dateCannotBeMappedToAWord(_customNextDueOn!)*/
+                                          whenOnDate == WhenOnDateFuture.CUSTOM && _customNextDueOn != null && _dateCannotBeMappedToAWord(_customNextDueOn!)
                                               ? formatToDateOrWord(_customNextDueOn!, context)
                                               : When.fromWhenOnDateFutureString(whenOnDate),
                                         ),
@@ -593,6 +577,27 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
         );
       }
     );
+  }
+
+  void _updateNextDueOn(DateTime selectedDate) {
+    if (isToday(selectedDate)) {
+      _selectedNextDueOn =
+          WhenOnDateFuture.TODAY;
+      _customNextDueOn = null;
+    } else
+    if (isTomorrow(selectedDate)) {
+      _selectedNextDueOn =
+          WhenOnDateFuture.TOMORROW;
+      _customNextDueOn = null;
+    } else
+    if (isAfterTomorrow(selectedDate)) {
+      _selectedNextDueOn =
+          WhenOnDateFuture.AFTER_TOMORROW;
+      _customNextDueOn = null;
+    } else {
+      _customNextDueOn = selectedDate;
+      _selectedNextDueOn = WhenOnDateFuture.CUSTOM;
+    }
   }
 
   bool _dateCannotBeMappedToAWord(DateTime dateTime) {
