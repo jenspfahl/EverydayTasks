@@ -261,7 +261,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
                                 Container(
                                   height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) + 5,
+                                  width: (MediaQuery.of(context).size.width / 2) + 10,
                                   child: DropdownButtonFormField<RepetitionStep?>(
                                     onTap: () => FocusScope.of(context).unfocus(),
                                     value: _selectedRepetitionStep,
@@ -453,7 +453,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 ),
                                 Container(
                                   height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) + 5,
+                                  width: (MediaQuery.of(context).size.width / 2) + 10,
                                   child: DropdownButtonFormField<CustomRepetition>(
                                     onTap: () {
                                       FocusScope.of(context).unfocus();

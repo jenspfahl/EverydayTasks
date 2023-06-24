@@ -1055,7 +1055,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     if (passedDuration != null) {
       passedString = passedDuration.isNegative
           ? "${translate('common.words.in_for_times')} " + formatDuration(passedDuration, true, usedClause(context, Clause.dative))
-          : translate('common.words.ago_for_times', args: {"when": formatDuration(passedDuration.abs())});
+          : translate('common.words.ago_for_times', args: {"when": formatDuration(passedDuration.abs(), true, usedClause(context, Clause.dative))});
     }
     return "${translate('pages.schedules.overview.scheduled').capitalize()} $passedString "
         "\n"
