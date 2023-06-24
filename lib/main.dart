@@ -11,7 +11,7 @@ const String APP_NAME = "Everyday Tasks";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LocalNotificationService().init();
-  await TaskGroupRepository.getAll(true); // load caches
+  await TaskGroupRepository.loadAll(true); // load caches
 
   var delegate = await LocalizationDelegate.create(
     preferences: PreferenceService(),

@@ -1,4 +1,5 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:flutter_treeview/flutter_treeview.dart';
@@ -184,7 +185,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       List<Node<TaskTemplate>> templates, bool expandAll) {
     return Node(
       key: group.getKey(),
-      label: group.translatedName,
+      label: kReleaseMode ? group.translatedName : '${group.translatedName} (id=${group.id})',
       icon: group.iconData,
       iconColor: group.foregroundColor,
       parent: true,

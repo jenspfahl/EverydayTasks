@@ -112,10 +112,21 @@ class TaskGroupRepository {
   static List<TaskGroup> getAllCached({required bool inclHidden}) {
     return _taskGroupCache.values
         .where((element) => inclHidden || !(element.hidden??false))
-        .toList().reversed.toList();  //TODO sort nonpref at last;
+        .toList()..sort((a, b) {
+          final idA = _normalizeIdToBeSorted(a.id);
+          final idB = _normalizeIdToBeSorted(b.id);
+          return idA.compareTo(idB);
+        });  //sort custom groups at last
   }
 
-  static Future<List<TaskGroup>> getAll(bool inclHidden, [String? dbName]) async {
+  static int _normalizeIdToBeSorted(int? id) {
+    if (id == null || id == 0) {
+      return 1000; // this is the max before custom group ids start
+    }
+    return id.abs();
+  }
+
+  static Future<List<TaskGroup>> loadAll(bool inclHidden, [String? dbName]) async {
     final database = await getDb(dbName);
 
     final taskGroupDao = database.taskGroupDao;
@@ -127,7 +138,7 @@ class TaskGroupRepository {
           taskGroups.addAll(predefinedTaskGroups);
           final taskGroupList = taskGroups
               .where((element) => inclHidden || !(element.hidden??false))
-              .toList()..sort();
+              .toList();
 
           taskGroups.forEach((element) {
             _setCached(element.id!, element);

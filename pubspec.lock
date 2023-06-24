@@ -417,10 +417,10 @@ packages:
     dependency: transitive
     description:
       name: http
-      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
+      sha256: "4c3f04bfb64d3efd508d06b41b825542f08122d30bda4933fb95c069d22a4fa3"
       url: "https://pub.dev"
     source: hosted
-    version: "0.13.6"
+    version: "1.0.0"
   http_multi_server:
     dependency: transitive
     description:
@@ -862,10 +862,10 @@ packages:
     dependency: transitive
     description:
       name: sqlite3
-      sha256: "281b672749af2edf259fc801f0fcba092257425bcd32a0ce1c8237130bc934c7"
+      sha256: f7511ddd6a2dda8ded9d849f8a925bb6020e0faa59db2443debc18d484e59401
       url: "https://pub.dev"
     source: hosted
-    version: "1.11.2"
+    version: "2.0.0"
   sqlparser:
     dependency: transitive
     description:
@@ -990,10 +990,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: eed4e6a1164aa9794409325c3b707ff424d4d1c2a785e7db67f8bbda00e36e51
+      sha256: "15f5acbf0dce90146a0f5a2c4a002b1814a6303c4c5c075aa2623b2d16156f03"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.35"
+    version: "6.0.36"
   url_launcher_ios:
     dependency: transitive
     description:
@@ -1022,10 +1022,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_platform_interface
-      sha256: "6c9ca697a5ae218ce56cece69d46128169a58aa8653c1b01d26fcd4aad8c4370"
+      sha256: bfdfa402f1f3298637d71ca8ecfe840b4696698213d5346e9d12d4ab647ee2ea
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.2"
+    version: "2.1.3"
   url_launcher_web:
     dependency: transitive
     description:
@@ -1070,10 +1070,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "7dacfda1edcca378031db9905ad7d7bd56b29fd1a90b0908b71a52a12c41e36b"
+      sha256: "1414f27dd781737e51afa9711f2ac2ace6ab4498ee98e20863fa5505aa00c58c"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.3"
+    version: "5.0.4"
   xdg_directories:
     dependency: transitive
     description:
