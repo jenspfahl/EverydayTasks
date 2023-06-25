@@ -1,0 +1,4 @@
+* Redesigned schedules form with having next due date instead planned from (issue #28)
+* Support ISO date format (issue #27)
+* Interpret "Now" as end time instead of start time when adding journal entries (issue #25)
+* Fix wrong order of task groups in some cases
