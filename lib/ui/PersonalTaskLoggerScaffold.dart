@@ -291,7 +291,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                               launchUrl("https://github.com/jenspfahl/EverydayTasks");
                             }),
                         Divider(),
-                        Text('© Jens Pfahl 2022', style: TextStyle(fontSize: 12)),
+                        Text('© Jens Pfahl 2022, 2023', style: TextStyle(fontSize: 12)),
                       ],
                       applicationIcon: Icon(Icons.task_alt, color: ACCENT_COLOR),
                   );
