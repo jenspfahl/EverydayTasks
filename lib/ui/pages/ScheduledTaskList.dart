@@ -585,7 +585,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
     if (scheduledTask.translatedDescription != null && scheduledTask.translatedDescription!.isNotEmpty) {
       expansionWidgets.add(Padding(
-        padding: EdgeInsets.all(4.0),
+        padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16),
         child: Text(scheduledTask.translatedDescription!),
       ));
     }

@@ -486,7 +486,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
     if (taskEvent.translatedDescription != null && taskEvent.translatedDescription!.isNotEmpty) {
       expansionWidgets.add(Padding(
-        padding: EdgeInsets.all(4.0),
+        padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16),
         child: Text(taskEvent.translatedDescription!),
       ));
     }
