@@ -128,6 +128,7 @@ class PreferenceService implements ITranslatePreferences {
     switch (languageSelection) {
       case 1: return Locale('en');
       case 2: return Locale('de');
+      case 3: return Locale('fr');
     }
     return null;
   }

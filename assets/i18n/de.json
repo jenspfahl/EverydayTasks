@@ -336,7 +336,9 @@
             "options": {
               "system_default": "System-Sprache",
               "english": "Englisch (English)",
-              "german": "Deutsch"
+              "german": "Deutsch",
+              "french": "Französisch (français)",
+              "breton": "Bretonisch (brezhoneg)"
             }
           },
           "language_not_supported": "'{languageCode}' nicht unterstützt"
