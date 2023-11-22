@@ -11,6 +11,9 @@ abstract class TaskEventDao {
   @Query('SELECT * FROM TaskEventEntity WHERE id = :id')
   Stream<TaskEventEntity?> findById(int id);
 
+  @Query('SELECT count(*) FROM TaskEventEntity')
+  Future<int?> count();
+
   @insert
   Future<int> insertTaskEvent(TaskEventEntity taskEvent);
 

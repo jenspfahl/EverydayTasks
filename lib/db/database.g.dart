@@ -396,6 +396,12 @@ class _$TaskEventDao extends TaskEventDao {
   }
 
   @override
+  Future<int?> count() async {
+    return _queryAdapter.query('SELECT count(*) FROM TaskEventEntity',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
   Future<int> insertTaskEvent(TaskEventEntity taskEvent) {
     return _taskEventEntityInsertionAdapter.insertAndReturnId(
         taskEvent, OnConflictStrategy.abort);

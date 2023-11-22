@@ -20,6 +20,7 @@ class PreferenceService implements ITranslatePreferences {
 
 
   static final DATA_SHOW_SCHEDULED_SUMMARY = "data/showScheduledSummary";
+  static final DATA_WALKTHROUGH_SHOWN = "data/walkThroughShown";
 
 
   static final PreferenceService _service = PreferenceService._internal();
