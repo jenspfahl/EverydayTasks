@@ -104,14 +104,14 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
 
     //this is a hack since this is QuickAdd/ScheduledTask related code here
     _preferenceService.getBool(PREF_PIN_QUICK_ADD).then((pinQuickAddPage) {
-      if (pinQuickAddPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schdeule Page
+      if (pinQuickAddPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schedule Page
         setState(() {
           _selectedNavigationIndex = NAVIGATION_IDX_QUICKADD;
           _pageController.jumpToPage(_selectedNavigationIndex);
         });
       }
       else _preferenceService.getBool(PREF_PIN_SCHEDULES).then((pinSchedulesPage) {
-        if (pinSchedulesPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schdeule Page
+        if (pinSchedulesPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schedule Page
           setState(() {
             _selectedNavigationIndex = NAVIGATION_IDX_TASK_SCHEDULES;
             _pageController.jumpToPage(_selectedNavigationIndex);
@@ -291,7 +291,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                       Divider(),
                       ListTile(
                         leading: const Icon(Icons.run_circle_outlined),
-                        title: Text("Start app walk-through"),
+                        title: Text(translate('navigation.menus.start_app_walk')),
                         onTap: () {
                           Navigator.pop(context);
                           _startAppWalkThrough(context);
@@ -390,19 +390,19 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                         child: MaterialBanner(
                            // backgroundColor: Colors.transparent,
                             elevation: 3,
-                            content: Text('Learn how the app works! Start a walk-through here.'),
+                            content: Text(translate('walk_through.banner.text')),
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   _startAppWalkThrough(context);
                                 },
-                                child: Text('Start'),
+                                child: Text(translate('walk_through.banner.start_action')),
                               ),
                               TextButton(
                                 onPressed: () {
                                   setState(() => _dismissShowcaseBanner());
                                 },
-                                child: Text('Dismiss'),
+                                child: Text(translate('walk_through.banner.dismiss_action')),
                               ),
                             ]),
                       ),
@@ -413,8 +413,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
               floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
               floatingActionButton: Showcase(
                 key: showcaseFloatingButton,
-                title: 'Track tasks, create schedules etc..',
-                description: 'Click here to track tasks, bookmark them or create schedules. The actions are based on the selected screen.',
+                title: translate('walk_through.action_button.title'),
+                description: translate('walk_through.action_button.description'),
                 targetPadding: showcasePadding,
                 overlayOpacity: showcaseOpacity,
                 child: FloatingActionButton(
@@ -432,8 +432,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                   BottomNavigationBarItem(
                     icon: Showcase(
                       key: showcaseQuickAddIcon,
-                      title: 'Fast tracking of your most important tasks',
-                      description: 'Here you can bookmark your most frequent tasks to set them done quickly.',
+                      title: translate('walk_through.quick_add.title'),
+                      description: translate('walk_through.quick_add.description'),
                       targetPadding: showcasePadding,
                       overlayOpacity: showcaseOpacity,
                       child: Icon(Icons.add_circle_outline_outlined),
@@ -443,8 +443,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                   BottomNavigationBarItem(
                     icon: Showcase(
                       key: showcaseJournalIcon,
-                      title: 'See all completed tasks',
-                      description: 'On this screen you will see all ever tracked and logged completed tasks.',
+                      title: translate('walk_through.journal.title'),
+                      description: translate('walk_through.journal.description'),
                       targetPadding: showcasePadding,
                       overlayOpacity: showcaseOpacity,
                       child: Icon(Icons.event_available_rounded),
@@ -454,8 +454,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                   BottomNavigationBarItem(
                     icon: Showcase(
                       key: showcaseSchedulesIcon,
-                      title: 'Schedule recurring tasks',
-                      description: 'On this screen you can define recurring tasks based on a schedule.',
+                      title: translate('walk_through.schedules.title'),
+                      description: translate('walk_through.schedules.description'),
                       targetPadding: showcasePadding,
                       overlayOpacity: showcaseOpacity,
                       child: Icon(Icons.next_plan_outlined),
@@ -465,8 +465,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                   BottomNavigationBarItem(
                     icon: Showcase(
                       key: showcaseTasksIcon,
-                      title: 'Manage all predefined tasks',
-                      description: 'And there you can manage all categories, tasks and variants to be used as templates.',
+                      title: translate('walk_through.tasks.title'),
+                      description: translate('walk_through.tasks.description'),
                       targetPadding: showcasePadding,
                       overlayOpacity: showcaseOpacity,
                       child: Icon(Icons.task_alt),

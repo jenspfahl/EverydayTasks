@@ -6,6 +6,7 @@
       "export_as_csv": "Exporter au format CSV",
       "backup_as_file": "Créer un fichier de sauvegarde",
       "restore_from_file": "Restaurer à partir d'un fichier",
+      "start_app_walk": "Start app walk-through",
       "online_help": "Aide en ligne",
       "about_the_app": "A propos de l'application",
       "help_translate": "Aider à traduire",
@@ -437,6 +438,33 @@
     "total_duration": "Durée",
     "by_categories": "Catégories",
     "by_tasks": "Tâches"
+  },
+  "walk_through": {
+    "banner": {
+      "text": "Learn how the app works! Start a walk-through here.",
+      "start_action": "Start",
+      "dismiss_action" : "Dismiss"
+    },
+    "action_button": {
+      "title": "Track tasks, create schedules etc..",
+      "description": "Click here to track tasks, bookmark them or create schedules. The actions are based on the selected page."
+    },
+    "quick_add": {
+      "title": "Fast tracking of your most important tasks",
+      "description": "Here you can bookmark your most frequent tasks to set them done quickly."
+    },
+    "journal": {
+      "title": "See all completed tasks",
+      "description": "On this page you will see all ever tracked and logged completed tasks."
+    },
+    "schedules": {
+      "title": "Schedule recurring tasks",
+      "description": "On this page you can define recurring tasks based on a schedule to get notified when due."
+    },
+    "tasks": {
+      "title": "Manage all predefined tasks",
+      "description": "And there you can manage all categories, tasks and variants to be used as templates."
+    }
   },
   "common" : {
     "ok": "Ok",

@@ -6,6 +6,7 @@
       "export_as_csv": "Export als CSV-Datei",
       "backup_as_file": "Erstelle Backup",
       "restore_from_file": "Wiederherstellen",
+      "start_app_walk": "Erkläre die App",
       "online_help": "Online Hilfe",
       "about_the_app": "Über die App",
       "help_translate": "App übersetzen",
@@ -436,6 +437,33 @@
     "total_duration": "Dauer",
     "by_categories": "Kategorien",
     "by_tasks": "Aufgaben"
+  },
+  "walk_through": {
+    "banner": {
+      "text": "Lerne die App kennen! Starte eine Einführung.",
+      "start_action": "Starten",
+      "dismiss_action" : "Nein, danke"
+    },
+    "action_button": {
+      "title": "Tracke Aufgaben, lege Zeitpläne an, u.v.m. ..",
+      "description": "Klicke hier um erledigte Aufgaben zu erfassen, Shortcuts zu erstellen oder Zeitpläne für wiederkehrende Aufgaben anzulegen; je nach aktiver Seite."
+    },
+    "quick_add": {
+      "title": "Schnelles Erfassen deiner wichtigsten Aufgaben",
+      "description": "Hier kannst du Shortcuts für deine häufigsten Aufgaben anlegen um diese schnell erfassen zu können."
+    },
+    "journal": {
+      "title": "Alle erledigten Aufgaben anzeigen",
+      "description": "Auf dieser Seite wirst du alle erfassten erledigten Aufgaben sehen, die du erfasst hast."
+    },
+    "schedules": {
+      "title": "Wiederkehrende Zeitpläne anlegen",
+      "description": "Auf dieser Seite kannst du wiederkehrende Aufgaben mit einem Zeitplan versehen, um daran erinnert zu werden."
+    },
+    "tasks": {
+      "title": "Vordefinierten Aufgaben verwalten",
+      "description": "Und hier kannst du alle vordefinierten Kategorien, Aufgaben und Aufgabenvarianten ändern oder neue anlegen. Verwende diese als Vorlagen für die Aufgabenerfassung."
+    }
   },
   "common" : {
     "ok": "Ok",
