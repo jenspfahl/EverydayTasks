@@ -18,6 +18,7 @@ import 'package:showcaseview/showcaseview.dart';
 
 import '../db/repository/TaskEventRepository.dart';
 import '../main.dart';
+import 'CalendarPage.dart';
 import 'SettingsScreen.dart';
 import 'dialogs.dart';
 import 'forms/TaskEventForm.dart';
@@ -405,6 +406,52 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                                 child: Text(translate('walk_through.banner.dismiss_action')),
                               ),
                             ]),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Center(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width / 4,
+                        height: 150,
+                        child: DraggableScrollableSheet(
+                          initialChildSize: 0.15,
+                          minChildSize: 0.15,
+                          maxChildSize: 0.5,
+                          snap: true,
+                          builder: (context, scrollController) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                  color: PRIMARY_COLOR,
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(8),
+                                      topRight: Radius.circular(8),
+                                  ),
+                                  border: Border(
+                                   // left: BorderSide(), //TODO doesn't work
+                                    //right: BorderSide(color: Colors.black54, width: 1),
+                                    // top: BorderSide(color: Colors.black54, width: 1),
+                                  ),
+                              ),
+                              child: ListView(
+                                controller: scrollController,
+                                children: [
+                                  Icon(Icons.drag_handle, color: Colors.black38),
+                                  IconButton(
+                                    icon: Icon(Icons.calendar_month_sharp, color: Colors.black54,),
+                                    onPressed: () {
+                                      Navigator.push(super.context, MaterialPageRoute(builder: (context) => CalendarPage()))
+                                          .then((_) {
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
