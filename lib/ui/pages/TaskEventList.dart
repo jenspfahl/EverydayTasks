@@ -29,6 +29,7 @@ import 'package:personaltasklogger/util/dates.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
 import '../../model/When.dart';
+import '../../service/DueScheduleCountService.dart';
 import '../../service/LocalNotificationService.dart';
 import '../../util/units.dart';
 import '../PersonalTaskLoggerScaffold.dart';
@@ -276,6 +277,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     
         final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(taskEvent, changedScheduledTask);
         ScheduledTaskEventRepository.insert(scheduledTaskEvent).then((value) => debugPrint(value.toString()));
+
+        DueScheduleCountService().dec();
       });
     });
   }

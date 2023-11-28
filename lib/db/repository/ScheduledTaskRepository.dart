@@ -72,6 +72,18 @@ class ScheduledTaskRepository {
         .then((entities) => _mapFromEntities(entities));
   }
 
+  static Future<int?> countDue([String? dbName]) async {
+    final database = await getDb(dbName);
+
+    final scheduledTaskDao = database.scheduledTaskDao;
+    return scheduledTaskDao.findAll()
+        .then((entities) => entities
+          .where((e) => e.active)
+          .map((e) => _mapFromEntity(e))
+          .where((e) => e.isDueNow() || e.isNextScheduleOverdue(false))
+          .length);
+  }
+
   static Future<List<ScheduledTask>> getByTemplateId(TemplateId templateId) async {
     final database = await getDb();
 

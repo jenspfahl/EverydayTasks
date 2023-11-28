@@ -391,6 +391,10 @@
         "set_schedules_automatically_done": {
           "title": "Setze Zeitpläne automatisch auf erledigt",
           "description" : "Wenn neue Tätigkeiten von einer Aufgabe erfasst werden, setze alle zugehörigen Zeitpläne auf erledigt."
+        },
+        "show_schedules_count_as_badge": {
+          "title": "Zeige Indikator für fällige Aufgaben",
+          "description" : "Zeige einen Indikator mit der Anzahl fälliger Aufgaben für Zeitpläne."
         }
       }
     },

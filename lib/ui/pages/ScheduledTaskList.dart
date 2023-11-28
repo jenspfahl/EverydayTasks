@@ -18,6 +18,7 @@ import 'package:personaltasklogger/model/ScheduledTaskEvent.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/service/DueScheduleCountService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
@@ -175,6 +176,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     _notificationService.cancelAllNotifications().then((value) {
       _loadSchedules(rescheduleNotification: true);
     });
+    DueScheduleCountService().gather();
   }
 
   @override
@@ -779,7 +781,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                             toastInfo(context, translate('pages.schedules.action.reset.success',
                                 args: {"title": changedScheduledTask.translatedTitle}));
-                          });                          Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
+                          });
+                          Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
+
+                          DueScheduleCountService().dec();
                         },
                         cancelPressed: () =>
                             Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
@@ -938,6 +943,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                                 toastInfo(context, translate('pages.schedules.action.deletion.success',
                                     args: {"title": scheduledTask.translatedTitle}));
                               _removeScheduledTask(scheduledTask);
+
+                              if (scheduledTask.isDueNow() || scheduledTask.isNextScheduleOverdue(false)) {
+                                DueScheduleCountService().dec();
+                              }
                           },
                         );
                         Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
@@ -1000,6 +1009,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
           _cancelSnoozedNotification(scheduledTask);
           _updateScheduledTask(scheduledTask, changedScheduledTask);
+
+          DueScheduleCountService().dec();
         });
     
         final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(newTaskEvent, scheduledTask);

@@ -17,6 +17,7 @@ class PreferenceService implements ITranslatePreferences {
   static final PREF_SHOW_ACTION_NOTIFICATIONS = "common/showActionNotifications";
   static final PREF_SHOW_ACTION_NOTIFICATION_DURATION_SELECTION = "common/showActionNotificationDurationSelection";
   static final PREF_EXECUTE_SCHEDULES_ON_TASK_EVENT = "common/executeSchedulesOnTaskEvent";
+  static final PREF_SHOW_BADGE_FOR_DUE_SCHEDULES = "common/showBadgeForDueSchedules";
 
 
   static final DATA_SHOW_SCHEDULED_SUMMARY = "data/showScheduledSummary";
@@ -30,12 +31,18 @@ class PreferenceService implements ITranslatePreferences {
   }
 
   PreferenceService._internal() {
+    getBool(PreferenceService.PREF_SHOW_BADGE_FOR_DUE_SCHEDULES)
+        .then((value) {
+          if (value != null) {
+            showBadgeForDueSchedules = value;
+          }
+    });
     getBool(PreferenceService.PREF_SHOW_TIME_OF_DAY_AS_TEXT)
         .then((value) {
           if (value != null) {
             showTimeOfDayAsText = value;
           }
-    }); 
+    });
     getBool(PreferenceService.PREF_SHOW_WEEKDAYS)
         .then((value) {
           if (value != null) {
@@ -56,6 +63,7 @@ class PreferenceService implements ITranslatePreferences {
     });
   }
 
+  bool showBadgeForDueSchedules = true;
   bool showTimeOfDayAsText = true;
   bool showWeekdays = true;
   bool darkTheme = false;

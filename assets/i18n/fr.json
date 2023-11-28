@@ -392,6 +392,10 @@
         "set_schedules_automatically_done": {
           "title": "Marquer automatiquement les tâches planifiées comme étant terminées. ",
           "description" : "A la création d'une nouvelle entrée de journal par une tâche planifiée, marquer automatiquement cette planification comme terminée. "
+        },
+        "show_schedules_count_as_badge": {
+          "title": "Show due scheduled tasks indicator",
+          "description" : "Show a badge indicator displaying the number of due or overdue scheduled tasks."
         }
       }
     },

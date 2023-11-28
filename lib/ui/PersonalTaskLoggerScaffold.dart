@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/service/BackupRestoreService.dart';
 import 'package:personaltasklogger/service/CsvService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
@@ -18,6 +19,7 @@ import 'package:showcaseview/showcaseview.dart';
 
 import '../db/repository/TaskEventRepository.dart';
 import '../main.dart';
+import '../service/DueScheduleCountService.dart';
 import 'CalendarPage.dart';
 import 'SettingsScreen.dart';
 import 'dialogs.dart';
@@ -63,6 +65,7 @@ GlobalKey showcaseJournalIcon = GlobalKey();
 GlobalKey showcaseSchedulesIcon = GlobalKey();
 GlobalKey showcaseTasksIcon = GlobalKey();
 
+
 class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> {
 
   final showcasePadding = EdgeInsets.all(8);
@@ -79,11 +82,10 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   final _notificationService = LocalNotificationService();
   final _preferenceService = PreferenceService();
   final _backupRestoreService = BackupRestoreService();
+  late Timer _scheduleBadgeTimer;
 
   var _showBanner = false;
   final _calendarDragScrollController = DraggableScrollableController();
-  var _dueSchedules = 0;
-
 
   PersonalTaskLoggerScaffoldState() {
 
@@ -127,15 +129,18 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       if (value == null || value == false) {
         TaskEventRepository.count().then((count) {
           if (count == null || count == 0) {
-            _showBanner = true;
+            setState(() => _showBanner = true);
           }
         });
       }
     });
 
+    DueScheduleCountService().gather();
+    _scheduleBadgeTimer = Timer.periodic(Duration(seconds: 15), (timer) {
+      DueScheduleCountService().gather();
+    });
 
   }
-
 
   PageScaffold getSelectedPage() {
     return _pages.elementAt(_selectedNavigationIndex);
@@ -509,7 +514,19 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                       description: translate('walk_through.schedules.description'),
                       targetPadding: showcasePadding,
                       overlayOpacity: showcaseOpacity,
-                      child: Icon(Icons.next_plan_outlined),
+                      child: ValueListenableBuilder<int>(
+                        valueListenable: DueScheduleCountService().count,
+
+                        builder: (BuildContext context, int value, Widget? child) {
+                          return Badge(
+                            isLabelVisible: DueScheduleCountService().shouldShowIndicatorValue(),
+                            child: Icon(Icons.next_plan_outlined),
+                            label: Text("$value"),
+                            textColor: Colors.white,
+                            backgroundColor: Colors.red,
+                          );
+                        },
+                      ),
                     ),
                     label: translate('pages.schedules.title'),
                   ),
@@ -547,6 +564,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   void deactivate() {
     _notificationService.removeNotificationClickedHandler(sendEventFromClicked);
     _notificationService.removeActiveNotificationHandler(sendEventFromActiveNotification);
+    _scheduleBadgeTimer.cancel();
     super.deactivate();
   }
 

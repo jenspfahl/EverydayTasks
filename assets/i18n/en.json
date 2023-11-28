@@ -391,6 +391,10 @@
         "set_schedules_automatically_done": {
           "title": "Set schedules automatically done",
           "description" : "When creating a new journal entry with a task used by one or more schedules, automatically set these schedules done."
+        },
+        "show_schedules_count_as_badge": {
+          "title": "Show due scheduled tasks indicator",
+          "description" : "Show a badge indicator displaying the number of due or overdue scheduled tasks."
         }
       }
     },
