@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:calendar_view/calendar_view.dart';
@@ -17,21 +19,21 @@ import 'PersonalTaskLoggerApp.dart';
 @immutable
 class CalendarPage extends StatefulWidget {
 
-
   @override
   State<StatefulWidget> createState() {
     return _CalendarPageStatus();
   }
+
 }
 
 
 class _CalendarPageStatus extends State<CalendarPage> {
 
+  final calendarDeyKey = GlobalKey<DayViewState>();
 
 
   @override
   void initState() {
-
     super.initState();
   }
   
@@ -69,7 +71,12 @@ class _CalendarPageStatus extends State<CalendarPage> {
   Widget _createBody(BuildContext context, List<CalendarEventData<TaskEvent>> events) {
     final calendarController = EventController<TaskEvent>();
     calendarController.addAll(events);
-    return DayView(controller: calendarController,);
+//    calendarDeyKey.currentState?.jumpToDate(DateTime.now());
+
+    return DayView(
+      key: calendarDeyKey,
+      controller: calendarController,
+    );
   }
 
   Future<List<CalendarEventData<TaskEvent>>?> _getEvents() async {
@@ -86,7 +93,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
         description: taskEvent.translatedDescription??"",
         startTime: taskEvent.startedAt,
         endTime: taskEvent.finishedAt,
-        color: TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!).backgroundColor
+        color: TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!).backgroundColor,
+        titleStyle: TextStyle(color: Colors.black54),
       );
     }).toList();
 

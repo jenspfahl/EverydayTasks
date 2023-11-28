@@ -81,6 +81,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   final _backupRestoreService = BackupRestoreService();
 
   var _showBanner = false;
+  final _calendarDragScrollController = DraggableScrollableController();
+  var _dueSchedules = 0;
 
 
   PersonalTaskLoggerScaffoldState() {
@@ -417,6 +419,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                         width: MediaQuery.of(context).size.width / 4,
                         height: 150,
                         child: DraggableScrollableSheet(
+                          controller: _calendarDragScrollController,
                           initialChildSize: 0.15,
                           minChildSize: 0.15,
                           maxChildSize: 0.5,
@@ -442,6 +445,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                                   IconButton(
                                     icon: Icon(Icons.calendar_month_sharp, color: Colors.black54,),
                                     onPressed: () {
+                                      _calendarDragScrollController.animateTo(0.15, duration: const Duration(milliseconds: 100), curve: Curves.easeOutBack);
                                       Navigator.push(super.context, MaterialPageRoute(builder: (context) => CalendarPage()))
                                           .then((_) {
                                       });
