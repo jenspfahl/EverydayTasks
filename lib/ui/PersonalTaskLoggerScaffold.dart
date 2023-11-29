@@ -447,14 +447,17 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                                 controller: scrollController,
                                 children: [
                                   Icon(Icons.drag_handle, color: Colors.black38),
-                                  IconButton(
-                                    icon: Icon(Icons.calendar_month_sharp, color: Colors.black54,),
-                                    onPressed: () {
-                                      _calendarDragScrollController.animateTo(0.15, duration: const Duration(milliseconds: 100), curve: Curves.easeOutBack);
-                                      Navigator.push(super.context, MaterialPageRoute(builder: (context) => CalendarPage()))
-                                          .then((_) {
-                                      });
-                                    },
+                                  Container(
+                                    color: isDarkMode(context) ? null: Colors.white54,
+                                    child: IconButton(
+                                      icon: Icon(Icons.calendar_month_sharp, color: Colors.black54,),
+                                      onPressed: () {
+                                        _calendarDragScrollController.animateTo(0.15, duration: const Duration(milliseconds: 100), curve: Curves.easeOutBack);
+                                        Navigator.push(super.context, MaterialPageRoute(builder: (context) => CalendarPage()))
+                                            .then((_) {
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ],
                               ),
