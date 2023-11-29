@@ -1,6 +1,8 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
+import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 
@@ -21,13 +23,13 @@ class CalendarPage extends StatefulWidget {
 
 }
 
-enum EventType {EVENT, SCHEDULE, BOTH}
+enum EventType {EVENT, SCHEDULE, BOTH, NONE}
 enum CalendarMode {DAY, WEEK, MONTH}
 
 class _CalendarPageStatus extends State<CalendarPage> {
 
   final calendarDayKey = GlobalKey<DayViewState>();
-  final calendarController = EventController<TaskEvent>();
+  final calendarController = EventController<dynamic>();
 
   final taskFilterSettings = TaskFilterSettings();
 
@@ -37,6 +39,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
   CalendarMode _calendarMode = CalendarMode.DAY;
   late List<bool> _calendarModeSelection;
 
+  List<CalendarEventData<TaskEvent>> _taskEvents = [];
+  List<CalendarEventData<ScheduledTask>> _scheduledTasks = [];
 
   double _baseScaleFactor = 0.7;
   double _scaleFactor = 0.7;
@@ -45,49 +49,52 @@ class _CalendarPageStatus extends State<CalendarPage> {
   void initState() {
     super.initState();
 
-    _eventTypeSelection = [_eventType != EventType.SCHEDULE, _eventType != EventType.EVENT];
+    _eventTypeSelection = [true, true];
     _calendarModeSelection = List.generate(CalendarMode.values.length, (index) => index == _calendarMode.index);
+
+    _loadEvents().then((_) {
+      _refreshModel();
+    });
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _getEvents(),
-      builder: (BuildContext context, AsyncSnapshot<List<CalendarEventData<TaskEvent>>?> snapshot) {
-        if (snapshot.hasData) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text("Task Calendar"),
-              actions: [
-                TaskEventFilter(
-                    initialTaskFilterSettings: taskFilterSettings,
-                    doFilter: (taskFilterSettings, filterChangeState) {
-                      setState(() {
-                        //TODO
-                      });
-                    }),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Task Calendar"),
+        actions: [
+          TaskEventFilter(
+              initialTaskFilterSettings: taskFilterSettings,
+              doFilter: (taskFilterSettings, filterChangeState) {
+                setState(() {
+                  //TODO
+                });
+              }),
 
-                IconButton(
-                  icon: Icon(Icons.today),
-                  onPressed: () {
-                    calendarDayKey.currentState?.jumpToDate(DateTime.now());
-                    calendarDayKey.currentState?.jumpToEvent(calendarController.events.first);
-                  },
-                ),
-              ],
-            ),
-            body: _createBody(context, snapshot.data??List.empty()),
-          );
-        }
-        else {
-          return Text("..");
-        }
-      },
+          IconButton(
+            icon: Icon(Icons.today),
+            onPressed: () {
+              calendarDayKey.currentState?.jumpToDate(DateTime.now());
+              calendarDayKey.currentState?.jumpToEvent(calendarController.events.first);
+            },
+          ),
+        ],
+      ),
+      body: _createBody(context),
     );
   }
 
-  Widget _createBody(BuildContext context, List<CalendarEventData<TaskEvent>> events) {
-    calendarController.addAll(events);
+  void _refreshModel() {
+    if (_eventType == EventType.EVENT || _eventType == EventType.BOTH) {
+      calendarController.addAll(_taskEvents);
+    }
+    if (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH) {
+      calendarController.addAll(_scheduledTasks);
+    }
+  }
+
+
+  Widget _createBody(BuildContext context) {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -145,12 +152,28 @@ class _CalendarPageStatus extends State<CalendarPage> {
     );
   }
 
-  Future<List<CalendarEventData<TaskEvent>>?> _getEvents() async {
+  Future<bool> _loadEvents() async {
 
     final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 1000000);
     final taskEvents = await TaskEventRepository.getAllPaged(paging);
+    final scheduledTasks = await ScheduledTaskRepository.getAllPaged(paging);
 
-    return taskEvents.map((taskEvent) {
+    _scheduledTasks = scheduledTasks.map((scheduledTask) {
+      return CalendarEventData(
+        date: scheduledTask.getNextSchedule()!,
+        endDate: scheduledTask.getNextSchedule()!,
+        event: scheduledTask,
+        title: scheduledTask.translatedTitle,
+        description: scheduledTask.translatedDescription??"",
+        startTime: scheduledTask.getNextSchedule()!,
+        endTime: scheduledTask.getNextSchedule()!.add(Duration(minutes: 15)),
+        color: TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId!).backgroundColor,
+        titleStyle: TextStyle(color: Colors.black54),
+      );
+    }).toList();
+
+
+    _taskEvents = taskEvents.map((taskEvent) {
       return CalendarEventData(
         date: taskEvent.startedAt,
         endDate: taskEvent.finishedAtForCalendar,
@@ -164,6 +187,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
       );
     }).toList();
 
+    return true;
   }
 
   Widget _createTypeButtons() {
@@ -180,7 +204,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.event_available_rounded, color: isDarkMode(context) ? (_eventType != EventType.SCHEDULE ? PRIMARY_COLOR : null) : null),
+                Icon(Icons.event_available_rounded, color: isDarkMode(context) ? (_eventType == EventType.EVENT || _eventType == EventType.BOTH  ? PRIMARY_COLOR : null) : null),
               ],
             )
         ),
@@ -189,7 +213,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.next_plan_outlined, color: isDarkMode(context) ? (_eventType != EventType.EVENT  ? PRIMARY_COLOR : null) : null),
+                Icon(Icons.next_plan_outlined, color: isDarkMode(context) ? (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH ? PRIMARY_COLOR : null) : null),
               ],
             )
         ),
@@ -198,23 +222,21 @@ class _CalendarPageStatus extends State<CalendarPage> {
       onPressed: (int index) {
         setState(() {
           _eventTypeSelection[index] = !_eventTypeSelection[index];
-          if (_eventTypeSelection[index]) {
-            if (_eventType == EventType.SCHEDULE) {
-              _eventType = EventType.BOTH;
-            }
-            else {
-              _eventType = EventType.EVENT;
-            }
+          if (_eventTypeSelection[EventType.EVENT.index] && _eventTypeSelection[EventType.SCHEDULE.index]) {
+            _eventType = EventType.BOTH;
+          }
+          else if (_eventTypeSelection[EventType.EVENT.index]) {
+            _eventType = EventType.EVENT;
+          }
+          else if (_eventTypeSelection[EventType.SCHEDULE.index]) {
+            _eventType = EventType.SCHEDULE;
           }
           else {
-            if (_eventType == EventType.SCHEDULE) {
-              _eventType = EventType.BOTH;
-            }
-            else {
-              _eventType = EventType.EVENT;
-            }
+            _eventType = EventType.NONE;
           }
 
+          calendarController.removeWhere((element) => true);
+          _refreshModel();
         });
       },
     );
