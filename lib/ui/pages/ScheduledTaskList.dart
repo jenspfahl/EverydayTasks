@@ -833,9 +833,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       onPressed: () {
                         if (scheduledTask.isPaused) {
                           scheduledTask.resume();
+                          DueScheduleCountService().incIfDue(scheduledTask);
                         }
                         else {
                           scheduledTask.pause();
+                          DueScheduleCountService().decIfDue(scheduledTask);
                         }
                         ScheduledTaskRepository.update(scheduledTask)
                             .then((changedScheduledTask) {
@@ -912,6 +914,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
                         toastInfo(context, translate('forms.schedule.change.success',
                             args: {"title": changedScheduledTask.translatedTitle}));
+
+                        DueScheduleCountService().gather();
                       });
                     }
                   },
@@ -944,9 +948,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                                     args: {"title": scheduledTask.translatedTitle}));
                               _removeScheduledTask(scheduledTask);
 
-                              if (scheduledTask.isDueNow() || scheduledTask.isNextScheduleOverdue(false)) {
-                                DueScheduleCountService().dec();
-                              }
+                              DueScheduleCountService().decIfDue(scheduledTask);
                           },
                         );
                         Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
@@ -1215,6 +1217,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   args: {"title": newScheduledTask.translatedTitle}));
 
                 _addScheduledTask(newScheduledTask);
+
+                DueScheduleCountService().gather();
               });
             }
         },

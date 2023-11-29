@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
+import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/When.dart';
@@ -37,8 +38,21 @@ class DueScheduleCountService {
     ScheduledTaskRepository.countDue().then((count) => _dueTaskScheduleCount.value = count??0);
   }
 
+
+  incIfDue(ScheduledTask scheduledTask) {
+    if (scheduledTask.isDueNow() || scheduledTask.isNextScheduleOverdue(false)) {
+      inc();
+    }
+  }
+
   inc() {
     _dueTaskScheduleCount.value++;
+  }
+
+  decIfDue(ScheduledTask scheduledTask) {
+    if (scheduledTask.isDueNow() || scheduledTask.isNextScheduleOverdue(false)) {
+      dec();
+    }
   }
 
   dec() {

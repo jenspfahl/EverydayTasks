@@ -79,6 +79,7 @@ class ScheduledTaskRepository {
     return scheduledTaskDao.findAll()
         .then((entities) => entities
           .where((e) => e.active)
+          .where((e) => e.pausedAt == null)
           .map((e) => _mapFromEntity(e))
           .where((e) => e.isDueNow() || e.isNextScheduleOverdue(false))
           .length);
