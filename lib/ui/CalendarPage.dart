@@ -29,6 +29,8 @@ enum CalendarMode {DAY, WEEK, MONTH}
 class _CalendarPageStatus extends State<CalendarPage> {
 
   final calendarDayKey = GlobalKey<DayViewState>();
+  final calendarWeekKey = GlobalKey<WeekViewState>();
+  final calendarMonthKey = GlobalKey<MonthViewState>();
   final calendarController = EventController<dynamic>();
 
   final taskFilterSettings = TaskFilterSettings();
@@ -54,7 +56,21 @@ class _CalendarPageStatus extends State<CalendarPage> {
 
     _loadEvents().then((_) {
       _refreshModel();
+      _scrollToTime(DateTime.now());
     });
+
+  }
+
+  void _scrollToTime(DateTime date) {
+    calendarDayKey.currentState?.scrollController.jumpTo(_calculateScrollOffset(date));
+    calendarWeekKey.currentState?.scrollController.jumpTo(_calculateScrollOffset(date));
+    //calendarMonthKey.currentState?.scrollController.jumpTo(_calculateScrollOffset(date));
+  }
+
+  void _jumpToDate(DateTime date) {
+    calendarDayKey.currentState?.jumpToDate(date);
+    calendarWeekKey.currentState?.jumpToWeek(date);
+    calendarMonthKey.currentState?.jumpToMonth(date);
   }
 
   @override
@@ -74,8 +90,9 @@ class _CalendarPageStatus extends State<CalendarPage> {
           IconButton(
             icon: Icon(Icons.today),
             onPressed: () {
-              calendarDayKey.currentState?.jumpToDate(DateTime.now());
-              calendarDayKey.currentState?.jumpToEvent(calendarController.events.first);
+              final now = DateTime.now();
+              _scrollToTime(now);        ;
+              _jumpToDate(now);
             },
           ),
         ],
@@ -95,7 +112,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
 
 
   Widget _createBody(BuildContext context) {
-
+    final now = DateTime.now();
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onScaleStart: (details) {
@@ -138,11 +155,32 @@ class _CalendarPageStatus extends State<CalendarPage> {
                 ),
                 Expanded(
                   flex: 20,
-                  child: DayView(
-                    key: calendarDayKey,
-                    controller: calendarController,
-                    heightPerMinute: _scaleFactor,
-                  ),
+                  child: _calendarMode == CalendarMode.DAY
+                      ? DayView(
+                          onPageChange: (date, page) {
+                            _scrollToTime(now);
+                          },
+                          key: calendarDayKey,
+                          controller: calendarController,
+                          heightPerMinute: _scaleFactor,
+                        )
+                      : _calendarMode == CalendarMode.WEEK
+                        ? WeekView(
+                            onPageChange: (date, page) {
+                              _scrollToTime(now);
+                            },
+                            key: calendarWeekKey,
+                            controller: calendarController,
+                            heightPerMinute: _scaleFactor,
+                          )
+                        : MonthView(
+                            onPageChange: (date, page) {
+                              _scrollToTime(now);        ;
+                            },
+                            key: calendarMonthKey,
+                            controller: calendarController,
+                            cellAspectRatio: 1/(_scaleFactor * 3.5),
+                          ),
                 ),
               ],
             ),
@@ -150,6 +188,12 @@ class _CalendarPageStatus extends State<CalendarPage> {
         ],
       ),
     );
+  }
+
+  double _calculateScrollOffset(DateTime now) {
+    final hourHeight = _scaleFactor * 60;
+    final height = hourHeight * (now.hour - 1);
+    return height;
   }
 
   Future<bool> _loadEvents() async {
