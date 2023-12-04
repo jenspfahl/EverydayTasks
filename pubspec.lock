@@ -116,10 +116,9 @@ packages:
   calendar_view:
     dependency: "direct main"
     description:
-      name: calendar_view
-      sha256: "26b47b00e045c5874df3803960765775457f4666b13d5ae7663e66209834424e"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_calendar_view
+      relative: true
+    source: path
     version: "1.0.4"
   characters:
     dependency: transitive
