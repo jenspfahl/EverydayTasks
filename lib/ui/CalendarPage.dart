@@ -5,9 +5,12 @@ import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/ui/utils.dart';
+import 'package:personaltasklogger/util/extensions.dart';
 
 import '../db/repository/ChronologicalPaging.dart';
 import '../db/repository/TaskEventRepository.dart';
+import '../db/repository/TemplateRepository.dart';
+import '../model/When.dart';
 import 'PersonalTaskLoggerApp.dart';
 import 'TaskEventFilter.dart';
 
@@ -161,6 +164,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
                             _scrollToTime(now);
                           },
                           key: calendarDayKey,
+                          eventTileBuilder: _customEventTileBuilder,
                           controller: calendarController,
                           heightPerMinute: _scaleFactor,
                         )
@@ -170,6 +174,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
                               _scrollToTime(now);
                             },
                             key: calendarWeekKey,
+                            eventTileBuilder: _customEventTileBuilder,
                             controller: calendarController,
                             heightPerMinute: _scaleFactor,
                           )
@@ -178,6 +183,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
                               _scrollToTime(now);        ;
                             },
                             key: calendarMonthKey,
+                            //cellBuilder: ,
                             controller: calendarController,
                             cellAspectRatio: 1/(_scaleFactor * 3.5),
                           ),
@@ -202,36 +208,92 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final taskEvents = await TaskEventRepository.getAllPaged(paging);
     final scheduledTasks = await ScheduledTaskRepository.getAllPaged(paging);
 
-    _scheduledTasks = scheduledTasks.map((scheduledTask) {
-      return CalendarEventData(
+
+    await Future.forEach(scheduledTasks, (ScheduledTask scheduledTask) async {
+      final template = await TemplateRepository.findById(scheduledTask.templateId!);
+      var duration = Duration(minutes: 30);
+      if (template != null && template.when != null && template.when!.durationHours != null) {
+        duration = When.fromDurationHoursToDuration(
+            template.when!.durationHours!, template.when!.durationExactly);
+      }
+      duration = duration.min(Duration(minutes: 15));
+
+      final event = CalendarEventData(
         date: scheduledTask.getNextSchedule()!,
         endDate: scheduledTask.getNextSchedule()!,
         event: scheduledTask,
         title: scheduledTask.translatedTitle,
         description: scheduledTask.translatedDescription??"",
         startTime: scheduledTask.getNextSchedule()!,
-        endTime: scheduledTask.getNextSchedule()!.add(Duration(minutes: 15)),
-        color: TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId!).backgroundColor,
+        endTime: scheduledTask.getNextSchedule()!.add(duration),
+        color: TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId).backgroundColor,
         titleStyle: TextStyle(color: Colors.black54),
       );
-    }).toList();
 
+      _scheduledTasks.add(event);
+    });
 
     _taskEvents = taskEvents.map((taskEvent) {
+      final duration = taskEvent.startedAt.difference(taskEvent.finishedAt).abs().min(Duration(minutes: 30));
+
       return CalendarEventData(
         date: taskEvent.startedAt,
-        endDate: taskEvent.finishedAtForCalendar,
+        endDate: taskEvent.startedAt.add(duration),
         event: taskEvent,
         title: taskEvent.translatedTitle,
         description: taskEvent.translatedDescription??"",
         startTime: taskEvent.startedAt,
-        endTime: taskEvent.finishedAtForCalendar,
+        endTime: taskEvent.startedAt.add(duration),
         color: TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!).backgroundColor,
         titleStyle: TextStyle(color: Colors.black54),
       );
     }).toList();
 
     return true;
+  }
+
+  Widget _customEventTileBuilder(
+      DateTime date,
+      List<CalendarEventData<dynamic>> events,
+      Rect boundary,
+      DateTime startDuration,
+      DateTime endDuration) {
+
+    final isSelected = false; //TODO
+    final event = events[0]; //TODO why a list?
+    final object = event.event;
+    final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
+    final taskGroup = taskGroupId != null ? TaskGroupRepository.findByIdFromCache(taskGroupId) : null;
+    final icon = taskGroup != null
+        ? Icon(
+            taskGroup.getIcon(true).icon,
+            color: taskGroup.accentColor,
+            size: 16 * _scaleFactor)
+        : null;
+    if (events.isNotEmpty)
+      return RoundedEventTile(
+        borderRadius: BorderRadius.circular(6.0),
+        icon: icon,
+        title: event.title,
+        titleStyle:
+            TextStyle(
+              fontSize: (14 * _scaleFactor).max(18),
+              fontStyle: object is ScheduledTask ? FontStyle.italic : null,
+              fontWeight: object is ScheduledTask && (object.isDueNow() || object.isNextScheduleOverdue(false)) ? FontWeight.bold : null,
+              color: object is ScheduledTask
+                ? (object.isDueNow() || object.isNextScheduleOverdue(false) )
+                  ? Colors.red
+                  : object.getDueColor(context, lighter: true)
+                : Colors.black54, // event.color.accent,
+            ),
+        descriptionStyle: event.descriptionStyle,
+        totalEvents: events.length,
+        padding: EdgeInsets.all(3.0),
+        border: isSelected ? Border.all(color: Colors.black54) : null,
+        backgroundColor: event.color,
+      );
+    else
+      return Container();
   }
 
   Widget _createTypeButtons() {

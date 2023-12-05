@@ -555,7 +555,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                       color: scheduledTask.isNextScheduleOverdue(false)
                           ? Colors.red[500]
                           : (scheduledTask.isNextScheduleReached()
-                            ? (isDarkMode(context) ? Color(0xFF972C0C) : Color(0xFF770C0C))
+                            ? scheduledTask.getDueColor(context, lighter: false)
                             : null),
                       backgroundColor: scheduledTask.isNextScheduleOverdue(true)
                           ? ((scheduledTask.getNextRepetitionIndicatorValue()??0.0) > 1.3333
@@ -608,7 +608,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: scheduledTask.isNextScheduleOverdue(true) || scheduledTask.isDueNow()
                     ? Icon(Icons.warning_amber_outlined, color: scheduledTask.isDueNow()
-                      ? (isDarkMode(context) ? Color(0xFFC74C0C) : Color(0xFF770C0C))
+                      ? scheduledTask.getDueColor(context, lighter: true)
                       : Colors.red)
                     : Icon(Icons.watch_later_outlined,
                     color: _getIconColorForMode()), // in TaskEventList, the icons are not black without setting the color, donät know why ...

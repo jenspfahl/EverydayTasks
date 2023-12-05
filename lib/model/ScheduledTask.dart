@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../ui/utils.dart';
 import 'Schedule.dart';
 import 'Schedule.dart';
 import 'Template.dart';
@@ -206,5 +207,10 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     var c = active ? getNextRepetitionIndicatorValue() : -100 * id!.toDouble();
     return o.compareTo(c);
   }
+
+  getDueColor(BuildContext context, {required bool lighter}) =>
+      (isDarkMode(context)
+          ? (lighter ? Color(0xFFC74C0C) : Color(0xFF972C0C))
+          : Color(0xFF770C0C));
 
 }

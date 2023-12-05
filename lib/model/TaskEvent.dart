@@ -38,15 +38,6 @@ class TaskEvent extends TitleAndDescription implements Comparable {
 
   DateTime get finishedAt => trackingFinishedAt ?? startedAt.add(duration);
 
-  DateTime get finishedAtForCalendar {
-    final finished = finishedAt;
-    if (finished.second >= 60 * 10) {
-      return finished;
-    }
-    return startedAt.add(Duration(minutes: 10));
-  }
-
-
   @override
   int compareTo(other) {
     int result = other.startedAt.compareTo(startedAt);
