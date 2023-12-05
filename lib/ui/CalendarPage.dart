@@ -31,6 +31,9 @@ enum CalendarMode {DAY, WEEK, MONTH}
 
 class _CalendarPageStatus extends State<CalendarPage> {
 
+  static const minCalendarDuration = Duration(minutes: 20);
+  static const defaultScale = 1.2;
+
   final calendarDayKey = GlobalKey<DayViewState>();
   final calendarWeekKey = GlobalKey<WeekViewState>();
   final calendarMonthKey = GlobalKey<MonthViewState>();
@@ -47,8 +50,10 @@ class _CalendarPageStatus extends State<CalendarPage> {
   List<CalendarEventData<TaskEvent>> _taskEvents = [];
   List<CalendarEventData<ScheduledTask>> _scheduledTasks = [];
 
-  double _baseScaleFactor = 0.7;
-  double _scaleFactor = 0.7;
+  double _baseScaleFactor = defaultScale;
+  double _scaleFactor = defaultScale;
+
+  CalendarEventData<dynamic>? _selectedEvent = null;
 
   @override
   void initState() {
@@ -167,6 +172,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
                           eventTileBuilder: _customEventTileBuilder,
                           controller: calendarController,
                           heightPerMinute: _scaleFactor,
+                          onEventTap: _customTabHandler,
                         )
                       : _calendarMode == CalendarMode.WEEK
                         ? WeekView(
@@ -177,7 +183,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
                             eventTileBuilder: _customEventTileBuilder,
                             controller: calendarController,
                             heightPerMinute: _scaleFactor,
-                          )
+                            onEventTap: _customTabHandler,
+                  )
                         : MonthView(
                             onPageChange: (date, page) {
                               _scrollToTime(now);        ;
@@ -186,7 +193,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
                             //cellBuilder: ,
                             controller: calendarController,
                             cellAspectRatio: 1/(_scaleFactor * 3.5),
-                          ),
+                            onEventTap: _customTileHandler,
+                  ),
                 ),
               ],
             ),
@@ -210,13 +218,15 @@ class _CalendarPageStatus extends State<CalendarPage> {
 
 
     await Future.forEach(scheduledTasks, (ScheduledTask scheduledTask) async {
-      final template = await TemplateRepository.findById(scheduledTask.templateId!);
-      var duration = Duration(minutes: 30);
-      if (template != null && template.when != null && template.when!.durationHours != null) {
-        duration = When.fromDurationHoursToDuration(
-            template.when!.durationHours!, template.when!.durationExactly);
+      var duration = minCalendarDuration;
+
+      if (scheduledTask.templateId != null) {
+        final template = await TemplateRepository.findById(scheduledTask.templateId!);
+        if (template != null && template.when != null && template.when!.durationHours != null) {
+          duration = When.fromDurationHoursToDuration(template.when!.durationHours!, template.when!.durationExactly);
+        }
+        duration = duration.min(minCalendarDuration);
       }
-      duration = duration.min(Duration(minutes: 15));
 
       final event = CalendarEventData(
         date: scheduledTask.getNextSchedule()!,
@@ -234,7 +244,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     });
 
     _taskEvents = taskEvents.map((taskEvent) {
-      final duration = taskEvent.startedAt.difference(taskEvent.finishedAt).abs().min(Duration(minutes: 30));
+      final duration = taskEvent.startedAt.difference(taskEvent.finishedAt).abs().min(minCalendarDuration);
 
       return CalendarEventData(
         date: taskEvent.startedAt,
@@ -252,6 +262,46 @@ class _CalendarPageStatus extends State<CalendarPage> {
     return true;
   }
 
+  _customTabHandler(List<CalendarEventData<dynamic>> events, DateTime date) {
+    final event = events[0];
+    _handleTapEvent(event);
+  }
+
+  _customTileHandler(CalendarEventData<dynamic> event, DateTime date) {
+    _handleTapEvent(event);
+  }
+
+  void _handleTapEvent(CalendarEventData<dynamic> event) {
+    if (_selectedEvent != event) {
+      final title = event.title;
+      _updateSelectedEvent(event);
+      showModalBottomSheet(
+          context: context,
+          enableDrag: true,
+          elevation: 10,
+          barrierColor: Colors.transparent.withOpacity(0.2),
+          builder: (context) {
+            return Container(
+              height: 150,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
+                child: Text("$title"),
+              ),
+            );
+          },
+      ).whenComplete(() {
+        _updateSelectedEvent(null);
+      });
+    }
+    else {
+      _updateSelectedEvent(null);
+    }
+  }
+
+  _updateSelectedEvent(CalendarEventData<dynamic>? event) {
+    setState(() => _selectedEvent = event);
+  }
+
   Widget _customEventTileBuilder(
       DateTime date,
       List<CalendarEventData<dynamic>> events,
@@ -259,8 +309,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
       DateTime startDuration,
       DateTime endDuration) {
 
-    final isSelected = false; //TODO
     final event = events[0]; //TODO why a list?
+    final isSelected = event == _selectedEvent;
     final object = event.event;
     final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
     final taskGroup = taskGroupId != null ? TaskGroupRepository.findByIdFromCache(taskGroupId) : null;
@@ -268,7 +318,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
         ? Icon(
             taskGroup.getIcon(true).icon,
             color: taskGroup.accentColor,
-            size: 16 * _scaleFactor)
+            size: (16 * _scaleFactor).max(16),
+            )
         : null;
     if (events.isNotEmpty)
       return RoundedEventTile(
@@ -277,7 +328,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
         title: event.title,
         titleStyle:
             TextStyle(
-              fontSize: (14 * _scaleFactor).max(18),
+              fontSize: (14 * _scaleFactor).max(14),
               fontStyle: object is ScheduledTask ? FontStyle.italic : null,
               fontWeight: object is ScheduledTask && (object.isDueNow() || object.isNextScheduleOverdue(false)) ? FontWeight.bold : null,
               color: object is ScheduledTask
