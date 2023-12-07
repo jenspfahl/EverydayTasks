@@ -5,7 +5,7 @@ import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
-import 'package:personaltasklogger/ui/TaskEventFilter.dart';
+import 'package:personaltasklogger/ui/components/TaskEventFilter.dart';
 import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
@@ -14,10 +14,10 @@ import 'package:fl_chart/fl_chart.dart';
 import "package:collection/collection.dart";
 import 'package:personaltasklogger/util/extensions.dart';
 
-import '../db/repository/TaskGroupRepository.dart';
-import '../model/Template.dart';
-import '../util/units.dart';
-import 'PersonalTaskLoggerApp.dart';
+import '../../db/repository/TaskGroupRepository.dart';
+import '../../model/Template.dart';
+import '../../util/units.dart';
+import '../PersonalTaskLoggerApp.dart';
 
 @immutable
 class TaskEventStats extends StatefulWidget {

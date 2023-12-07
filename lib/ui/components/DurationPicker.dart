@@ -3,7 +3,7 @@ import 'package:flutter_translate/flutter_translate.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 
-import 'PersonalTaskLoggerApp.dart';
+import '../PersonalTaskLoggerApp.dart';
 
 class DurationPicker extends StatefulWidget {
   late final int _initialHours;

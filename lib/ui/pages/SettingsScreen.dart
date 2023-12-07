@@ -7,11 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-import '../service/PreferenceService.dart';
-import '../util/dates.dart';
-import '../util/i18n.dart';
-import 'PersonalTaskLoggerApp.dart';
-import 'dialogs.dart';
+import '../../service/PreferenceService.dart';
+import '../../util/dates.dart';
+import '../../util/i18n.dart';
+import '../PersonalTaskLoggerApp.dart';
+import '../dialogs.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override

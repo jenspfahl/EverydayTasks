@@ -4,7 +4,7 @@ import 'package:numberpicker/numberpicker.dart';
 
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
-import 'package:personaltasklogger/ui/DynamicPicker.dart';
+import 'package:personaltasklogger/ui/components/DynamicPicker.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 

@@ -16,7 +16,7 @@ import 'package:personaltasklogger/ui/forms/TaskTemplateForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
-import '../ToggleActionIcon.dart';
+import '../components/ToggleActionIcon.dart';
 import '../dialogs.dart';
 import '../forms/TaskGroupForm.dart';
 import '../utils.dart';

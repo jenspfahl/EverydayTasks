@@ -32,7 +32,7 @@ import 'package:personaltasklogger/util/extensions.dart';
 import '../../db/repository/TaskGroupRepository.dart';
 import '../../util/units.dart';
 import '../PersonalTaskLoggerApp.dart';
-import '../ToggleActionIcon.dart';
+import '../components/ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
 import 'QuickAddTaskEventPage.dart';

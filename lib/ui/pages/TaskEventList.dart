@@ -19,11 +19,11 @@ import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
-import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
+import 'package:personaltasklogger/ui/components/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
-import 'package:personaltasklogger/ui/TaskEventFilter.dart';
+import 'package:personaltasklogger/ui/components/TaskEventFilter.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
@@ -33,7 +33,7 @@ import '../../service/DueScheduleCountService.dart';
 import '../../service/LocalNotificationService.dart';
 import '../../util/units.dart';
 import '../PersonalTaskLoggerScaffold.dart';
-import '../TaskEventStats.dart';
+import 'TaskEventStats.dart';
 import '../forms/TaskEventForm.dart';
 
 final expandIconKey = new GlobalKey<ToggleActionIconState>();

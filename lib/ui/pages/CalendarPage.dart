@@ -4,15 +4,16 @@ import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
+import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
-import '../db/repository/ChronologicalPaging.dart';
-import '../db/repository/TaskEventRepository.dart';
-import '../db/repository/TemplateRepository.dart';
-import '../model/When.dart';
-import 'PersonalTaskLoggerApp.dart';
-import 'TaskEventFilter.dart';
+import '../../db/repository/ChronologicalPaging.dart';
+import '../../db/repository/TaskEventRepository.dart';
+import '../../db/repository/TemplateRepository.dart';
+import '../../model/When.dart';
+import '../PersonalTaskLoggerApp.dart';
+import '../components/TaskEventFilter.dart';
 
 
 
@@ -34,6 +35,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
   static const minCalendarDuration = Duration(minutes: 20);
   static const defaultScale = 1.2;
 
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   final calendarDayKey = GlobalKey<DayViewState>();
   final calendarWeekKey = GlobalKey<WeekViewState>();
   final calendarMonthKey = GlobalKey<MonthViewState>();
@@ -54,6 +56,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
   double _scaleFactor = defaultScale;
 
   CalendarEventData<dynamic>? _selectedEvent = null;
+
+  PersistentBottomSheetController? sheetController;
 
   @override
   void initState() {
@@ -84,6 +88,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text("Task Calendar"),
         actions: [
@@ -98,9 +103,12 @@ class _CalendarPageStatus extends State<CalendarPage> {
           IconButton(
             icon: Icon(Icons.today),
             onPressed: () {
-              final now = DateTime.now();
-              _scrollToTime(now);        ;
-              _jumpToDate(now);
+              var when = DateTime.now();
+              if (_selectedEvent != null) {
+                when = _selectedEvent!.startTime ?? _selectedEvent!.date;
+              }
+              _scrollToTime(when);
+              _jumpToDate(when);
             },
           ),
         ],
@@ -272,30 +280,69 @@ class _CalendarPageStatus extends State<CalendarPage> {
   }
 
   void _handleTapEvent(CalendarEventData<dynamic> event) {
+    final title = event.title;
+
     if (_selectedEvent != event) {
-      final title = event.title;
+      debugPrint("open $sheetController");
       _updateSelectedEvent(event);
-      showModalBottomSheet(
-          context: context,
-          enableDrag: true,
-          elevation: 10,
-          barrierColor: Colors.transparent.withOpacity(0.2),
-          builder: (context) {
-            return Container(
-              height: 150,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
-                child: Text("$title"),
-              ),
-            );
-          },
-      ).whenComplete(() {
-        _updateSelectedEvent(null);
+      sheetController = scaffoldKey.currentState?.showBottomSheet((context) {
+        return _buildEventSheet(context, event.event);
       });
+      sheetController?.closed
+          .whenComplete(() => _updateSelectedEvent(null));
     }
     else {
-      _updateSelectedEvent(null);
+      _unselectEvent();
     }
+  }
+
+  Container _buildEventSheet(BuildContext context, dynamic event) {
+    final taskGroup = _getTaskGroupFromEvent(event);
+    return Container(
+        height: 150,
+        width: MediaQuery.of(context).size.width,
+        color: taskGroup?.backgroundColor,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: _buildEventSheetContent(event, taskGroup),
+        ),
+      );
+  }
+
+  Widget _buildEventSheetContent(event, TaskGroup? taskGroup) {
+    String? title;
+    if (event is TaskEvent) {
+      title = event.translatedTitle;
+    }
+    else if (event is ScheduledTask) {
+      title = event.translatedTitle;
+    }
+    final presentation = taskGroup?.getTaskGroupRepresentation(useIconColor: true);
+
+    return Column(
+      children: [
+        if (presentation != null)
+          presentation,
+        Text(" ${title}"),
+      ],
+    );
+  }
+
+  TaskGroup? _getTaskGroupFromEvent(event) {
+    if (event is TaskEvent) {
+      return _getTaskGroup(event.taskGroupId);
+    }
+    else if (event is ScheduledTask) {
+      return _getTaskGroup(event.taskGroupId);
+    }
+    return null;
+  }
+
+  void _unselectEvent() {
+    debugPrint("close $sheetController");
+    sheetController?.close(); 
+    sheetController = null;
+    _updateSelectedEvent(null);
   }
 
   _updateSelectedEvent(CalendarEventData<dynamic>? event) {
@@ -313,7 +360,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final isSelected = event == _selectedEvent;
     final object = event.event;
     final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
-    final taskGroup = taskGroupId != null ? TaskGroupRepository.findByIdFromCache(taskGroupId) : null;
+    final taskGroup = _getTaskGroup(taskGroupId);
     final icon = taskGroup != null
         ? Icon(
             taskGroup.getIcon(true).icon,
@@ -345,6 +392,11 @@ class _CalendarPageStatus extends State<CalendarPage> {
       );
     else
       return Container();
+  }
+
+  TaskGroup? _getTaskGroup(int? taskGroupId) {
+    final taskGroup = taskGroupId != null ? TaskGroupRepository.findByIdFromCache(taskGroupId) : null;
+    return taskGroup;
   }
 
   Widget _createTypeButtons() {
@@ -395,6 +447,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
           calendarController.removeWhere((element) => true);
           _refreshModel();
         });
+        _unselectEvent();
       },
     );
   }

@@ -6,12 +6,12 @@ import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
-import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
+import 'package:personaltasklogger/ui/components/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
-import 'PersonalTaskLoggerApp.dart';
-import 'utils.dart';
+import '../PersonalTaskLoggerApp.dart';
+import '../utils.dart';
 
 @immutable
 class TaskEventFilter extends StatefulWidget {

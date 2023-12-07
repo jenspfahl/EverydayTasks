@@ -14,7 +14,7 @@ import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
-import '../ToggleActionIcon.dart';
+import '../components/ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
 import 'TaskEventList.dart';
