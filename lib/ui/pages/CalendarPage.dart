@@ -13,12 +13,19 @@ import '../../db/repository/TaskEventRepository.dart';
 import '../../db/repository/TemplateRepository.dart';
 import '../../model/When.dart';
 import '../PersonalTaskLoggerApp.dart';
+import '../PersonalTaskLoggerScaffold.dart';
 import '../components/TaskEventFilter.dart';
+import '../components/TaskEventWidget.dart';
+import 'TaskEventList.dart';
 
 
 
 @immutable
 class CalendarPage extends StatefulWidget {
+
+  final PagesHolder pagesHolder;
+
+  CalendarPage(this.pagesHolder);
 
   @override
   State<StatefulWidget> createState() {
@@ -118,6 +125,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
   }
 
   void _refreshModel() {
+    calendarController.removeWhere((element) => true);
+
     if (_eventType == EventType.EVENT || _eventType == EventType.BOTH) {
       calendarController.addAll(_taskEvents);
     }
@@ -251,23 +260,35 @@ class _CalendarPageStatus extends State<CalendarPage> {
       _scheduledTasks.add(event);
     });
 
-    _taskEvents = taskEvents.map((taskEvent) {
-      final duration = taskEvent.startedAt.difference(taskEvent.finishedAt).abs().min(minCalendarDuration);
-
-      return CalendarEventData(
-        date: taskEvent.startedAt,
-        endDate: taskEvent.startedAt.add(duration),
-        event: taskEvent,
-        title: taskEvent.translatedTitle,
-        description: taskEvent.translatedDescription??"",
-        startTime: taskEvent.startedAt,
-        endTime: taskEvent.startedAt.add(duration),
-        color: TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!).backgroundColor,
-        titleStyle: TextStyle(color: Colors.black54),
-      );
-    }).toList();
+    _taskEvents = taskEvents.map((taskEvent) => _mapTaskEventToCalendarEventData(taskEvent))
+        .toList();
 
     return true;
+  }
+
+  CalendarEventData<TaskEvent> _mapTaskEventToCalendarEventData(TaskEvent taskEvent) {
+    final duration = taskEvent.startedAt.difference(taskEvent.finishedAt).abs().min(minCalendarDuration);
+
+    var title = taskEvent.translatedTitle;
+    var startAt = taskEvent.startedAt;
+    var endAt = taskEvent.startedAt.add(duration);
+    if (TimeOfDay.fromDateTime(startAt).toDouble() > TimeOfDay.fromDateTime(endAt).toDouble()) {
+      endAt = startAt.withoutTime.add(Duration(minutes: (60 * 24) - 1)); // cut end to one minute before end of day
+      //TODO render event part for the next day
+      title = "$title >>>";
+    }
+    
+    return CalendarEventData(
+      date: taskEvent.startedAt,
+      endDate: taskEvent.startedAt.add(duration),
+      event: taskEvent,
+      title: title,
+      description: taskEvent.translatedDescription??"",
+      startTime: startAt,
+      endTime: endAt,
+      color: TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!).backgroundColor,
+      titleStyle: TextStyle(color: Colors.black54),
+    );
   }
 
   _customTabHandler(List<CalendarEventData<dynamic>> events, DateTime date) {
@@ -296,23 +317,41 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
   }
 
-  Container _buildEventSheet(BuildContext context, dynamic event) {
+  Widget _buildEventSheet(BuildContext context, dynamic event) {
     final taskGroup = _getTaskGroupFromEvent(event);
-    return Container(
-        height: 150,
-        width: MediaQuery.of(context).size.width,
-        color: taskGroup?.backgroundColor,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: _buildEventSheetContent(event, taskGroup),
-        ),
-      );
+    return _buildEventSheetContent(event, taskGroup);
   }
 
   Widget _buildEventSheetContent(event, TaskGroup? taskGroup) {
     String? title;
     if (event is TaskEvent) {
       title = event.translatedTitle;
+
+      return GestureDetector(
+        onLongPress: () {
+          sheetController?.close();
+          Navigator.pop(context);
+          if (appScaffoldKey.currentState != null) {
+            appScaffoldKey.currentState!.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, event.id.toString(), null);
+          }
+        },
+        child: TaskEventWidget(event,
+          isInitiallyExpanded: false,
+          onTaskEventChanged: (changedTaskEvent) {
+            _taskEvents.removeWhere((event) => event.event == changedTaskEvent);
+            _taskEvents.add(_mapTaskEventToCalendarEventData(changedTaskEvent));
+            _refreshModel();
+          },
+          onTaskEventDeleted: (deletedTaskEvent) {
+            debugPrint("try remove task event id ${deletedTaskEvent.id}");
+            _taskEvents.removeWhere((event) => event.event!.id == deletedTaskEvent.id);
+            _unselectEvent();
+            _refreshModel();
+          },
+          pagesHolder: widget.pagesHolder,
+          selectInListWhenChanged: false,
+        ),
+      );
     }
     else if (event is ScheduledTask) {
       title = event.translatedTitle;
@@ -388,7 +427,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
         totalEvents: events.length,
         padding: EdgeInsets.all(3.0),
         border: isSelected ? Border.all(color: Colors.black54) : null,
-        backgroundColor: event.color,
+        backgroundColor: isSelected ? taskGroup?.softColor??event.color : event.color,
       );
     else
       return Container();
@@ -444,7 +483,6 @@ class _CalendarPageStatus extends State<CalendarPage> {
             _eventType = EventType.NONE;
           }
 
-          calendarController.removeWhere((element) => true);
           _refreshModel();
         });
         _unselectEvent();

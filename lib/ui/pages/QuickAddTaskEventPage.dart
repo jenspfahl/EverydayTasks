@@ -318,8 +318,8 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
             .currentState;
         if (taskEventListState != null) {
           taskEventListState.clearFilters();
-          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
         }
+        root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
       }
     }
   }

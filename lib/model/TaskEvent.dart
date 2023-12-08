@@ -52,4 +52,21 @@ class TaskEvent extends TitleAndDescription implements Comparable {
 
   @override
   int get hashCode => id.hashCode;
+
+  void apply(TaskEvent newTaskEvent) {
+    assert  (id == newTaskEvent.id);
+    taskGroupId = newTaskEvent.taskGroupId;
+    title = newTaskEvent.title;
+    description = newTaskEvent.description;
+    createdAt = newTaskEvent.createdAt;
+    severity = newTaskEvent.severity;
+    startedAt = newTaskEvent.startedAt;
+    aroundStartedAt = newTaskEvent.aroundStartedAt;
+    duration = newTaskEvent.duration;
+    aroundDuration = newTaskEvent.aroundDuration;
+    trackingFinishedAt = newTaskEvent.trackingFinishedAt;
+    favorite = newTaskEvent.favorite;
+    originTemplateId = newTaskEvent.originTemplateId;
+  }
+
 }

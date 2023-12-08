@@ -1,5 +1,7 @@
 import 'dart:ffi';
 
+import 'package:flutter/material.dart';
+
 extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${this.substring(1)}";
@@ -38,4 +40,10 @@ extension ListExtension<E> on List<E> {
     this.addAll(elems);
     return this;
   }
+}
+
+extension TimeOfDayExtension on TimeOfDay {
+
+  double toDouble() => this.hour + this.minute/60.0;
+
 }

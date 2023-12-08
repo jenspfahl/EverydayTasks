@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -13,28 +12,25 @@ import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/ScheduledTaskEvent.dart';
-import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
-import 'package:personaltasklogger/ui/PersonalTaskLoggerApp.dart';
+import 'package:personaltasklogger/ui/components/TaskEventFilter.dart';
 import 'package:personaltasklogger/ui/components/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
-import 'package:personaltasklogger/ui/components/TaskEventFilter.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
-import '../../db/repository/TaskGroupRepository.dart';
-import '../../model/When.dart';
 import '../../service/DueScheduleCountService.dart';
 import '../../service/LocalNotificationService.dart';
 import '../../util/units.dart';
 import '../PersonalTaskLoggerScaffold.dart';
-import 'TaskEventStats.dart';
+import '../components/TaskEventWidget.dart';
 import '../forms/TaskEventForm.dart';
+import 'TaskEventStats.dart';
 
 final expandIconKey = new GlobalKey<ToggleActionIconState>();
 final taskEventFilterKey = new GlobalKey<TaskEventFilterState>();
@@ -240,11 +236,11 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       ScheduledTaskRepository.getByTemplateId(taskEvent.originTemplateId!)
           .then((scheduledTasks) {
             final schedulesToConsider = scheduledTasks
-                .where((scheduledTask) => scheduledTask.active && !scheduledTask.isPaused)
+                .where((scheduledTask) => scheduledTask.active)
                 .toList();
             PreferenceService().getBool(PreferenceService.PREF_EXECUTE_SCHEDULES_ON_TASK_EVENT).then((value) {
               if (value != false) {
-                _executeAllSchedules(scheduledTasks, taskEvent);
+                _executeAllSchedules(schedulesToConsider, taskEvent);
               }
             });
       });
@@ -287,15 +283,18 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     LocalNotificationService().cancelNotification(scheduledTask.id! + LocalNotificationService.RESCHEDULED_IDS_RANGE);
   }
 
-  void _updateTaskEvent(TaskEvent origin, TaskEvent updated) {
+  void updateTaskEvent(TaskEvent origin, TaskEvent updated, {required bool selectItem }) {
     setState(() {
+      //origin.apply(updated); doesnt work
       final index = _taskEvents.indexOf(origin);
       if (index != -1) {
         _taskEvents.removeAt(index);
         _taskEvents.insert(index, updated);
       }
       _taskEvents..sort();
-      _selectedTile = _taskEvents.indexOf(updated);
+      if (selectItem) {
+        _selectedTile = _taskEvents.indexOf(updated);
+      }
 
       if (_filteredTaskEvents != null) {
         final index = _filteredTaskEvents?.indexOf(origin)??-1;
@@ -304,14 +303,18 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           _filteredTaskEvents?.insert(index, updated);
         }
         _filteredTaskEvents?..sort();
-        _selectedTile = _filteredTaskEvents?.indexOf(updated)??-1;
+        if (selectItem) {
+          _selectedTile = _filteredTaskEvents?.indexOf(updated) ?? -1;
+        }
       }
     });
   }
 
-  void _removeTaskEvent(TaskEvent taskEvent) {
+  void removeTaskEvent(TaskEvent taskEvent) {
     setState(() {
-      _taskEvents.remove(taskEvent);
+      bool success = _taskEvents.remove(taskEvent);
+      debugPrint("remove ${taskEvent.id} success=$success");
+
       _selectedTile = -1;
       _filteredTaskEvents?.remove(taskEvent);
     });
@@ -335,6 +338,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return _buildList();
   }
 
@@ -359,15 +363,14 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       dateHeading = taskEventDate;
       dateHeadings.add(usedDateHeading);
 
-      if (dateHeading != null) {
-        final dateCount = dateCounts[dateHeading];
-        dateCounts[dateHeading] = dateCount != null ? dateCount + 1 : 1;
+      final dateCount = dateCounts[dateHeading];
+      dateCounts[dateHeading] = dateCount != null ? dateCount + 1 : 1;
 
-        final dateDuration = dateDurations[dateHeading];
-        dateDurations[dateHeading] = dateDuration != null
-            ? dateDuration + taskEvent.duration
-            : taskEvent.duration;
-      }
+      final dateDuration = dateDurations[dateHeading];
+      dateDurations[dateHeading] = dateDuration != null
+          ? dateDuration + taskEvent.duration
+          : taskEvent.duration;
+
     }
     return ListView.builder(
         itemCount: list.length,
@@ -392,9 +395,9 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     final dateDuration = dateDurations[dateHeading];
     var taskEventDate = truncToDate(taskEvent.startedAt);
 
-    final expansionWidgets = _createExpansionWidgets(taskEvent);
     final isExpanded = index == _selectedTile;
-    final taskGroup = TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!);
+
+    debugPrint("rebuild widget for index = $index");
 
     final listTile = ListTile(
       dense: true,
@@ -436,33 +439,17 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           : null,
       subtitle: Visibility(
         visible: !_hiddenTiles.contains(taskEventDate),
-        child: Card(
-          clipBehavior: Clip.antiAlias,
-          child: ExpansionTile(
-            key: GlobalKey(), // this makes updating all tiles if state changed
-            title: isExpanded
-                ? Text(kReleaseMode ? taskEvent.translatedTitle : "${taskEvent.translatedTitle} (id=${taskEvent.id})")
-                : Row(
-              children: [
-                  taskGroup.getIcon(true),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),
-                    child: Text(truncate(kReleaseMode ? taskEvent.translatedTitle : "${taskEvent.translatedTitle} (id=${taskEvent.id})", length: 30)),
-                  )
-              ],
-            ),
-            subtitle: isExpanded ? _taskGroupPresentation(taskEvent) : _buildWhenText(taskEvent, small: true),
-            children: expansionWidgets,
-            collapsedBackgroundColor: taskGroup.backgroundColor,
-            backgroundColor: taskGroup.softColor,
-            textColor: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR,
-            initiallyExpanded: isExpanded,
-            onExpansionChanged: ((expanded) {
-              setState(() {
-                _selectedTile = expanded ? index : -1;
-              });
-            }),
-          ),
+        child: TaskEventWidget(taskEvent,
+          //key: ValueKey<int>(_selectedTile),
+          isInitiallyExpanded: isExpanded,
+          shouldExpand: () => index == _selectedTile,
+          onExpansionChanged: ((expanded) {
+            setState(() {
+              _selectedTile = expanded ? index : -1;
+            });
+          }),
+          pagesHolder: widget._pagesHolder,
+          selectInListWhenChanged: true,
         ),
       ),
     );
@@ -474,302 +461,6 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     } else {
       return listTile;
     }
-  }
-
-  Widget? _taskGroupPresentation(TaskEvent taskEvent) {
-    if (taskEvent.taskGroupId != null) {
-      final taskGroup = TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!);
-      return taskGroup.getTaskGroupRepresentation(useIconColor: true);
-    }
-    return null;
-  }
-
-  List<Widget> _createExpansionWidgets(TaskEvent taskEvent) {
-    var expansionWidgets = <Widget>[];
-
-    if (taskEvent.translatedDescription != null && taskEvent.translatedDescription!.isNotEmpty) {
-      expansionWidgets.add(Padding(
-        padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16),
-        child: Text(taskEvent.translatedDescription!),
-      ));
-    }
-
-    expansionWidgets.addAll([
-      Padding(
-        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: const Icon(Icons.watch_later_outlined),
-            ),
-            _buildWhenText(taskEvent),
-          ],
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: const Icon(Icons.timer_outlined),
-            ),
-            Text(formatToDuration(taskEvent.aroundDuration, taskEvent.duration, true)),
-          ],
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.all(4.0),
-        child: severityToIcon(taskEvent.severity),
-      ),
-      Divider(),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ButtonBar(
-            alignment: MainAxisAlignment.start,
-            children: [
-              TextButton(
-                onPressed: () {
-                  taskEvent.favorite = !taskEvent.favorite;
-                  TaskEventRepository.update(taskEvent);
-                  _updateTaskEvent(taskEvent, taskEvent);
-                },
-                child: Icon(taskEvent.favorite ? Icons.favorite : Icons.favorite_border,
-                  color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-              ),
-            ],
-          ),
-            ButtonBar(
-            alignment: MainAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: () async {
-                  final scheduledTaskEvents = await ScheduledTaskEventRepository.findByTaskEventId(taskEvent.id);
-                  final scheduledTaskIds = scheduledTaskEvents.map((e) => e.scheduledTaskId);
-
-                  if (taskEvent.originTemplateId != null) {
-                    TemplateRepository.findById(taskEvent.originTemplateId!).then((template) {
-                      _showInfoDialog(taskEvent, template, scheduledTaskIds);
-                    });
-                  }
-                  else {
-                    _showInfoDialog(taskEvent, null, scheduledTaskIds);
-                  }
-                },
-                child: Icon(Icons.info_outline,
-                  color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-              ),
-            ]),
-          ButtonBar(
-            alignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: () async {
-                  TaskEvent? changedTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return TaskEventForm(
-                        formTitle: translate('forms.task_event.change.title',
-                            args: {"title" : taskEvent.translatedTitle}),
-                        taskEvent: taskEvent);
-                  }));
-
-                  if (changedTaskEvent != null) {
-                    TaskEventRepository.update(changedTaskEvent).then((updatedTaskEvent) {
-
-                      toastInfo(context, translate('forms.task_event.change.success',
-                          args: {"title" : updatedTaskEvent.translatedTitle}));
-
-                      _updateTaskEvent(taskEvent, updatedTaskEvent);
-                    });
-                  }
-                },
-                child: Icon(Icons.edit,
-                  color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-              ),
-              TextButton(
-                onPressed: () {
-                  showConfirmationDialog(
-                    context,
-                    translate('pages.journal.action.deletion.title'),
-                    translate('pages.journal.action.deletion.message',
-                        args: {"title" : taskEvent.translatedTitle}),
-                    icon: const Icon(Icons.warning_amber_outlined),
-                    okPressed: () {
-                      TaskEventRepository.delete(taskEvent).then(
-                        (_) {
-                          ScheduledTaskEventRepository
-                              .findByTaskEventId(taskEvent.id!)
-                              .then((scheduledTaskEvent) {
-                                  scheduledTaskEvent.forEach((scheduledTaskEvent) {
-                                    if (scheduledTaskEvent != null) {
-                                      ScheduledTaskEventRepository.delete(
-                                          scheduledTaskEvent);
-                                    }
-                                  });
-                          });
-                          toastInfo(context, translate('pages.journal.action.deletion.success',
-                              args: {"title" : taskEvent.translatedTitle}));
-                          _removeTaskEvent(taskEvent);
-                        },
-                      );
-                      Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
-                    },
-                    cancelPressed: () =>
-                        Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
-                  );
-                },
-                child: Icon(Icons.delete,
-                    color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ]);
-    return expansionWidgets;
-  }
-
-  Text _buildWhenText(TaskEvent taskEvent, {bool small = false}) {
-    if (small) {
-      var text = formatToTime(taskEvent.startedAt);
-      if (taskEvent.aroundStartedAt != AroundWhenAtDay.CUSTOM) {
-        text = When.fromWhenAtDayToString(taskEvent.aroundStartedAt);
-      }
-      return Text(text, style: TextStyle(fontSize: 10));
-    }
-    else {
-      var text = formatToDateTimeRange(
-          taskEvent.aroundStartedAt, taskEvent.startedAt,
-          taskEvent.aroundDuration, taskEvent.duration,
-          taskEvent.trackingFinishedAt, true);
-      return Text(text);
-    }
-  }
-
-  Future<void> _showInfoDialog(TaskEvent taskEvent, Template? originTemplate, Iterable<int> scheduledTaskIds) async {
-    final associatedSchedulesWidgets = <Widget>[boldedText("${translate('pages.journal.details.associated_schedule')}: ")];
-    if (scheduledTaskIds.isEmpty) {
-      final widget = _createScheduleInfo(null);
-      associatedSchedulesWidgets.add(widget);
-    }
-    else {
-      for (final id in scheduledTaskIds) {
-        final schedule = await ScheduledTaskRepository.findById(id);
-
-        if (schedule != null) {
-          final widget = _createScheduleInfo(schedule);
-          associatedSchedulesWidgets.add(widget);
-        }
-      }
-    }
-
-    final alert = AlertDialog(
-      title: Row(children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-          child: const Icon(Icons.info_outline),
-        ),
-        Text(translate('pages.journal.details.title'))
-      ],),
-      content: Wrap(
-        children: [
-          Wrap(
-            children: [
-              boldedText("${translate('pages.journal.details.attrib_title')}: "),
-              wrappedText(taskEvent.translatedTitle),
-            ],
-          ),
-          Row(
-            children: [
-              boldedText("${translate('pages.journal.details.attrib_category')}: "),
-              _taskGroupPresentation(taskEvent) ?? Text("-${translate('pages.journal.details.value_uncategorized')}-"),
-            ],
-          ),
-          Divider(),
-          Row(
-            children: [
-              boldedText("${translate('pages.journal.details.attrib_created_at')}: "),
-              Spacer(),
-              Text(formatToDateTime(taskEvent.createdAt, context)),
-            ],
-          ),
-          Row(
-            children: [
-              boldedText("${translate('pages.journal.details.attrib_started_at')}: "),
-              Spacer(),
-              Text(formatToDateTime(taskEvent.startedAt, context)),
-            ],
-          ),
-          Row(
-            children: [
-              boldedText("${translate('pages.journal.details.attrib_finished_at')}: "),
-              Spacer(),
-              Text(formatToDateTime(taskEvent.finishedAt, context)),
-            ],
-          ),
-          Wrap(
-            children: [
-              boldedText("${translate('pages.journal.details.attrib_duration')}: "),
-              Text(" " + formatTrackingDuration(taskEvent.duration)),
-            ],
-          ),
-          Divider(),
-          Wrap(
-            children: [
-              boldedText("${translate('pages.journal.details.associated_task')}: "),
-              _createOriginTemplateInfo(originTemplate),
-            ],
-          ),
-          Divider(),
-          Wrap(
-            children: associatedSchedulesWidgets,
-          ),
-        ],
-      ),
-    );  // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-
-  Widget _createOriginTemplateInfo(Template? originTemplate) {
-    if (originTemplate == null) {
-      return Text("-${translate('pages.journal.details.value_none')}-");
-    }
-    final originTaskGroup = TaskGroupRepository.findByIdFromCache(originTemplate.taskGroupId);
-    return Column(
-      children: [
-        Row(
-          children: [
-            originTaskGroup.getTaskGroupRepresentation(useIconColor: true),
-            const Text(" /"),
-          ],
-        ),
-        wrappedText(originTemplate.translatedTitle)
-      ],);
-  }
-
-  Widget _createScheduleInfo(ScheduledTask? scheduledTask) {
-    if (scheduledTask == null) {
-      return Text("-${translate('pages.journal.details.value_none')}-");
-    }
-    final originTaskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
-    return Column(
-      children: [
-        Row(
-          children: [
-            originTaskGroup.getTaskGroupRepresentation(useIconColor: true),
-            const Text(" /"),
-          ],
-        ),
-        wrappedText(scheduledTask.translatedTitle)
-      ],);
   }
 
   void _onFABPressed() {
@@ -888,9 +579,20 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     }
     final index = payload.indexOf("-");
     if (index == -1) {
-      debugPrint("not proper formed payload: $payload");
+      debugPrint("payload is an id?: $payload");
+      final taskEventId = int.tryParse(payload);
+      if (taskEventId != null) {
+        final foundIndex = _taskEvents.indexWhere((taskEvent) => taskEvent.id == taskEventId);
+        debugPrint("foundIndex= $foundIndex");
+        if (foundIndex != -1) {
+          setState(() {
+            _selectedTile = foundIndex;
+          });
+        }
+      }
       return;
     }
+
     final subRoutingKey = payload.substring(0, index);
     final stateAsJsonString = payload.substring(index + 1);
 
@@ -925,7 +627,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
             toastInfo(context, translate('forms.task_event.change.success',
                 args: {"title" : changedTaskEvent.translatedTitle}));
 
-            _updateTaskEvent(taskEvent, changedTaskEvent);
+            updateTaskEvent(taskEvent, changedTaskEvent, selectItem: true);
           });
         }
       }

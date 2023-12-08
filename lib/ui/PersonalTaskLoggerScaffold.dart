@@ -45,7 +45,11 @@ class PagesHolder {
   }
 }
 
+GlobalKey<PersonalTaskLoggerScaffoldState> appScaffoldKey = GlobalKey();
+
 class PersonalTaskLoggerScaffold extends StatefulWidget {
+
+  PersonalTaskLoggerScaffold(): super(key: appScaffoldKey);
 
   @override
   State<StatefulWidget> createState() {
@@ -87,14 +91,16 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   var _showBanner = false;
   final _calendarDragScrollController = DraggableScrollableController();
 
+  final PagesHolder _pagesHolder = PagesHolder();
+
+
   PersonalTaskLoggerScaffoldState() {
 
-    final pagesHolder = PagesHolder();
-    final quickAddTaskEventPage = QuickAddTaskEventPage(pagesHolder);
-    final taskEventList = TaskEventList(pagesHolder);
-    final taskTemplateList = TaskTemplateList(pagesHolder);
-    final scheduledTaskList = ScheduledTaskList(pagesHolder);
-    pagesHolder.init(quickAddTaskEventPage, taskEventList, taskTemplateList, scheduledTaskList);
+    final quickAddTaskEventPage = QuickAddTaskEventPage(_pagesHolder);
+    final taskEventList = TaskEventList(_pagesHolder);
+    final taskTemplateList = TaskTemplateList(_pagesHolder);
+    final scheduledTaskList = ScheduledTaskList(_pagesHolder);
+    _pagesHolder.init(quickAddTaskEventPage, taskEventList, taskTemplateList, scheduledTaskList);
 
     // order is important here
     _pages = <PageScaffold>[quickAddTaskEventPage, taskEventList, scheduledTaskList, taskTemplateList];
@@ -453,7 +459,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                                       icon: Icon(Icons.calendar_month_sharp, color: Colors.black54,),
                                       onPressed: () {
                                         _calendarDragScrollController.animateTo(0.15, duration: const Duration(milliseconds: 100), curve: Curves.easeOutBack);
-                                        Navigator.push(super.context, MaterialPageRoute(builder: (context) => CalendarPage()))
+                                        Navigator.push(super.context, MaterialPageRoute(builder: (context) => CalendarPage(_pagesHolder)))
                                             .then((_) {
                                         });
                                       },
