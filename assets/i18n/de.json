@@ -467,6 +467,10 @@
     "tasks": {
       "title": "Vordefinierten Aufgaben verwalten",
       "description": "Und hier kannst du alle vordefinierten Kategorien, Aufgaben und Aufgabenvarianten ändern oder neue anlegen. Verwende diese als Vorlagen für die Aufgabenerfassung."
+    },
+    "extensions": {
+      "title": "Nach oben ziehen um Erweiterungen zu sehen",
+      "description": "Hier kannst du zusätzliche Funktionen aufrufen wie z.B. eine Kalenderübersicht."
     }
   },
   "common" : {

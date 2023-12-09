@@ -68,6 +68,7 @@ GlobalKey showcaseQuickAddIcon = GlobalKey();
 GlobalKey showcaseJournalIcon = GlobalKey();
 GlobalKey showcaseSchedulesIcon = GlobalKey();
 GlobalKey showcaseTasksIcon = GlobalKey();
+GlobalKey showcaseExtensionsIcon = GlobalKey();
 
 
 class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> {
@@ -449,23 +450,30 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                                     // top: BorderSide(color: Colors.black54, width: 1),
                                   ),
                               ),
-                              child: ListView(
-                                controller: scrollController,
-                                children: [
-                                  Icon(Icons.drag_handle, color: Colors.black38),
-                                  Container(
-                                    color: isDarkMode(context) ? null: Colors.white54,
-                                    child: IconButton(
-                                      icon: Icon(Icons.calendar_month_sharp, color: Colors.black54,),
-                                      onPressed: () {
-                                        _calendarDragScrollController.animateTo(0.15, duration: const Duration(milliseconds: 100), curve: Curves.easeOutBack);
-                                        Navigator.push(super.context, MaterialPageRoute(builder: (context) => CalendarPage(_pagesHolder)))
-                                            .then((_) {
-                                        });
-                                      },
+                              child: Showcase(
+                                key: showcaseExtensionsIcon,
+                                title: translate('walk_through.extensions.title'),
+                                description: translate('walk_through.extensions.description'),
+                                targetPadding: showcasePadding,
+                                overlayOpacity: showcaseOpacity,
+                                child: ListView(
+                                  controller: scrollController,
+                                  children: [
+                                    Icon(Icons.drag_handle, color: Colors.black38),
+                                    Container(
+                                      color: isDarkMode(context) ? null: Colors.white54,
+                                      child: IconButton(
+                                        icon: Icon(Icons.calendar_month_sharp, color: Colors.black54,),
+                                        onPressed: () {
+                                          _calendarDragScrollController.animateTo(0.15, duration: const Duration(milliseconds: 100), curve: Curves.easeOutBack);
+                                          Navigator.push(super.context, MaterialPageRoute(builder: (context) => CalendarPage(_pagesHolder)))
+                                              .then((_) {
+                                          });
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -745,6 +753,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       showcaseQuickAddIcon,
       showcaseSchedulesIcon,
       showcaseTasksIcon,
+      showcaseExtensionsIcon,
     ]);
   }
 

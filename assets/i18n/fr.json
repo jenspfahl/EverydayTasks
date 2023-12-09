@@ -468,6 +468,10 @@
     "tasks": {
       "title": "Manage all predefined tasks",
       "description": "And there you can manage all categories, tasks and variants to be used as templates."
+    },
+    "extensions": {
+      "title": "Drag up to see more extensions",
+      "description": "Here you can access additional features like an overall calendar view."
     }
   },
   "common" : {
