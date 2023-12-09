@@ -48,6 +48,7 @@ dependencies:
   flutter_translate: ^4.0.3
   csv: ^5.0.1
   showcaseview: ^2.0.3
+  patterns_canvas: ^0.4.0
   calendar_view:
     path: ./flutter_calendar_view
 

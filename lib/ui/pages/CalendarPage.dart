@@ -1,5 +1,6 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:patterns_canvas/patterns_canvas.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
@@ -400,6 +401,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final object = event.event;
     final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
     final taskGroup = _getTaskGroup(taskGroupId);
+    final backgroundColor = isSelected ? taskGroup?.softColor??event.color : event.color;
     final icon = taskGroup != null
         ? Icon(
             taskGroup.getIcon(true).icon,
@@ -408,26 +410,30 @@ class _CalendarPageStatus extends State<CalendarPage> {
             )
         : null;
     if (events.isNotEmpty)
-      return RoundedEventTile(
-        borderRadius: BorderRadius.circular(6.0),
-        icon: icon,
-        title: event.title,
-        titleStyle:
-            TextStyle(
-              fontSize: (14 * _scaleFactor).max(14),
-              fontStyle: object is ScheduledTask ? FontStyle.italic : null,
-              fontWeight: object is ScheduledTask && (object.isDueNow() || object.isNextScheduleOverdue(false)) ? FontWeight.bold : null,
-              color: object is ScheduledTask
-                ? (object.isDueNow() || object.isNextScheduleOverdue(false) )
-                  ? Colors.red
-                  : object.getDueColor(context, lighter: true)
-                : Colors.black54, // event.color.accent,
-            ),
-        descriptionStyle: event.descriptionStyle,
-        totalEvents: events.length,
-        padding: EdgeInsets.all(3.0),
-        border: isSelected ? Border.all(color: Colors.black54) : null,
-        backgroundColor: isSelected ? taskGroup?.softColor??event.color : event.color,
+      return CustomPaint(
+        painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1)) : null,
+
+        child: RoundedEventTile(
+          borderRadius: BorderRadius.circular(6.0),
+          icon: icon,
+          title: event.title,
+          titleStyle:
+              TextStyle(
+                fontSize: (14 * _scaleFactor).max(14),
+                fontStyle: object is ScheduledTask ? FontStyle.italic : null,
+                fontWeight: object is ScheduledTask && (object.isDueNow() || object.isNextScheduleOverdue(false)) ? FontWeight.bold : null,
+                color: object is ScheduledTask
+                  ? (object.isDueNow() || object.isNextScheduleOverdue(false) )
+                    ? Colors.red
+                    : object.getDueColor(context, lighter: true)
+                  : Colors.black54, // event.color.accent,
+              ),
+          descriptionStyle: event.descriptionStyle,
+          totalEvents: events.length,
+          padding: EdgeInsets.all(3.0),
+          border: isSelected ? Border.all(color: Colors.black54) :  object is ScheduledTask ? Border.all(color: backgroundColor) : null,
+          backgroundColor: backgroundColor,
+        ),
       );
     else
       return Container();
@@ -539,7 +545,22 @@ class _CalendarPageStatus extends State<CalendarPage> {
     );
   }
 
+}
 
+
+class StripePainter extends CustomPainter {
+  final Color color1;
+  final Color color2;
+
+  StripePainter(this.color1, this.color2);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    DiagonalStripesThick(bgColor: color1, fgColor: color2, featuresCount: 11).paintOnWidget(canvas, size);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 
 
