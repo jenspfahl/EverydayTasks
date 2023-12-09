@@ -213,7 +213,7 @@
         "due_after_tomorrow": "Pour après demain",
         "paused_schedules": "Plannings mis en pause",
         "inactive_schedules": "Plannings inactifs",
-		 "reminder_activated" : "Rappel activé",
+        "reminder_activated" : "Rappel activé",
         "reminder_passed" : "Rappel dépassé",
         "remind_again" : "Rappeler à nouveau",
         "remind_again_successful" : "Le rappel se ré-affichera dans {when}"
@@ -233,7 +233,7 @@
           "message_then": "Voulez-vous vraiment réinitialiser la progression de '{title}' ? L'échéance sera modifiée de {nextDueDate} à {newNextDueDate}.",
           "message_still": "Voulez-vous vraiment réinitialiser la progression de '{title}' ? L'échéance sera toujours {nextDueDate} à {newNextDueDate}.",
           "success": "Progression de '{title}' réinitilisé à maintenant. ",
-		  "title_custom": "La prochaine échéance pour '{title}' est ...",
+          "title_custom": "La prochaine échéance pour '{title}' est ...",
           "success_custom": "Prochaine échéance pour '{title}' mise à jour"
         },
         "pause_resume": {
@@ -251,10 +251,10 @@
         }
       },
       "errors": {
-        "cannot_resume": "Impossible de mettre en pause la planification ! Relancez la d'abord ! ",
-        "cannot_reset": "Impossible réinitialiser la tâche planifiée en pause ! Relancez la d'abord ! ",
-        "cannot_change_paused": "Impossible de modifier la tâche planifiée en pause ! Relancez la d'abord ! ",
-        "no_journal_entries": "Aucune entrée de journal pour cette tâche planifiée jusqu'à présent. "
+        "cannot_resume": "Impossible de d'exécuter la planification mise en pause ! Relancez la d'abord ! ",
+        "cannot_reset": "Impossible de réinitialiser la planification en pause ! Relancez la d'abord ! ",
+        "cannot_change_paused": "Impossible de modifier la planification en pause ! Relancez la d'abord ! ",
+        "no_journal_entries": "Aucune entrée de journal pour cette planification jusqu'à présent. "
       }
     },
     "tasks": {
@@ -263,7 +263,7 @@
         "restore_a_task": {
           "title": "Restaurer une tâche",
           "description": "Veuillez sélectionner une tâche prédéfinie ou une sous-tâche qui ont été supprimées précédemment pour les restaurer. ",
-		  "success_group": "La catégorie '{name}' a été restaurée.",
+          "success_group": "La catégorie '{name}' a été restaurée.",
           "success_task": "La tâche '{title}' a été restaurée.",
           "success_variant": "La sous-tâche '{title}' a été restaurée.",
           "success_variant_parent_task": "La sous-tâche '{title}' et sa tâche parente ont été restaurées."
@@ -271,7 +271,7 @@
       },
       "action": {
         "error_nothing_selected": "Veuillez sélectionner un objet d'abord ! ",
-		"description_nothing_selected": "Créez une nouvelle catégorie. Pour modifier une catégorie existante, veuillez la sélectionner d'abord. ",
+        "description_nothing_selected": "Créez une nouvelle catégorie. Pour modifier une catégorie existante, veuillez la sélectionner d'abord. ",
         "description_group": "Ajouter une nouvelle tâche au groupe '{groupName}'. ",
         "description_task": "Changer ou effacer la tâche '{title}' ou lui ajouter une nouvelle sous-tâche. ",
         "description_variant": "Changer ou effacer la sous-tâche '{title}' ou la copier comme nouvelle sous-tâche. ",
@@ -309,7 +309,7 @@
           "message_custom": "Cette action va effacer la sous-tâche '{title}'. Cette action est irréversible ! ",
           "message_predefined": "Cette action va effacer la sous-tâche '{title}' en la masquant. Vous pourrez la restaurer en cliquant sur l'icône de restauration. ",
           "success": "La sous-tâche '{title}' a été effacée"
-		},
+        },
         "create_task_group": {
           "title": "Création d'une catégorie",
           "success": "Catégorie '{name}' créée"
@@ -337,10 +337,10 @@
             "title": "Veuillez choisir une langue",
             "options": {
               "system_default": "Langue du système",
-              "english": "English",
-              "german": "German (Deutsch)",
-			  "french": "French (français)",
-			  "breton": "Breton (brezhoneg)"
+              "english": "Anglais (English)",
+              "german": "Allemand (Deutsch)",
+              "french": "Français",
+              "breton": "Breton (Brezhoneg)"
             }
           },
           "language_not_supported": "La langue '{languageCode}' n'est pas supportée"
@@ -411,7 +411,7 @@
     },
     "restore": {
       "dialog": {
-        "title": "Restaurer à partir du fichier",
+        "title": "Restaurer à partir d'un fichier",
         "message": "Restaurer une sauvegarde va remplacer toutes vos données actuelles ! Voulez-vous vraiment continuer ? "
       },
       "backup_restored" : "Sauvegarde restaurée",
@@ -933,7 +933,7 @@
 
     "others": {
       "name": "Autres"
-	},
+    },
     "deleted": {
       "name": ""
     }
