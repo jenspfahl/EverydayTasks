@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
@@ -208,9 +209,15 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     return o.compareTo(c);
   }
 
-  getDueColor(BuildContext context, {required bool lighter}) =>
+  Color getDueColor(BuildContext context, {required bool lighter}) =>
       (isDarkMode(context)
           ? (lighter ? Color(0xFFC74C0C) : Color(0xFF972C0C))
           : Color(0xFF770C0C));
+
+  Color? getDueBackgroundColor(BuildContext context) => isNextScheduleOverdue(true)
+    ? ((getNextRepetitionIndicatorValue()??0.0) > 1.3333
+    ? isDarkMode(context) ? Colors.red[900] : Colors.red[200]
+        : isDarkMode(context) ? Colors.red[800] : Colors.red[300])
+        : null;
 
 }

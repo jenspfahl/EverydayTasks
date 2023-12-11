@@ -1,5 +1,6 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:patterns_canvas/patterns_canvas.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
@@ -98,7 +99,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        title: Text("Task Calendar"),
+        title: Text(translate('pages.calendar.title')),
         actions: [
           TaskEventFilter(
               initialTaskFilterSettings: taskFilterSettings,
@@ -431,7 +432,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
           descriptionStyle: event.descriptionStyle,
           totalEvents: events.length,
           padding: EdgeInsets.all(3.0),
-          border: isSelected ? Border.all(color: Colors.black54) :  object is ScheduledTask ? Border.all(color: backgroundColor) : null,
+          border: isSelected ? Border.all(color: Colors.black54) :  object is ScheduledTask ? _getBorderForScheduledTask(object, backgroundColor) : null,
           backgroundColor: backgroundColor,
         ),
       );
@@ -543,6 +544,11 @@ class _CalendarPageStatus extends State<CalendarPage> {
         });
       },
     );
+  }
+
+  _getBorderForScheduledTask(ScheduledTask scheduledTask, Color defaultColor) {
+    Color color = scheduledTask.getDueBackgroundColor(context) ?? defaultColor;
+    return Border.all(color: color);
   }
 
 }

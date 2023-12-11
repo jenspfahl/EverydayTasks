@@ -328,6 +328,9 @@
         }
       }
     },
+    "calendar": {
+      "title": "Task Calendar"
+    },
     "settings": {
       "common": {
         "title": "Commun",

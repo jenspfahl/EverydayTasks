@@ -557,11 +557,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                           : (scheduledTask.isNextScheduleReached()
                             ? scheduledTask.getDueColor(context, lighter: false)
                             : null),
-                      backgroundColor: scheduledTask.isNextScheduleOverdue(true)
-                          ? ((scheduledTask.getNextRepetitionIndicatorValue()??0.0) > 1.3333
-                            ? isDarkMode(context) ? Colors.red[900] : Colors.red[200]
-                            : isDarkMode(context) ? Colors.red[800] : Colors.red[300])
-                          : null,
+                      backgroundColor: scheduledTask.getDueBackgroundColor(context),
                     ),
                   ),
                 ),
