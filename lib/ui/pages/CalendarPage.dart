@@ -209,10 +209,10 @@ class _CalendarPageStatus extends State<CalendarPage> {
                               _scrollToTime(now);        ;
                             },
                             key: calendarMonthKey,
-                            //cellBuilder: ,
+                            cellBuilder: _customCellBuilder,
                             controller: calendarController,
                             cellAspectRatio: 1/(_scaleFactor * 3.5),
-                            onEventTap: _customTileHandler,
+                            //onEventTap: _customTileHandler,
                   ),
                 ),
               ],
@@ -303,8 +303,6 @@ class _CalendarPageStatus extends State<CalendarPage> {
   }
 
   void _handleTapEvent(CalendarEventData<dynamic> event) {
-    final title = event.title;
-
     if (_selectedEvent != event) {
       debugPrint("open $sheetController");
       _updateSelectedEvent(event);
@@ -360,12 +358,15 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
     final presentation = taskGroup?.getTaskGroupRepresentation(useIconColor: true);
 
-    return Column(
-      children: [
-        if (presentation != null)
-          presentation,
-        Text(" ${title}"),
-      ],
+    return Container(
+      height: 50,
+      child: Column(
+        children: [
+          if (presentation != null)
+            presentation,
+          Text(" ${title}"),
+        ],
+      ),
     );
   }
 
@@ -396,48 +397,118 @@ class _CalendarPageStatus extends State<CalendarPage> {
       Rect boundary,
       DateTime startDuration,
       DateTime endDuration) {
+    
+    if (events.isNotEmpty) {
+      final event = events[0]; //get first element for the date to be rendered (there should only be one)
+      return _buildEventWidget(event, events);
+    } else {
+      return Container();
+    }
+  }
 
-    final event = events[0]; //TODO why a list?
+  Widget _buildEventWidget(CalendarEventData<dynamic> event, List<CalendarEventData<dynamic>> events) {
     final isSelected = event == _selectedEvent;
     final object = event.event;
     final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
     final taskGroup = _getTaskGroup(taskGroupId);
     final backgroundColor = isSelected ? taskGroup?.softColor??event.color : event.color;
+    final icon = _getEventIcon(taskGroup);
+    
+    return CustomPaint(
+      painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1)) : null,
+    
+      child: RoundedEventTile(
+        borderRadius: BorderRadius.circular(6.0),
+        icon: icon,
+        title: event.title,
+        titleStyle:
+            _getEventTextStyle(object),
+        descriptionStyle: event.descriptionStyle,
+        totalEvents: events.length,
+        padding: EdgeInsets.all(3.0),
+        border: _getEventBorder(isSelected, object, backgroundColor),
+        backgroundColor: backgroundColor,
+      ),
+    );
+  }
+
+  Icon? _getEventIcon(TaskGroup? taskGroup) {
     final icon = taskGroup != null
         ? Icon(
             taskGroup.getIcon(true).icon,
             color: taskGroup.accentColor,
             size: (16 * _scaleFactor).max(16),
-            )
+          )
         : null;
-    if (events.isNotEmpty)
-      return CustomPaint(
-        painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1)) : null,
+    return icon;
+  }
 
-        child: RoundedEventTile(
-          borderRadius: BorderRadius.circular(6.0),
-          icon: icon,
-          title: event.title,
-          titleStyle:
-              TextStyle(
-                fontSize: (14 * _scaleFactor).max(14),
-                fontStyle: object is ScheduledTask ? FontStyle.italic : null,
-                fontWeight: object is ScheduledTask && (object.isDueNow() || object.isNextScheduleOverdue(false)) ? FontWeight.bold : null,
-                color: object is ScheduledTask
-                  ? (object.isDueNow() || object.isNextScheduleOverdue(false) )
-                    ? Colors.red
-                    : object.getDueColor(context, lighter: true)
-                  : Colors.black54, // event.color.accent,
-              ),
-          descriptionStyle: event.descriptionStyle,
-          totalEvents: events.length,
-          padding: EdgeInsets.all(3.0),
-          border: isSelected ? Border.all(color: Colors.black54) :  object is ScheduledTask ? _getBorderForScheduledTask(object, backgroundColor) : null,
-          backgroundColor: backgroundColor,
-        ),
-      );
-    else
-      return Container();
+  TextStyle _getEventTextStyle(object) {
+    return TextStyle(
+            fontSize: (14 * _scaleFactor).max(14),
+            fontStyle: object is ScheduledTask ? FontStyle.italic : null,
+            fontWeight: object is ScheduledTask && (object.isDueNow() || object.isNextScheduleOverdue(false)) ? FontWeight.bold : null,
+            color: object is ScheduledTask
+              ? (object.isDueNow() || object.isNextScheduleOverdue(false) )
+                ? Colors.red
+                : object.getDueColor(context, lighter: true)
+              : Colors.black54, // event.color.accent,
+          );
+  }
+
+  _getEventBorder(bool isSelected, object, Color backgroundColor) => isSelected ? Border.all(color: Colors.black54) :  object is ScheduledTask ? _getBorderForScheduledTask(object, backgroundColor) : null;
+
+  Widget _customCellBuilder(
+      date, List<CalendarEventData<dynamic>> events, bool isToday, bool isInMonth) {
+
+    return FilledCell<dynamic>(
+      date: date,
+      shouldHighlight: isToday,
+      backgroundColor: isInMonth ? Color(0xffffffff) : Color(0xfff0f0f0),
+      events: events,
+      getEventWidget: (events, index) {
+        final event = events[index];
+        final isSelected = event == _selectedEvent;
+        final object = event.event;
+        final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
+        final taskGroup = _getTaskGroup(taskGroupId);
+        final backgroundColor = isSelected ? taskGroup?.softColor??event.color : event.color;
+        final icon = _getEventIcon(taskGroup);
+
+        return CustomPaint(
+          painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1)) : null,
+          child: Container(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(4.0),
+              border: _getEventBorder(isSelected, object, backgroundColor),
+            ),
+            margin: EdgeInsets.symmetric(
+                vertical: 2.0, horizontal: 3.0),
+            padding: const EdgeInsets.all(2.0),
+            alignment: Alignment.center,
+            child: Row(
+              children: [
+                if (icon != null)
+                  icon,
+                if (icon != null)
+                  Text(" "),
+                Expanded(
+                  child: Text(
+                    event.title,
+                    overflow: TextOverflow.clip,
+                    maxLines: 1,
+                    style: _getEventTextStyle(object),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      onTileTap: _customTileHandler,//widget.onEventTap,
+      //dateStringBuilder: widget.dateStringBuilder,
+    );
   }
 
   TaskGroup? _getTaskGroup(int? taskGroupId) {
