@@ -415,7 +415,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final icon = _getEventIcon(taskGroup);
     
     return CustomPaint(
-      painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1)) : null,
+      painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1), _calendarMode == CalendarMode.DAY ? 21 : 7) : null,
     
       child: RoundedEventTile(
         borderRadius: BorderRadius.circular(6.0),
@@ -476,7 +476,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
         final icon = _getEventIcon(taskGroup);
 
         return CustomPaint(
-          painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1)) : null,
+          painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1), 7) : null,
           child: Container(
             decoration: BoxDecoration(
               color: backgroundColor,
@@ -628,12 +628,13 @@ class _CalendarPageStatus extends State<CalendarPage> {
 class StripePainter extends CustomPainter {
   final Color color1;
   final Color color2;
+  final int stripeCount;
 
-  StripePainter(this.color1, this.color2);
+  StripePainter(this.color1, this.color2, this.stripeCount);
 
   @override
   void paint(Canvas canvas, Size size) {
-    DiagonalStripesThick(bgColor: color1, fgColor: color2, featuresCount: 11).paintOnWidget(canvas, size);
+    DiagonalStripesThick(bgColor: color1, fgColor: color2, featuresCount: stripeCount).paintOnWidget(canvas, size);
   }
 
   @override
