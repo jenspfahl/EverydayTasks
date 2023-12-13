@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -7,6 +9,7 @@ import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
+import 'package:personaltasklogger/ui/components/ScheduledTaskWidget.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
@@ -14,10 +17,12 @@ import '../../db/repository/ChronologicalPaging.dart';
 import '../../db/repository/TaskEventRepository.dart';
 import '../../db/repository/TemplateRepository.dart';
 import '../../model/When.dart';
+import '../../service/PreferenceService.dart';
 import '../PersonalTaskLoggerApp.dart';
 import '../PersonalTaskLoggerScaffold.dart';
 import '../components/TaskEventFilter.dart';
 import '../components/TaskEventWidget.dart';
+import 'ScheduledTaskList.dart';
 import 'TaskEventList.dart';
 
 
@@ -38,6 +43,8 @@ class CalendarPage extends StatefulWidget {
 
 enum EventType {EVENT, SCHEDULE, BOTH, NONE}
 enum CalendarMode {DAY, WEEK, MONTH}
+
+final scheduledTaskWidgetKey = GlobalKey<ScheduledTaskWidgetState>();
 
 class _CalendarPageStatus extends State<CalendarPage> {
 
@@ -68,6 +75,11 @@ class _CalendarPageStatus extends State<CalendarPage> {
 
   PersistentBottomSheetController? sheetController;
 
+  late Timer _timer;
+
+  bool _isNotificationsDisabled = false;
+
+
   @override
   void initState() {
     super.initState();
@@ -80,6 +92,30 @@ class _CalendarPageStatus extends State<CalendarPage> {
       _scrollToTime(DateTime.now());
     });
 
+    PreferenceService().getBool(PREF_DISABLE_NOTIFICATIONS).then((value) {
+      setState(() {
+        if (value != null) {
+          _isNotificationsDisabled = value;
+        }
+      });
+    });
+
+    _timer = Timer.periodic(Duration(seconds: 10), (timer) {
+      setState(() {
+        debugPrint(".. Calender refresh #${_timer.tick} ..");
+      });
+      scheduledTaskWidgetKey.currentState?.setState(() {
+        // force update time constraints
+        debugPrint(".. ST Widget refresh #${_timer.tick} ..");
+      });
+    });
+
+  }
+
+  @override
+  void deactivate() {
+    _timer.cancel();
+    super.deactivate();
   }
 
   void _scrollToTime(DateTime date) {
@@ -237,27 +273,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
 
 
     await Future.forEach(scheduledTasks, (ScheduledTask scheduledTask) async {
-      var duration = minCalendarDuration;
-
-      if (scheduledTask.templateId != null) {
-        final template = await TemplateRepository.findById(scheduledTask.templateId!);
-        if (template != null && template.when != null && template.when!.durationHours != null) {
-          duration = When.fromDurationHoursToDuration(template.when!.durationHours!, template.when!.durationExactly);
-        }
-        duration = duration.min(minCalendarDuration);
-      }
-
-      final event = CalendarEventData(
-        date: scheduledTask.getNextSchedule()!,
-        endDate: scheduledTask.getNextSchedule()!,
-        event: scheduledTask,
-        title: scheduledTask.translatedTitle,
-        description: scheduledTask.translatedDescription??"",
-        startTime: scheduledTask.getNextSchedule()!,
-        endTime: scheduledTask.getNextSchedule()!.add(duration),
-        color: TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId).backgroundColor,
-        titleStyle: TextStyle(color: Colors.black54),
-      );
+      final event = await _mapScheduledTaskToCalendarEventData(scheduledTask);
 
       _scheduledTasks.add(event);
     });
@@ -266,6 +282,31 @@ class _CalendarPageStatus extends State<CalendarPage> {
         .toList();
 
     return true;
+  }
+
+  Future<CalendarEventData<ScheduledTask>> _mapScheduledTaskToCalendarEventData(ScheduledTask scheduledTask) async {
+    var duration = minCalendarDuration;
+    
+    if (scheduledTask.templateId != null) {
+      final template = await TemplateRepository.findById(scheduledTask.templateId!);
+      if (template != null && template.when != null && template.when!.durationHours != null) {
+        duration = When.fromDurationHoursToDuration(template.when!.durationHours!, template.when!.durationExactly);
+      }
+      duration = duration.min(minCalendarDuration);
+    }
+    
+    final event = CalendarEventData(
+      date: scheduledTask.getNextSchedule()!,
+      endDate: scheduledTask.getNextSchedule()!,
+      event: scheduledTask,
+      title: scheduledTask.translatedTitle,
+      description: scheduledTask.translatedDescription??"",
+      startTime: scheduledTask.getNextSchedule()!,
+      endTime: scheduledTask.getNextSchedule()!.add(duration),
+      color: TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId).backgroundColor,
+      titleStyle: TextStyle(color: Colors.black54),
+    );
+    return event;
   }
 
   CalendarEventData<TaskEvent> _mapTaskEventToCalendarEventData(TaskEvent taskEvent) {
@@ -326,7 +367,6 @@ class _CalendarPageStatus extends State<CalendarPage> {
     String? title;
     if (event is TaskEvent) {
       title = event.translatedTitle;
-
       return GestureDetector(
         onLongPress: () {
           sheetController?.close();
@@ -339,8 +379,10 @@ class _CalendarPageStatus extends State<CalendarPage> {
           isInitiallyExpanded: false,
           onTaskEventChanged: (changedTaskEvent) {
             _taskEvents.removeWhere((event) => event.event == changedTaskEvent);
-            _taskEvents.add(_mapTaskEventToCalendarEventData(changedTaskEvent));
+            final updatedEvent = _mapTaskEventToCalendarEventData(changedTaskEvent);
+            _taskEvents.add(updatedEvent);
             _refreshModel();
+            setState(() => _selectedEvent = updatedEvent);
           },
           onTaskEventDeleted: (deletedTaskEvent) {
             debugPrint("try remove task event id ${deletedTaskEvent.id}");
@@ -355,19 +397,39 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
     else if (event is ScheduledTask) {
       title = event.translatedTitle;
+      return GestureDetector(
+        onLongPress: () {
+          sheetController?.close();
+          Navigator.pop(context);
+          if (appScaffoldKey.currentState != null) {
+            appScaffoldKey.currentState!.sendEventFromClicked(SCHEDULED_TASK_LIST_ROUTING_KEY, false, event.id.toString(), null);
+          }
+        },
+        child: ScheduledTaskWidget(event,
+          key: scheduledTaskWidgetKey,
+          isInitiallyExpanded: false,
+          onScheduledTaskChanged: (changedScheduledTask) async {
+            _scheduledTasks.removeWhere((event) => event.event?.id == changedScheduledTask.id);
+            final updatedEvent = await _mapScheduledTaskToCalendarEventData(changedScheduledTask);
+            _scheduledTasks.add(updatedEvent);
+            _refreshModel();  //TODO find a mor lightweight way
+            setState(() => _selectedEvent = updatedEvent);
+          },
+          onScheduledTaskDeleted: (deletedScheduledTask) {
+            _scheduledTasks.removeWhere((event) => event.event!.id == deletedScheduledTask.id);
+            _unselectEvent();
+            _refreshModel();
+          },
+          pagesHolder: widget.pagesHolder,
+          selectInListWhenChanged: false,
+          isNotificationsEnabled: () {
+            return !_isNotificationsDisabled;
+          },
+        ),
+      );
     }
-    final presentation = taskGroup?.getTaskGroupRepresentation(useIconColor: true);
 
-    return Container(
-      height: 50,
-      child: Column(
-        children: [
-          if (presentation != null)
-            presentation,
-          Text(" ${title}"),
-        ],
-      ),
-    );
+    return Container();
   }
 
   TaskGroup? _getTaskGroupFromEvent(event) {
@@ -618,7 +680,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
   }
 
   _getBorderForScheduledTask(ScheduledTask scheduledTask, Color defaultColor) {
-    Color color = scheduledTask.getDueBackgroundColor(context) ?? defaultColor;
+    Color color = (scheduledTask.isDueNow() || scheduledTask.isNextScheduleOverdue(false) ? Colors.red : scheduledTask.getDueBackgroundColor(context)) ?? defaultColor;
     return Border.all(color: color);
   }
 

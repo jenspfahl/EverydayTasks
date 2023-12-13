@@ -269,7 +269,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       ScheduledTaskRepository.update(scheduledTask).then((
           changedScheduledTask) {
         debugPrint("schedule ${changedScheduledTask.id} notified: ${changedScheduledTask.lastScheduledEventOn}");
-        widget._pagesHolder.scheduledTaskList?.getGlobalKey().currentState?.updateScheduledTask(changedScheduledTask);
+        widget._pagesHolder.scheduledTaskList?.getGlobalKey().currentState?.updateScheduledTaskFromEvent(changedScheduledTask);
     
         final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(taskEvent, changedScheduledTask);
         ScheduledTaskEventRepository.insert(scheduledTaskEvent).then((value) => debugPrint(value.toString()));
@@ -440,7 +440,6 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       subtitle: Visibility(
         visible: !_hiddenTiles.contains(taskEventDate),
         child: TaskEventWidget(taskEvent,
-          //key: ValueKey<int>(_selectedTile),
           isInitiallyExpanded: isExpanded,
           shouldExpand: () => index == _selectedTile,
           onExpansionChanged: ((expanded) {

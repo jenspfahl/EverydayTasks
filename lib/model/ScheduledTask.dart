@@ -220,4 +220,30 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
         : isDarkMode(context) ? Colors.red[800] : Colors.red[300])
         : null;
 
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScheduledTask &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  void apply(ScheduledTask other) {
+    assert (id == other.id);
+    title = other.title;
+    description = other.description;
+    taskGroupId = other.taskGroupId;
+    templateId = other.templateId;
+    active = other.active;
+    pausedAt = other.pausedAt;
+    schedule = other.schedule;
+    lastScheduledEventOn = other.lastScheduledEventOn;
+    reminderNotificationEnabled = other.reminderNotificationEnabled;
+    reminderNotificationRepetition = other.reminderNotificationRepetition;
+
+  }
+
 }

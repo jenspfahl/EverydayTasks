@@ -1,11 +1,9 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_translate/flutter_translate.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
@@ -27,11 +25,10 @@ import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
 import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
-import 'package:personaltasklogger/util/extensions.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
 import '../../util/units.dart';
-import '../PersonalTaskLoggerApp.dart';
+import '../components/ScheduledTaskWidget.dart';
 import '../components/ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
@@ -46,6 +43,7 @@ final String PREF_PIN_SCHEDULES = "scheduledTasks/pinPage";
 
 final pinSchedulesPageIconKey = new GlobalKey<ToggleActionIconState>();
 final disableNotificationIconKey = new GlobalKey<ToggleActionIconState>();
+final SCHEDULED_TASK_LIST_ROUTING_KEY = "ScheduledTasks";
 
 @immutable
 class ScheduledTaskList extends PageScaffold<ScheduledTaskListState> {
@@ -74,7 +72,7 @@ class ScheduledTaskList extends PageScaffold<ScheduledTaskListState> {
 
   @override
   String getRoutingKey() {
-    return "ScheduledTasks";
+    return SCHEDULED_TASK_LIST_ROUTING_KEY;
   }
 }
 
@@ -355,7 +353,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     super.deactivate();
   }
 
-  void updateScheduledTask(ScheduledTask scheduledTask) {
+  void updateScheduledTaskFromEvent(ScheduledTask scheduledTask) {
     debugPrint("received scheduledTaskId:" + scheduledTask.id.toString());
     setState(() {
       final found = _scheduledTasks.firstWhereOrNull((element) => element.id == scheduledTask.id);
@@ -512,7 +510,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         if (clickedScheduledTask != null) {
           _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
           if (actionId == "track") {
-            _openAddJournalEntryFromSchedule(clickedScheduledTask);
+            openAddJournalEntryFromSchedule(clickedScheduledTask);
           }
         }
       }
@@ -520,454 +518,28 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
-    final expansionWidgets = _createExpansionWidgets(scheduledTask);
     final isExpanded = index == _selectedTile;
     if (_hideInactive && !scheduledTask.active) {
       return Container();
     }
     return Padding(
         padding: EdgeInsets.all(4.0),
-        child: Card(
-          clipBehavior: Clip.antiAlias,
-          child: ExpansionTile( //better use ExpansionPanel?
-            key: GlobalKey(),
-            // this makes updating all tiles if state changed
-            title: isExpanded
-                ? Text(kReleaseMode ? scheduledTask.translatedTitle : "${scheduledTask.translatedTitle} (id=${scheduledTask.id})")
-                : Row(
-              children: [
-                taskGroup.getIcon(true),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),
-                  child: Text(truncate(kReleaseMode ? scheduledTask.translatedTitle : "${scheduledTask.translatedTitle} (id=${scheduledTask.id})", length: 30)),
-                )
-              ],
-            ),
-            subtitle: Column(
-              children: [
-                isExpanded ? taskGroup.getTaskGroupRepresentation(useIconColor: true) : _buildShortProgressText(scheduledTask),
-                Visibility(
-                  visible: scheduledTask.active,
-                  child: Opacity(
-                    opacity: scheduledTask.isPaused ? 0.3 : 1,
-                    child: LinearProgressIndicator(
-                      value: scheduledTask.isNextScheduleOverdue(true) ? null : scheduledTask.getNextRepetitionIndicatorValue(),
-                      color: scheduledTask.isNextScheduleOverdue(false)
-                          ? Colors.red[500]
-                          : (scheduledTask.isNextScheduleReached()
-                            ? scheduledTask.getDueColor(context, lighter: false)
-                            : null),
-                      backgroundColor: scheduledTask.getDueBackgroundColor(context),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            children: expansionWidgets,
-            collapsedBackgroundColor: taskGroup.backgroundColor,
-            backgroundColor: taskGroup.softColor,
-            textColor: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR,
-            initiallyExpanded: isExpanded,
-            onExpansionChanged: ((expanded) {
-              setState(() {
-                _selectedTile = expanded ? index : -1;
-              });
-            }),
-          )
+        child: ScheduledTaskWidget(scheduledTask,
+          isInitiallyExpanded: isExpanded,
+          shouldExpand: () => index == _selectedTile,
+          onExpansionChanged: ((expanded) {
+            setState(() {
+              _selectedTile = expanded ? index : -1;
+            });
+          }),
+          pagesHolder: widget._pagesHolder,
+          selectInListWhenChanged: true,
+          isNotificationsEnabled: () => !_disableNotification,
         ),
     );
   }
 
-  List<Widget> _createExpansionWidgets(ScheduledTask scheduledTask) {
-    var expansionWidgets = <Widget>[];
-
-    if (scheduledTask.translatedDescription != null && scheduledTask.translatedDescription!.isNotEmpty) {
-      expansionWidgets.add(Padding(
-        padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16),
-        child: Text(scheduledTask.translatedDescription!),
-      ));
-    }
-
-    List<Widget> content = [];
-    if (!scheduledTask.active || scheduledTask.lastScheduledEventOn == null) {
-      content.add(Text("- ${translate('pages.schedules.overview.inactive')} -"));
-    }
-    else if (scheduledTask.isPaused) {
-      content.add(Text("- ${translate('pages.schedules.overview.paused')} -"));
-    }
-    else {
-      content.add(
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: scheduledTask.isNextScheduleOverdue(true) || scheduledTask.isDueNow()
-                    ? Icon(Icons.warning_amber_outlined, color: scheduledTask.isDueNow()
-                      ? scheduledTask.getDueColor(context, lighter: true)
-                      : Colors.red)
-                    : Icon(Icons.watch_later_outlined,
-                    color: _getIconColorForMode()), // in TaskEventList, the icons are not black without setting the color, donät know why ...
-              ),
-              Text(_getDueMessage(scheduledTask), softWrap: true),
-            ]
-          )
-      );
-      content.add(const Text(""));
-      content.add(
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Icon(MdiIcons.arrowExpandRight,
-                    color: _getIconColorForMode()),
-              ),
-              Text(_getScheduledMessage(scheduledTask)),
-            ]
-          )
-      );
-      content.add(const Text(""));
-      content.add(
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Icon(Icons.next_plan_outlined,
-                    color: _getIconColorForMode()),
-              ),
-              Text(scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
-                  ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
-                  : Schedule.fromCustomRepetitionToString(scheduledTask.schedule.customRepetition)),
-            ]
-          ),
-      );
-      if (scheduledTask.active && !scheduledTask.isPaused && scheduledTask.reminderNotificationEnabled == true && !_disableNotification) {
-
-        if (scheduledTask.isNextScheduleOverdue(false) || scheduledTask.isDueNow()) {
-          content.add(const Text(""));
-          content.add(
-            Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Icon(Icons.notifications_active_outlined,
-                        color: _getIconColorForMode()),
-                  ),
-                  Flexible(
-                    child: Wrap(
-                      direction: Axis.horizontal,
-                      children: [
-                        Text(translate('pages.schedules.overview.reminder_passed') + "   "),
-                        Padding(
-                          padding: const EdgeInsets.all(0),
-                          child: GestureDetector(
-                            child: Text(translate('pages.schedules.overview.remind_again').capitalize(),
-                              style: TextStyle(color: BUTTON_COLOR, fontWeight: FontWeight.w500),
-                            ),
-                            onTap: () {
-                              final taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
-                              final remindIn = scheduledTask.reminderNotificationRepetition??CustomRepetition(1, RepetitionUnit.HOURS);
-
-                              _schedule(scheduledTask.id!, scheduledTask, taskGroup,
-                                  remindIn.toDuration(),
-                                  scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED, false);
-                              toastInfo(context, translate('pages.schedules.overview.remind_again_successful',
-                                  args: {"when": Schedule.fromCustomRepetitionToUnit(remindIn, usedClause(context, Clause.dative))}));
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ]
-            ),
-          );
-        }
-        else {
-          content.add(const Text(""));
-          content.add(
-            Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Icon(Icons.notifications_none,
-                        color: _getIconColorForMode()),
-                  ),
-                  Text(translate('pages.schedules.overview.reminder_activated')),
-                ]
-            ),
-          );
-        }
-
-      }
-    }
-
-    expansionWidgets.addAll([
-      Padding(
-        padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: content,
-        ),
-      ),
-      Divider(),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Visibility(
-            visible: scheduledTask.active,
-            child: ButtonBar(
-              alignment: MainAxisAlignment.start,
-              buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
-              children: [
-                SizedBox(
-                  width: 50,
-                  child: TextButton(
-                    child: Icon(Icons.check,
-                        color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-                    onPressed: () async {
-                      if (scheduledTask.isPaused) {
-                        toastError(context, translate('pages.schedules.errors.cannot_resume'));
-                        return;
-                      }
-                      await _openAddJournalEntryFromSchedule(scheduledTask);
-                    },
-                  ),
-                ),
-                SizedBox(
-                  width: 50,
-                  child: TextButton(
-                    child: Icon(Icons.replay,
-                        color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-                    onPressed: () {
-                      if (scheduledTask.isPaused) {
-                        toastError(context, translate('pages.schedules.errors.cannot_reset'));
-                        return;
-                      }
-                      final newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
-                      final actualNextDueDate = scheduledTask.getNextSchedule();
-                      var nextDueDateAsString = formatToDateOrWord(newNextDueDate!, context,
-                          withPreposition: true,
-                          makeWhenOnLowerCase: true);
-                      var message = (newNextDueDate != actualNextDueDate)
-                          ? translate('pages.schedules.action.reset.message_then', args: {
-                              "title": scheduledTask.translatedTitle,
-                              "nextDueDate": nextDueDateAsString,
-                              "newNextDueDate": formatToTime(newNextDueDate)
-                          })
-                          : translate('pages.schedules.action.reset.message_still', args: {
-                              "title": scheduledTask.translatedTitle,
-                              "nextDueDate": nextDueDateAsString,
-                              "newNextDueDate": formatToTime(newNextDueDate)
-                          });
-                      showConfirmationDialog(
-                        context,
-                          translate('pages.schedules.action.reset.title'),
-                        message,
-                        icon: const Icon(Icons.replay),
-                        okPressed: () {
-                          scheduledTask.executeSchedule(null);
-                          ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-                            _cancelSnoozedNotification(scheduledTask);
-                            _updateScheduledTask(scheduledTask, changedScheduledTask);
-
-                            toastInfo(context, translate('pages.schedules.action.reset.success',
-                                args: {"title": changedScheduledTask.translatedTitle}));
-                          });
-                          Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
-
-                          DueScheduleCountService().dec();
-                        },
-                        cancelPressed: () =>
-                            Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
-                        neutralButton: TextButton(
-                          child: Text(translate('common.words.custom').capitalize() + "..."),
-                          onPressed:  () {
-                            showTweakedDatePicker(
-                              context,
-                              helpText: translate('pages.schedules.action.reset.title_custom',
-                                  args: {"title": scheduledTask.translatedTitle}),
-                              initialDate: newNextDueDate,
-                            ).then((selectedDate) {
-                              if (selectedDate != null) {
-                                scheduledTask.setNextSchedule(selectedDate);
-                                ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-                                  _cancelSnoozedNotification(scheduledTask);
-                                  _updateScheduledTask(scheduledTask, changedScheduledTask);
-
-                                  toastInfo(context, translate('pages.schedules.action.reset.success_custom',
-                                      args: {"title": changedScheduledTask.translatedTitle}));
-                                });                                Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
-                              }
-                              else {
-                                Navigator.pop(context);
-                              }
-                            });
-                          }),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ButtonBar(
-            alignment: scheduledTask.active ? MainAxisAlignment.center : MainAxisAlignment.start,
-            buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
-            children: [
-              Visibility(
-                visible: scheduledTask.active,
-                child: SizedBox(
-                  width: 50,
-                  child: TextButton(
-                      child: Icon(scheduledTask.isPaused ? Icons.play_arrow : Icons.pause,
-                          color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-                      onPressed: () {
-                        if (scheduledTask.isPaused) {
-                          scheduledTask.resume();
-                          DueScheduleCountService().incIfDue(scheduledTask);
-                        }
-                        else {
-                          scheduledTask.pause();
-                          DueScheduleCountService().decIfDue(scheduledTask);
-                        }
-                        ScheduledTaskRepository.update(scheduledTask)
-                            .then((changedScheduledTask) {
-                          _cancelSnoozedNotification(scheduledTask);
-                          _updateScheduledTask(scheduledTask, changedScheduledTask);
-
-                          var msg = changedScheduledTask.isPaused
-                              ? translate('pages.schedules.action.pause_resume.paused',
-                                  args: {"title": changedScheduledTask.translatedTitle})
-                              : translate('pages.schedules.action.pause_resume.resumed',
-                                  args: {"title": changedScheduledTask.translatedTitle});
-                          toastInfo(context, msg);
-                        });
-                      }
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 50,
-                child: TextButton(
-                  child: Icon(Icons.checklist,
-                      color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-                  onPressed: () {
-                    ScheduledTaskEventRepository
-                        .getByScheduledTaskIdPaged(scheduledTask.id, ChronologicalPaging.start(10000))
-                        .then((scheduledTaskEvents) {
-                      if (scheduledTaskEvents.isNotEmpty) {
-                        PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-                        if (root != null) {
-                          final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
-                          if (taskEventListState != null) {
-                            taskEventListState.filterByTaskEventIds(
-                                scheduledTask,
-                                scheduledTaskEvents.map((e) => e.taskEventId)
-                            );
-                            root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, "noop", null);
-                          }
-                        }
-                      }
-                      else {
-                        toastInfo(context, translate('pages.schedules.errors.no_journal_entries'), forceShow: true);
-                      }
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-          ButtonBar(
-            alignment: MainAxisAlignment.end,
-            buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
-            children: [
-              SizedBox(
-                width: 50,
-                child: TextButton(
-                  onPressed: () async {
-                    if (scheduledTask.isPaused) {
-                      toastError(context, translate('pages.schedules.errors.cannot_change_paused'));
-                      return;
-                    }
-                    ScheduledTask? changedScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return ScheduledTaskForm(
-                          formTitle: translate('forms.schedule.change.title',
-                              args: {"title": scheduledTask.translatedTitle}),
-                          scheduledTask: scheduledTask,
-                          taskGroup: TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId),
-                      );
-                    }));
-
-                    if (changedScheduledTask != null) {
-                      ScheduledTaskRepository.update(changedScheduledTask).then((changedScheduledTask) {
-                        _cancelSnoozedNotification(changedScheduledTask);
-                        _updateScheduledTask(scheduledTask, changedScheduledTask);
-
-                        toastInfo(context, translate('forms.schedule.change.success',
-                            args: {"title": changedScheduledTask.translatedTitle}));
-
-                        DueScheduleCountService().gather();
-                      });
-                    }
-                  },
-                  child: Icon(Icons.edit,
-                      color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-                ),
-              ),
-              SizedBox(
-                width: 50,
-                child: TextButton(
-                  onPressed: () {
-                    showConfirmationDialog(
-                      context,
-                      translate('pages.schedules.action.deletion.title'),
-                      translate('pages.schedules.action.deletion.message',
-                          args: {"title": scheduledTask.translatedTitle}),
-                      icon: const Icon(Icons.warning_amber_outlined),
-                      okPressed: () {
-                        ScheduledTaskRepository.delete(scheduledTask).then(
-                              (_) {
-                                ScheduledTaskEventRepository
-                                    .getByScheduledTaskIdPaged(scheduledTask.id!, ChronologicalPaging.start(10000))
-                                    .then((scheduledTaskEvents) {
-                                  scheduledTaskEvents.forEach((scheduledTaskEvent) {
-                                    ScheduledTaskEventRepository.delete(scheduledTaskEvent);
-                                  });
-                                });
-
-                                toastInfo(context, translate('pages.schedules.action.deletion.success',
-                                    args: {"title": scheduledTask.translatedTitle}));
-                              _removeScheduledTask(scheduledTask);
-
-                              DueScheduleCountService().decIfDue(scheduledTask);
-                          },
-                        );
-                        Navigator.pop(context); // dismiss dialog, should be moved in Dialogs.dart somehow
-                      },
-                      cancelPressed: () =>
-                          Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
-                    );
-                  },
-                  child: Icon(Icons.delete,
-                      color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ]);
-    return expansionWidgets;
-  }
-
-  Color _getIconColorForMode() => isDarkMode(context) ? Colors.white : Colors.black45;
-
-  Future<void> _openAddJournalEntryFromSchedule(ScheduledTask scheduledTask) async {
+  Future<void> openAddJournalEntryFromSchedule(ScheduledTask scheduledTask) async {
     final templateId = scheduledTask.templateId;
     Template? template;
     if (templateId != null) {
@@ -1005,8 +577,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     
         scheduledTask.executeSchedule(newTaskEvent);
         ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-          _cancelSnoozedNotification(scheduledTask);
-          _updateScheduledTask(scheduledTask, changedScheduledTask);
+          cancelSnoozedNotification(scheduledTask);
+          updateScheduledTask(scheduledTask, changedScheduledTask);
 
           DueScheduleCountService().dec();
         });
@@ -1026,49 +598,8 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     }
   }
 
-  void _cancelSnoozedNotification(ScheduledTask scheduledTask) {
+  void cancelSnoozedNotification(ScheduledTask scheduledTask) {
     _notificationService.cancelNotification(scheduledTask.id! + LocalNotificationService.RESCHEDULED_IDS_RANGE);
-  }
-
-  String _getDueMessage(ScheduledTask scheduledTask) {
-    final nextSchedule = scheduledTask.getNextSchedule()!;
-
-    if (scheduledTask.isNextScheduleOverdue(false)) {
-      final dueString = scheduledTask.isNextScheduleOverdue(true)
-          ? translate('pages.schedules.overview.overdue').capitalize()
-          : translate('pages.schedules.overview.due').capitalize();
-      return "$dueString ${translate('common.words.for_for_times')} ${formatDuration(scheduledTask.getMissingDuration()!,
-          true, usedClause(context, Clause.dative))} "
-              "\n"
-              "(${formatToDateOrWord(
-              scheduledTask.getNextSchedule()!, context, withPreposition: true,
-              makeWhenOnLowerCase: true)})!";
-
-    }
-    else if (scheduledTask.isDueNow()) {
-      return translate('pages.schedules.overview.due_now').capitalize() + "!";
-    }
-    else {
-      return "${translate('pages.schedules.overview.due').capitalize()} ${translate('common.words.in_for_times')} ${formatDuration(scheduledTask.getMissingDuration()!,
-          true, usedClause(context, Clause.dative))} "
-              "\n"
-              "(${formatToDateOrWord(nextSchedule, context, withPreposition: true,
-              makeWhenOnLowerCase: true)} "
-              "${scheduledTask.schedule.toStartAtAsString().toLowerCase()})";
-    }
-  }
-
-  String _getScheduledMessage(ScheduledTask scheduledTask) {
-    final passedDuration = scheduledTask.getPassedDuration();
-    var passedString = "";
-    if (passedDuration != null) {
-      passedString = passedDuration.isNegative
-          ? "${translate('common.words.in_for_times')} " + formatDuration(passedDuration, true, usedClause(context, Clause.dative))
-          : translate('common.words.ago_for_times', args: {"when": formatDuration(passedDuration.abs(), true, usedClause(context, Clause.dative))});
-    }
-    return "${translate('pages.schedules.overview.scheduled').capitalize()} $passedString "
-        "\n"
-        "(${formatToDateOrWord(scheduledTask.lastScheduledEventOn!, context, withPreposition: true, makeWhenOnLowerCase: true)})";
   }
 
   void _addScheduledTask(ScheduledTask scheduledTask) {
@@ -1082,7 +613,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   }
 
-  void _updateScheduledTask(ScheduledTask origin, ScheduledTask updated) {
+  void updateScheduledTask(ScheduledTask origin, ScheduledTask updated) {
     setState(() {
       final index = _scheduledTasks.indexOf(origin);
       if (index != -1) {
@@ -1166,7 +697,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     return c;
   }
 
-  void _removeScheduledTask(ScheduledTask scheduledTask) {
+  void removeScheduledTask(ScheduledTask scheduledTask) {
     setState(() {
       _scheduledTasks.remove(scheduledTask);
       _selectedTile = -1;
@@ -1257,17 +788,17 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       forFixedNotificationIds(scheduledTask.id!, (notificationId, isLast) {
         final nextMissingDuration = scheduledTask.getMissingDurationAfter(lastScheduled);
         debugPrint("schedule $notificationId, lastScheduled $lastScheduled nextMissingDuration $nextMissingDuration isLast $isLast");
-        _schedule(notificationId, scheduledTask, taskGroup, nextMissingDuration, true, isLast);
+        scheduleNotification(notificationId, scheduledTask, taskGroup, nextMissingDuration, true, isLast);
 
         lastScheduled = scheduledTask.getNextScheduleAfter(lastScheduled)!;
       });
     }
     else {
-      _schedule(scheduledTask.id!, scheduledTask, taskGroup, missingDuration, false, false);
+      scheduleNotification(scheduledTask.id!, scheduledTask, taskGroup, missingDuration, false, false);
     }
   }
 
-  void _schedule(int id, ScheduledTask scheduledTask, TaskGroup taskGroup, Duration missingDuration, bool isFixed, bool isLast) {
+  void scheduleNotification(int id, ScheduledTask scheduledTask, TaskGroup taskGroup, Duration missingDuration, bool isFixed, bool isLast) {
     var titleKey = isFixed
             ? translate('pages.schedules.notification.title_fixed_task')
             : translate('pages.schedules.notification.title_normal_task');
@@ -1313,7 +844,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       });
     }
 
-    _cancelSnoozedNotification(scheduledTask);
+    cancelSnoozedNotification(scheduledTask);
 
   }
 
@@ -1403,35 +934,6 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       });
     });
   }
-
-  Widget _buildShortProgressText(ScheduledTask scheduledTask) {
-    String text = "";
-    if (!scheduledTask.active || scheduledTask.lastScheduledEventOn == null) {
-      text = "- ${translate('pages.schedules.overview.inactive')} -";
-    }
-    else if (scheduledTask.isPaused) {
-      text = "- ${translate('pages.schedules.overview.paused')} -";
-    }
-    else {
-      if (scheduledTask.isNextScheduleOverdue(false)) {
-        text = scheduledTask.isNextScheduleOverdue(true)
-            ? "${translate('pages.schedules.overview.overdue').capitalize()}!"
-            : "${translate('pages.schedules.overview.due').capitalize()}!";
-      }
-      else if (scheduledTask.isDueNow()) {
-        text ="${translate('pages.schedules.overview.due_now').capitalize()}!";
-      }
-      else {
-        text = "${translate('common.words.in_for_times')} ${formatDuration(scheduledTask.getMissingDuration()!,
-            true, usedClause(context, Clause.dative))}";
-      }
-    }
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(text, style: TextStyle(fontSize: 10)),
-    );
-  }
-
 
   void _updatePinSchedulesPage(bool value, {required bool withSnackMsg}) {
     setState(() {
