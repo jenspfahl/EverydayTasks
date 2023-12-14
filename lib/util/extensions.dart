@@ -45,6 +45,7 @@ extension ListExtension<E> on List<E> {
 
 extension TimeOfDayExtension on TimeOfDay {
   double toDouble() => this.hour + this.minute/60.0;
+  int toMinutes() => this.hour * 60 + this.minute;
 }
 
 extension DateTimeExtension on DateTime {

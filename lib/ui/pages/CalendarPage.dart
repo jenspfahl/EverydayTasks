@@ -287,19 +287,29 @@ class _CalendarPageStatus extends State<CalendarPage> {
           headerStringBuilder: _headerWeekBuilder,
           weekDayBuilder: (date) {
             final isToday = date.day == DateTime.now().day;
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(date.getWeekdayName().characters.first.toUpperCase(),
-                    style: _getTextStyleForToday(isToday)),
-                  Text(date.day.toString(),
+            return GestureDetector(
+                onLongPress: () => _onDateLongPress(
+                  DateTime(
+                    date.year,
+                    date.month,
+                    date.day,
+                  ),
+                ),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(date.getWeekdayName().characters.first.toUpperCase(),
                       style: _getTextStyleForToday(isToday)),
-                ],
+                    Text(date.day.toString(),
+                        style: _getTextStyleForToday(isToday)),
+                  ],
+                ),
               ),
             );
           },
+          onDateLongPress: _onDateLongPress,
       ),
       onNotification: (notification) {
         final scrollController = calendarWeekKey.currentState?.scrollController;
@@ -327,21 +337,22 @@ class _CalendarPageStatus extends State<CalendarPage> {
       cellAspectRatio: 1/(_scaleFactor * 1.8),
       weekDayStringBuilder: (day) => getWeekdayOf((day + 1) % 7, context).characters.first.toUpperCase(),
       headerStringBuilder: _headerMonthBuilder,
-      onDateLongPress: (date) async {
-        debugPrint("date=$date");
-        await _jumpToDateTime(date); //TODO scroll to now time of this date DOESNT JUMP TO GIVEN DATE!!
-
-        setState(() {
-          _calendarMode = CalendarMode.DAY; //TODO
-        });
-      },
+      onDateLongPress: _onDateLongPress,
     );
+  }
+
+  Future<void> _onDateLongPress(DateTime date) async {
+    setState(() {
+      _updateCalendarMode(CalendarMode.DAY);
+    });
+    await Future.delayed(Duration(milliseconds: 50)); // this is a hack to not cancel the first scrolling by the next
+    await _jumpToDateTime(date.add(Duration(minutes: TimeOfDay.now().toMinutes())));
   }
   
   TextStyle _getTextStyleForToday(bool isToday) {
     return TextStyle(
       fontSize: isToday ? 18 : null,
-      color: isToday ? BUTTON_COLOR : null,
+     // color: isToday ? Colors.black : null,
       fontWeight: isToday ? FontWeight.bold : null,
     );
   }
@@ -767,13 +778,17 @@ class _CalendarPageStatus extends State<CalendarPage> {
       ],
       isSelected: _calendarModeSelection,
       onPressed: (int index) {
-        setState(() {
-          _calendarModeSelection[_calendarMode.index] = false;
-          _calendarModeSelection[index] = true;
-          _calendarMode = CalendarMode.values.elementAt(index);
-        });
+        _updateCalendarMode(CalendarMode.values.elementAt(index));
       },
     );
+  }
+
+  void _updateCalendarMode(CalendarMode mode) {
+    setState(() {
+      _calendarModeSelection[_calendarMode.index] = false;
+      _calendarModeSelection[mode.index] = true;
+      _calendarMode = mode;
+    });
   }
 
   _getBorderForScheduledTask(ScheduledTask scheduledTask, Color defaultColor) {
