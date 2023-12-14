@@ -106,6 +106,34 @@ class _CalendarPageStatus extends State<CalendarPage> {
       });
     });
 
+    PreferenceService().getInt(PreferenceService.DATA_CURRENT_CALENDAR_MODE).then((value) {
+      if (value != null) {
+        _updateCalendarMode(CalendarMode.values[value]);
+        _refreshModel();
+      }
+    });
+    PreferenceService().getInt(PreferenceService.DATA_CURRENT_EVENT_TYPE).then((value) {
+      if (value != null) {
+        setState(() {
+          _eventType = EventType.values[value];
+          if (_eventType == EventType.EVENT) {
+            _eventTypeSelection = [true, false];
+          }
+          else if (_eventType == EventType.SCHEDULE) {
+            _eventTypeSelection = [false, true];
+          }
+          else if (_eventType == EventType.BOTH) {
+            _eventTypeSelection = [true, true];
+          }
+          else {
+            _eventTypeSelection = [true, true]; //
+          }
+
+        });
+        _refreshModel();
+      }
+    });
+
     _timer = Timer.periodic(Duration(seconds: 10), (timer) {
       setState(() {
         debugPrint(".. Calender refresh #${_timer.tick} ..");
@@ -342,9 +370,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
   }
 
   Future<void> _onDateLongPress(DateTime date) async {
-    setState(() {
-      _updateCalendarMode(CalendarMode.DAY);
-    });
+    _updateCalendarMode(CalendarMode.DAY);
     await Future.delayed(Duration(milliseconds: 50)); // this is a hack to not cancel the first scrolling by the next
     await _jumpToDateTime(date.add(Duration(minutes: TimeOfDay.now().toMinutes())));
   }
@@ -730,12 +756,21 @@ class _CalendarPageStatus extends State<CalendarPage> {
           else {
             _eventType = EventType.NONE;
           }
-
-          _refreshModel();
         });
+        PreferenceService().setInt(PreferenceService.DATA_CURRENT_EVENT_TYPE, _eventType.index);
+        _refreshModel();
         _unselectEvent();
       },
     );
+  }
+
+  void _updateCalendarMode(CalendarMode mode) {
+    setState(() {
+      _calendarModeSelection[_calendarMode.index] = false;
+      _calendarModeSelection[mode.index] = true;
+      _calendarMode = mode;
+    });
+    PreferenceService().setInt(PreferenceService.DATA_CURRENT_CALENDAR_MODE, mode.index);
   }
 
 
@@ -781,14 +816,6 @@ class _CalendarPageStatus extends State<CalendarPage> {
         _updateCalendarMode(CalendarMode.values.elementAt(index));
       },
     );
-  }
-
-  void _updateCalendarMode(CalendarMode mode) {
-    setState(() {
-      _calendarModeSelection[_calendarMode.index] = false;
-      _calendarModeSelection[mode.index] = true;
-      _calendarMode = mode;
-    });
   }
 
   _getBorderForScheduledTask(ScheduledTask scheduledTask, Color defaultColor) {

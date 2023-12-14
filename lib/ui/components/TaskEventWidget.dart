@@ -87,8 +87,6 @@ class TaskEventWidgetState extends State<TaskEventWidget> {
     final taskGroup = TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!);
     final expansionWidgets = _createExpansionWidgets(taskEvent);
 
-    debugPrint("build TaskEventWidget for ${taskEvent.id}");
-
     return Card(
       clipBehavior: Clip.antiAlias,
       child: ExpansionTile(

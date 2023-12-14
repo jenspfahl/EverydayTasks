@@ -397,8 +397,6 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
     final isExpanded = index == _selectedTile;
 
-    debugPrint("rebuild widget for index = $index");
-
     final listTile = ListTile(
       dense: true,
       visualDensity: VisualDensity(horizontal: 0, vertical: -4),
