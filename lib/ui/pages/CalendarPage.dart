@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:intl/date_symbol_data_file.dart';
+import 'package:intl/intl.dart';
 import 'package:patterns_canvas/patterns_canvas.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
@@ -18,6 +20,8 @@ import '../../db/repository/TaskEventRepository.dart';
 import '../../db/repository/TemplateRepository.dart';
 import '../../model/When.dart';
 import '../../service/PreferenceService.dart';
+import '../../util/dates.dart';
+import '../../util/i18n.dart';
 import '../PersonalTaskLoggerApp.dart';
 import '../PersonalTaskLoggerScaffold.dart';
 import '../components/TaskEventFilter.dart';
@@ -56,6 +60,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
   final calendarWeekKey = GlobalKey<WeekViewState>();
   final calendarMonthKey = GlobalKey<MonthViewState>();
   final calendarController = EventController<dynamic>();
+
+  double dayAndWeekViewScrollPixels = 0;
 
   final taskFilterSettings = TaskFilterSettings();
 
@@ -147,19 +153,24 @@ class _CalendarPageStatus extends State<CalendarPage> {
 
           IconButton(
             icon: Icon(Icons.today),
-            onPressed: () {
+            onPressed: () async {
               var when = DateTime.now();
               if (_selectedEvent != null) {
                 when = _selectedEvent!.startTime ?? _selectedEvent!.date;
               }
-              _scrollToTime(when);
-              _jumpToDate(when);
+              await _jumpToDateTime(when);
             },
           ),
         ],
       ),
       body: _createBody(context),
     );
+  }
+
+  Future<void> _jumpToDateTime(DateTime when) async {
+    _jumpToDate(when);
+    await Future.delayed(Duration(milliseconds: 100)); // this is a hack to not cancel the first scrolling by the next
+    _scrollToTime(when);
   }
 
   void _refreshModel() {
@@ -219,43 +230,119 @@ class _CalendarPageStatus extends State<CalendarPage> {
                 Expanded(
                   flex: 20,
                   child: _calendarMode == CalendarMode.DAY
-                      ? DayView(
-                          onPageChange: (date, page) {
-                            _scrollToTime(now);
-                          },
-                          key: calendarDayKey,
-                          eventTileBuilder: _customEventTileBuilder,
-                          controller: calendarController,
-                          heightPerMinute: _scaleFactor,
-                          onEventTap: _customTabHandler,
-                        )
+                      ? _buildDayView()
                       : _calendarMode == CalendarMode.WEEK
-                        ? WeekView(
-                            onPageChange: (date, page) {
-                              _scrollToTime(now);
-                            },
-                            key: calendarWeekKey,
-                            eventTileBuilder: _customEventTileBuilder,
-                            controller: calendarController,
-                            heightPerMinute: _scaleFactor,
-                            onEventTap: _customTabHandler,
-                  )
-                        : MonthView(
-                            onPageChange: (date, page) {
-                              _scrollToTime(now);        ;
-                            },
-                            key: calendarMonthKey,
-                            cellBuilder: _customCellBuilder,
-                            controller: calendarController,
-                            cellAspectRatio: 1/(_scaleFactor * 3.5),
-                            //onEventTap: _customTileHandler,
-                  ),
+                        ? _buildWeekView()
+                        : _buildMonthView(now, context),
                 ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+  
+  NotificationListener<Notification> _buildDayView() {
+    return NotificationListener(
+      child: DayView(
+        onPageChange: (date, page) {
+          calendarDayKey.currentState?.scrollController.jumpTo(dayAndWeekViewScrollPixels);
+        },
+        key: calendarDayKey,
+        eventTileBuilder: _customEventTileBuilder,
+        controller: calendarController,
+        heightPerMinute: _scaleFactor,
+        dateStringBuilder: _headerDayBuilder,
+        onEventTap: _customTabHandler,
+        scrollOffset: dayAndWeekViewScrollPixels,
+      ),
+      onNotification: (notification) {
+        final scrollController = calendarDayKey.currentState?.scrollController;
+        if (notification is ScrollEndNotification && scrollController != null) {
+          if (scrollController.positions.isNotEmpty) {
+            dayAndWeekViewScrollPixels = scrollController.positions.first.pixels;
+            debugPrint(
+                "dayViewScrollPixels=$dayAndWeekViewScrollPixels");
+            return true;
+          }
+        }
+        return false;
+      },
+    );
+  }
+  
+  NotificationListener<Notification> _buildWeekView() {
+    return NotificationListener(
+      child: WeekView(
+          onPageChange: (date, page) {
+            calendarWeekKey.currentState?.scrollController.jumpTo(dayAndWeekViewScrollPixels);
+          },
+          scrollOffset: dayAndWeekViewScrollPixels,
+          key: calendarWeekKey,
+          eventTileBuilder: _customEventTileBuilder,
+          controller: calendarController,
+          heightPerMinute: _scaleFactor,
+          onEventTap: _customTabHandler,
+          headerStringBuilder: _headerWeekBuilder,
+          weekDayBuilder: (date) {
+            final isToday = date.day == DateTime.now().day;
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(date.getWeekdayName().characters.first.toUpperCase(),
+                    style: _getTextStyleForToday(isToday)),
+                  Text(date.day.toString(),
+                      style: _getTextStyleForToday(isToday)),
+                ],
+              ),
+            );
+          },
+      ),
+      onNotification: (notification) {
+        final scrollController = calendarWeekKey.currentState?.scrollController;
+        if (notification is ScrollEndNotification && scrollController != null) {
+          if (scrollController.positions.isNotEmpty) {
+            dayAndWeekViewScrollPixels = scrollController.positions.first.pixels;
+            debugPrint(
+                "dayViewScrollPixels=$dayAndWeekViewScrollPixels");
+            return true;
+          }
+        }
+        return false;
+      },
+    );
+  }
+
+  MonthView<dynamic> _buildMonthView(DateTime now, BuildContext context) {
+    return MonthView(
+      onPageChange: (date, page) {
+        _scrollToTime(now);
+      },
+      key: calendarMonthKey,
+      cellBuilder: _customCellBuilder,
+      controller: calendarController,
+      cellAspectRatio: 1/(_scaleFactor * 1.8),
+      weekDayStringBuilder: (day) => getWeekdayOf((day + 1) % 7, context).characters.first.toUpperCase(),
+      headerStringBuilder: _headerMonthBuilder,
+      onDateLongPress: (date) async {
+        debugPrint("date=$date");
+        await _jumpToDateTime(date); //TODO scroll to now time of this date DOESNT JUMP TO GIVEN DATE!!
+
+        setState(() {
+          _calendarMode = CalendarMode.DAY; //TODO
+        });
+      },
+    );
+  }
+  
+  TextStyle _getTextStyleForToday(bool isToday) {
+    return TextStyle(
+      fontSize: isToday ? 18 : null,
+      color: isToday ? BUTTON_COLOR : null,
+      fontWeight: isToday ? FontWeight.bold : null,
     );
   }
 
@@ -468,6 +555,16 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
   }
 
+  String _headerDayBuilder(DateTime date, {DateTime? secondaryDate}) =>
+    "${formatToDate(date, context, showWeekdays: true)}";
+
+  String _headerWeekBuilder(DateTime date, {DateTime? secondaryDate}) =>
+    "${formatToDate(date, context, showWeekdays: false)} ${secondaryDate != null ? " - ${formatToDate(secondaryDate, context, showWeekdays: false)}" : ""}";
+
+  String _headerMonthBuilder(DateTime date, {DateTime? secondaryDate}) =>
+    "${getMonthOf((date.month - 1) % 12, context)} ${date.year}";
+
+
   Widget _buildEventWidget(CalendarEventData<dynamic> event, List<CalendarEventData<dynamic>> events) {
     final isSelected = event == _selectedEvent;
     final object = event.event;
@@ -537,18 +634,18 @@ class _CalendarPageStatus extends State<CalendarPage> {
         final backgroundColor = isSelected ? taskGroup?.softColor??event.color : event.color;
         final icon = _getEventIcon(taskGroup);
 
-        return CustomPaint(
-          painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1), 7) : null,
-          child: Container(
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(4.0),
-              border: _getEventBorder(isSelected, object, backgroundColor),
-            ),
-            margin: EdgeInsets.symmetric(
-                vertical: 2.0, horizontal: 3.0),
-            padding: const EdgeInsets.all(2.0),
-            alignment: Alignment.center,
+        return Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(4.0),
+            border: _getEventBorder(isSelected, object, backgroundColor),
+          ),
+          margin: EdgeInsets.symmetric(
+              vertical: 2.0, horizontal: 3.0),
+          padding: const EdgeInsets.all(2.0),
+          alignment: Alignment.center,
+          child: CustomPaint(
+            painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1), 7) : null,
             child: Row(
               children: [
                 if (icon != null)

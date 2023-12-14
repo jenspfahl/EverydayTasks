@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 extension StringExtension on String {
   String capitalize() {
@@ -43,7 +44,9 @@ extension ListExtension<E> on List<E> {
 }
 
 extension TimeOfDayExtension on TimeOfDay {
-
   double toDouble() => this.hour + this.minute/60.0;
+}
 
+extension DateTimeExtension on DateTime {
+  String getWeekdayName() => DateFormat('EEEE').format(this);
 }
