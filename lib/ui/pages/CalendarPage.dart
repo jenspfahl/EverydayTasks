@@ -11,6 +11,7 @@ import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
+import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/ui/components/ScheduledTaskWidget.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/extensions.dart';
@@ -18,6 +19,7 @@ import 'package:personaltasklogger/util/extensions.dart';
 import '../../db/repository/ChronologicalPaging.dart';
 import '../../db/repository/TaskEventRepository.dart';
 import '../../db/repository/TemplateRepository.dart';
+import '../../model/Template.dart';
 import '../../model/When.dart';
 import '../../service/PreferenceService.dart';
 import '../../util/dates.dart';
@@ -63,7 +65,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
 
   double dayAndWeekViewScrollPixels = 0;
 
-  final taskFilterSettings = TaskFilterSettings();
+  TaskFilterSettings _taskFilterSettings = TaskFilterSettings();
 
   EventType _eventType = EventType.BOTH;
   late List<bool> _eventTypeSelection;
@@ -71,8 +73,12 @@ class _CalendarPageStatus extends State<CalendarPage> {
   CalendarMode _calendarMode = CalendarMode.DAY;
   late List<bool> _calendarModeSelection;
 
-  List<CalendarEventData<TaskEvent>> _taskEvents = [];
-  List<CalendarEventData<ScheduledTask>> _scheduledTasks = [];
+  List<CalendarEventData<TaskEvent>> _taskEventCalendarEvents = [];
+  List<CalendarEventData<ScheduledTask>> _scheduledTaskCalendarEvents = [];
+
+  List<CalendarEventData<TaskEvent>>? _filteredTaskEventCalendarEvents ;
+  List<CalendarEventData<ScheduledTask>>? _filteredScheduledTaskCalendarEvents;
+
 
   double _baseScaleFactor = defaultScale;
   double _scaleFactor = defaultScale;
@@ -172,11 +178,13 @@ class _CalendarPageStatus extends State<CalendarPage> {
         title: Text(translate('pages.calendar.title')),
         actions: [
           TaskEventFilter(
-              initialTaskFilterSettings: taskFilterSettings,
+              initialTaskFilterSettings: _taskFilterSettings,
+              visibleFilterOptions: {FilterOption.TASK_OR_TEMPLATE},
               doFilter: (taskFilterSettings, filterChangeState) {
                 setState(() {
-                  //TODO
+                  _taskFilterSettings = taskFilterSettings;
                 });
+                _doFilter();
               }),
 
           IconButton(
@@ -195,6 +203,63 @@ class _CalendarPageStatus extends State<CalendarPage> {
     );
   }
 
+
+  void _doFilter() {
+    setState(() {
+      if (_taskFilterSettings.isFilterActive()) {
+        _filteredTaskEventCalendarEvents = [];
+        _filteredScheduledTaskCalendarEvents = [];
+
+        _taskEventCalendarEvents.where((event) {
+          final taskEvent = event.event!;
+          return _filterByTaskOrTemplate(taskEvent.taskGroupId!, taskEvent.originTemplateId);
+        }).forEach((element) => _filteredTaskEventCalendarEvents!.add(element));
+
+        _scheduledTaskCalendarEvents
+            .where((event) {
+              final scheduledTask = event.event!;
+              return _filterByTaskOrTemplate(scheduledTask.taskGroupId, scheduledTask.templateId);
+            })
+            .forEach((element) => _filteredScheduledTaskCalendarEvents!.add(element));
+
+        sheetController?.close();
+      }
+      else {
+        _filteredTaskEventCalendarEvents = null;
+        _filteredScheduledTaskCalendarEvents = null;
+      }
+    });
+
+    _refreshModel();
+  }
+
+  bool _filterByTaskOrTemplate(int taskGroupId, TemplateId? templateId) {
+    if (_taskFilterSettings.filterByTaskOrTemplate is TaskGroup) {
+      final _taskGroup = _taskFilterSettings.filterByTaskOrTemplate as TaskGroup;
+      if (taskGroupId == _taskGroup.id) {
+        return true;
+      }
+    }
+    if (_taskFilterSettings.filterByTaskOrTemplate is Template) {
+      final filterTemplate = _taskFilterSettings.filterByTaskOrTemplate as Template;
+      if (templateId == null) {
+        return false; // remove events with no template at all
+      }
+      if (filterTemplate.isVariant()) {
+        if (templateId == filterTemplate.tId) {
+          return true;
+        }
+      }
+      else {
+        final parentTemplateId = TemplateRepository.getParentId(templateId.id); // returns a taskTemplate or null, never a variant
+        if (parentTemplateId == filterTemplate.tId!.id || templateId == filterTemplate.tId) {
+          return true;
+        }
+      }
+    }
+    return false; 
+  }
+
   Future<void> _jumpToDateTime(DateTime when) async {
     _jumpToDate(when);
     await Future.delayed(Duration(milliseconds: 100)); // this is a hack to not cancel the first scrolling by the next
@@ -205,10 +270,10 @@ class _CalendarPageStatus extends State<CalendarPage> {
     calendarController.removeWhere((element) => true);
 
     if (_eventType == EventType.EVENT || _eventType == EventType.BOTH) {
-      calendarController.addAll(_taskEvents);
+      calendarController.addAll(_filteredTaskEventCalendarEvents ?? _taskEventCalendarEvents);
     }
     if (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH) {
-      calendarController.addAll(_scheduledTasks);
+      calendarController.addAll(_filteredScheduledTaskCalendarEvents ?? _scheduledTaskCalendarEvents);
     }
   }
 
@@ -399,10 +464,10 @@ class _CalendarPageStatus extends State<CalendarPage> {
     await Future.forEach(scheduledTasks, (ScheduledTask scheduledTask) async {
       final event = await _mapScheduledTaskToCalendarEventData(scheduledTask);
 
-      _scheduledTasks.add(event);
+      _scheduledTaskCalendarEvents.add(event);
     });
 
-    _taskEvents = taskEvents.map((taskEvent) => _mapTaskEventToCalendarEventData(taskEvent))
+    _taskEventCalendarEvents = taskEvents.map((taskEvent) => _mapTaskEventToCalendarEventData(taskEvent))
         .toList();
 
     return true;
@@ -502,15 +567,15 @@ class _CalendarPageStatus extends State<CalendarPage> {
         child: TaskEventWidget(event,
           isInitiallyExpanded: false,
           onTaskEventChanged: (changedTaskEvent) {
-            _taskEvents.removeWhere((event) => event.event == changedTaskEvent);
+            _taskEventCalendarEvents.removeWhere((event) => event.event == changedTaskEvent);
             final updatedEvent = _mapTaskEventToCalendarEventData(changedTaskEvent);
-            _taskEvents.add(updatedEvent);
+            _taskEventCalendarEvents.add(updatedEvent);
             _refreshModel();
             setState(() => _selectedEvent = updatedEvent);
           },
           onTaskEventDeleted: (deletedTaskEvent) {
             debugPrint("try remove task event id ${deletedTaskEvent.id}");
-            _taskEvents.removeWhere((event) => event.event!.id == deletedTaskEvent.id);
+            _taskEventCalendarEvents.removeWhere((event) => event.event!.id == deletedTaskEvent.id);
             _unselectEvent();
             _refreshModel();
           },
@@ -533,14 +598,14 @@ class _CalendarPageStatus extends State<CalendarPage> {
           key: scheduledTaskWidgetKey,
           isInitiallyExpanded: false,
           onScheduledTaskChanged: (changedScheduledTask) async {
-            _scheduledTasks.removeWhere((event) => event.event?.id == changedScheduledTask.id);
+            _scheduledTaskCalendarEvents.removeWhere((event) => event.event?.id == changedScheduledTask.id);
             final updatedEvent = await _mapScheduledTaskToCalendarEventData(changedScheduledTask);
-            _scheduledTasks.add(updatedEvent);
+            _scheduledTaskCalendarEvents.add(updatedEvent);
             _refreshModel();  //TODO find a mor lightweight way
             setState(() => _selectedEvent = updatedEvent);
           },
           onScheduledTaskDeleted: (deletedScheduledTask) {
-            _scheduledTasks.removeWhere((event) => event.event!.id == deletedScheduledTask.id);
+            _scheduledTaskCalendarEvents.removeWhere((event) => event.event!.id == deletedScheduledTask.id);
             _unselectEvent();
             _refreshModel();
           },
@@ -652,7 +717,21 @@ class _CalendarPageStatus extends State<CalendarPage> {
           );
   }
 
-  _getEventBorder(bool isSelected, object, Color backgroundColor) => isSelected ? Border.all(color: Colors.black54) :  object is ScheduledTask ? _getBorderForScheduledTask(object, backgroundColor) : null;
+  Border? _getEventBorder(bool isSelected, object, Color backgroundColor) {
+      if (object is TaskEvent) {
+        return isSelected
+            ? Border.all(color: Colors.black54, width: 1.2)
+            : null;
+      }
+      else if (object is ScheduledTask) {
+        bool isDue = object.isDueNow() || object.isNextScheduleOverdue(false);
+        Color color = isDue
+            ? Colors.red
+            : backgroundColor;
+        return Border.all(color: isSelected ? Colors.black54 : color, width: isSelected ? 1.2 : 0.5);
+      }
+      return null;
+  }
 
   Widget _customCellBuilder(
       date, List<CalendarEventData<dynamic>> events, bool isToday, bool isInMonth) {
@@ -816,11 +895,6 @@ class _CalendarPageStatus extends State<CalendarPage> {
         _updateCalendarMode(CalendarMode.values.elementAt(index));
       },
     );
-  }
-
-  _getBorderForScheduledTask(ScheduledTask scheduledTask, Color defaultColor) {
-    Color color = (scheduledTask.isDueNow() || scheduledTask.isNextScheduleOverdue(false) ? Colors.red : scheduledTask.getDueBackgroundColor(context)) ?? defaultColor;
-    return Border.all(color: color);
   }
 
 }
