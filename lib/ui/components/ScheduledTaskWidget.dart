@@ -27,6 +27,7 @@ class ScheduledTaskWidget extends StatefulWidget {
   final bool Function()? shouldExpand;
   final ValueChanged<bool>? onExpansionChanged;
   final bool Function() isNotificationsEnabled;
+  final Function()? onBeforeRouting;
   final ValueChanged<ScheduledTask>? onScheduledTaskChanged;
   final ValueChanged<ScheduledTask>? onScheduledTaskDeleted;
   final PagesHolder pagesHolder;
@@ -38,6 +39,7 @@ class ScheduledTaskWidget extends StatefulWidget {
     this.onExpansionChanged,
     this.onScheduledTaskChanged,
     this.onScheduledTaskDeleted,
+    this.onBeforeRouting,
     required this.isNotificationsEnabled,
     required this.isInitiallyExpanded,
     required this.pagesHolder,
@@ -471,6 +473,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                         .getByScheduledTaskIdPaged(scheduledTask.id, ChronologicalPaging.start(10000))
                         .then((scheduledTaskEvents) {
                       if (scheduledTaskEvents.isNotEmpty) {
+                        if (widget.onBeforeRouting != null) widget.onBeforeRouting!();
                         PersonalTaskLoggerScaffoldState? root = appScaffoldKey.currentState;
                         if (root != null) {
                           final taskEventListState = widget.pagesHolder.taskEventList?.getGlobalKey().currentState;
@@ -479,8 +482,8 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                                 scheduledTask,
                                 scheduledTaskEvents.map((e) => e.taskEventId)
                             );
-                            root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, "noop", null);
                           }
+                          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, "noop", null);
                         }
                       }
                       else {

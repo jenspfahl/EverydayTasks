@@ -614,6 +614,11 @@ class _CalendarPageStatus extends State<CalendarPage> {
           isNotificationsEnabled: () {
             return !_isNotificationsDisabled;
           },
+          onBeforeRouting: () {
+            // close all and exit calendar before routing to somewhere else
+            sheetController?.close();
+            Navigator.pop(context);
+          },
         ),
       );
     }
