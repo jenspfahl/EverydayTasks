@@ -11,6 +11,7 @@ import '../../db/repository/ScheduledTaskRepository.dart';
 import '../../db/repository/TaskGroupRepository.dart';
 import '../../model/Schedule.dart';
 import '../../model/ScheduledTask.dart';
+import '../../model/TaskEvent.dart';
 import '../../service/DueScheduleCountService.dart';
 import '../../util/dates.dart';
 import '../../util/units.dart';
@@ -28,6 +29,7 @@ class ScheduledTaskWidget extends StatefulWidget {
   final ValueChanged<bool>? onExpansionChanged;
   final bool Function() isNotificationsEnabled;
   final Function()? onBeforeRouting;
+  final Function(TaskEvent?)? onAfterJournalEntryFromScheduleCreated;
   final ValueChanged<ScheduledTask>? onScheduledTaskChanged;
   final ValueChanged<ScheduledTask>? onScheduledTaskDeleted;
   final PagesHolder pagesHolder;
@@ -40,6 +42,7 @@ class ScheduledTaskWidget extends StatefulWidget {
     this.onScheduledTaskChanged,
     this.onScheduledTaskDeleted,
     this.onBeforeRouting,
+    this.onAfterJournalEntryFromScheduleCreated,
     required this.isNotificationsEnabled,
     required this.isInitiallyExpanded,
     required this.pagesHolder,
@@ -313,7 +316,10 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                           .scheduledTaskList
                           ?.getGlobalKey()
                           .currentState;
-                      await state?.openAddJournalEntryFromSchedule(scheduledTask);
+                      state?.openAddJournalEntryFromSchedule(scheduledTask).then((createdTaskEvent) {
+                        if (widget.onAfterJournalEntryFromScheduleCreated != null)
+                          widget.onAfterJournalEntryFromScheduleCreated!(createdTaskEvent);
+                      });
                     },
                   ),
                 ),

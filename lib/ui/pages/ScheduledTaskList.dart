@@ -539,7 +539,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     );
   }
 
-  Future<void> openAddJournalEntryFromSchedule(ScheduledTask scheduledTask) async {
+  Future<TaskEvent?> openAddJournalEntryFromSchedule(ScheduledTask scheduledTask) async {
     final templateId = scheduledTask.templateId;
     Template? template;
     if (templateId != null) {
@@ -595,6 +595,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
         }
       });
+      return newTaskEvent;
+    }
+    else {
+      return null;
     }
   }
 

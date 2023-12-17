@@ -348,6 +348,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
         heightPerMinute: _scaleFactor,
         dateStringBuilder: _headerDayBuilder,
         onEventTap: _customTabHandler,
+        timeStringBuilder: _headerTimeBuilder,
+        timeLineWidth: 47,
         scrollOffset: dayAndWeekViewScrollPixels,
       ),
       onNotification: (notification) {
@@ -378,6 +380,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
           heightPerMinute: _scaleFactor,
           onEventTap: _customTabHandler,
           headerStringBuilder: _headerWeekBuilder,
+          timeLineStringBuilder: _headerTimeBuilder,
+          timeLineWidth: 47,
           weekDayBuilder: (date) {
             final isToday = date.day == DateTime.now().day;
             return GestureDetector(
@@ -460,16 +464,15 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final taskEvents = await TaskEventRepository.getAllPaged(paging);
     final scheduledTasks = await ScheduledTaskRepository.getAllPaged(paging);
 
-
     await Future.forEach(scheduledTasks, (ScheduledTask scheduledTask) async {
       if (scheduledTask.active) {
         final event = await _mapScheduledTaskToCalendarEventData(scheduledTask);
-
         _scheduledTaskCalendarEvents.add(event);
       }
     });
 
-    _taskEventCalendarEvents = taskEvents.map((taskEvent) => _mapTaskEventToCalendarEventData(taskEvent))
+    _taskEventCalendarEvents = taskEvents
+        .map((taskEvent) => _mapTaskEventToCalendarEventData(taskEvent))
         .toList();
 
     return true;
@@ -570,14 +573,17 @@ class _CalendarPageStatus extends State<CalendarPage> {
           isInitiallyExpanded: false,
           onTaskEventChanged: (changedTaskEvent) {
             _taskEventCalendarEvents.removeWhere((event) => event.event == changedTaskEvent);
+            _filteredTaskEventCalendarEvents?.removeWhere((event) => event.event == changedTaskEvent);
             final updatedEvent = _mapTaskEventToCalendarEventData(changedTaskEvent);
             _taskEventCalendarEvents.add(updatedEvent);
+            _filteredTaskEventCalendarEvents?.add(updatedEvent);
             _refreshModel();
             setState(() => _selectedEvent = updatedEvent);
           },
           onTaskEventDeleted: (deletedTaskEvent) {
             debugPrint("try remove task event id ${deletedTaskEvent.id}");
             _taskEventCalendarEvents.removeWhere((event) => event.event!.id == deletedTaskEvent.id);
+            _filteredTaskEventCalendarEvents?.removeWhere((event) => event.event!.id == deletedTaskEvent.id);
             _unselectEvent();
             _refreshModel();
           },
@@ -601,13 +607,16 @@ class _CalendarPageStatus extends State<CalendarPage> {
           isInitiallyExpanded: false,
           onScheduledTaskChanged: (changedScheduledTask) async {
             _scheduledTaskCalendarEvents.removeWhere((event) => event.event?.id == changedScheduledTask.id);
+            _filteredScheduledTaskCalendarEvents?.removeWhere((event) => event.event?.id == changedScheduledTask.id);
             final updatedEvent = await _mapScheduledTaskToCalendarEventData(changedScheduledTask);
             _scheduledTaskCalendarEvents.add(updatedEvent);
+            _filteredScheduledTaskCalendarEvents?.add(updatedEvent);
             _refreshModel();  //TODO find a mor lightweight way
             setState(() => _selectedEvent = updatedEvent);
           },
           onScheduledTaskDeleted: (deletedScheduledTask) {
             _scheduledTaskCalendarEvents.removeWhere((event) => event.event!.id == deletedScheduledTask.id);
+            _filteredScheduledTaskCalendarEvents?.removeWhere((event) => event.event!.id == deletedScheduledTask.id);
             _unselectEvent();
             _refreshModel();
           },
@@ -620,6 +629,14 @@ class _CalendarPageStatus extends State<CalendarPage> {
             // close all and exit calendar before routing to somewhere else
             sheetController?.close();
             Navigator.pop(context);
+          },
+          onAfterJournalEntryFromScheduleCreated: (taskEvent) {
+            if (taskEvent != null) {
+              var event = _mapTaskEventToCalendarEventData(taskEvent);
+              _taskEventCalendarEvents.add(event);
+              _filteredTaskEventCalendarEvents?.add(event);
+            }
+            _refreshModel();
           },
         ),
       );
@@ -663,6 +680,9 @@ class _CalendarPageStatus extends State<CalendarPage> {
       return Container();
     }
   }
+
+  String _headerTimeBuilder(DateTime date, {DateTime? secondaryDate}) =>
+    "${formatToTime(date)}";
 
   String _headerDayBuilder(DateTime date, {DateTime? secondaryDate}) =>
     "${formatToDate(date, context, showWeekdays: true)}";
