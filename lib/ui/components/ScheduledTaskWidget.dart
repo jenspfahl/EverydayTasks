@@ -473,7 +473,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                         .getByScheduledTaskIdPaged(scheduledTask.id, ChronologicalPaging.start(10000))
                         .then((scheduledTaskEvents) {
                       if (scheduledTaskEvents.isNotEmpty) {
-                        if (widget.onBeforeRouting != null) widget.onBeforeRouting!();
+                        widget.onBeforeRouting?.call();
                         PersonalTaskLoggerScaffoldState? root = appScaffoldKey.currentState;
                         if (root != null) {
                           final taskEventListState = widget.pagesHolder.taskEventList?.getGlobalKey().currentState;

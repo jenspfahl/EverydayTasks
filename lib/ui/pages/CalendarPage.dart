@@ -462,9 +462,11 @@ class _CalendarPageStatus extends State<CalendarPage> {
 
 
     await Future.forEach(scheduledTasks, (ScheduledTask scheduledTask) async {
-      final event = await _mapScheduledTaskToCalendarEventData(scheduledTask);
+      if (scheduledTask.active) {
+        final event = await _mapScheduledTaskToCalendarEventData(scheduledTask);
 
-      _scheduledTaskCalendarEvents.add(event);
+        _scheduledTaskCalendarEvents.add(event);
+      }
     });
 
     _taskEventCalendarEvents = taskEvents.map((taskEvent) => _mapTaskEventToCalendarEventData(taskEvent))
