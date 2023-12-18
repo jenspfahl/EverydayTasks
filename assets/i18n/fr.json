@@ -329,7 +329,7 @@
       }
     },
     "calendar": {
-      "title": "Task Calendar"
+      "title": "Calendrier"
     },
     "settings": {
       "common": {
@@ -397,8 +397,8 @@
           "description" : "A la création d'une nouvelle entrée de journal par une tâche planifiée, marquer automatiquement cette planification comme terminée. "
         },
         "show_schedules_count_as_badge": {
-          "title": "Show due scheduled tasks indicator",
-          "description" : "Show a badge indicator displaying the number of due or overdue scheduled tasks."
+          "title": "Afficher un badge pour les tâches planifiées",
+          "description" : "Afficher le nombre de tâches dues ou dépassées dans un badge."
         }
       }
     },
@@ -448,33 +448,33 @@
   },
   "walk_through": {
     "banner": {
-      "text": "Learn how the app works! Start a walk-through here.",
-      "start_action": "Start",
-      "dismiss_action" : "Dismiss"
+      "text": "Apprenez comment l'application fonctionne ! Commencez une visite guidée ici. ",
+      "start_action": "Démarrer",
+      "dismiss_action" : "Annuler"
     },
     "action_button": {
-      "title": "Track tasks, create schedules etc..",
-      "description": "Click here to track tasks, bookmark them or create schedules. The actions are based on the selected page."
+      "title": "Suivre, créer des tâches planifiées, etc.",
+      "description": "Cliquez ici pour enregistgrer des tâches, les mettre en favoris ou planifier des tâches. Les actions se réfèrent à la page sélectionnée."
     },
     "quick_add": {
-      "title": "Fast tracking of your most important tasks",
-      "description": "Here you can bookmark your most frequent tasks to set them done quickly."
+      "title": "Enregistrer rapidement les tâches les plus importantes",
+      "description": "Ici, vous pouvez mettre en favoris vos tâches les plus fréquentes pour les enregistrer rapidement. "
     },
     "journal": {
-      "title": "See all completed tasks",
-      "description": "On this page you will see all ever tracked and logged completed tasks."
+      "title": "Voir toutes les tâches complètes",
+      "description": "Sur cette page, vous verrez toutes les tâches suivies et enregistrées comme terminées. "
     },
     "schedules": {
-      "title": "Schedule recurring tasks",
-      "description": "On this page you can define recurring tasks based on a schedule to get notified when due."
+      "title": "Planifier des tâches récurrentes",
+      "description": "Sur cette page, vous pouvez définir des tâches récurrentes dans un planning pour être notifié de leur échéance. "
     },
     "tasks": {
-      "title": "Manage all predefined tasks",
-      "description": "And there you can manage all categories, tasks and variants to be used as templates."
+      "title": "Gérer toutes les tâches prédéfinies",
+      "description": "Et ici, vous pouvez gérer toutes les catégories, tâches et sous-tâches pouvant être utilisées comme modèles. "
     },
     "extensions": {
-      "title": "Drag up to see more extensions",
-      "description": "Here you can access additional features like an overall calendar view."
+      "title": "Voir plus d'extensions",
+      "description": "Ici, vous pouvez accéder aux fonctionnalités complémentaires, comme une vue globale du calendrier."
     }
   },
   "common" : {
