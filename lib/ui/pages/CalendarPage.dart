@@ -316,7 +316,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
               children: [
                 Flexible(
                   child: Container(
-                    color: Color(0xFFDCF0FF), //Constants.headerBackground
+                    color: _getCalendarAccentColor(), //Constants.headerBackground
                     width: 16,
                   ),
                 ),
@@ -343,6 +343,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
           calendarDayKey.currentState?.scrollController.jumpTo(dayAndWeekViewScrollPixels);
         },
         key: calendarDayKey,
+        backgroundColor: _getCalendarBackgroundColor(),
         eventTileBuilder: _customEventTileBuilder,
         controller: calendarController,
         heightPerMinute: _scaleFactor,
@@ -351,6 +352,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
         timeStringBuilder: _headerTimeBuilder,
         timeLineWidth: 47,
         scrollOffset: dayAndWeekViewScrollPixels,
+        liveTimeIndicatorSettings: _getTimeIndicatorSettings(),
+        headerStyle: _getHeaderStyle(),
       ),
       onNotification: (notification) {
         final scrollController = calendarDayKey.currentState?.scrollController;
@@ -366,6 +369,24 @@ class _CalendarPageStatus extends State<CalendarPage> {
       },
     );
   }
+
+  HourIndicatorSettings _getTimeIndicatorSettings() => HourIndicatorSettings(color: isDarkMode(context) ? Colors.white38 : Colors.grey);
+
+  HeaderStyle _getHeaderStyle() {
+    return HeaderStyle(
+        leftIcon: Icon(
+          Icons.chevron_left,
+          size: 30,
+          color: getActionIconColor(context),
+        ),
+        rightIcon: Icon(
+          Icons.chevron_right,
+          size: 30,
+          color: getActionIconColor(context),
+        ), 
+        decoration: BoxDecoration(color: _getCalendarAccentColor()),
+      );
+  }
   
   NotificationListener<Notification> _buildWeekView() {
     return NotificationListener(
@@ -375,9 +396,11 @@ class _CalendarPageStatus extends State<CalendarPage> {
           },
           scrollOffset: dayAndWeekViewScrollPixels,
           key: calendarWeekKey,
+          backgroundColor: _getCalendarBackgroundColor(),
           eventTileBuilder: _customEventTileBuilder,
           controller: calendarController,
           heightPerMinute: _scaleFactor,
+          liveTimeIndicatorSettings: _getTimeIndicatorSettings(),
           onEventTap: _customTabHandler,
           headerStringBuilder: _headerWeekBuilder,
           timeLineStringBuilder: _headerTimeBuilder,
@@ -407,6 +430,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
             );
           },
           onDateLongPress: _onDateLongPress,
+          headerStyle: _getHeaderStyle(),
       ),
       onNotification: (notification) {
         final scrollController = calendarWeekKey.currentState?.scrollController;
@@ -432,9 +456,18 @@ class _CalendarPageStatus extends State<CalendarPage> {
       cellBuilder: _customCellBuilder,
       controller: calendarController,
       cellAspectRatio: 1/(_scaleFactor * 1.8),
-      weekDayStringBuilder: (day) => getWeekdayOf((day + 1) % 7, context).characters.first.toUpperCase(),
+      weekDayBuilder: (index) => WeekDayTile(
+        dayIndex: index,
+        backgroundColor: _getCalendarBackgroundColor(),
+        textStyle: TextStyle(
+          fontSize: 17,
+          color: isDarkMode(context) ? Colors.white : Colors.black,
+        ),
+        weekDayStringBuilder: (day) => getWeekdayOf((day + 1) % 7, context).characters.first.toUpperCase(),
+      ),
       headerStringBuilder: _headerMonthBuilder,
       onDateLongPress: _onDateLongPress,
+      headerStyle: _getHeaderStyle(),
     );
   }
 
@@ -740,7 +773,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
               ? (object.isDueNow() || object.isNextScheduleOverdue(false) )
                 ? Colors.red
                 : object.getDueColor(context, lighter: true)
-              : Colors.black54, // event.color.accent,
+              : (isDarkMode(context) ? Colors.white70 : Colors.black54), // event.color.accent,
           );
   }
 
@@ -766,8 +799,11 @@ class _CalendarPageStatus extends State<CalendarPage> {
     return FilledCell<dynamic>(
       date: date,
       shouldHighlight: isToday,
-      backgroundColor: isInMonth ? Color(0xffffffff) : Color(0xfff0f0f0),
+      backgroundColor: isInMonth
+          ? (isDarkMode(context) ? Colors.black12: Color(0xffffffff))
+          : (isDarkMode(context) ? Colors.black : Color(0xfff0f0f0)),
       events: events,
+      titleColor: isDarkMode(context) ? Colors.white : Colors.black,
       getEventWidget: (events, index) {
         final event = events[index];
         final isSelected = event == _selectedEvent;
@@ -812,6 +848,10 @@ class _CalendarPageStatus extends State<CalendarPage> {
       //dateStringBuilder: widget.dateStringBuilder,
     );
   }
+
+  Color _getCalendarBackgroundColor() => isDarkMode(context) ? Colors.black12 : Colors.white;
+
+  Color _getCalendarAccentColor() => isDarkMode(context) ? Colors.blueGrey : Color(0xFFDCF0FF);
 
   TaskGroup? _getTaskGroup(int? taskGroupId) {
     final taskGroup = taskGroupId != null ? TaskGroupRepository.findByIdFromCache(taskGroupId) : null;

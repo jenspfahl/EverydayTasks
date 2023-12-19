@@ -73,9 +73,6 @@ GlobalKey showcaseExtensionsIcon = GlobalKey();
 
 class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> {
 
-  final showcasePadding = EdgeInsets.all(8);
-  final showcaseOpacity = 0.2;
-
 
   int _selectedNavigationIndex = DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX;
   PageController _pageController = PageController(initialPage: DEFAULT_SELECTED_NAVIGATION_PAGE_INDEX);
@@ -454,7 +451,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                                 key: showcaseExtensionsIcon,
                                 title: translate('walk_through.extensions.title'),
                                 description: translate('walk_through.extensions.description'),
-                                targetPadding: showcasePadding,
+                                targetPadding: EdgeInsets.all(8),
                                 overlayOpacity: showcaseOpacity,
                                 child: ListView(
                                   controller: scrollController,
@@ -488,7 +485,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                 key: showcaseFloatingButton,
                 title: translate('walk_through.action_button.title'),
                 description: translate('walk_through.action_button.description'),
-                targetPadding: showcasePadding,
+                targetPadding: EdgeInsets.all(8),
                 overlayOpacity: showcaseOpacity,
                 child: FloatingActionButton(
                   onPressed: () {
@@ -507,7 +504,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                       key: showcaseQuickAddIcon,
                       title: translate('walk_through.quick_add.title'),
                       description: translate('walk_through.quick_add.description'),
-                      targetPadding: showcasePadding,
+                      targetPadding: EdgeInsets.all(16),
                       overlayOpacity: showcaseOpacity,
                       child: Icon(Icons.add_circle_outline_outlined),
                     ),
@@ -518,7 +515,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                       key: showcaseJournalIcon,
                       title: translate('walk_through.journal.title'),
                       description: translate('walk_through.journal.description'),
-                      targetPadding: showcasePadding,
+                      targetPadding: EdgeInsets.all(16),
                       overlayOpacity: showcaseOpacity,
                       child: Icon(Icons.event_available_rounded),
                     ),
@@ -529,7 +526,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                       key: showcaseSchedulesIcon,
                       title: translate('walk_through.schedules.title'),
                       description: translate('walk_through.schedules.description'),
-                      targetPadding: showcasePadding,
+                      targetPadding: EdgeInsets.all(16),
                       overlayOpacity: showcaseOpacity,
                       child: ValueListenableBuilder<int>(
                         valueListenable: DueScheduleCountService().count,
@@ -552,7 +549,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                       key: showcaseTasksIcon,
                       title: translate('walk_through.tasks.title'),
                       description: translate('walk_through.tasks.description'),
-                      targetPadding: showcasePadding,
+                      targetPadding: EdgeInsets.all(16),
                       overlayOpacity: showcaseOpacity,
                       child: Icon(Icons.task_alt),
                     ),
@@ -571,6 +568,8 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       ),
     );
   }
+
+  double get showcaseOpacity => isDarkMode(context) ? 0.6 : 0.2;
 
   _dismissShowcaseBanner() {
     _preferenceService.setBool(PreferenceService.DATA_WALKTHROUGH_SHOWN, true);
