@@ -353,6 +353,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
         timeLineWidth: 47,
         scrollOffset: dayAndWeekViewScrollPixels,
         liveTimeIndicatorSettings: _getTimeIndicatorSettings(),
+        hourIndicatorSettings: _getHourIndicatorSettings(),
         headerStyle: _getHeaderStyle(),
       ),
       onNotification: (notification) {
@@ -368,24 +369,6 @@ class _CalendarPageStatus extends State<CalendarPage> {
         return false;
       },
     );
-  }
-
-  HourIndicatorSettings _getTimeIndicatorSettings() => HourIndicatorSettings(color: isDarkMode(context) ? Colors.white38 : Colors.grey);
-
-  HeaderStyle _getHeaderStyle() {
-    return HeaderStyle(
-        leftIcon: Icon(
-          Icons.chevron_left,
-          size: 30,
-          color: getActionIconColor(context),
-        ),
-        rightIcon: Icon(
-          Icons.chevron_right,
-          size: 30,
-          color: getActionIconColor(context),
-        ), 
-        decoration: BoxDecoration(color: _getCalendarAccentColor()),
-      );
   }
   
   NotificationListener<Notification> _buildWeekView() {
@@ -405,6 +388,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
           headerStringBuilder: _headerWeekBuilder,
           timeLineStringBuilder: _headerTimeBuilder,
           timeLineWidth: 47,
+          hourIndicatorSettings: _getHourIndicatorSettings(),
           weekDayBuilder: (date) {
             final isToday = date.day == DateTime.now().day;
             return GestureDetector(
@@ -456,6 +440,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
       cellBuilder: _customCellBuilder,
       controller: calendarController,
       cellAspectRatio: 1/(_scaleFactor * 1.8),
+      borderColor: _getGridColor(),
+      borderSize: 0.75,
       weekDayBuilder: (index) => WeekDayTile(
         dayIndex: index,
         backgroundColor: _getCalendarBackgroundColor(),
@@ -468,6 +454,35 @@ class _CalendarPageStatus extends State<CalendarPage> {
       headerStringBuilder: _headerMonthBuilder,
       onDateLongPress: _onDateLongPress,
       headerStyle: _getHeaderStyle(),
+    );
+  }
+
+
+  HourIndicatorSettings _getHourIndicatorSettings() {
+    return HourIndicatorSettings(
+      height: _scaleFactor,
+      color: isDarkMode(context) ? Colors.white24 : Color(0xffdddddd),
+      offset: 5,
+    );
+  }
+
+  HourIndicatorSettings _getTimeIndicatorSettings() => HourIndicatorSettings(color: _getGridColor());
+
+  Color _getGridColor() => isDarkMode(context) ? Colors.white70 : Colors.grey;
+
+  HeaderStyle _getHeaderStyle() {
+    return HeaderStyle(
+      leftIcon: Icon(
+        Icons.chevron_left,
+        size: 30,
+        color: getActionIconColor(context),
+      ),
+      rightIcon: Icon(
+        Icons.chevron_right,
+        size: 30,
+        color: getActionIconColor(context),
+      ),
+      decoration: BoxDecoration(color: _getCalendarAccentColor()),
     );
   }
 
@@ -778,19 +793,20 @@ class _CalendarPageStatus extends State<CalendarPage> {
   }
 
   Border? _getEventBorder(bool isSelected, object, Color backgroundColor) {
-      if (object is TaskEvent) {
-        return isSelected
-            ? Border.all(color: Colors.black54, width: 1.2)
-            : null;
-      }
-      else if (object is ScheduledTask) {
-        bool isDue = object.isDueNow() || object.isNextScheduleOverdue(false);
-        Color color = isDue
-            ? Colors.red
-            : backgroundColor;
-        return Border.all(color: isSelected ? Colors.black54 : color, width: isSelected ? 1.2 : 0.5);
-      }
-      return null;
+    final selectedColor = isDarkMode(context) ? Colors.white38 : Colors.black54;
+    if (object is TaskEvent) {
+      return isSelected
+          ? Border.all(color: selectedColor, width: 1.2)
+          : null;
+    }
+    else if (object is ScheduledTask) {
+      bool isDue = object.isDueNow() || object.isNextScheduleOverdue(false);
+      Color color = isDue
+          ? Colors.red
+          : backgroundColor;
+      return Border.all(color: isSelected ? selectedColor : color, width: isSelected ? 1.2 : 0.5);
+    }
+    return null;
   }
 
   Widget _customCellBuilder(
