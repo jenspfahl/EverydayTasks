@@ -629,7 +629,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
             setState(() => _selectedEvent = updatedEvent);
           },
           onTaskEventDeleted: (deletedTaskEvent) {
-            debugPrint("try remove task event id ${deletedTaskEvent.id}");
+            debugPrint("try remove task newTaskEventCalendarEventData id ${deletedTaskEvent.id}");
             _taskEventCalendarEvents.removeWhere((event) => event.event!.id == deletedTaskEvent.id);
             _filteredTaskEventCalendarEvents?.removeWhere((event) => event.event!.id == deletedTaskEvent.id);
             _unselectEvent();
@@ -641,16 +641,17 @@ class _CalendarPageStatus extends State<CalendarPage> {
       );
     }
     else if (event is ScheduledTask) {
-      title = event.translatedTitle;
+      final scheduledTask = event;
+      title = scheduledTask.translatedTitle;
       return GestureDetector(
         onLongPress: () {
           sheetController?.close();
           Navigator.pop(context);
           if (appScaffoldKey.currentState != null) {
-            appScaffoldKey.currentState!.sendEventFromClicked(SCHEDULED_TASK_LIST_ROUTING_KEY, false, event.id.toString(), null);
+            appScaffoldKey.currentState!.sendEventFromClicked(SCHEDULED_TASK_LIST_ROUTING_KEY, false, scheduledTask.id.toString(), null);
           }
         },
-        child: ScheduledTaskWidget(event,
+        child: ScheduledTaskWidget(scheduledTask,
           key: scheduledTaskWidgetKey,
           isInitiallyExpanded: false,
           onScheduledTaskChanged: (changedScheduledTask) async {
@@ -680,11 +681,19 @@ class _CalendarPageStatus extends State<CalendarPage> {
           },
           onAfterJournalEntryFromScheduleCreated: (taskEvent) {
             if (taskEvent != null) {
-              var event = _mapTaskEventToCalendarEventData(taskEvent);
-              _taskEventCalendarEvents.add(event);
-              _filteredTaskEventCalendarEvents?.add(event);
+              var newTaskEventCalendarEventData = _mapTaskEventToCalendarEventData(taskEvent);
+              _taskEventCalendarEvents.add(newTaskEventCalendarEventData);
+              _filteredTaskEventCalendarEvents?.add(newTaskEventCalendarEventData);
+
+              _scheduledTaskCalendarEvents.removeWhere((event) => event.event?.id == scheduledTask.id);
+              _filteredScheduledTaskCalendarEvents?.removeWhere((event) => event.event?.id == scheduledTask.id);
+              _mapScheduledTaskToCalendarEventData(scheduledTask).then((updatedScheduledTaskCalendarEventData) {
+                _scheduledTaskCalendarEvents.add(updatedScheduledTaskCalendarEventData);
+                _filteredScheduledTaskCalendarEvents?.add(updatedScheduledTaskCalendarEventData);
+
+                _refreshModel();
+              });
             }
-            _refreshModel();
           },
         ),
       );

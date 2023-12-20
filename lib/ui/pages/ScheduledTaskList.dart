@@ -6,14 +6,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
-import 'package:personaltasklogger/db/repository/ScheduledTaskEventRepository.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
-import 'package:personaltasklogger/db/repository/TaskEventRepository.dart';
-import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
-import 'package:personaltasklogger/model/ScheduledTaskEvent.dart';
-import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/service/DueScheduleCountService.dart';
@@ -22,7 +17,6 @@ import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
-import 'package:personaltasklogger/ui/forms/TaskEventForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
@@ -33,7 +27,6 @@ import '../components/ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
 import 'QuickAddTaskEventPage.dart';
-import 'TaskEventList.dart';
 
 
 final String PREF_DISABLE_NOTIFICATIONS = "scheduledTasks/disableNotifications";
@@ -510,7 +503,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         if (clickedScheduledTask != null) {
           _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
           if (actionId == "track") {
-            openAddJournalEntryFromSchedule(clickedScheduledTask);
+            ScheduledTaskWidget.openAddJournalEntryFromSchedule(context, widget._pagesHolder, clickedScheduledTask);
           }
         }
       }
@@ -537,73 +530,6 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           isNotificationsEnabled: () => !_disableNotification,
         ),
     );
-  }
-
-  Future<TaskEvent?> openAddJournalEntryFromSchedule(ScheduledTask scheduledTask) async {
-    final templateId = scheduledTask.templateId;
-    Template? template;
-    if (templateId != null) {
-      template = await TemplateRepository.findById(templateId);
-    }
-    
-    TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-      if (template != null) {
-        return TaskEventForm(
-            formTitle: translate('forms.task_event.create.title_from_schedule'),
-            template: template,
-            );
-      }
-      else {
-        final taskGroup = TaskGroupRepository.findByIdFromCache(
-            scheduledTask.taskGroupId);
-        return TaskEventForm(
-            formTitle: translate('forms.task_event.create.title_from_schedule'),
-            taskGroup: taskGroup,
-            title: scheduledTask.translatedTitle,
-            description:  scheduledTask.translatedDescription
-        );
-      }
-    }));
-    
-    if (newTaskEvent != null) {
-      TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-        toastInfo(context, translate('forms.task_event.create.success',
-            args: {"title" : newTaskEvent.translatedTitle}));
-        widget._pagesHolder
-            .taskEventList
-            ?.getGlobalKey()
-            .currentState
-            ?.addTaskEvent(newTaskEvent, justSetState: true);
-    
-        scheduledTask.executeSchedule(newTaskEvent);
-        ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-          cancelSnoozedNotification(scheduledTask);
-          updateScheduledTask(scheduledTask, changedScheduledTask);
-
-          DueScheduleCountService().dec();
-        });
-    
-        final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(newTaskEvent, scheduledTask);
-        ScheduledTaskEventRepository.insert(scheduledTaskEvent);
-    
-        PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-        if (root != null) {
-          final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
-          if (taskEventListState != null) {
-            taskEventListState.clearFilters();
-          }
-          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
-        }
-      });
-      return newTaskEvent;
-    }
-    else {
-      return null;
-    }
-  }
-
-  void cancelSnoozedNotification(ScheduledTask scheduledTask) {
-    _notificationService.cancelNotification(scheduledTask.id! + LocalNotificationService.RESCHEDULED_IDS_RANGE);
   }
 
   void _addScheduledTask(ScheduledTask scheduledTask) {
@@ -848,7 +774,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       });
     }
 
-    cancelSnoozedNotification(scheduledTask);
+    ScheduledTaskWidget.cancelSnoozedNotification(scheduledTask);
 
   }
 

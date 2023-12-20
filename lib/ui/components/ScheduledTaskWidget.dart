@@ -8,17 +8,23 @@ import 'package:personaltasklogger/util/extensions.dart';
 import '../../db/repository/ChronologicalPaging.dart';
 import '../../db/repository/ScheduledTaskEventRepository.dart';
 import '../../db/repository/ScheduledTaskRepository.dart';
+import '../../db/repository/TaskEventRepository.dart';
 import '../../db/repository/TaskGroupRepository.dart';
+import '../../db/repository/TemplateRepository.dart';
 import '../../model/Schedule.dart';
 import '../../model/ScheduledTask.dart';
+import '../../model/ScheduledTaskEvent.dart';
 import '../../model/TaskEvent.dart';
+import '../../model/Template.dart';
 import '../../service/DueScheduleCountService.dart';
+import '../../service/LocalNotificationService.dart';
 import '../../util/dates.dart';
 import '../../util/units.dart';
 import '../PersonalTaskLoggerApp.dart';
 import '../PersonalTaskLoggerScaffold.dart';
 import '../dialogs.dart';
 import '../forms/ScheduledTaskForm.dart';
+import '../forms/TaskEventForm.dart';
 import '../pages/TaskEventList.dart';
 
 class ScheduledTaskWidget extends StatefulWidget {
@@ -51,6 +57,78 @@ class ScheduledTaskWidget extends StatefulWidget {
   
   @override
   ScheduledTaskWidgetState createState() => ScheduledTaskWidgetState();
+
+
+  static Future<TaskEvent?> openAddJournalEntryFromSchedule(BuildContext context, PagesHolder pagesHolder, ScheduledTask scheduledTask) async {
+    final templateId = scheduledTask.templateId;
+    Template? template;
+    if (templateId != null) {
+      template = await TemplateRepository.findById(templateId);
+    }
+
+    TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      if (template != null) {
+        return TaskEventForm(
+          formTitle: translate('forms.task_event.create.title_from_schedule'),
+          template: template,
+        );
+      }
+      else {
+        final taskGroup = TaskGroupRepository.findByIdFromCache(
+            scheduledTask.taskGroupId);
+        return TaskEventForm(
+            formTitle: translate('forms.task_event.create.title_from_schedule'),
+            taskGroup: taskGroup,
+            title: scheduledTask.translatedTitle,
+            description:  scheduledTask.translatedDescription
+        );
+      }
+    }));
+
+    if (newTaskEvent != null) {
+      TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+        toastInfo(context, translate('forms.task_event.create.success',
+            args: {"title" : newTaskEvent.translatedTitle}));
+        pagesHolder
+            .taskEventList
+            ?.getGlobalKey()
+            .currentState
+            ?.addTaskEvent(newTaskEvent, justSetState: true);
+
+        scheduledTask.executeSchedule(newTaskEvent);
+        ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+          cancelSnoozedNotification(scheduledTask);
+          pagesHolder
+              .scheduledTaskList
+              ?.getGlobalKey()
+              .currentState
+              ?.updateScheduledTask(scheduledTask, changedScheduledTask);
+
+          DueScheduleCountService().dec();
+        });
+
+        final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(newTaskEvent, scheduledTask);
+        ScheduledTaskEventRepository.insert(scheduledTaskEvent);
+
+        PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
+        if (root != null) {
+          final taskEventListState = pagesHolder.taskEventList?.getGlobalKey().currentState;
+          if (taskEventListState != null) {
+            taskEventListState.clearFilters();
+          }
+          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
+        }
+      });
+      return newTaskEvent;
+    }
+    else {
+      return null;
+    }
+  }
+
+  static void cancelSnoozedNotification(ScheduledTask scheduledTask) {
+    LocalNotificationService().cancelNotification(scheduledTask.id! + LocalNotificationService.RESCHEDULED_IDS_RANGE);
+  }
 }
 
 class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
@@ -312,11 +390,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                         toastError(context, translate('pages.schedules.errors.cannot_resume'));
                         return;
                       }
-                      final state = widget.pagesHolder
-                          .scheduledTaskList
-                          ?.getGlobalKey()
-                          .currentState;
-                      state?.openAddJournalEntryFromSchedule(scheduledTask).then((createdTaskEvent) {
+                      ScheduledTaskWidget.openAddJournalEntryFromSchedule(context, widget.pagesHolder, scheduledTask).then((createdTaskEvent) {
                         if (widget.onAfterJournalEntryFromScheduleCreated != null)
                           widget.onAfterJournalEntryFromScheduleCreated!(createdTaskEvent);
                       });
@@ -361,7 +435,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                                 .scheduledTaskList
                                 ?.getGlobalKey()
                                 .currentState;
-                            state?.cancelSnoozedNotification(scheduledTask);
+                            ScheduledTaskWidget.cancelSnoozedNotification(scheduledTask);
                             state?.updateScheduledTask(scheduledTask, changedScheduledTask);
 
                             setState(() {
@@ -396,7 +470,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                                         .scheduledTaskList
                                         ?.getGlobalKey()
                                         .currentState;
-                                    state?.cancelSnoozedNotification(scheduledTask);
+                                    ScheduledTaskWidget.cancelSnoozedNotification(scheduledTask);
                                     state?.updateScheduledTask(scheduledTask, changedScheduledTask);
 
                                     setState(() {
@@ -448,7 +522,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                               .scheduledTaskList
                               ?.getGlobalKey()
                               .currentState;
-                          state?.cancelSnoozedNotification(scheduledTask);
+                          ScheduledTaskWidget.cancelSnoozedNotification(scheduledTask);
                           state?.updateScheduledTask(scheduledTask, changedScheduledTask);
 
                           setState(() {
@@ -528,7 +602,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                             .scheduledTaskList
                             ?.getGlobalKey()
                             .currentState;
-                        state?.cancelSnoozedNotification(changedScheduledTask);
+                        ScheduledTaskWidget.cancelSnoozedNotification(changedScheduledTask);
                         state?.updateScheduledTask(scheduledTask, changedScheduledTask);
 
                         setState(() {
