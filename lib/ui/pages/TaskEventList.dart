@@ -229,6 +229,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         _filteredTaskEvents = null;
       }
     });
+    taskEventFilterKey.currentState?.refresh(taskFilterSettings);
   }
 
   void addTaskEvent(TaskEvent taskEvent, {bool justSetState = false}) {
