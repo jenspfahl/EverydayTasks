@@ -545,7 +545,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
       description: scheduledTask.translatedDescription??"",
       startTime: scheduledTask.getNextSchedule()!,
       endTime: scheduledTask.getNextSchedule()!.add(duration),
-      color: TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId).backgroundColor,
+      color: TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId).backgroundColor(context),
       titleStyle: TextStyle(color: Colors.black54),
     );
     return event;
@@ -571,7 +571,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
       description: taskEvent.translatedDescription??"",
       startTime: startAt,
       endTime: endAt,
-      color: TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!).backgroundColor,
+      color: TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!).backgroundColor(context),
       titleStyle: TextStyle(color: Colors.black54),
     );
   }
@@ -747,7 +747,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final object = event.event;
     final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
     final taskGroup = _getTaskGroup(taskGroupId);
-    final backgroundColor = isSelected ? taskGroup?.softColor??event.color : event.color;
+    final backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
     final icon = _getEventIcon(taskGroup);
     
     return CustomPaint(
@@ -772,7 +772,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final icon = taskGroup != null
         ? Icon(
             taskGroup.getIcon(true).icon,
-            color: taskGroup.accentColor,
+            color: taskGroup.accentColor(context),
             size: (16 * _scaleFactor).max(16),
           )
         : null;
@@ -826,7 +826,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
         final object = event.event;
         final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
         final taskGroup = _getTaskGroup(taskGroupId);
-        final backgroundColor = isSelected ? taskGroup?.softColor??event.color : event.color;
+        final backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
         final icon = _getEventIcon(taskGroup);
 
         return Container(

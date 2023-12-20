@@ -820,7 +820,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         translate(messageKey, args: {"title": scheduledTask.translatedTitle}),
         missingDuration,
         CHANNEL_ID_SCHEDULES,
-        taskGroup.backgroundColor,
+        taskGroup.backgroundColor(context),
         [
           AndroidNotificationAction("track", translate('pages.schedules.notification.action_track'), showsUserInterface: true),
           AndroidNotificationAction("snooze", translate('pages.schedules.notification.action_snooze',

@@ -228,7 +228,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                 ? [
                                   DropdownMenuItem(
                                     value: _taskGroup,
-                                    child: _taskGroup.getTaskGroupRepresentation(useIconColor: true))
+                                    child: _taskGroup.getTaskGroupRepresentation(context, useIconColor: true))
                                   ]
                                 : [
                                   DropdownMenuItem(

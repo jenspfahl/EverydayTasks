@@ -187,7 +187,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       key: group.getKey(),
       label: kReleaseMode ? group.translatedName : '${group.translatedName} (id=${group.id})',
       icon: group.iconData,
-      iconColor: group.foregroundColor,
+      iconColor: group.foregroundColor(context),
       parent: true,
       data: group,
       children: templates,
@@ -357,7 +357,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       key: template.getKey(),
       label: template.translatedTitle,
       icon: group.iconData,
-      iconColor: group.softColor,
+      iconColor: group.softColor(context),
       data: template,
       children: templateVariants,
       expanded: _forceExpandOrCollapseAll != null
@@ -372,7 +372,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       key: variant.getKey(),
       label: variant.translatedTitle,
       icon: group.iconData,
-      iconColor: group.backgroundColor,
+      iconColor: group.backgroundColor(context),
       data: variant,
     );
   }

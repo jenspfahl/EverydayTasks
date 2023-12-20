@@ -274,7 +274,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
 
   Color _getColorFromScheduledTask(ScheduledTask scheduledTask) {
     final taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
-    return taskGroup.foregroundColor;
+    return taskGroup.foregroundColor(context);
   }
 
 }

@@ -249,7 +249,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                           items: TaskGroupRepository.getAllCached(inclHidden: false).map((TaskGroup group) {
                             return DropdownMenuItem(
                               value: group,
-                              child: group.getTaskGroupRepresentation(useIconColor: true),
+                              child: group.getTaskGroupRepresentation(context, useIconColor: true),
                             );
                           }).toList(),
                           validator: (TaskGroup? value) {

@@ -87,7 +87,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
           ),
           subtitle: Column(
             children: [
-              _isExpanded ? taskGroup.getTaskGroupRepresentation(useIconColor: true) : _buildShortProgressText(scheduledTask),
+              _isExpanded ? taskGroup.getTaskGroupRepresentation(context, useIconColor: true) : _buildShortProgressText(scheduledTask),
               Visibility(
                 visible: scheduledTask.active,
                 child: Opacity(
@@ -106,8 +106,8 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
             ],
           ),
           children: expansionWidgets,
-          collapsedBackgroundColor: taskGroup.backgroundColor,
-          backgroundColor: taskGroup.softColor,
+          collapsedBackgroundColor: taskGroup.backgroundColor(context),
+          backgroundColor: taskGroup.softColor(context),
           textColor: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR,
           initiallyExpanded: widget.shouldExpand != null ? widget.shouldExpand!() : _isExpanded,
           onExpansionChanged: (expanded) {

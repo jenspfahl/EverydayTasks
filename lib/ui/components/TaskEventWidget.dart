@@ -44,10 +44,10 @@ class TaskEventWidget extends StatefulWidget {
   @override
   TaskEventWidgetState createState() => TaskEventWidgetState();
 
-  static Widget? taskGroupPresentation(TaskEvent taskEvent) {
+  static Widget? taskGroupPresentation(BuildContext context, TaskEvent taskEvent) {
     if (taskEvent.taskGroupId != null) {
       final taskGroup = TaskGroupRepository.findByIdFromCache(taskEvent.taskGroupId!);
-      return taskGroup.getTaskGroupRepresentation(useIconColor: true);
+      return taskGroup.getTaskGroupRepresentation(context, useIconColor: true);
     }
     return null;
   }
@@ -102,10 +102,10 @@ class TaskEventWidgetState extends State<TaskEventWidget> {
             )
           ],
         ),
-        subtitle: _isExpanded ? TaskEventWidget.taskGroupPresentation(taskEvent) : TaskEventWidget.buildWhenText(taskEvent, small: true),
+        subtitle: _isExpanded ? TaskEventWidget.taskGroupPresentation(context, taskEvent) : TaskEventWidget.buildWhenText(taskEvent, small: true),
         children: expansionWidgets,
-        collapsedBackgroundColor: taskGroup.backgroundColor,
-        backgroundColor: taskGroup.softColor,
+        collapsedBackgroundColor: taskGroup.backgroundColor(context),
+        backgroundColor: taskGroup.softColor(context),
         textColor: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR,
         initiallyExpanded: widget.shouldExpand != null ? widget.shouldExpand!() : _isExpanded,
         onExpansionChanged: (expanded) {
@@ -333,7 +333,7 @@ class TaskEventWidgetState extends State<TaskEventWidget> {
           Row(
             children: [
               boldedText("${translate('pages.journal.details.attrib_category')}: "),
-              TaskEventWidget.taskGroupPresentation(taskEvent) ?? Text("-${translate('pages.journal.details.value_uncategorized')}-"),
+              TaskEventWidget.taskGroupPresentation(context, taskEvent) ?? Text("-${translate('pages.journal.details.value_uncategorized')}-"),
             ],
           ),
           Divider(),
@@ -396,7 +396,7 @@ class TaskEventWidgetState extends State<TaskEventWidget> {
       children: [
         Row(
           children: [
-            originTaskGroup.getTaskGroupRepresentation(useIconColor: true),
+            originTaskGroup.getTaskGroupRepresentation(context, useIconColor: true),
             const Text(" /"),
           ],
         ),
@@ -413,7 +413,7 @@ class TaskEventWidgetState extends State<TaskEventWidget> {
       children: [
         Row(
           children: [
-            originTaskGroup.getTaskGroupRepresentation(useIconColor: true),
+            originTaskGroup.getTaskGroupRepresentation(context, useIconColor: true),
             const Text(" /"),
           ],
         ),
