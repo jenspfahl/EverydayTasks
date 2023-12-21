@@ -19,6 +19,7 @@ import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
 import '../../util/units.dart';
@@ -75,6 +76,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   final ID_MULTIPLIER_FOR_FIXED_SCHEDULES = 1000000;
 
+  final _listScrollController = ItemScrollController();
 
   List<ScheduledTask> _scheduledTasks = [];
   bool _initialLoaded = false;
@@ -436,8 +438,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           children: [
             statusTile,
             Expanded(
-              child: ListView.builder(
+              child: ScrollablePositionedList.builder(
                   itemCount: _scheduledTasks.length,
+                  itemScrollController: _listScrollController,
                   itemBuilder: (context, index) {
                     var scheduledTask = _scheduledTasks[index];
                     var taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
@@ -501,7 +504,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         debugPrint("scheduleId = $scheduleId");
         final clickedScheduledTask = _scheduledTasks.firstWhereOrNull((scheduledTask) => scheduledTask.id == scheduleId);
         if (clickedScheduledTask != null) {
-          _selectedTile = _scheduledTasks.indexOf(clickedScheduledTask);
+          _updateSelectedTile(_scheduledTasks.indexOf(clickedScheduledTask));
           if (actionId == "track") {
             ScheduledTaskWidget.openAddJournalEntryFromSchedule(context, widget._pagesHolder, clickedScheduledTask);
           }
@@ -536,7 +539,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     setState(() {
       _scheduledTasks.add(scheduledTask);
       _sortList();
-      _selectedTile = _scheduledTasks.indexOf(scheduledTask);
+      _updateSelectedTile(_scheduledTasks.indexOf(scheduledTask));
       _rescheduleNotification(scheduledTask, withCancel: false);
       _calcOverallStats();
     });
@@ -551,7 +554,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         _scheduledTasks.insert(index, updated);
       }
       _sortList();
-      _selectedTile = _scheduledTasks.indexOf(updated);
+      _updateSelectedTile(_scheduledTasks.indexOf(updated));
       _calcOverallStats();
 
       _rescheduleNotification(updated,
@@ -891,6 +894,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   void _setStatusTileHidden(bool value) {
     _statusTileHidden = value;
     _preferenceService.setBool(PreferenceService.DATA_SHOW_SCHEDULED_SUMMARY, !value);
+  }
+
+  _updateSelectedTile(int index) {
+    _selectedTile = index;
+    if (index != -1) {
+      _listScrollController.jumpTo(index: index);
+    }
   }
   
 }

@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
-import 'package:intl/date_symbol_data_file.dart';
-import 'package:intl/intl.dart';
 import 'package:patterns_canvas/patterns_canvas.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
@@ -23,7 +21,6 @@ import '../../model/Template.dart';
 import '../../model/When.dart';
 import '../../service/PreferenceService.dart';
 import '../../util/dates.dart';
-import '../../util/i18n.dart';
 import '../PersonalTaskLoggerApp.dart';
 import '../PersonalTaskLoggerScaffold.dart';
 import '../components/TaskEventFilter.dart';
@@ -606,14 +603,16 @@ class _CalendarPageStatus extends State<CalendarPage> {
   }
 
   Widget _buildEventSheetContent(event, TaskGroup? taskGroup) {
-    String? title;
     if (event is TaskEvent) {
-      title = event.translatedTitle;
       return GestureDetector(
         onLongPress: () {
           sheetController?.close();
           Navigator.pop(context);
           if (appScaffoldKey.currentState != null) {
+            final taskEventListState = widget.pagesHolder.taskEventList?.getGlobalKey().currentState;
+            if (taskEventListState != null) {
+              taskEventListState.clearFilters();
+            }
             appScaffoldKey.currentState!.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, event.id.toString(), null);
           }
         },
@@ -642,7 +641,6 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
     else if (event is ScheduledTask) {
       final scheduledTask = event;
-      title = scheduledTask.translatedTitle;
       return GestureDetector(
         onLongPress: () {
           sheetController?.close();

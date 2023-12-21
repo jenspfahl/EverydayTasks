@@ -23,6 +23,7 @@ import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../service/DueScheduleCountService.dart';
 import '../../service/LocalNotificationService.dart';
@@ -78,6 +79,8 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
 
   String? _searchQuery;
   late Timer _timer;
+
+  final _listScrollController = ItemScrollController();
 
 
   @override
@@ -250,13 +253,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     setState(() {
       _taskEvents.add(taskEvent);
       _taskEvents..sort();
-      _selectedTile = _taskEvents.indexOf(taskEvent);
+      _updateSelectedTile(_taskEvents.indexOf(taskEvent));
       _hiddenTiles.remove(truncToDate(taskEvent.startedAt));
 
       if (_filteredTaskEvents != null) {
         _filteredTaskEvents?.add(taskEvent);
         _filteredTaskEvents?..sort();
-        _selectedTile = _filteredTaskEvents?.indexOf(taskEvent)??-1;
+        _updateSelectedTile(_filteredTaskEvents?.indexOf(taskEvent) ?? -1);
       }
     });
   }
@@ -294,7 +297,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       }
       _taskEvents..sort();
       if (selectItem) {
-        _selectedTile = _taskEvents.indexOf(updated);
+        _updateSelectedTile(_taskEvents.indexOf(updated));
       }
 
       if (_filteredTaskEvents != null) {
@@ -305,7 +308,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         }
         _filteredTaskEvents?..sort();
         if (selectItem) {
-          _selectedTile = _filteredTaskEvents?.indexOf(updated) ?? -1;
+          _updateSelectedTile(_filteredTaskEvents?.indexOf(updated) ?? -1);
         }
       }
     });
@@ -373,8 +376,9 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           : taskEvent.duration;
 
     }
-    return ListView.builder(
+    return ScrollablePositionedList.builder(
         itemCount: list.length,
+        itemScrollController: _listScrollController,
         itemBuilder: (context, index) {
           var taskEvent = list[index];
           var taskEventDate = truncToDate(taskEvent.startedAt);
@@ -584,7 +588,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         debugPrint("foundIndex= $foundIndex");
         if (foundIndex != -1) {
           setState(() {
-            _selectedTile = foundIndex;
+            _updateSelectedTile(foundIndex);
           });
         }
       }
@@ -629,6 +633,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           });
         }
       }
+    }
+  }
+
+  _updateSelectedTile(int index) {
+    _selectedTile = index;
+    if (index != -1) {
+      _listScrollController.jumpTo(index: index);
     }
   }
 
