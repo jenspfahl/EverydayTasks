@@ -1,0 +1,6 @@
+* Add new calendar page to visualize journal and schedules on time
+* Add an app introduction for new users
+* Add french language (thanks to https://github.com/Egareg1)
+* Improve dark theme color saturation
+* Improve task tree handling
+* Smaller bug fixes
