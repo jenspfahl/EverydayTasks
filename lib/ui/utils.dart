@@ -91,3 +91,17 @@ void launchUrl(url) async {
 Text boldedText(String text) => Text(text, style: TextStyle(fontWeight: FontWeight.bold));
 
 Text wrappedText(String text) => Text(text, softWrap: true);
+
+int? workaroundForScrollableList(int index, int listLength) {
+  // this is a workaround of a bug in ScrollablePositionedList
+  if (index <= -1 && listLength == 0) {
+    return null;
+  }
+  if (index <= -1 && listLength == 1) {
+    index = 0;
+  }
+  if (index >= listLength && listLength > 0) {
+     index = listLength - 1;
+  }
+  return index;
+}

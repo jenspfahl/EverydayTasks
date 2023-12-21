@@ -380,6 +380,13 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
         itemCount: list.length,
         itemScrollController: _listScrollController,
         itemBuilder: (context, index) {
+          // this is a workaround of a bug in ScrollablePositionedList
+          final workaround = workaroundForScrollableList(index, list.length);
+          if (workaround == null) {
+            return Container();
+          }
+          index = workaround;
+
           var taskEvent = list[index];
           var taskEventDate = truncToDate(taskEvent.startedAt);
           return Visibility(

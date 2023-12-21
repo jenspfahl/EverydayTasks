@@ -442,6 +442,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   itemCount: _scheduledTasks.length,
                   itemScrollController: _listScrollController,
                   itemBuilder: (context, index) {
+                    // this is a workaround of a bug in ScrollablePositionedList
+                    final workaround = workaroundForScrollableList(index, _scheduledTasks.length);
+                    if (workaround == null) {
+                      return Container();
+                    }
+                    index = workaround;
+
                     var scheduledTask = _scheduledTasks[index];
                     var taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
                     return _buildRow(index, scheduledTask, taskGroup);
