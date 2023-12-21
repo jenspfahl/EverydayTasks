@@ -809,10 +809,11 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   Widget build(BuildContext context) {
     TreeViewTheme _treeViewTheme = TreeViewTheme(
       expanderTheme: ExpanderThemeData(
-          type: ExpanderType.caret,
+          type: ExpanderType.plusMinus, //TODO wrong direction
           modifier: ExpanderModifier.none,
           position: ExpanderPosition.end,
-          size: 20),
+          color: isDarkMode(context) ? Colors.white60 : Colors.black54,
+          size: 14),
       labelStyle: TextStyle(
         fontSize: 16,
         letterSpacing: 0.3,
@@ -835,7 +836,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       child: TreeView(
         controller: _treeViewController,
         allowParentSelect: true,
-        supportParentDoubleTap: false,
+        supportParentDoubleTap: true, //TODO check it out
         onExpansionChanged: (key, expanded) =>
             _expandNode(key, expanded),
         onNodeTap: (key) {
