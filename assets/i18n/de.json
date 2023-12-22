@@ -299,13 +299,13 @@
         "remove_task": {
           "error_has_children": "Bitte erst zugehörige Varianten entfernen!",
           "title": "Entferne Aufgabe",
-          "message_custom": "Die Aufgabe '{title} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
+          "message_custom": "Die Aufgabe '{title}' soll entfernt werden. Dies kann nicht rückgängig gemacht werden!",
           "message_predefined": "Die Aufgabe '{title}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
           "success": "Die Aufgabe '{title}' wurde entfernt"
         },
         "remove_variant": {
           "title": "Entferne Variante",
-          "message_custom": "Die Variante '{title} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
+          "message_custom": "Die Variante '{title}' soll entfernt werden. Dies kann nicht rückgängig gemacht werden!",
           "message_predefined": "Die Variante '{title}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
           "success": "Die Variante '{title}' wurde entfernt"
         },
