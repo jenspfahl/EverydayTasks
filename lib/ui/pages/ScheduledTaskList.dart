@@ -19,7 +19,7 @@ import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
 import '../../util/units.dart';
@@ -76,7 +76,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   final ID_MULTIPLIER_FOR_FIXED_SCHEDULES = 1000000;
 
-  final _listScrollController = ItemScrollController();
+  final _listScrollController = AutoScrollController(suggestedRowHeight: 40);
 
   List<ScheduledTask> _scheduledTasks = [];
   bool _initialLoaded = false;
@@ -438,20 +438,19 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           children: [
             statusTile,
             Expanded(
-              child: ScrollablePositionedList.builder(
+              child: ListView.builder(
                   itemCount: _scheduledTasks.length,
-                  itemScrollController: _listScrollController,
+                  controller: _listScrollController,
                   itemBuilder: (context, index) {
-                    // this is a workaround of a bug in ScrollablePositionedList
-                    final workaround = workaroundForScrollableList(index, _scheduledTasks.length);
-                    if (workaround == null) {
-                      return Container();
-                    }
-                    index = workaround;
-
                     var scheduledTask = _scheduledTasks[index];
                     var taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
-                    return _buildRow(index, scheduledTask, taskGroup);
+                    final row = _buildRow(index, scheduledTask, taskGroup);
+                    return AutoScrollTag(
+                      key: ValueKey(index),
+                      controller: _listScrollController,
+                      index: index,
+                      child: row,
+                    );
                   }),
             ),
           ],
@@ -906,7 +905,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   _updateSelectedTile(int index) {
     _selectedTile = index;
     if (index != -1) {
-      _listScrollController.jumpTo(index: index);
+      _listScrollController.scrollToIndex(index, duration: Duration(milliseconds: 1));
     }
   }
   

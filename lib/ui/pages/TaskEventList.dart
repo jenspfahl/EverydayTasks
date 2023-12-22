@@ -23,7 +23,7 @@ import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../../service/DueScheduleCountService.dart';
 import '../../service/LocalNotificationService.dart';
@@ -80,7 +80,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   String? _searchQuery;
   late Timer _timer;
 
-  final _listScrollController = ItemScrollController();
+  final _listScrollController = AutoScrollController(suggestedRowHeight: 40);
 
 
   @override
@@ -376,22 +376,20 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
           : taskEvent.duration;
 
     }
-    return ScrollablePositionedList.builder(
+    return ListView.builder(
         itemCount: list.length,
-        itemScrollController: _listScrollController,
+        controller: _listScrollController,
         itemBuilder: (context, index) {
-          // this is a workaround of a bug in ScrollablePositionedList
-          final workaround = workaroundForScrollableList(index, list.length);
-          if (workaround == null) {
-            return Container();
-          }
-          index = workaround;
-
           var taskEvent = list[index];
           var taskEventDate = truncToDate(taskEvent.startedAt);
-          return Visibility(
-            visible: dateHeadings[index] != null || !_hiddenTiles.contains(taskEventDate),
-            child: _buildRow(list, index, dateHeadings, dateCounts, dateDurations),
+          return AutoScrollTag(
+            key: ValueKey(index),
+            controller: _listScrollController,
+            index: index,
+            child: Visibility(
+              visible: dateHeadings[index] != null || !_hiddenTiles.contains(taskEventDate),
+              child: _buildRow(list, index, dateHeadings, dateCounts, dateDurations),
+            ),
           );
         });
   }
@@ -646,7 +644,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   _updateSelectedTile(int index) {
     _selectedTile = index;
     if (index != -1) {
-      _listScrollController.jumpTo(index: index);
+      _listScrollController.scrollToIndex(index, duration: Duration(milliseconds: 1));
     }
   }
 
