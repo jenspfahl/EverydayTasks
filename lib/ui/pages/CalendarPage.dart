@@ -187,17 +187,21 @@ class _CalendarPageStatus extends State<CalendarPage> {
           IconButton(
             icon: Icon(Icons.today),
             onPressed: () async {
-              var when = DateTime.now();
-              if (_selectedEvent != null) {
-                when = _selectedEvent!.startTime ?? _selectedEvent!.date;
-              }
-              await _jumpToDateTime(when);
+              await _jumpToSelectionOrToday();
             },
           ),
         ],
       ),
       body: _createBody(context),
     );
+  }
+
+  Future<void> _jumpToSelectionOrToday() async {
+    var when = DateTime.now();
+    if (_selectedEvent != null) {
+      when = _selectedEvent!.startTime ?? _selectedEvent!.date;
+    }
+    await _jumpToDateTime(when);
   }
 
 
@@ -934,12 +938,16 @@ class _CalendarPageStatus extends State<CalendarPage> {
   }
 
   void _updateCalendarMode(CalendarMode mode) {
+    final jumpToToday = mode != CalendarMode.MONTH && _calendarMode == CalendarMode.MONTH && dayAndWeekViewScrollPixels == 0;
     setState(() {
       _calendarModeSelection[_calendarMode.index] = false;
       _calendarModeSelection[mode.index] = true;
       _calendarMode = mode;
     });
     PreferenceService().setInt(PreferenceService.DATA_CURRENT_CALENDAR_MODE, mode.index);
+    if (jumpToToday) {
+      _jumpToSelectionOrToday();
+    }
   }
 
 
