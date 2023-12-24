@@ -94,7 +94,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
       });
     });
 
-    _loadTaskEvents();
+    _loadTaskEvents(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId);
 
     Permission.notification.request().then((status) {
       debugPrint("notification permission = $status");
@@ -104,19 +104,26 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     });
   }
 
-  void _loadTaskEvents() {
-    final paging = ChronologicalPaging(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId, 1000000);
+  void _loadTaskEvents(DateTime dateTime, int id) {
+    final paging = ChronologicalPaging(dateTime, id, 500);
+    debugPrint("load with $paging");
     TaskEventRepository.getAllPaged(paging).then((taskEvents) {
-      setState(() {
-        _taskEvents = taskEvents;
-      });
+      debugPrint("got  ${taskEvents.length}");
+      if (taskEvents.isNotEmpty) {
+        setState(() {
+          _taskEvents.addAll(taskEvents);
+        });
+        final last = taskEvents.last;
+        _loadTaskEvents(last.startedAt, last.id!);
+      }
     });
   }
 
 
   @override
   reload() {
-    _loadTaskEvents();
+    _taskEvents.clear();
+    _loadTaskEvents(ChronologicalPaging.maxDateTime, ChronologicalPaging.maxId);
   }
 
   @override

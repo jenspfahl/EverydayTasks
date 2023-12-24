@@ -366,7 +366,7 @@ class _$TaskEventDao extends TaskEventDao {
     int limit,
   ) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM TaskEventEntity WHERE startedAt < ?1 AND id < ?2 ORDER BY startedAt DESC, id DESC LIMIT ?3',
+        'SELECT * FROM TaskEventEntity WHERE startedAt <= ?1 AND id < ?2 ORDER BY startedAt DESC, id DESC LIMIT ?3',
         mapper: (Map<String, Object?> row) => TaskEventEntity(row['id'] as int?, row['taskGroupId'] as int?, row['originTaskTemplateId'] as int?, row['originTaskTemplateVariantId'] as int?, row['title'] as String, row['description'] as String?, row['createdAt'] as int, row['startedAt'] as int, row['aroundStartedAt'] as int, row['duration'] as int, row['aroundDuration'] as int, row['trackingFinishedAt'] as int?, row['severity'] as int, (row['favorite'] as int) != 0),
         arguments: [lastStartedAt, lastId, limit]);
   }

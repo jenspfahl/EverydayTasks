@@ -5,7 +5,7 @@ import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 abstract class TaskEventDao {
 
   @Query('SELECT * FROM TaskEventEntity '
-      'WHERE startedAt < :lastStartedAt AND id < :lastId ORDER BY startedAt DESC, id DESC LIMIT :limit')
+      'WHERE startedAt <= :lastStartedAt AND id < :lastId ORDER BY startedAt DESC, id DESC LIMIT :limit')
   Future<List<TaskEventEntity>> findAllBeginningByStartedAt(int lastStartedAt, int lastId, int limit);
 
   @Query('SELECT * FROM TaskEventEntity WHERE id = :id')
