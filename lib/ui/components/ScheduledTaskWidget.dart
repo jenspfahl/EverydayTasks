@@ -391,6 +391,9 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                         return;
                       }
                       ScheduledTaskWidget.openAddJournalEntryFromSchedule(context, widget.pagesHolder, scheduledTask).then((createdTaskEvent) {
+                        setState(() {
+                          scheduledTask.apply(scheduledTask);
+                        });
                         if (widget.onAfterJournalEntryFromScheduleCreated != null)
                           widget.onAfterJournalEntryFromScheduleCreated!(createdTaskEvent);
                       });
