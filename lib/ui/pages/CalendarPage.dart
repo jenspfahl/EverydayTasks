@@ -787,8 +787,15 @@ class _CalendarPageStatus extends State<CalendarPage> {
   String _headerTimeBuilder(DateTime date, {DateTime? secondaryDate}) =>
     "${formatToTime(date)}";
 
-  String _headerDayBuilder(DateTime date, {DateTime? secondaryDate}) =>
-    "${formatToDate(date, context, showWeekdays: true)}";
+  String _headerDayBuilder(DateTime date, {DateTime? secondaryDate}) {
+    final word = formatToWord(date);
+    if (word != null) {
+      return "${formatToDate(date, context, showWeekdays: true)} ($word)";
+    }
+    else {
+      return "${formatToDate(date, context, showWeekdays: true)}";
+    }
+  }
 
   String _headerWeekBuilder(DateTime date, {DateTime? secondaryDate}) =>
     "${formatToDate(date, context, showWeekdays: false)} ${secondaryDate != null ? " - ${formatToDate(secondaryDate, context, showWeekdays: false)}" : ""}";

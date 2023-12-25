@@ -22,7 +22,7 @@ DateTime truncToMinutes(DateTime dateTime) {
 
 String formatToDateOrWord(DateTime dateTime, BuildContext context,
     {bool withPreposition = false, bool makeWhenOnLowerCase = false}) {
-  final word = _formatToWord(dateTime);
+  final word = formatToWord(dateTime);
   if (word != null) {
     return makeWhenOnLowerCase ? word.toLowerCase() : word;
   }
@@ -32,7 +32,7 @@ String formatToDateOrWord(DateTime dateTime, BuildContext context,
   return formatToDate(dateTime, context);
 }
 
-String? _formatToWord(DateTime dateTime) {
+String? formatToWord(DateTime dateTime) {
   if (isToday(dateTime)) {
     return translate('common.dates.today');
   }
