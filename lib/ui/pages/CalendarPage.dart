@@ -281,6 +281,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
       final updatedEvent = await _mapScheduledTaskToCalendarEventData(event);
       _scheduledTaskCalendarEvents.add(updatedEvent);
       _filteredScheduledTaskCalendarEvents?.add(updatedEvent);
+
       _addToCalendar(updatedEvent);
     }
   }
@@ -732,10 +733,12 @@ class _CalendarPageStatus extends State<CalendarPage> {
             sheetController?.close();
             Navigator.pop(context);
           },
-          onAfterJournalEntryFromScheduleCreated: (taskEvent) {
+          onAfterJournalEntryFromScheduleCreated: (taskEvent) async {
             if (taskEvent != null) {
               _addModel(taskEvent);
               _updateModel(scheduledTask);
+              final updatedEvent = await _mapScheduledTaskToCalendarEventData(scheduledTask);
+              setState(() => _selectedEvent = updatedEvent);
             }
           },
         ),

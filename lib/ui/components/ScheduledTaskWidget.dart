@@ -86,29 +86,29 @@ class ScheduledTaskWidget extends StatefulWidget {
     }));
 
     if (newTaskEvent != null) {
-      TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-        toastInfo(context, translate('forms.task_event.create.success',
-            args: {"title" : newTaskEvent.translatedTitle}));
+      final insertedTaskEvent = await TaskEventRepository.insert(newTaskEvent);
+      pagesHolder
+          .taskEventList
+          ?.getGlobalKey()
+          .currentState
+          ?.addTaskEvent(insertedTaskEvent, justSetState: true);
+
+      scheduledTask.executeSchedule(insertedTaskEvent);
+      ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+        cancelSnoozedNotification(scheduledTask);
         pagesHolder
-            .taskEventList
+            .scheduledTaskList
             ?.getGlobalKey()
             .currentState
-            ?.addTaskEvent(newTaskEvent, justSetState: true);
+            ?.updateScheduledTask(scheduledTask, changedScheduledTask);
 
-        scheduledTask.executeSchedule(newTaskEvent);
-        ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-          cancelSnoozedNotification(scheduledTask);
-          pagesHolder
-              .scheduledTaskList
-              ?.getGlobalKey()
-              .currentState
-              ?.updateScheduledTask(scheduledTask, changedScheduledTask);
+        DueScheduleCountService().dec();
 
-          DueScheduleCountService().dec();
-        });
-
-        final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(newTaskEvent, scheduledTask);
+        final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(insertedTaskEvent, scheduledTask);
         ScheduledTaskEventRepository.insert(scheduledTaskEvent);
+
+        toastInfo(context, translate('forms.task_event.create.success',
+            args: {"title" : insertedTaskEvent.translatedTitle}));
 
         PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
         if (root != null) {
@@ -116,10 +116,10 @@ class ScheduledTaskWidget extends StatefulWidget {
           if (taskEventListState != null) {
             taskEventListState.clearFilters();
           }
-          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
+          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, insertedTaskEvent.id.toString(), null);
         }
       });
-      return newTaskEvent;
+      return insertedTaskEvent;
     }
     else {
       return null;
@@ -391,9 +391,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                         return;
                       }
                       ScheduledTaskWidget.openAddJournalEntryFromSchedule(context, widget.pagesHolder, scheduledTask).then((createdTaskEvent) {
-                        setState(() {
-                          scheduledTask.apply(scheduledTask);
-                        });
+                        setState(() {}); // refresh ui
                         if (widget.onAfterJournalEntryFromScheduleCreated != null)
                           widget.onAfterJournalEntryFromScheduleCreated!(createdTaskEvent);
                       });
