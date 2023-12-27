@@ -74,9 +74,6 @@ class _CalendarPageStatus extends State<CalendarPage> {
   List<CalendarEventData<TaskEvent>> _taskEventCalendarEvents = [];
   List<CalendarEventData<ScheduledTask>> _scheduledTaskCalendarEvents = [];
 
-  List<CalendarEventData<TaskEvent>>? _filteredTaskEventCalendarEvents ;
-  List<CalendarEventData<ScheduledTask>>? _filteredScheduledTaskCalendarEvents;
-
 
   double _baseScaleFactor = defaultScale;
   double _scaleFactor = defaultScale;
@@ -97,11 +94,19 @@ class _CalendarPageStatus extends State<CalendarPage> {
     _eventTypeSelection = [true, true];
     _calendarModeSelection = List.generate(CalendarMode.values.length, (index) => index == _calendarMode.index);
 
-    final fTaskEvents = _loadTaskEvents(); // TODO load task event partly
+    final fTaskEvents = _loadFirstTaskEvents(CalendarConstants.maxDate, ChronologicalPaging.maxId);
     final fScheduledTasks = _loadSchedulesTasks();
-    Future.wait([fTaskEvents, fScheduledTasks]).then((_) {
-      _refreshModelAndFilterCalendar();
+    Future.wait([fTaskEvents, fScheduledTasks]).then((events) {
+      final taskEvents = events.first;
+      final scheduledTasks = events.last;
+
+      _mapAndAddTaskEventsToCalendar(taskEvents);
+      _mapAndAddScheduledTasksToCalendar(scheduledTasks);
+
+      _loadRemainingTaskEvents(taskEvents.lastOrNull as TaskEvent?);
+
       _scrollToTime(DateTime.now());
+
     });
 
     PreferenceService().getBool(PREF_DISABLE_NOTIFICATIONS).then((value) {
@@ -115,7 +120,6 @@ class _CalendarPageStatus extends State<CalendarPage> {
     PreferenceService().getInt(PreferenceService.DATA_CURRENT_CALENDAR_MODE).then((value) {
       if (value != null) {
         _updateCalendarMode(CalendarMode.values[value]);
-        _refreshModelAndFilterCalendar();
       }
     });
     PreferenceService().getInt(PreferenceService.DATA_CURRENT_EVENT_TYPE).then((value) {
@@ -132,11 +136,12 @@ class _CalendarPageStatus extends State<CalendarPage> {
             _eventTypeSelection = [true, true];
           }
           else {
-            _eventTypeSelection = [true, true]; //
+            // if NONE was stored for some reason, change to BOTH to not display nothing
+            _eventType = EventType.BOTH;
+            _eventTypeSelection = [true, true];
           }
-
+          _refreshModelAndFilterCalendar();
         });
-        _refreshModelAndFilterCalendar();
       }
     });
 
@@ -150,6 +155,38 @@ class _CalendarPageStatus extends State<CalendarPage> {
       });
     });
 
+  }
+
+  _mapAndAddScheduledTasksToCalendar(List<TitleAndDescription> scheduledTasks) async {
+    final eventData = await Future.wait(scheduledTasks.map((e) => _mapScheduledTaskToCalendarEventData(e as ScheduledTask)));
+    _scheduledTaskCalendarEvents.addAll(eventData);
+    if (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH) {
+      calendarController.addAll(eventData);
+    }
+  }
+
+  _mapAndAddTaskEventsToCalendar(List<TitleAndDescription> taskEvents) async {
+    final eventData = taskEvents.map((e) => _mapTaskEventToCalendarEventData(e as TaskEvent)).toList();
+    _taskEventCalendarEvents.addAll(eventData);
+    if (_eventType == EventType.EVENT || _eventType == EventType.BOTH) {
+      calendarController.addAll(eventData);
+    }
+
+    taskEvents.forEach((taskEvent) async {
+      final eventData = _mapTaskEventToCalendarEventData(taskEvent as TaskEvent);
+      _taskEventCalendarEvents.add(eventData);
+      _addToCalendar(eventData);
+    });
+  }
+
+  void _loadRemainingTaskEvents(TaskEvent? lastTaskEvent) {
+    if (lastTaskEvent != null) {
+      debugPrint("load remaining (last id = ${lastTaskEvent.id})");
+      _loadFirstTaskEvents(lastTaskEvent.startedAt, lastTaskEvent.id!).then((taskEvents) {
+        _mapAndAddTaskEventsToCalendar(taskEvents);
+        _loadRemainingTaskEvents(taskEvents.lastOrNull as TaskEvent?);
+      });
+    }
   }
 
   @override
@@ -209,35 +246,15 @@ class _CalendarPageStatus extends State<CalendarPage> {
 
 
   void _doFilter() {
-    setState(() {
-      if (_taskFilterSettings.isFilterActive()) {
-        _filteredTaskEventCalendarEvents = [];
-        _filteredScheduledTaskCalendarEvents = [];
-
-        _taskEventCalendarEvents.where((event) {
-          final taskEvent = event.event!;
-          return _filterByTaskOrTemplate(taskEvent.taskGroupId!, taskEvent.originTemplateId);
-        }).forEach((element) => _filteredTaskEventCalendarEvents!.add(element));
-
-        _scheduledTaskCalendarEvents
-            .where((event) {
-              final scheduledTask = event.event!;
-              return _filterByTaskOrTemplate(scheduledTask.taskGroupId, scheduledTask.templateId);
-            })
-            .forEach((element) => _filteredScheduledTaskCalendarEvents!.add(element));
-
-        sheetController?.close();
-      }
-      else {
-        _filteredTaskEventCalendarEvents = null;
-        _filteredScheduledTaskCalendarEvents = null;
-      }
-    });
-
     _refreshModelAndFilterCalendar();
   }
 
   bool _filterByTaskOrTemplate(int taskGroupId, TemplateId? templateId) {
+    if (!_taskFilterSettings.isFilterActive()) {
+      //bypass
+      return true;
+    }
+
     if (_taskFilterSettings.filterByTaskOrTemplate is TaskGroup) {
       final _taskGroup = _taskFilterSettings.filterByTaskOrTemplate as TaskGroup;
       if (taskGroupId == _taskGroup.id) {
@@ -274,28 +291,19 @@ class _CalendarPageStatus extends State<CalendarPage> {
     if (event is TaskEvent) {
       var newTaskEventCalendarEventData = _mapTaskEventToCalendarEventData(event);
       _taskEventCalendarEvents.add(newTaskEventCalendarEventData);
-      _filteredTaskEventCalendarEvents?.add(newTaskEventCalendarEventData);
       _addToCalendar(newTaskEventCalendarEventData);
     }
     else if (event is ScheduledTask) {
       final updatedEvent = await _mapScheduledTaskToCalendarEventData(event);
       _scheduledTaskCalendarEvents.add(updatedEvent);
-      _filteredScheduledTaskCalendarEvents?.add(updatedEvent);
 
       _addToCalendar(updatedEvent);
     }
   }
 
   void _addToCalendar(CalendarEventData<TitleAndDescription> event) {
-    if (_eventType == EventType.EVENT || _eventType == EventType.BOTH) {
-      if (_filteredTaskEventCalendarEvents?.contains(event)??true) {
-        calendarController.add(event);
-      }
-    }
-    if (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH) {
-      if (_filteredScheduledTaskCalendarEvents?.contains(event)??true) {
-        calendarController.add(event);
-      }
+    if (_filterEvent(event.event!)) {
+      calendarController.add(event);
     }
   }
 
@@ -307,12 +315,10 @@ class _CalendarPageStatus extends State<CalendarPage> {
   void _deleteModel(TitleAndDescription event) {
     if (event is TaskEvent) {
       _taskEventCalendarEvents.removeWhere((e) => e.event == event);
-      _filteredTaskEventCalendarEvents?.removeWhere((e) => e.event == event);
       calendarController.removeWhere((element) => element.event == event);
     }
     else if (event is ScheduledTask) {
       _scheduledTaskCalendarEvents.removeWhere((e) => e.event == event);
-      _filteredScheduledTaskCalendarEvents?.removeWhere((e) => e.event == event);
       calendarController.removeWhere((element) => element.event == event);
     }
   }
@@ -321,11 +327,30 @@ class _CalendarPageStatus extends State<CalendarPage> {
     calendarController.removeWhere((element) => true);
 
     if (_eventType == EventType.EVENT || _eventType == EventType.BOTH) {
-      calendarController.addAll(_filteredTaskEventCalendarEvents ?? _taskEventCalendarEvents);
+      _taskEventCalendarEvents.forEach((event) {
+        if (_filterEvent(event.event!)) {
+          calendarController.add(event);
+        }
+      });
     }
+
     if (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH) {
-      calendarController.addAll(_filteredScheduledTaskCalendarEvents ?? _scheduledTaskCalendarEvents);
+      _scheduledTaskCalendarEvents.forEach((event) {
+        if (_filterEvent(event.event!)) {
+          calendarController.add(event);
+        }
+      });
     }
+  }
+
+  bool _filterEvent(TitleAndDescription event) {
+    if (event is TaskEvent && (_eventType == EventType.EVENT || _eventType == EventType.BOTH)) {
+      return _filterByTaskOrTemplate(event.taskGroupId!, event.originTemplateId);
+    }
+    if (event is ScheduledTask && (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH)) {
+      return _filterByTaskOrTemplate(event.taskGroupId, event.templateId);
+    }
+    return false;
   }
 
 
@@ -557,31 +582,18 @@ class _CalendarPageStatus extends State<CalendarPage> {
     return height;
   }
 
-  Future<bool> _loadTaskEvents() async {
+  Future<List<TitleAndDescription>> _loadFirstTaskEvents(DateTime date, int id) async {
 
-    final paging = ChronologicalPaging(CalendarConstants.maxDate, ChronologicalPaging.maxId, 1000000);
-    final taskEvents = await TaskEventRepository.getAllPaged(paging);
-
-    _taskEventCalendarEvents.addAll(taskEvents
-        .map((taskEvent) => _mapTaskEventToCalendarEventData(taskEvent)));
-
-    return true;
+    final paging = ChronologicalPaging(date, id, 500);
+    return await TaskEventRepository.getAllPaged(paging);
   }
 
-  Future<bool> _loadSchedulesTasks() async {
+  Future<List<TitleAndDescription>> _loadSchedulesTasks() async {
 
     final paging = ChronologicalPaging(CalendarConstants.maxDate, ChronologicalPaging.maxId, 10000);
     final scheduledTasks = await ScheduledTaskRepository.getAllPaged(paging);
 
-    await Future.forEach(scheduledTasks, (ScheduledTask scheduledTask) async {
-      if (scheduledTask.active) {
-        final event = await _mapScheduledTaskToCalendarEventData(scheduledTask);
-        _scheduledTaskCalendarEvents.add(event);
-      }
-    });
-
-
-    return true;
+    return scheduledTasks.where((e) => e.active).toList();
   }
 
   Future<CalendarEventData<ScheduledTask>> _mapScheduledTaskToCalendarEventData(ScheduledTask scheduledTask) async {
@@ -981,7 +993,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
             _eventType = EventType.NONE;
           }
         });
-        PreferenceService().setInt(PreferenceService.DATA_CURRENT_EVENT_TYPE, _eventType.index);
+        final storeEventType = _eventType == EventType.NONE ? EventType.BOTH : _eventType;
+        PreferenceService().setInt(PreferenceService.DATA_CURRENT_EVENT_TYPE, storeEventType.index);
         _refreshModelAndFilterCalendar();
         _unselectEvent();
       },
