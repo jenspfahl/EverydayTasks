@@ -5,7 +5,7 @@ import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/TemplateId.dart';
-import 'package:personaltasklogger/ui/TaskEventFilter.dart';
+import 'package:personaltasklogger/ui/components/TaskEventFilter.dart';
 import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
@@ -14,10 +14,10 @@ import 'package:fl_chart/fl_chart.dart';
 import "package:collection/collection.dart";
 import 'package:personaltasklogger/util/extensions.dart';
 
-import '../db/repository/TaskGroupRepository.dart';
-import '../model/Template.dart';
-import '../util/units.dart';
-import 'PersonalTaskLoggerApp.dart';
+import '../../db/repository/TaskGroupRepository.dart';
+import '../../model/Template.dart';
+import '../../util/units.dart';
+import '../PersonalTaskLoggerApp.dart';
 
 @immutable
 class TaskEventStats extends StatefulWidget {
@@ -199,10 +199,10 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       var percentValue = _valueToPercent(value, totalValue);
       return PieChartSectionData(
         color: data.templateId == null
-            ? isDarkMode(context) ? taskGroup?.foregroundColor : taskGroup?.accentColor
+            ? isDarkMode(context) ? taskGroup?.foregroundColor(context) : taskGroup?.accentColor(context)
             : data.templateId!.isVariant
-              ? isDarkMode(context) ? tweakAlpha(taskGroup?.softColor, 1.3) : taskGroup?.backgroundColor
-              : isDarkMode(context) ? tweakAlpha(taskGroup?.accentColor, 1.3) : taskGroup?.softColor,
+              ? isDarkMode(context) ? tweakAlpha(taskGroup?.softColor(context), 1.3) : taskGroup?.backgroundColor(context)
+              : isDarkMode(context) ? tweakAlpha(taskGroup?.accentColor(context), 1.05) : taskGroup?.softColor(context),
         value: value,
         title: _valueToPercentString(percentValue, i),
         radius: radius,
@@ -329,10 +329,10 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       }
     
       var bgColor = data.templateId == null
-            ? taskGroup?.accentColor
+            ? taskGroup?.accentColor(context)
             : data.templateId!.isVariant
-              ? taskGroup?.backgroundColor
-              : taskGroup?.softColor;
+              ? taskGroup?.backgroundColor(context)
+              : taskGroup?.softColor(context);
       return Container(
         height: 35,
         color: tweakAlpha(bgColor, 0.6),

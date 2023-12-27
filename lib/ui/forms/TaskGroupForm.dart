@@ -137,7 +137,7 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
                               showColorPicker(
                                   context,
                                   title: translate('forms.task_group.change_color.message'),
-                                  initialColor: _taskGroup!.foregroundColor,
+                                  initialColor: _taskGroup!.foregroundColor(context),
                                   onColorChanged: (color) => _color = color,
                                   onOkClicked: () {
                                     setState(() {
@@ -149,7 +149,7 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
                                   }
                               );
                             },
-                            icon: Icon(Icons.palette_outlined, color: _taskGroup!.foregroundColor,),
+                            icon: Icon(Icons.palette_outlined, color: _taskGroup!.foregroundColor(context)),
                             label: Text(translate('forms.task_group.change_color.title')),
 
                           ),

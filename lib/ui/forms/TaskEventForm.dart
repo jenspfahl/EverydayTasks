@@ -13,14 +13,14 @@ import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
-import 'package:personaltasklogger/ui/SeverityPicker.dart';
+import 'package:personaltasklogger/ui/components/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/pages/TaskEventList.dart';
 import 'package:personaltasklogger/ui/utils.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
-import '../ToggleActionIcon.dart';
+import '../components/ToggleActionIcon.dart';
 
 final trackIconKey = new GlobalKey<ToggleActionIconState>();
 final TRACKING_NOTIFICATION_ID = -12345678;
@@ -249,7 +249,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                           items: TaskGroupRepository.getAllCached(inclHidden: false).map((TaskGroup group) {
                             return DropdownMenuItem(
                               value: group,
-                              child: group.getTaskGroupRepresentation(useIconColor: true),
+                              child: group.getTaskGroupRepresentation(context, useIconColor: true),
                             );
                           }).toList(),
                           validator: (TaskGroup? value) {

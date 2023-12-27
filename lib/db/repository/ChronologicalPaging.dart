@@ -13,4 +13,8 @@ class ChronologicalPaging extends IdPaging {
     this.lastDateTime = maxDateTime,
     super(maxId, size);
 
+  @override
+  String toString() {
+    return 'ChronologicalPaging{lastDateTime: $lastDateTime, lastId: $lastId}';
+  }
 }

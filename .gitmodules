@@ -1,0 +1,3 @@
+[submodule "flutter_calendar_view"]
+	path = flutter_calendar_view
+	url = git@github.com:jenspfahl/flutter_calendar_view.git

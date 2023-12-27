@@ -6,32 +6,41 @@ import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/Severity.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
-import 'package:personaltasklogger/ui/ToggleActionIcon.dart';
+import 'package:personaltasklogger/ui/components/ToggleActionIcon.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
-import 'PersonalTaskLoggerApp.dart';
-import 'utils.dart';
+import '../PersonalTaskLoggerApp.dart';
+import '../utils.dart';
 
 @immutable
 class TaskEventFilter extends StatefulWidget {
 
+  Set<FilterOption>? visibleFilterOptions;
   TaskFilterSettings? initialTaskFilterSettings;
   Function(TaskFilterSettings, FilterChangeState) doFilter;
 
-  TaskEventFilter({this.initialTaskFilterSettings, required this.doFilter, Key? key}) :super(key: key);
+  TaskEventFilter({this.initialTaskFilterSettings, required this.doFilter, Key? key, this.visibleFilterOptions}) :super(key: key);
 
   @override
   State<StatefulWidget> createState() => TaskEventFilterState();
 }
 
+enum FilterOption {
+  DATE_RANGE,
+  SEVERITY,
+  FAVORITE,
+  TASK_OR_TEMPLATE,
+}
+
 enum FilterChangeState {
-  DATE_RANGE_ON, DATE_RANGE_OFF, 
+  DATE_RANGE_ON, DATE_RANGE_OFF,
   SEVERITY_ON, SEVERITY_OFF,
-  FAVORITE_ON, FAVORITE_OFF, 
-  TASK_ON, TASK_OFF, 
-  SCHEDULED_ON, SCHEDULED_OFF, 
-  ALL_OFF, }
+  FAVORITE_ON, FAVORITE_OFF,
+  TASK_ON, TASK_OFF,
+  SCHEDULED_ON, SCHEDULED_OFF,
+  ALL_OFF,
+}
 
 class TaskFilterSettings {
   DateTimeRange? filterByDateRange;
@@ -85,7 +94,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
             context,
             details,
             [
-              PopupMenuItem<String>(
+              if (widget.visibleFilterOptions?.contains(FilterOption.DATE_RANGE)??true) PopupMenuItem<String>(
                   child: Row(
                       children: [
                         Icon(
@@ -99,7 +108,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       ]
                   ),
                   value: '1'),
-              PopupMenuItem<String>(
+              if (widget.visibleFilterOptions?.contains(FilterOption.SEVERITY)??true) PopupMenuItem<String>(
                   child: Row(
                       children: [
                         taskFilterSettings.filterBySeverity != null
@@ -112,7 +121,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       ]
                   ),
                   value: '2'),
-              PopupMenuItem<String>(
+              if (widget.visibleFilterOptions?.contains(FilterOption.FAVORITE)??true) PopupMenuItem<String>(
                   child: Row(
                       children: [
                         Icon(
@@ -124,7 +133,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       ]
                   ),
                   value: '3'),
-              PopupMenuItem<String>(
+              if (widget.visibleFilterOptions?.contains(FilterOption.TASK_OR_TEMPLATE)??true) PopupMenuItem<String>(
                   child: Row(
                       children: [
                         taskFilterSettings.filterByTaskOrTemplate != null
@@ -265,7 +274,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
 
   Color _getColorFromScheduledTask(ScheduledTask scheduledTask) {
     final taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
-    return taskGroup.foregroundColor;
+    return taskGroup.foregroundColor(context);
   }
 
 }

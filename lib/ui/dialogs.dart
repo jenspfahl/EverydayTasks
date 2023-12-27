@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/Severity.dart';
-import 'package:personaltasklogger/ui/DurationPicker.dart';
-import 'package:personaltasklogger/ui/SeverityPicker.dart';
+import 'package:personaltasklogger/ui/components/DurationPicker.dart';
+import 'package:personaltasklogger/ui/components/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
-import 'ChoiceWidget.dart';
+import 'components/ChoiceWidget.dart';
 import 'PersonalTaskLoggerApp.dart';
-import 'RepetitionPicker.dart';
-import 'ToggleActionIcon.dart';
+import 'components/RepetitionPicker.dart';
+import 'components/ToggleActionIcon.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 

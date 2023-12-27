@@ -22,7 +22,7 @@ DateTime truncToMinutes(DateTime dateTime) {
 
 String formatToDateOrWord(DateTime dateTime, BuildContext context,
     {bool withPreposition = false, bool makeWhenOnLowerCase = false}) {
-  final word = _formatToWord(dateTime);
+  final word = formatToWord(dateTime);
   if (word != null) {
     return makeWhenOnLowerCase ? word.toLowerCase() : word;
   }
@@ -32,7 +32,7 @@ String formatToDateOrWord(DateTime dateTime, BuildContext context,
   return formatToDate(dateTime, context);
 }
 
-String? _formatToWord(DateTime dateTime) {
+String? formatToWord(DateTime dateTime) {
   if (isToday(dateTime)) {
     return translate('common.dates.today');
   }
@@ -51,17 +51,30 @@ String? _formatToWord(DateTime dateTime) {
   return null;
 }
 
-String formatToDate(DateTime dateTime, BuildContext context) {
+String formatToDate(DateTime dateTime, BuildContext context, {bool? showWeekdays}) {
   final preferenceService = PreferenceService();
-  final showWeekdays = preferenceService.showWeekdays;
+  final prefShowWeekdays = preferenceService.showWeekdays;
   final dateFormatSelection = preferenceService.dateFormatSelection;
-  return formatToDateWithFormatSelection(dateTime, context, dateFormatSelection, showWeekdays);
+  return formatToDateWithFormatSelection(dateTime, context, dateFormatSelection, showWeekdays ?? prefShowWeekdays);
 }
 
 formatToDateWithFormatSelection(DateTime dateTime, BuildContext context, int dateFormatSelection, bool showWeekdays) {
   final isSameYear = dateTime.year == DateTime.now().year;
   final formatter = getDateFormat(context, dateFormatSelection, showWeekdays, isSameYear);
   return formatter.format(dateTime);
+}
+
+
+String getWeekdayOf(int day, BuildContext context) {
+  final locale = currentLocale(context).toString();
+  initializeDateFormatting(locale);
+  return DateFormat.EEEE(locale).dateSymbols.WEEKDAYS[day];
+}
+
+String getMonthOf(int month, BuildContext context) {
+  final locale = currentLocale(context).toString();
+  initializeDateFormatting(locale);
+  return DateFormat.MMM(locale).dateSymbols.MONTHS[month];
 }
 
  getDateFormat(BuildContext context, int dateFormatSelection, bool showWeekdays, bool withoutYear) {

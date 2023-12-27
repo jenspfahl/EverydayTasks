@@ -14,7 +14,7 @@ import 'package:personaltasklogger/ui/pages/PageScaffoldState.dart';
 import 'package:personaltasklogger/ui/pages/ScheduledTaskList.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
-import '../ToggleActionIcon.dart';
+import '../components/ToggleActionIcon.dart';
 import '../utils.dart';
 import 'PageScaffoldState.dart';
 import 'TaskEventList.dart';
@@ -98,8 +98,8 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   @override
   Widget build(BuildContext context) {
     final color = isDarkMode(context)
-        ? _groupedByTaskGroup?.softColor
-        : _groupedByTaskGroup?.backgroundColor;
+        ? _groupedByTaskGroup?.softColor(context)
+        : _groupedByTaskGroup?.backgroundColor(context);
     var goUp = OutlinedButton(
       child: Icon(Icons.arrow_back),
       style: OutlinedButton.styleFrom(
@@ -318,8 +318,8 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
             .currentState;
         if (taskEventListState != null) {
           taskEventListState.clearFilters();
-          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
         }
+        root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
       }
     }
   }
@@ -385,8 +385,8 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
                       ? BlendMode.lighten
                       : null,
                   color: isDarkMode(context)
-                      ? taskGroup.softColor
-                      : taskGroup.backgroundColor,
+                      ? taskGroup.softColor(context)
+                      : taskGroup.backgroundColor(context),
                   borderRadius: BorderRadius.circular(15)),
               child: Padding(
                 padding: EdgeInsets.all(8.0),
@@ -444,8 +444,8 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
               alignment: Alignment.center,
               decoration: BoxDecoration(
                   color: isDarkMode(context)
-                      ? taskGroup.softColor
-                      : taskGroup.backgroundColor,
+                      ? taskGroup.softColor(context)
+                      : taskGroup.backgroundColor(context),
                   borderRadius: BorderRadius.circular(15)),
               child: Padding(
                 padding: EdgeInsets.all(8.0),

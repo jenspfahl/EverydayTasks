@@ -16,7 +16,7 @@ import 'package:personaltasklogger/ui/forms/TaskTemplateForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
-import '../ToggleActionIcon.dart';
+import '../components/ToggleActionIcon.dart';
 import '../dialogs.dart';
 import '../forms/TaskGroupForm.dart';
 import '../utils.dart';
@@ -187,7 +187,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       key: group.getKey(),
       label: kReleaseMode ? group.translatedName : '${group.translatedName} (id=${group.id})',
       icon: group.iconData,
-      iconColor: group.foregroundColor,
+      iconColor: group.foregroundColor(context),
       parent: true,
       data: group,
       children: templates,
@@ -357,7 +357,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       key: template.getKey(),
       label: template.translatedTitle,
       icon: group.iconData,
-      iconColor: group.softColor,
+      iconColor: group.softColor(context),
       data: template,
       children: templateVariants,
       expanded: _forceExpandOrCollapseAll != null
@@ -372,7 +372,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       key: variant.getKey(),
       label: variant.translatedTitle,
       icon: group.iconData,
-      iconColor: group.backgroundColor,
+      iconColor: group.backgroundColor(context),
       data: variant,
     );
   }
@@ -809,10 +809,11 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   Widget build(BuildContext context) {
     TreeViewTheme _treeViewTheme = TreeViewTheme(
       expanderTheme: ExpanderThemeData(
-          type: ExpanderType.caret,
+          type: ExpanderType.plusMinus, //TODO wrong direction
           modifier: ExpanderModifier.none,
           position: ExpanderPosition.end,
-          size: 20),
+          color: isDarkMode(context) ? Colors.white60 : Colors.black54,
+          size: 14),
       labelStyle: TextStyle(
         fontSize: 16,
         letterSpacing: 0.3,
@@ -835,7 +836,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       child: TreeView(
         controller: _treeViewController,
         allowParentSelect: true,
-        supportParentDoubleTap: false,
+        supportParentDoubleTap: true, //TODO check it out
         onExpansionChanged: (key, expanded) =>
             _expandNode(key, expanded),
         onNodeTap: (key) {

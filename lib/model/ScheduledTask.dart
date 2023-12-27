@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
+import '../ui/utils.dart';
 import 'Schedule.dart';
 import 'Schedule.dart';
 import 'Template.dart';
@@ -205,6 +207,43 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     var o = other.active ? other.getNextRepetitionIndicatorValue() : -100 * other.id!.toDouble();
     var c = active ? getNextRepetitionIndicatorValue() : -100 * id!.toDouble();
     return o.compareTo(c);
+  }
+
+  Color getDueColor(BuildContext context, {required bool lighter}) =>
+      (isDarkMode(context)
+          ? (lighter ? Color(0xFFC74C0C) : Color(0xFF972C0C))
+          : Color(0xFF770C0C));
+
+  Color? getDueBackgroundColor(BuildContext context) => isNextScheduleOverdue(true)
+    ? ((getNextRepetitionIndicatorValue()??0.0) > 1.3333
+    ? isDarkMode(context) ? Colors.red[900] : Colors.red[200]
+        : isDarkMode(context) ? Colors.red[800] : Colors.red[300])
+        : null;
+
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScheduledTask &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  void apply(ScheduledTask other) {
+    assert (id == other.id);
+    title = other.title;
+    description = other.description;
+    taskGroupId = other.taskGroupId;
+    templateId = other.templateId;
+    active = other.active;
+    pausedAt = other.pausedAt;
+    schedule = other.schedule;
+    lastScheduledEventOn = other.lastScheduledEventOn;
+    reminderNotificationEnabled = other.reminderNotificationEnabled;
+    reminderNotificationRepetition = other.reminderNotificationRepetition;
+
   }
 
 }

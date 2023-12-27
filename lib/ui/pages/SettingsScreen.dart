@@ -7,11 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-import '../service/PreferenceService.dart';
-import '../util/dates.dart';
-import '../util/i18n.dart';
-import 'PersonalTaskLoggerApp.dart';
-import 'dialogs.dart';
+import '../../service/PreferenceService.dart';
+import '../../util/dates.dart';
+import '../../util/i18n.dart';
+import '../PersonalTaskLoggerApp.dart';
+import '../dialogs.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -30,6 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _showActionNotifications = false;
   int _showActionNotificationDurationSelection = 1;
   bool _executeSchedulesOnTaskEvent = true;
+  bool _showBadgeForDueSchedules = true;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _getLanguageSelectionAsString(0, localizationDelegate),
                       _getLanguageSelectionAsString(1, localizationDelegate),
                       _getLanguageSelectionAsString(2, localizationDelegate),
+                      _getLanguageSelectionAsString(3, localizationDelegate),
                     ],
                     initialSelected: _languageSelection,
                     okPressed: () {
@@ -236,6 +238,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 setState(() => _executeSchedulesOnTaskEvent = value);
               },
             ),
+            SettingsTile.switchTile(
+              title: Text(translate('pages.settings.behaviour.show_schedules_count_as_badge.title')),
+              description: Text(translate('pages.settings.behaviour.show_schedules_count_as_badge.description')),
+              initialValue: _showBadgeForDueSchedules,
+              onToggle: (bool value) {
+                _preferenceService.setBool(PreferenceService.PREF_SHOW_BADGE_FOR_DUE_SCHEDULES, value);
+                _preferenceService.showBadgeForDueSchedules = value;
+                setState(() => _showBadgeForDueSchedules = value);
+              },
+            ),
           ],
         ),
       ],
@@ -302,12 +314,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     else {
       _executeSchedulesOnTaskEvent = true; // default
     }
+
+    final showBadgeForDueSchedules = await _preferenceService.getBool(PreferenceService.PREF_SHOW_BADGE_FOR_DUE_SCHEDULES);
+    if (showBadgeForDueSchedules != null) {
+      _showBadgeForDueSchedules = showBadgeForDueSchedules;
+    }
+    else {
+      _showBadgeForDueSchedules = true; // default
+    }
   }
 
   String _getLanguageSelectionAsString(int languageSelection, LocalizationDelegate localizationDelegate) {
     switch (languageSelection) {
       case 1: return translate('pages.settings.common.language.dialog.options.english');
       case 2: return translate('pages.settings.common.language.dialog.options.german');
+      case 3: return translate('pages.settings.common.language.dialog.options.french');
     }
     final systemLanguage = Platform.localeName
         .split("_")

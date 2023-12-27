@@ -82,6 +82,14 @@ class TaskEventRepository {
         .first;
   }
 
+  static Future<int?> count() async {
+
+    final database = await getDb();
+
+    final taskEventDao = database.taskEventDao;
+    return await taskEventDao.count();
+  }
+
   static TaskEventEntity _mapToEntity(TaskEvent taskEvent) =>
     TaskEventEntity(
         taskEvent.id,

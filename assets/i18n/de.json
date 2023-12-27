@@ -6,6 +6,7 @@
       "export_as_csv": "Export als CSV-Datei",
       "backup_as_file": "Erstelle Backup",
       "restore_from_file": "Wiederherstellen",
+      "start_app_walk": "Erkläre die App",
       "online_help": "Online Hilfe",
       "about_the_app": "Über die App",
       "help_translate": "App übersetzen",
@@ -298,13 +299,13 @@
         "remove_task": {
           "error_has_children": "Bitte erst zugehörige Varianten entfernen!",
           "title": "Entferne Aufgabe",
-          "message_custom": "Die Aufgabe '{title} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
+          "message_custom": "Die Aufgabe '{title}' soll entfernt werden. Dies kann nicht rückgängig gemacht werden!",
           "message_predefined": "Die Aufgabe '{title}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
           "success": "Die Aufgabe '{title}' wurde entfernt"
         },
         "remove_variant": {
           "title": "Entferne Variante",
-          "message_custom": "Die Variante '{title} soll entfernt werden'. Dies kann nicht rückgängig gemacht werden!",
+          "message_custom": "Die Variante '{title}' soll entfernt werden. Dies kann nicht rückgängig gemacht werden!",
           "message_predefined": "Die Variante '{title}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
           "success": "Die Variante '{title}' wurde entfernt"
         },
@@ -326,6 +327,9 @@
         }
       }
     },
+    "calendar": {
+      "title": "Aufgabenkalender"
+    },
     "settings": {
       "common": {
         "title": "Allgemein",
@@ -336,7 +340,9 @@
             "options": {
               "system_default": "System-Sprache",
               "english": "Englisch (English)",
-              "german": "Deutsch"
+              "german": "Deutsch",
+              "french": "Französisch (français)",
+              "breton": "Bretonisch (brezhoneg)"
             }
           },
           "language_not_supported": "'{languageCode}' nicht unterstützt"
@@ -388,6 +394,10 @@
         "set_schedules_automatically_done": {
           "title": "Setze Zeitpläne automatisch auf erledigt",
           "description" : "Wenn neue Tätigkeiten von einer Aufgabe erfasst werden, setze alle zugehörigen Zeitpläne auf erledigt."
+        },
+        "show_schedules_count_as_badge": {
+          "title": "Zeige Indikator für fällige Aufgaben",
+          "description" : "Zeige einen Indikator mit der Anzahl fälliger Aufgaben für Zeitpläne."
         }
       }
     },
@@ -434,6 +444,37 @@
     "total_duration": "Dauer",
     "by_categories": "Kategorien",
     "by_tasks": "Aufgaben"
+  },
+  "walk_through": {
+    "banner": {
+      "text": "Lerne die App kennen! Starte eine Einführung.",
+      "start_action": "Starten",
+      "dismiss_action" : "Nein, danke"
+    },
+    "action_button": {
+      "title": "Tracke Aufgaben, lege Zeitpläne an, u.v.m. ..",
+      "description": "Klicke hier um erledigte Aufgaben zu erfassen, Shortcuts zu erstellen oder Zeitpläne für wiederkehrende Aufgaben anzulegen; je nach aktiver Seite."
+    },
+    "quick_add": {
+      "title": "Schnelles Erfassen deiner wichtigsten Aufgaben",
+      "description": "Hier kannst du Shortcuts für deine häufigsten Aufgaben anlegen um diese schnell erfassen zu können."
+    },
+    "journal": {
+      "title": "Alle erledigten Aufgaben anzeigen",
+      "description": "Auf dieser Seite wirst du alle erfassten erledigten Aufgaben sehen, die du erfasst hast."
+    },
+    "schedules": {
+      "title": "Wiederkehrende Zeitpläne anlegen",
+      "description": "Auf dieser Seite kannst du wiederkehrende Aufgaben mit einem Zeitplan versehen, um daran erinnert zu werden."
+    },
+    "tasks": {
+      "title": "Vordefinierten Aufgaben verwalten",
+      "description": "Und hier kannst du alle vordefinierten Kategorien, Aufgaben und Aufgabenvarianten ändern oder neue anlegen. Verwende diese als Vorlagen für die Aufgabenerfassung."
+    },
+    "extensions": {
+      "title": "Nach oben ziehen um Erweiterungen zu sehen",
+      "description": "Hier kannst du zusätzliche Funktionen aufrufen wie z.B. eine Kalenderübersicht."
+    }
   },
   "common" : {
     "ok": "Ok",

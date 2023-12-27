@@ -7,7 +7,7 @@ import 'package:personaltasklogger/model/TaskTemplate.dart';
 import 'package:personaltasklogger/model/TaskTemplateVariant.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/When.dart';
-import 'package:personaltasklogger/ui/SeverityPicker.dart';
+import 'package:personaltasklogger/ui/components/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/util/extensions.dart';
