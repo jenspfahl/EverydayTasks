@@ -6,12 +6,12 @@ If so, track and log your tasks with EverydayTasks and create schedules for repe
 
 <b>Core features of the app</b>
 
-- log tasks you did fast and quickly
-- track your tasks to the minute
-- see statistics of your done tasks, e.g. how much time you spent on what
-- create schedules for repetitive tasks with a custom interval and get notified when they are due 
-- use dozens of predefined tasks and variants or create your own tasks 
-- dark theme support
+- Log tasks you did easily and quickly.
+- Track your tasks to the minute.
+- See statistics of your done tasks, e.g. how much time you spent on what.
+- Create schedules for repetitive tasks with a custom interval and get notified when they are due.
+- Use dozens of predefined tasks and variants or create your own tasks.
+- Dark theme support.
 
 For more information see <a href="https://everydaytasks.jepfa.de">everydaytasks.jepfa.de</a>
 

@@ -343,7 +343,8 @@
               "english": "English",
               "german": "Deutsch",
               "french": "Français",
-              "breton": "Brezhoneg"
+              "breton": "Brezhoneg",
+              "russian": "Русский"
             }
           },
           "language_not_supported": "La langue '{languageCode}' n'est pas supportée"
