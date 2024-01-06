@@ -37,3 +37,8 @@ To build the release with custom icon data:
 
 ## Contribute
 You are welcome to translate the app. See [TRANSLATE.md](TRANSLATE.md).
+
+## Alternatives
+
+* [Tasks.org](https://tasks.org/) Open-source To-Do Lists & Reminders
+
