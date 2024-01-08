@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -9,6 +11,25 @@ final String I18N_POSTFIX = "}";
 Locale currentLocale(BuildContext context) {
   final localizationDelegate = LocalizedApp.of(context).delegate;
   return localizationDelegate.currentLocale;
+}
+
+Locale systemLocale(BuildContext context) {
+  final localizationDelegate = LocalizedApp.of(context).delegate;
+
+  final systemLanguage = Platform.localeName
+      .split("_")
+      .first;
+  final appLanguages = localizationDelegate.supportedLocales
+      .map((e) => e.languageCode);
+  debugPrint("system language: $systemLanguage");
+  final systemLanguageSupported = appLanguages.contains(systemLanguage);
+  if (systemLanguageSupported) {
+    return Locale(systemLanguage);
+  }
+  else {
+    return localizationDelegate.currentLocale;
+  }
+
 }
 
 bool isI18nKey(String string) =>

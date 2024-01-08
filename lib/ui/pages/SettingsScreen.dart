@@ -64,6 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _getLanguageSelectionAsString(1, localizationDelegate),
                       _getLanguageSelectionAsString(2, localizationDelegate),
                       _getLanguageSelectionAsString(3, localizationDelegate),
+                      _getLanguageSelectionAsString(4, localizationDelegate),
                     ],
                     initialSelected: _languageSelection,
                     okPressed: () {
@@ -76,7 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           _preferenceService.getPreferredLocale().then((locale) {
                             Locale newLocale;
                             if (locale == null) {
-                              newLocale = currentLocale(context);
+                              newLocale = systemLocale(context);
                             }
                             else {
                               newLocale = locale;
@@ -329,6 +330,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case 1: return translate('pages.settings.common.language.dialog.options.english');
       case 2: return translate('pages.settings.common.language.dialog.options.german');
       case 3: return translate('pages.settings.common.language.dialog.options.french');
+      case 4: return translate('pages.settings.common.language.dialog.options.russian');
     }
     final systemLanguage = Platform.localeName
         .split("_")
