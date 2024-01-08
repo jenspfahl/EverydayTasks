@@ -1,0 +1,945 @@
+{
+  "navigation": {
+    "header_subtitle": "Отслеживайте, записывайте и планируйте задачи",
+    "menus": {
+      "settings": "Настройки",
+      "export_as_csv": "Экспорт в CSV файл",
+      "backup_as_file": "Сделать резервную копию",
+      "restore_from_file": "Восстановить из резервной копии",
+      "start_app_walk": "Начать тур по программе",
+      "online_help": "Помощь онлайн",
+      "about_the_app": "О приложении",
+      "help_translate": "Помогите с переводом",
+      "report_a_bug": "Сообщить об ошибке"
+    }
+  },
+
+  "system" : {
+    "notifications" : {
+      "channel_schedules": "Уведомление и приближающихся запланированных задачах",
+      "channel_tracking": "Отслеживание уведомлений",
+      "channel_others": "Общие уведомления",
+      "denied_permission_message": "Без этого разрешения будет невозможно получать уведомления."
+    }
+  },
+
+  "forms": {
+    "common": {
+      "title_emphasis": "Название",
+      "description_hint": "Описание (необязательно)",
+      "button_save": "Сохранить"
+    },
+    "task_event": {
+      "title_hint": "Название записи в журнале",
+      "category_hint": "Категория",
+      "category_emphasis": "Выберите категорию",
+      "duration_hint": "Продолжительность",
+      "duration_emphasis": "Выберите продолжительность",
+      "when_at_hint": "Время выполнения",
+      "when_at_emphasis": "Выберите время начала задачи",
+      "when_on_hint": "Дата начала",
+      "when_on_emphasis": "Выберите день начала задачи",
+      "create": {
+        "title": "Создать новую запись в журнале",
+        "title_from_schedule": "Создать новую запись в журнале из расписанию",
+        "success": "Создана новая запись в журнале '{title}'."
+      },
+      "change": {
+        "title": "Изменить запись в журнала '{title}'",
+        "success": "Запись в журнале '{title}' изменена"
+      },
+      "tracking": {
+        "start_tracking_title": "Начать отслеживание",
+        "start_tracking_message": "Есть некоторые значения которые будут перезаписаны при запуске отслеживания. Продолжать?",
+        "stop_tracking_first": "Пожалуйста, сначала остановите отслеживание!",
+        "tracking_started": "Отслеживание началось",
+        "tracking_resumed": "Отслеживание продолжено",
+        "tracking_stopped": "Отслеживание остановлено",
+        "tracking_started_at": "Отслеживание началось в {when}",
+        "task_started_at": "'{title}' началось в {when}"
+      }
+    },
+    "schedule": {
+      "title_hint": "Название расписания",
+      "repetition_steps_hint": "Интервал",
+      "custom_repetition_steps_description": "Выбрать свой интервал.",
+      "repetition_steps_emphasis": "Выберете интервал для задачи",
+      "due_at_hint": "Сделать до",
+      "due_at_emphasis": "Выберите срок выполнения задачи",
+      "activate_schedule": "Активировать расписание",
+      "due_on_hint": "Сделать до",
+      "scheduled_from_emphasis": "Выберите время начала расписания",
+      "activate_reminders": "Активировать напоминание",
+      "remind_again_delay_description": "Выберите задержку перед повторным напоминанием.",
+      "remind_after": "Ещё раз после {when}",
+      "repetition_mode": "Режим динамического повторения",
+      "repetition_mode_dynamic": "Следующая задача должна быть выполнена в зависимости от выбранного интервала и времени выполнения последней задачи.",
+      "repetition_mode_fixed": "Срок выполнения следующей задачи определяется точным интервалом независимо от того когда была выполнена последняя задача.",
+      "create": {
+        "title": "Создать новое расписание",
+        "success": "Новое расписание '{title}' создано."
+      },
+      "change": {
+        "title": "Изменить расписание '{title}'",
+        "success": "Расписание '{title}' изменено"
+      }
+    },
+    "task": {
+      "title_hint": "Название задачи",
+      "duration_hint": "Обычная продолжительность",
+      "when_at_hint": "Обычное время на выполнение",
+      "reset": {
+        "title": "Восстановить по умолчанию",
+        "message_task": "Восстановить текущую задачу '{title}' до предопределенного значения по умолчанию.",
+        "message_variant": "Восстановит текущий вариант '{title}' до предопределенного значения по умолчанию."
+      }
+    },
+    "task_group": {
+      "title_hint": "Название категории",
+      "reset": {
+        "title": "Восстановить по умолчанию",
+        "message": "Восстановит текущую категорию '{name}' до предопределенного значения по умолчанию."
+      },
+      "change_icon": {
+        "title": "Изменить значок",
+        "message": "Выбрать значок"
+      },
+      "change_color": {
+        "title": "Изменить цвет",
+        "message": "Выбрать цвет"
+      }
+    }
+  },
+  "pages": {
+    "quick_add": {
+      "title": "Добавить",
+      "menu": {
+        "pinning": {
+          "pinned": "Быстрое добавление прикреплено к начальной странице",
+          "unpinned": "Откреплено от начальной страницы"
+        },
+        "grouping": {
+          "by_categories": "Группировать по категориям",
+          "not_by_categories": "Разгруппировать по категориям"
+        },
+        "sorting": {
+          "by_category": "Сортировать по категории",
+          "by_title": "Сортировать по названию"
+        }
+      },
+      "action": {
+        "description" : "Что вы хотите создать?",
+        "new_quick_add": {
+          "title": "Новая из Быстрого Добавления",
+          "description": "Выберите задачу или вариант которую нужно добавить в Быстрое Добавление."
+        },
+        "new_journal_entry": {
+          "title": "Новая запись в журнале",
+          "description": "Выберите категорию, задачу или вариант, которые будут использоваться для новой записи журнала."
+        }
+      },
+      "addition": {
+        "success": "'{title}' добавлено в Быстрые Добавления",
+        "exists": "Быстрое Добавление '{title}' ещё существует"
+      },
+      "deletion": {
+        "title": "Удалить Быстрое Добавление",
+        "description": "Вы действительно хотите удалите Быстрое Добавление '{title}'? Это не затронет связанную задачу.",
+        "success": "Быстрое Добавление '{title}' было удалено"
+      }
+    },
+    "journal": {
+      "title": "Журнал",
+      "action": {
+        "description" : "Из чего вы хотите создать новую запись в журнале?",
+        "from_scratch": {
+          "title": "С нуля"
+        },
+        "from_task": {
+          "title": "Из задачи",
+          "description": "Выберите категорию, задачу или вариант, которые будут использоваться для новой записи журнала."
+        },
+        "deletion": {
+          "title": "Удалить запись журнала",
+          "message": "Вы действительно хотите удалите запись '{title}'?",
+          "success": "Запись журнала '{title}' удалена."
+        }
+      },
+      "details": {
+        "title": "Детали записи",
+        "attrib_title": "Название",
+        "attrib_category": "Категория",
+        "attrib_created_at": "Создано",
+        "attrib_started_at": "Начало",
+        "attrib_finished_at": "Конец",
+        "attrib_duration": "Продолжительность",
+        "associated_task": "Связанная задача",
+        "associated_schedule": "Связанное распиание",
+        "value_uncategorized": "без категории",
+        "value_none": "ничего"
+      }
+    },
+    "schedules": {
+      "title": "Расписания",
+      "menu": {
+        "pinning": {
+          "pinned": "Расписания прикреплены к начальной странице",
+          "unpinned": "Откреплено от начальной страницы"
+        },
+        "sorting": {
+          "by_progress": "Сортировать по прогрессу",
+          "by_remaining_time": "Сортировать по оставшемуся времени",
+          "by_category": "Сортировать по категории",
+          "by_title": "Сортировать по заголовку",
+          "hide_non_active": "Скрыть неактивные"
+        },
+        "notifications": {
+          "enabled": "Все напоминания и уведомления включены",
+          "disabled": "Все напоминания и уведомления отключены"
+        }
+      },
+      "overview": {
+        "running": "выполняется",
+        "due": "срок",
+        "overdue": "просрочено",
+        "due_now": "настал срок",
+        "paused": "на паузе",
+        "inactive": "неактивно",
+        "scheduled": "запланировано",
+        "due_yesterday_and_before": "Сделать до сегодня",
+        "due_today": "Сделать до сегодня",
+        "due_tomorrow": "Сделать до завтра",
+        "due_after_tomorrow": "Сделать послезавтра",
+        "paused_schedules": "Приостановленные расписания",
+        "inactive_schedules": "Неактивные расписания",
+        "reminder_activated" : "Напоминание активировано",
+        "reminder_passed" : "Напоминание приостановлено",
+        "remind_again" : "Напомнить опять",
+        "remind_again_successful" : "Напоминание появится опять в {when}"
+      },
+      "notification": {
+        "title_normal_task": "Наступил срок выполнения запланированной задачи",
+        "title_fixed_task": "Наступил срок выполнения запланированной фиксированной задачи",
+        "message_normal_task": "Наступил срок задачи '{title}'!",
+        "message_fixed_task": "Наступил срок фиксированной задачи '{title}'!",
+        "message_fixed_last_task": "Наступил срок фиксированной задачи '{title}'! Пожалуйста нажмите для дальнейшего уведомления!",
+        "action_track": "Записать или отследить",
+        "action_snooze": "Напомнить в {when}"
+      },
+      "action": {
+        "reset": {
+          "title": "Сбросить прогресс",
+          "message_then": "Вы уверены, что хотите сбросить прогресс '{title}'? Затем расписание должно быть выполнено {nextDueDate} в {newNextDueDate}.",
+          "message_still": "Вы уверены, что хотите сбросить прогресс '{title}'? Срок сдачи по расписанию истекает {nextDueDate} в {newNextDueDate}.",
+          "success": "Прогресс для '{title}' сброшен на текущий момент",
+          "title_custom": "Следующий срок сдачи для '{title}' в ...",
+          "success_custom": "Следующий срок сдачи для '{title}' обновлён"
+        },
+        "pause_resume": {
+          "paused": "Расписание '{title}' приостановлено",
+          "resumed": "Расписание '{title}' возобновлено"
+        },
+        "addition": {
+          "title": "Запланировать задачу",
+          "message": "Выберите категорию, задачу или вариант для повторяющегося планирования."
+        },
+        "deletion": {
+          "title": "Удалить расписание",
+          "message": "Вы уверены, что хотите удалить расписание '{title}'?",
+          "success": "Расписание '{title}' удалено."
+        }
+      },
+      "errors": {
+        "cannot_resume": "Невозможно выполнить приостановленное расписание! Сначала возобновите!",
+        "cannot_reset": "Невозможно сбросить приостановленное расписание! Сначала возобновите!",
+        "cannot_change_paused": "Невозможно изменить приостановленное расписание! Сначала возобновите!",
+        "no_journal_entries": "Для этого расписания пока нет записей в журнале"
+      }
+    },
+    "tasks": {
+      "title": "Задачи",
+      "menu":  {
+        "restore_a_task": {
+          "title": "Восстановить задачу",
+          "description": "Выберите ранее удаленную предопределенную задачу или вариант для восстановления.",
+          "success_group": "Категория '{name}' восстановлена.",
+          "success_task": "Задача '{title}' восстановлена.",
+          "success_variant": "Вариант '{title}' восстановлен.",
+          "success_variant_parent_task": "Вариант '{title}' и родительская задача восстановлены."
+        }
+      },
+      "action": {
+        "error_nothing_selected": "Пожалуйста, сначала выберите пункт!",
+        "description_nothing_selected": "Создайте новую категорию. Чтобы изменить существующую категорию, сначала выберите ее.",
+        "description_group": "Добавьте новую задачу под '{groupName}' или измените или удалите текущую выбранную категорию.",
+        "description_task": "Измените или удалите выбранную задачу '{title}' или добавьте под ней новый вариант.",
+        "description_variant": "Измените или удалите выбранный вариант '{title}' или клонируйте его как новый.",
+        "add_task": {
+          "title": "Добавить новую задачу",
+          "success": "Добавлена задача '{title}'."
+        },
+        "change_task": {
+          "title": "Изменить задачу",
+          "success": "Задача '{title}' изменена"
+        },
+        "add_variant": {
+          "title": "Добавить новый вариант",
+          "variant_postfix": "вариант",
+          "success": "Добавлен вариант '{title}'"
+        },
+        "change_variant": {
+          "title": "Изменить вариант",
+          "success": "Вариант'{title}' изменён"
+        },
+        "clone_variant": {
+          "title": "Клонировать вариант",
+          "success": "Вариант '{title}' клонирован",
+          "cloned_postfix": "клонирован"
+        },
+        "remove_task": {
+          "error_has_children": "Сначала удалите задачи подлежащие варианты!",
+          "title": "Удалить задачу",
+          "message_custom": "Удалить текущую задачу '{title}'. Операция необратима!",
+          "message_predefined": "Удалить текущую задачу '{title}' скрыв её. Вы можете восстановить нажав на значок восстановления.",
+          "success": "Задача '{title}' удалена."
+        },
+        "remove_variant": {
+          "title": "Удалить вариант",
+          "message_custom": "Удалить текущий вариант '{title}'. Операция необратима!",
+          "message_predefined": "Удалить текущий вариант '{title}' скрыв его. Вы можете восстановить нажав на значок восстановления.",
+          "success": "Вариант '{title}' удален."
+        },
+        "create_task_group": {
+          "title": "Создать категорию",
+          "success": "Категория '{name}' создана."
+        },
+        "change_task_group": {
+          "title": "Изменить категорию",
+          "success": "Категория '{name}' изменена"
+        },
+        "remove_task_group": {
+          "error_has_children": "Сначала удалите подлежащие задачи!",
+          "error_has_schedules": "Сначала удалите связанные расписания!",
+          "title": "Удалить категорию",
+          "message_custom": "Удалить категорию '{name}'. Операция необратима!",
+          "message_predefined": "Удалить категорию '{name}' скрыв её. Вы можете восстановить нажав на значок восстановления.",
+          "success": "Категория '{name}' удалена."
+        }
+      }
+    },
+    "calendar": {
+      "title": "Календарь задач"
+    },
+    "settings": {
+      "common": {
+        "title": "Общие",
+        "language": {
+          "title": "Язык (Language)",
+          "dialog": {
+            "title": "Выберете язык",
+            "options": {
+              "system_default": "Язык системы",
+              "english": "English",
+              "german": "Deutsch",
+              "french": "Français",
+              "breton": "Brezhoneg",
+              "russian": "Русский"
+            }
+          },
+          "language_not_supported": "'{languageCode}' not supported"
+        },
+        "theme": {
+          "title": "Тёмная тема"
+        }
+      },
+      "date_n_time": {
+        "title": "Дата и время",
+        "used_date_format": {
+          "title": "Используемый формат даты",
+          "description": "E.g. '{example_date}'",
+          "dialog": {
+            "title": "Выберите формат даты"
+          }
+        },
+        "show_weekdays": {
+          "title": "Показать дни недели",
+          "description": "Показать дни недели для дат"
+        },
+        "show_daytime_as_word": {
+          "title": "Показывать время суток словом",
+          "description": "Например показывать '{evening}' для вечера"
+        }
+      },
+      "action_feedback": {
+        "title": "Отзыв",
+        "show_action_feedback": {
+          "title": "Показать отзыв о действии",
+          "description": "Показывает короткое сообщение после нескольких действий пользователя"
+        },
+        "duration": {
+          "title": "Длительность отзыва о действии",
+          "description": "Время до исчезновения сообщений",
+          "dialog": {
+            "title": "Выберите продолжительность чтения",
+            "options": {
+              "slow": "Мне нужно больше времени",
+              "normal": "Нормальная скорость",
+              "quick": "Я читаю быстро",
+              "fast": "Я сверх быстрый"
+            }
+          }
+        }
+      },
+      "behaviour": {
+        "title": "Поведение",
+        "set_schedules_automatically_done": {
+          "title": "Пометить расписание автоматически выполненным",
+          "description" : "При создании новой записи журнала с задачей используемой одним или несколькими расписаниями, эти расписания автоматически устанавливаются выполненными."
+        },
+        "show_schedules_count_as_badge": {
+          "title": "Показывать индикатор выполнения запланированных задач",
+          "description" : "Отображать значок показывающий количество запланированных или просроченных задач."
+        }
+      }
+    },
+    "export": {
+      "description": "Здесь вы можете экспортировать все записи журнала в виде файла CSV. Экспорт происходит в фоновом режиме и может занять некоторое время.",
+      "export_created" : "CSV файл {dst_path} создан",
+      "export_aborted" : "CSV экспорт прервано!"
+    },
+    "backup": {
+      "description": "Создайте резервную копию, чтобы иметь возможность восстановить данные на другом устройстве или после новой установки.",
+      "backup_created" : "Резервное копия {dst_path} сохранена",
+      "backup_aborted" : "Резервное копирование прервано!"
+    },
+    "restore": {
+      "dialog": {
+        "title": "Восстановить из файла",
+        "message": "Восстановление файла резервной копии удалит все ваши текущие данные! Продолжить?"
+      },
+      "backup_restored" : "Восстановлено из резервной копии",
+      "restore_aborted" : "Восстановление прервано!"
+    },
+    "about" : {
+      "title": "Про Everyday Tasks",
+      "message": "Everyday Tasks это простое и быстрое в использовании приложение для записи, отслеживания и планирования ежедневных задач",
+      "star_it": "Если вам нравится приложение поставьте звездочку {link}"
+    }
+  },
+  "filter": {
+    "menu": {
+      "by_date_range": "Фильтровать по датам",
+      "by_severity": "Фильтровать по важности",
+      "by_favorites": "Фильтровать избранное",
+      "by_schedule": "Фильтровать по расписанию",
+      "by_task": "Фильтровать по задаче",
+      "clear_all": "Сбросить фильтры"
+    },
+    "hint_filter_by_schedule": "Выбран фильтр по расписанию '{title}'. Нажмите '{clearAll}' чтобы сбросить.",
+    "filter_by_task_title": "Фильтровать по задаче",
+    "filter_by_task_description": "Выберете категорию, задачу или вариант по которым отфильтровать."
+  },
+  "stats": {
+    "title": "Статистика журнала",
+    "total_count": "Итого",
+    "total_duration": "Продолжительность",
+    "by_categories": "Категории",
+    "by_tasks": "Задачи"
+  },
+  "walk_through": {
+    "banner": {
+      "text": "Узнайте, как работает приложение! Начать тур здесь.",
+      "start_action": "Начать",
+      "dismiss_action" : "Хватит"
+    },
+    "action_button": {
+      "title": "Отслеживайте задачи, создавайте расписания и другое.",
+      "description": "Нажмите здесь чтобы отслеживать задачи, добавлять их в закладки или создавать расписания. Действия основаны на выбранной странице."
+    },
+    "quick_add": {
+      "title": "Быстрое отслеживание ваших самых важных задач",
+      "description": "Здесь вы можете пометить наиболее частые задачи чтобы быстрее их выполнить."
+    },
+    "journal": {
+      "title": "Просмотр выполненных задач",
+      "description": "На этой странице вы увидите все записанные и выполненные задачи."
+    },
+    "schedules": {
+      "title": "Планируйте повторяющиеся задачи",
+      "description": "На этой странице вы можете определить повторяющиеся задачи на основе расписания чтобы получать уведомления в срок."
+    },
+    "tasks": {
+      "title": "Управляйте всеми предопределенными задачами",
+      "description": "Тут вы можете управлять всеми категориями, задачами и вариантами, которые будут использоваться в качестве шаблонов."
+    },
+    "extensions": {
+      "title": "Перетащите вверх чтобы увидеть больше расширений",
+      "description": "Здесь вы можете получить доступ к дополнительным функциям, таким как общий вид календаря."
+    }
+  },
+  "common" : {
+    "ok": "Ok",
+    "cancel": "Отмена",
+    "search": "Поиск",
+    "units": {
+      "year": {
+        "zero": "лет",
+        "one": "год",
+        "two": "год",
+        "other": "лет"
+      },
+      "month": {
+        "zero": "месяцев",
+        "one": "месяц",
+        "two": "месяца",
+        "other": "месяцев"
+      },
+      "week": {
+        "zero": "недель",
+        "one": "неделя",
+        "two": "недели",
+        "other": "недель"
+      },
+      "day": {
+        "zero": "дней",
+        "one": "день",
+        "two": "дня",
+        "other": "дней"
+      },
+      "hour": {
+        "zero": "часов",
+        "one": "час",
+        "two": "часа",
+        "other": "часов"
+      },
+      "minute": {
+        "zero": "минут",
+        "one": "минута",
+        "two": "минуты",
+        "other": "минут"
+      },
+      "second": {
+        "zero": "секунд",
+        "one": "секунда",
+        "two": "секунды",
+        "other": "секунд"
+      },
+      "item": {
+        "zero": "записей",
+        "one": "запись",
+        "two": "записи",
+        "other": "записей"
+      },
+      "schedule": {
+        "zero": "расписаний",
+        "one": "расписание",
+        "two": "расписания",
+        "other": "расписаний"
+      }
+    },
+    "dates": {
+      "before_yesterday": "Позавчера",
+      "yesterday": "Вчера",
+      "today": "Сегодня",
+      "tomorrow": "Завтра",
+      "after_tomorrow": "Послезавтра"
+    },
+    "times": {
+      "now": "Сейчас",
+      "in_the_morning": "Утром",
+      "at_forenoon": "До полудня",
+      "at_noon": "В полдень",
+      "at_afternoon": "После обеда",
+      "in_the_evening": "Вечером",
+      "at_night": "Ночью"
+    },
+    "durations": {
+      "half_an_hour": "пол часа",
+      "three_quarters_of_an_hour": "45 минут",
+      "an_hour": "час"
+    },
+    "words": {
+      "on_for_dates": "",
+      "at_for_times": "в",
+      "for_for_times": "займёт",
+      "in_for_times": "в",
+      "to_for_times": "до",
+      "ago_for_times": "{when}",
+      "and": "и",
+      "thereof": "из того",
+      "custom": "свой",
+      "around": "вокруг",
+      "on_for_enabled": "вкл",
+      "off_for_disabled": "выкл",
+      "clear": "очистить",
+      "value": "значение",
+      "unit": "единица",
+      "unknown": "неизвестно",
+      "others": "другие",
+      "total": "всего"
+    }
+  },
+
+  "model": {
+    "severity": {
+      "easy": "Легко",
+      "medium": "Как обычно",
+      "hard": "Утомительно"
+    },
+    "repetition_step": {
+      "daily": "Ежедневно",
+      "every_other_day": "Любой другой день",
+      "weekly": "Еженедельно",
+      "every_other_week": "Раз в две недели",
+      "monthly": "Ежемесячно",
+      "every_other_month": "Раз в два месяца",
+      "quarterly": "Раз в квартал",
+      "half_yearly": "Раз в пол года",
+      "yearly": "Ежегодно",
+      "every": "Каждый"
+    },
+    "repetition_unit": {
+      "minutes": "Минут",
+      "hours": "Часов",
+      "days": "Дней",
+      "weeks": "Недель",
+      "months": "Месяцев",
+      "years": "Лет"
+    },
+    "repetition_mode": {
+      "dynamic": "Гибкий",
+      "fixed": "Фиксированный"
+    }
+  },
+
+  "task_groups": {
+    "cleaning_n_tidy_up": {
+      "name": "Уборка и мытьё",
+      "templates": {
+        "tidy_up": {
+          "title": "Уборка",
+          "variants": {
+            "tidy_up_kitchen": {
+              "title": "Убрать на кухне"
+            },
+            "tidy_up_living_room": {
+              "title": "Убрать в спальне"
+            }
+          }
+        },
+        "cleaning": {
+          "title": "Мытьё",
+          "variants": {
+            "cleaning_toilet": {
+              "title": "Помыть туалет"
+            },
+            "cleaning_sink": {
+              "title": "Помыть раковину"
+            },
+            "cleaning_shower_o_bathtub": {
+              "title": "Помыть душ"
+            },
+            "cleaning_windows": {
+              "title": "Помыть окна"
+            },
+            "cleaning_fridge": {
+              "title": "Помыть холодильник"
+            }
+          }
+        },
+        "hoovering": {
+          "title": "Пропылесосить"
+        },
+        "wiping": {
+          "title": "Протереть"
+        },
+        "empty_bin": {
+          "title": "Выкинуть мусор"
+        },
+        "dispose_wastepaper_n_used_glass": {
+          "title": "Выбросить макулатуру и стеклотару"
+        }
+      }
+    },
+
+    "laundry": {
+      "name": "Стирка",
+      "templates": {
+        "fill_washing_machine": {
+          "title": "Загрузить стиральную машину"
+        },
+        "empty_washing_machine": {
+          "title": "Выгрузить стиральную машину",
+          "description": "достать одежду и развесить"
+        },
+        "get_from_laundry_rack": {
+          "title": "Снять с сушилки"
+        },
+        "put_to_closet": {
+          "title": "Разложить по шкафам"
+        },
+        "ironing": {
+          "title": "Глажка"
+        },
+        "change_bed_linen": {
+          "title": "Поменять постельное бельё"
+        },
+        "change_towels": {
+          "title": "Поменять полотенца"
+        }
+      }
+    },
+
+    "cooking": {
+      "name": "Готовка еды",
+      "templates": {
+        "prepare_breakfast": {
+          "title": "Приготовить завтрак"
+        },
+        "cook_lunch": {
+          "title": "Приготовить обед"
+        },
+        "prepare_dinner": {
+          "title": "Приготовить ужин"
+        }
+      }
+    },
+
+    "dishes": {
+      "name": "Посуда",
+      "templates": {
+        "wash_up": {
+          "title": "Помыть посуду",
+          "variants": {
+            "wash_up_after_dinner": {
+              "title": "Помыть после ужина"
+            },
+            "wash_up_after_lunch": {
+              "title": "Помыть после обеда"
+            }
+          }
+        },
+        "dry_up": {
+          "title": "Высушить"
+        },
+        "fill_n_start_dishwasher": {
+          "title": "Запустить посудомоечную машину"
+        },
+        "empty_dishwasher": {
+          "title": "Вытащить из посудомоечной машины"
+        }
+      }
+    },
+
+    "errands": {
+      "name": "Поход по магазинам",
+      "templates": {
+        "shop_groceries": {
+          "title": "Купить продукты"
+        },
+        "shop_diapers": {
+          "title": "Купить подгузники"
+        }
+      }
+    },
+
+    "kids": {
+      "name": "Дети",
+      "templates": {
+        "feeding": {
+          "title": "Кормление"
+        },
+        "bring_to_daycare": {
+          "title": "Отвести в садик"
+        },
+        "pickup_from_daycare": {
+          "title": "Забрать из садика"
+        },
+        "bring_to_bed": {
+          "title": "Уложить спать"
+        }
+      }
+    },
+
+    "indoor_plants": {
+      "name": "Домашние растения",
+      "templates": {
+        "water_plants": {
+          "title": "Полить"
+        },
+        "dung_plants": {
+          "title": "Удобрить"
+        }
+      }
+    },
+
+    "garden": {
+      "name": "Сад",
+      "templates": {
+        "water_vegetable_patch": {
+          "title": "Полить грядки"
+        },
+        "dig_vegetable_patch": {
+          "title": "Перекопать грядки"
+        },
+        "cut_lawn": {
+          "title": "Подстричь газон"
+        }
+      }
+    },
+
+    "maintenance": {
+      "name": "Техобслуживание",
+      "templates": {
+        "defrost_fridge": {
+          "title": "Разморозить холодильник"
+        },
+        "fixing": {
+          "title": "Починка"
+        }
+      }
+    },
+
+    "organization": {
+      "name": "Организация",
+      "templates": {
+        "organize_vacation": {
+          "title": "Организовать отпуск"
+        },
+        "shop_gifts": {
+          "title": "Разобрать подарки"
+        }
+      }
+    },
+
+    "car": {
+      "name": "Машина",
+      "templates": {
+        "regular_inspection": {
+          "title": "Регулярный техосмотр"
+        },
+        "change_windshield_wipers": {
+          "title": "Поменять дворники"
+        },
+        "change_tires": {
+          "title": "Сменить резину на колёсах",
+          "description": "зимние / летние шины"
+        }
+      }
+    },
+
+    "pets": {
+      "name": "Домашние питомцы",
+      "templates": {
+        "go_for_a_walk": {
+          "title": "Выгулять",
+          "description": "собаку"
+        },
+        "clean_aquarium_terrarium": {
+          "title": "Почистить аквариум/террариум"
+        },
+        "go_to_vet": {
+          "title": "Отвести к ветеринару"
+        }
+      }
+    },
+
+    "finance": {
+      "name": "Финансы",
+      "templates": {
+        "pay_instalments": {
+          "title": "Оплата рассрочки"
+        },
+        "pay_rent": {
+          "title": "Заплатить за аренду"
+        }
+      }
+    },
+
+    "health": {
+      "name": "Здоровье",
+      "templates": {
+        "take_medication": {
+          "title": "Медитировать"
+        },
+        "regular_health_check_up": {
+          "title": "Регулярное обследование"
+        },
+        "yearly_dentist_examination": {
+          "title": "Ежегодное обследование у стоматолога"
+        }
+      }
+    },
+
+    "sport": {
+      "name": "Спорт",
+      "templates": {
+        "go_to_gym": {
+          "title": "Сходить в спортзал"
+        },
+        "do_a_workout": {
+          "title": "Сделать зарядку"
+        }
+      }
+    },
+
+    "work": {
+      "name": "Работа",
+      "templates": {
+        "submit_expenses": {
+          "title": "Платёжки"
+        },
+        "negotiate_salary": {
+          "title": "Обсудить зарплату"
+        }
+      }
+    },
+
+    "private": {
+      "name": "Личное",
+      "templates": {
+        "call_a_friend": {
+          "title": "Позвонить другу"
+        },
+        "visit_family": {
+          "title": "Навестить семью"
+        }
+      }
+    },
+
+    "hygiene": {
+      "name": "Гигиена",
+      "templates": {
+        "brush_toots": {
+          "title": "Почистить зубы"
+        },
+        "take_a_shower": {
+          "title": "Принять душ"
+        },
+        "go_to_the_hairdresser": {
+          "title": "Постричься"
+        }
+      }
+    },
+
+    "voluntary": {
+      "name": "Волонтёрство",
+      "templates": {
+        "donate_blood": {
+          "title": "Сдать кровь"
+        },
+        "support_others": {
+          "title": "Поддержать других"
+        }
+      }
+    },
+
+    "others": {
+      "name": "Другие"
+    },
+    "deleted": {
+      "name": ""
+    }
+
+  }
+}
