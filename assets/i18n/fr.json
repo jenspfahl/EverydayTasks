@@ -335,15 +335,16 @@
       "common": {
         "title": "Commun",
         "language": {
-          "title": "Langue",
+          "title": "Langue (Language)",
           "dialog": {
             "title": "Veuillez choisir une langue",
             "options": {
               "system_default": "Langue du système",
-              "english": "Anglais (English)",
-              "german": "Allemand (Deutsch)",
+              "english": "English",
+              "german": "Deutsch",
               "french": "Français",
-              "breton": "Breton (Brezhoneg)"
+              "breton": "Brezhoneg",
+              "russian": "Русский"
             }
           },
           "language_not_supported": "La langue '{languageCode}' n'est pas supportée"

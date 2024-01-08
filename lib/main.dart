@@ -16,7 +16,7 @@ Future<void> main() async {
   var delegate = await LocalizationDelegate.create(
     preferences: PreferenceService(),
     fallbackLocale: 'en',
-    supportedLocales: ['en', 'de', 'fr']);
+    supportedLocales: ['en', 'de', 'fr', 'ru']);
 
   runApp(LocalizedApp(delegate, PersonalTaskLoggerApp()));
 }

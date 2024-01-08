@@ -334,15 +334,16 @@
       "common": {
         "title": "Allgemein",
         "language": {
-          "title": "Sprache",
+          "title": "Sprache (Language)",
           "dialog": {
             "title": "Wähle eine Sprache",
             "options": {
               "system_default": "System-Sprache",
-              "english": "Englisch (English)",
+              "english": "English",
               "german": "Deutsch",
-              "french": "Französisch (français)",
-              "breton": "Bretonisch (brezhoneg)"
+              "french": "Français",
+              "breton": "Brezhoneg",
+              "russian": "Русский"
             }
           },
           "language_not_supported": "'{languageCode}' nicht unterstützt"

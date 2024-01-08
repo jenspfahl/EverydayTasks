@@ -340,9 +340,10 @@
             "options": {
               "system_default": "System language",
               "english": "English",
-              "german": "German (Deutsch)",
-              "french": "French (français)",
-              "breton": "Breton (brezhoneg)"
+              "german": "Deutsch",
+              "french": "Français",
+              "breton": "Brezhoneg",
+              "russian": "Русский"
             }
           },
           "language_not_supported": "'{languageCode}' not supported"
