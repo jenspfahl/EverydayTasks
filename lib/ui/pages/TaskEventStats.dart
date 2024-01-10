@@ -63,6 +63,13 @@ class _TaskEventStatsState extends State<TaskEventStats> {
     _dataTypeSelection = List.generate(DataType.values.length, (index) => index == _dataType.index);
     _groupBySelection = List.generate(GroupBy.values.length, (index) => index == _groupBy.index);
 
+    // to restore the origin from previous selections if task filter is active (see _initGroupByByFilter())
+    PreferenceService().getInt(PreferenceService.DATA_CURRENT_STATS_GROUP_BY).then((value) {
+      if (value != null) {
+        _originGroupBy = GroupBy.values[value];
+      }
+    });
+
     super.initState();
   }
   
