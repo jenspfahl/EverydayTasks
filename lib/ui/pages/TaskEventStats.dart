@@ -50,45 +50,26 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
   @override
   void initState() {
-    var groupByAlreadyInitialized = false;
     if (widget.taskEventListState.taskFilterSettings.filterByTaskOrTemplate != null) {
       _initGroupByByFilter(FilterChangeState.TASK_ON);
-      groupByAlreadyInitialized = true;
     }
     if (widget.taskEventListState.taskFilterSettings.filterByTaskEventIds != null) {
       _initGroupByByFilter(FilterChangeState.SCHEDULED_ON);
-      groupByAlreadyInitialized = true;
     }
 
     _dataTypeSelection = List.generate(DataType.values.length, (index) => index == _dataType.index);
     _groupBySelection = List.generate(GroupBy.values.length, (index) => index == _groupBy.index);
-
-    if (!groupByAlreadyInitialized) {
-      PreferenceService()
-          .getInt(PreferenceService.DATA_CURRENT_STATS_DATA_TYPE)
-          .then((value) {
-        if (value != null) {
-          _updateDataType(DataType.values[value]);
-        }
-      });
-
-      PreferenceService()
-          .getInt(PreferenceService.DATA_CURRENT_STATS_GROUP_BY)
-          .then((value) {
-        setState(() {
-          if (value != null) {
-            _updateGroupBy(GroupBy.values[value]);
-          }
-        });
-      });
-    }
-
 
     super.initState();
   }
   
   @override
   Widget build(BuildContext context) {
+
+    final fDataType = PreferenceService().getInt(PreferenceService.DATA_CURRENT_STATS_DATA_TYPE);
+    final fGroupBy = PreferenceService().getInt(PreferenceService.DATA_CURRENT_STATS_GROUP_BY);
+    final requiredPrefs = Future.wait([fDataType, fGroupBy]);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(translate('stats.title')),
@@ -104,7 +85,25 @@ class _TaskEventStatsState extends State<TaskEventStats> {
               }),
         ],
       ),
-      body: _createBody(),
+      body: FutureBuilder<List<int?>>(
+          future: requiredPrefs,
+          builder: (BuildContext context, AsyncSnapshot<List<int?>> snapshot) {
+            if (snapshot.hasData) {
+              final dataTypeIndex = snapshot.data![0];
+              if (dataTypeIndex != null) {
+                _updateDataType(DataType.values[dataTypeIndex]);
+              }
+              final groupByIndex = snapshot.data![1];
+              if (groupByIndex != null) {
+                _updateGroupBy(GroupBy.values[groupByIndex]);
+              }
+
+              return _createBody();
+            }
+            else {
+              return Container();
+            }
+          }),
     );
   }
   
@@ -478,26 +477,24 @@ class _TaskEventStatsState extends State<TaskEventStats> {
       ],
       isSelected: _dataTypeSelection,
       onPressed: (int index) {
-        _updateDataType(DataType.values[index]);
+        setState(() {
+          _updateDataType(DataType.values[index]);
+        });
         PreferenceService().setInt(PreferenceService.DATA_CURRENT_STATS_DATA_TYPE, _dataType.index);
       },
     );
   }
 
   void _updateDataType(DataType newDataType) {
-    setState(() {
-      _dataTypeSelection[_dataType.index] = false;
-      _dataTypeSelection[newDataType.index] = true;
-      _dataType = newDataType;
-    });
+    _dataTypeSelection[_dataType.index] = false;
+    _dataTypeSelection[newDataType.index] = true;
+    _dataType = newDataType;
   }
 
   void _updateGroupBy(GroupBy newGroupBy) {
-    setState(() {
-      _groupBySelection[_groupBy.index] = false;
-      _groupBySelection[newGroupBy.index] = true;
-      _groupBy = newGroupBy;
-    });
+    _groupBySelection[_groupBy.index] = false;
+    _groupBySelection[newGroupBy.index] = true;
+    _groupBy = newGroupBy;
   }
 
   Widget _createGroupByButton() {
