@@ -42,11 +42,14 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
   int _touchedIndex = -1;
 
+  GroupBy? _originGroupBy;
   GroupBy _groupBy = GroupBy.TASK_GROUP;
   late List<bool> _groupBySelection;
 
   DataType _dataType = DataType.DURATION;
   late List<bool> _dataTypeSelection;
+
+  bool _groupByChangedByFilter = false;
 
   @override
   void initState() {
@@ -93,11 +96,12 @@ class _TaskEventStatsState extends State<TaskEventStats> {
               if (dataTypeIndex != null) {
                 _updateDataType(DataType.values[dataTypeIndex]);
               }
-              final groupByIndex = snapshot.data![1];
-              if (groupByIndex != null) {
-                _updateGroupBy(GroupBy.values[groupByIndex]);
+              if (!_groupByChangedByFilter) {
+                final groupByIndex = snapshot.data![1];
+                if (groupByIndex != null) {
+                  _updateGroupBy(GroupBy.values[groupByIndex]);
+                }
               }
-
               return _createBody();
             }
             else {
@@ -542,15 +546,18 @@ class _TaskEventStatsState extends State<TaskEventStats> {
 
   void _initGroupByByFilter(FilterChangeState filterChangeState) {
     debugPrint("old: $_groupBy $filterChangeState");
-
+    _groupByChangedByFilter = false;
     if (filterChangeState == FilterChangeState.TASK_ON
         || filterChangeState == FilterChangeState.SCHEDULED_ON) {
+      _originGroupBy = _groupBy;
       _groupBy = GroupBy.TEMPLATE;
+      _groupByChangedByFilter = true;
     }
     else if (filterChangeState == FilterChangeState.TASK_OFF
         || filterChangeState == FilterChangeState.SCHEDULED_OFF
         || filterChangeState == FilterChangeState.ALL_OFF) {
-      _groupBy = GroupBy.TASK_GROUP;
+      _groupBy = _originGroupBy??GroupBy.TASK_GROUP;
+      _groupByChangedByFilter = true;
     }
     debugPrint("new: $_groupBy");
     _groupBySelection = List.generate(GroupBy.values.length, (index) => index == _groupBy.index);
