@@ -1,0 +1,2 @@
+* Add russian language
+* Small bugfixes
