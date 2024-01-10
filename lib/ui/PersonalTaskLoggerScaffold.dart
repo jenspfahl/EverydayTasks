@@ -216,6 +216,9 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                                 // refresh current page
                                 debugPrint("refresh ..");
                               });
+                              _pages.forEach((page) {
+                                page.getGlobalKey().currentState?.reload();
+                              });
                             });
                           });
                         },
