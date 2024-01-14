@@ -32,7 +32,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   material_design_icons_flutter: ^5.0.6595
   floor: ^1.1.0
-  intl: ^0.18.1
+  intl: ^0.18.0
   numberpicker: ^2.1.1
   flutter_treeview: ^1.0.6+1
   jiffy: ^5.0.0
