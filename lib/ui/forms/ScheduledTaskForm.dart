@@ -45,7 +45,13 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
   RepetitionStep? _selectedRepetitionStep;
   CustomRepetition? _customRepetition;
-  
+
+  //TODO load, visualize and save
+  Set<DayOfWeek> weekBasedSchedules = {};
+  Set<int> monthBasedSchedules = {}; // day of month
+  Set<AllYearDate> yearBasedSchedules = {}; // date of all years
+
+
   bool _isRemindersEnabled = true;
   CustomRepetition _reminderRepetition = CustomRepetition(1, RepetitionUnit.HOURS);
 
@@ -289,7 +295,15 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                               _customRepetition = tempSelectedRepetition;
 
                                               // add interval to due date
-                                              final nextDueDate = _customRepetition!.getNextRepetitionFrom(DateTime.now());
+                                              final nextDueDate = Schedule.correctForDefinedSchedules(
+                                                  _customRepetition!.getNextRepetitionFrom(DateTime.now()),
+                                                  _repetitionMode,
+                                                  _selectedRepetitionStep!,
+                                                  _customRepetition,
+                                                  weekBasedSchedules,
+                                                  monthBasedSchedules,
+                                                  yearBasedSchedules,
+                                              );
                                               _updateNextDueOn(nextDueDate);
                                             });
                                           }
@@ -301,7 +315,15 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                           _customRepetition = null;
 
                                           // add interval to due date
-                                          final nextDueDate = Schedule.addRepetitionStepToDateTime(DateTime.now(), _selectedRepetitionStep!);
+                                          final nextDueDate = Schedule.correctForDefinedSchedules(
+                                            Schedule.addRepetitionStepToDateTime(DateTime.now(), _selectedRepetitionStep!),
+                                            _repetitionMode,
+                                            _selectedRepetitionStep!,
+                                            _customRepetition,
+                                            weekBasedSchedules,
+                                            monthBasedSchedules,
+                                            yearBasedSchedules,
+                                          );
                                           _updateNextDueOn(nextDueDate);
                                         });
                                       }

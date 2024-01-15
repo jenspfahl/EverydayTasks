@@ -10,6 +10,37 @@ import 'When.dart';
 enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, EVERY_OTHER_MONTH, QUARTERLY, HALF_YEARLY, YEARLY, CUSTOM}
 enum RepetitionUnit {DAYS, WEEKS, MONTHS, YEARS, MINUTES, HOURS}
 enum RepetitionMode {DYNAMIC, FIXED}
+enum DayOfWeek {MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY}
+enum MonthOfYear {JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER , DECEMBER}
+// if FIXED, we cld define week days for week based intervals
+// and month days for month based (but only to 28th?)
+// and dates for year based (what about leap year?)
+// if a fixed date cannot be resolved it is skipped OR moved to the next possible data (e.g. 29th Feb in a non-leap year would move to 1st March)
+//Redesign Schedule form (!!!):
+// make a new section visible when FIXED based on the interval basis
+
+class AllYearDate {
+  int day;
+  MonthOfYear month;
+
+  AllYearDate(this.day, this.month);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AllYearDate &&
+          runtimeType == other.runtimeType &&
+          day == other.day &&
+          month == other.month;
+
+  @override
+  int get hashCode => day.hashCode ^ month.hashCode;
+
+  @override
+  String toString() {
+    return 'AllYearDate{day: $day, month: $month}';
+  }
+}
 
 class CustomRepetition {
   int repetitionValue;
@@ -65,12 +96,21 @@ class Schedule {
   CustomRepetition? customRepetition;
   RepetitionMode repetitionMode;
 
+  
+  //TODO mockup data used
+  Set<DayOfWeek> weekBasedSchedules = {DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY};
+  Set<int> monthBasedSchedules = {3, 31}; // day of month
+  Set<AllYearDate> yearBasedSchedules = {AllYearDate(29, MonthOfYear.FEBRUARY), AllYearDate(12, MonthOfYear.MAY)}; // date of all years
+
   Schedule({
     required this.aroundStartAt,
     this.startAtExactly,
     required this.repetitionStep,
     this.customRepetition,
     required this.repetitionMode,
+ /*   required this.weekBasedSchedules,
+    required this.monthBasedSchedules,
+    required this.yearBasedSchedules*/
   });
 
   DateTime adjustScheduleFrom(DateTime fromDate) {
@@ -82,10 +122,26 @@ class Schedule {
   DateTime getNextRepetitionFrom(DateTime from) {
     from = adjustScheduleFrom(from);
     if (customRepetition != null) {
-      return customRepetition!.getNextRepetitionFrom(from);
+      return correctForDefinedSchedules(
+        customRepetition!.getNextRepetitionFrom(from),
+        repetitionMode,
+        repetitionStep,
+        customRepetition,
+        weekBasedSchedules,
+        monthBasedSchedules,
+        yearBasedSchedules,
+      );
     }
     else if (repetitionStep != RepetitionStep.CUSTOM) {
-      return addRepetitionStepToDateTime(from, repetitionStep);
+      return correctForDefinedSchedules(
+        addRepetitionStepToDateTime(from, repetitionStep),
+        repetitionMode,
+        repetitionStep,
+        customRepetition,
+        weekBasedSchedules,
+        monthBasedSchedules,
+        yearBasedSchedules,
+      );
     }
     throw new Exception("unknown repetition step");
   }
@@ -93,10 +149,26 @@ class Schedule {
   DateTime getPreviousRepetitionFrom(DateTime from) {
     from = adjustScheduleFrom(from);
     if (customRepetition != null) {
-      return customRepetition!.getPreviousRepetitionFrom(from);
+      return correctForDefinedSchedules( //TODO not sure whether we need this here
+        customRepetition!.getPreviousRepetitionFrom(from),
+        repetitionMode,
+        repetitionStep,
+        customRepetition,
+        weekBasedSchedules,
+        monthBasedSchedules,
+        yearBasedSchedules,
+      );
     }
     else if (repetitionStep != RepetitionStep.CUSTOM) {
-      return subtractRepetitionStepToDateTime(from, repetitionStep);
+      return correctForDefinedSchedules(  //TODO not sure whether we need this here
+        subtractRepetitionStepToDateTime(from, repetitionStep),
+        repetitionMode,
+        repetitionStep,
+        customRepetition,
+        weekBasedSchedules,
+        monthBasedSchedules,
+        yearBasedSchedules,
+      );
     }
     throw new Exception("unknown repetition step");
   }
@@ -203,6 +275,108 @@ class Schedule {
       case RepetitionUnit.MONTHS: return Months(customRepetition.repetitionValue, clause);
       case RepetitionUnit.YEARS: return Years(customRepetition.repetitionValue, clause);
     }
+  }
+
+  static DateTime correctForDefinedSchedules(DateTime dateTime, RepetitionMode repetitionMode, RepetitionStep repetitionStep, CustomRepetition? customRepetition,
+      Set<DayOfWeek> weekBasedSchedules, Set<int> monthBasedSchedules, Set<AllYearDate> yearBasedSchedules) {
+    if (repetitionMode == RepetitionMode.FIXED) {
+      if (isWeekBased(repetitionStep, customRepetition) && weekBasedSchedules.isNotEmpty) {
+        return findClosestDayOfWeek(weekBasedSchedules, dateTime) ?? dateTime; 
+      }
+      if (isMonthBased(repetitionStep, customRepetition) && monthBasedSchedules.isNotEmpty) {
+        return findClosestDayOfMonth(monthBasedSchedules, dateTime) ?? dateTime;
+      }
+      if (isYearBased(repetitionStep, customRepetition) && yearBasedSchedules.isNotEmpty) {
+        return findClosestAllYearData(yearBasedSchedules, dateTime) ?? dateTime;
+      }
+    }
+    // bypass 
+    return dateTime;
+  }
+
+  static bool isWeekBased(RepetitionStep repetitionStep, CustomRepetition? customRepetition) {
+    switch(repetitionStep) {
+      case RepetitionStep.WEEKLY: 
+      case RepetitionStep.EVERY_OTHER_WEEK: 
+        return true;
+      case RepetitionStep.CUSTOM: {
+        return customRepetition != null && customRepetition.repetitionUnit == RepetitionUnit.WEEKS;
+      }
+      default: return false;
+    }
+  }
+  
+  static bool isMonthBased(RepetitionStep repetitionStep, CustomRepetition? customRepetition) {
+    switch(repetitionStep) {
+      case RepetitionStep.MONTHLY: 
+      case RepetitionStep.EVERY_OTHER_MONTH:
+      case RepetitionStep.QUARTERLY: // equals to 3 months
+      case RepetitionStep.HALF_YEARLY: // equals to 6 months
+        return true;
+      case RepetitionStep.CUSTOM: {
+        return customRepetition != null && customRepetition.repetitionUnit == RepetitionUnit.MONTHS;
+      }
+      default: return false;
+    }
+  }
+  
+  static bool isYearBased(RepetitionStep repetitionStep, CustomRepetition? customRepetition) {
+    switch(repetitionStep) {
+      case RepetitionStep.YEARLY: 
+        return true;
+      case RepetitionStep.CUSTOM: {
+        return customRepetition != null && customRepetition.repetitionUnit == RepetitionUnit.YEARS;
+      }
+      default: return false;
+    }
+  }
+
+  static DateTime? findClosestDayOfWeek(Set<DayOfWeek> weekBasedSchedules, DateTime dateTime) {
+    final mondayOfTargetWeek = dateTime.subtract(Duration(days: dateTime.weekday - 1));
+    var sorted = weekBasedSchedules.toList();
+    sorted.sort((e1, e2) => e1.index - e2.index);
+    var it = sorted.iterator;
+    while (it.moveNext()) {
+      final dayOfWeekCandidate = it.current;
+      final testDate = mondayOfTargetWeek.add(Duration(days: dayOfWeekCandidate.index));
+      if (testDate == dateTime || testDate.isAfter(dateTime)) {
+        return testDate;
+      }
+    }
+    return dateTime;
+  }
+  
+  static DateTime? findClosestDayOfMonth(Set<int> monthBasedSchedules, DateTime dateTime) {
+    final firstDayOfTargetMonth = DateTime(dateTime.year, dateTime.month, 1);
+    var sorted = monthBasedSchedules.toList();
+    sorted.sort((e1, e2) => e1 - e2);
+    var it = sorted.iterator;
+    while (it.moveNext()) {
+      final dayOfMonthCandidate = it.current;
+      final testDate = firstDayOfTargetMonth.add(Duration(days: dayOfMonthCandidate - 1));
+      if (testDate == dateTime || testDate.isAfter(dateTime)) {
+        return testDate;
+      }
+    }
+    return dateTime;
+  } 
+  
+  static DateTime? findClosestAllYearData(Set<AllYearDate> yearBasedSchedules, DateTime dateTime) {
+    var sorted = yearBasedSchedules.toList();
+    sorted.sort((e1, e2) {
+      int cmp = e2.month.index.compareTo(e1.month.index);
+      if (cmp != 0) return cmp;
+      return e2.day.compareTo(e1.day);
+    });
+    var it = sorted.iterator;
+    while (it.moveNext()) {
+      final allYearDateCandidate = it.current;
+      final testDate = DateTime(dateTime.year, allYearDateCandidate.month.index + 1, allYearDateCandidate.day);
+      if (testDate == dateTime || testDate.isAfter(dateTime)) {
+        return testDate;
+      }
+    }
+    return dateTime;
   }
 
 }
