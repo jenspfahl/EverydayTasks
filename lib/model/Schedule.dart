@@ -19,7 +19,7 @@ enum MonthOfYear {JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPT
 //Redesign Schedule form (!!!):
 // make a new section visible when FIXED based on the interval basis
 
-class AllYearDate {
+class AllYearDate implements Comparable {
   int day;
   MonthOfYear month;
 
@@ -39,6 +39,13 @@ class AllYearDate {
   @override
   String toString() {
     return 'AllYearDate{day: $day, month: $month}';
+  }
+
+  @override
+  int compareTo(other) {
+    int cmp = month.index.compareTo(other.month.index);
+    if (cmp != 0) return cmp;
+    return day.compareTo(other.day);
   }
 }
 
@@ -363,12 +370,8 @@ class Schedule {
   
   static DateTime? findClosestAllYearData(Set<AllYearDate> yearBasedSchedules, DateTime dateTime) {
     var sorted = yearBasedSchedules.toList();
-    sorted.sort((e1, e2) {
-      int cmp = e2.month.index.compareTo(e1.month.index);
-      if (cmp != 0) return cmp;
-      return e2.day.compareTo(e1.day);
-    });
-    var it = sorted.iterator;
+    sorted.sort();
+    var it = sorted.reversed.iterator;
     while (it.moveNext()) {
       final allYearDateCandidate = it.current;
       final testDate = DateTime(dateTime.year, allYearDateCandidate.month.index + 1, allYearDateCandidate.day);

@@ -65,10 +65,11 @@ formatToDateWithFormatSelection(DateTime dateTime, BuildContext context, int dat
 }
 
 
+// day: 0..6
 String getWeekdayOf(int day, BuildContext context) {
   final locale = currentLocale(context).toString();
   initializeDateFormatting(locale);
-  return DateFormat.EEEE(locale).dateSymbols.WEEKDAYS[day];
+  return DateFormat.EEEE(locale).dateSymbols.WEEKDAYS[(day + 1) % 7];
 }
 
 String getMonthOf(int month, BuildContext context) {
@@ -77,7 +78,7 @@ String getMonthOf(int month, BuildContext context) {
   return DateFormat.MMM(locale).dateSymbols.MONTHS[month];
 }
 
- getDateFormat(BuildContext context, int dateFormatSelection, bool showWeekdays, bool withoutYear) {
+getDateFormat(BuildContext context, int dateFormatSelection, bool showWeekdays, bool withoutYear) {
 
    final locale = currentLocale(context).toString();
   initializeDateFormatting(locale);

@@ -1,3 +1,4 @@
+import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -14,6 +15,8 @@ import 'package:personaltasklogger/util/extensions.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
 import '../../util/units.dart';
+import '../PersonalTaskLoggerApp.dart';
+import '../utils.dart';
 
 class ScheduledTaskForm extends StatefulWidget {
   final String formTitle;
@@ -38,6 +41,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   final _formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
+  final _monthBasedScheduleController = TextEditingController();
+  final _yearBasedScheduleController = TextEditingController();
+
 
   final ScheduledTask? _scheduledTask;
   TaskGroup _taskGroup;
@@ -47,7 +53,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   CustomRepetition? _customRepetition;
 
   //TODO load, visualize and save
-  Set<DayOfWeek> weekBasedSchedules = {};
+  Set<DayOfWeek> weekBasedSchedules = {DayOfWeek.MONDAY, DayOfWeek.FRIDAY};
   Set<int> monthBasedSchedules = {}; // day of month
   Set<AllYearDate> yearBasedSchedules = {}; // date of all years
 
@@ -64,6 +70,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   late bool _isActive;
   RepetitionMode _repetitionMode = RepetitionMode.DYNAMIC;
 
+  static int _repetitionModeHintShownForDynamic = 0;
+  static int _repetitionModeHintShownForFixed = 0;
+  
+  final _daysOfMonthSelectorKey = GlobalKey();
+  final _daysOfYearSelectorKey = GlobalKey();
 
   _ScheduledTaskFormState(this._scheduledTask, this._taskGroup, this._template);
 
@@ -117,6 +128,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
       _isActive = true;
     }
+
+    _updateMonthBasedText();
+    _updateYearBasedText();
 
   }
 
@@ -245,29 +259,76 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                           ),
 
                           Padding(
-                            padding: EdgeInsets.only(top: 20.0),
+                              padding: EdgeInsets.only(top: 30.0),
+                              child: Container(
+                                height: 64.0,
+                                child: ToggleButtons(
+                                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                                  renderBorder: true,
+                                  borderWidth: 1.5,
+                                  borderColor: Colors.grey,
+                                  color: Colors.grey.shade600,
+                                  selectedBorderColor: BUTTON_COLOR,
+                                  children: [
+                                    SizedBox(
+                                        width: 80,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Stack(children: [
+                                              Icon(Icons.calendar_today, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null,),
+                                              Positioned.fill(top: 4, left: 5.25 ,child: Text("▪", style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
+                                              Positioned.fill(top: 8, left: 12 ,child: Text("?", style: TextStyle(fontWeight: FontWeight.bold, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null, fontSize: 12,))),
+                                            ]),
+                                            Text(Schedule.fromRepetitionModeToString(RepetitionMode.DYNAMIC), textAlign: TextAlign.center,
+                                                style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null)),
+                                          ],
+                                        )
+                                    ),
+                                    SizedBox(
+                                        width: 80,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Stack(children: [
+                                              Icon(Icons.calendar_today, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.FIXED ? PRIMARY_COLOR : null) : null,),
+                                              Positioned.fill(top: 4, left: 5.25, child: Text("▪ ▪", style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.FIXED ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
+                                            ]),
+                                            Text(Schedule.fromRepetitionModeToString(RepetitionMode.FIXED), textAlign: TextAlign.center,
+                                                style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.FIXED ? PRIMARY_COLOR : null) : null)),
+                                          ],
+                                        )
+                                    ),
+                                  ],
+                                  isSelected: [_repetitionMode == RepetitionMode.DYNAMIC, _repetitionMode == RepetitionMode.FIXED],
+                                  onPressed: (int index) {
+                                    setState(() {
+                                      _repetitionMode = RepetitionMode.values[index];
+                                    });
+
+                                    //TODO store a total seen counter
+                                    if (_repetitionModeHintShownForDynamic < 2 && _repetitionMode == RepetitionMode.DYNAMIC) {
+                                      toastInfo(context, translate('forms.schedule.repetition_mode_dynamic'));
+                                      _repetitionModeHintShownForDynamic++;
+                                    }
+                                    else if (_repetitionModeHintShownForFixed < 2 && _repetitionMode == RepetitionMode.FIXED) {
+                                      toastInfo(context, translate('forms.schedule.repetition_mode_fixed'));
+                                      _repetitionModeHintShownForFixed++;
+                                    }
+                                  },
+                                ),
+                              ),
+                          ),
+
+                          Padding(
+                            padding: EdgeInsets.only(top: 10.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Container(
-                                    height: 64.0,
-                                    width: (MediaQuery.of(context).size.width / 2) - 60,
-                                    child: CheckboxListTile(
-                                      title: Text(translate('forms.schedule.activate_schedule')),
-                                      dense: true,
-                                      contentPadding: EdgeInsets.zero,
-                                      value: _isActive,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          if (value != null) _isActive = value;
-                                        });
-                                      },
-                                    )
-                                ),
-
-                                Container(
                                   height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) + 10,
+                                  width: (MediaQuery.of(context).size.width / 2) - 20,
+                                  //width: (MediaQuery.of(context).size.width / 2) + 10,
                                   child: DropdownButtonFormField<RepetitionStep?>(
                                     onTap: () => FocusScope.of(context).unfocus(),
                                     value: _selectedRepetitionStep,
@@ -345,62 +406,6 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     },
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-
-                          Padding(
-                            padding: EdgeInsets.only(top: 20.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) - 25,
-                                  child: DropdownButtonFormField<WhenOnDateFuture?>(
-                                    onTap: () => FocusScope.of(context).unfocus(),
-                                    value: _selectedNextDueOn,
-                                    hint: Text(translate('forms.schedule.due_on_hint')),
-                                    icon: Icon(Icons.event_available),
-                                    isExpanded: true,
-                                    onChanged: (value) {
-                                      if (value == WhenOnDateFuture.CUSTOM) {
-                                        final initialScheduleFrom = _customNextDueOn ?? truncToDate(DateTime.now());
-                                        showTweakedDatePicker(
-                                          context,
-                                          initialDate: initialScheduleFrom,
-                                        ).then((selectedDate) {
-                                          if (selectedDate != null) {
-                                            setState(() {
-                                              _updateNextDueOn(selectedDate);
-                                            });
-                                          }
-                                        });
-                                      }
-                                      setState(() {
-                                        _selectedNextDueOn = value;
-                                      });
-                                    },
-                                    validator: (WhenOnDateFuture? value) {
-                                      if (value == null || (value == WhenOnDateFuture.CUSTOM && _customNextDueOn == null)) {
-                                        return translate('forms.schedule.due_at_emphasis');
-                                      } else {
-                                        return null;
-                                      }
-                                    },
-                                    items: WhenOnDateFuture.values.map((WhenOnDateFuture whenOnDate) {
-                                      return DropdownMenuItem(
-                                        value: whenOnDate,
-                                        child: Text(
-                                          whenOnDate == WhenOnDateFuture.CUSTOM && _customNextDueOn != null && _dateCannotBeMappedToAWord(_customNextDueOn!)
-                                              ? formatToDateOrWord(_customNextDueOn!, context)
-                                              : When.fromWhenOnDateFutureString(whenOnDate),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-
                                 Container(
                                   height: 64.0,
                                   width: (MediaQuery.of(context).size.width / 2) - 25,
@@ -450,6 +455,15 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                   ),
                                 ),
                               ],
+                            ),
+                          ),
+
+                          Padding(
+                            padding: EdgeInsets.only(top: 0.0),
+                            child: Container(
+                              height: 64.0,
+                              width: (MediaQuery.of(context).size.width / 1) - 35,
+                              child: buildDueOnWidget(context),
                             ),
                           ),
 
@@ -518,23 +532,17 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: 10.0),
-                            child: SwitchListTile(
+                            child: CheckboxListTile(
+                              title: Text(translate('forms.schedule.activate_schedule')),
+                              dense: true,
                               contentPadding: EdgeInsets.zero,
-                              title: Text("${translate('forms.schedule.repetition_mode').capitalize()}: ${_repetitionMode == RepetitionMode.DYNAMIC
-                                  ? translate('common.words.on_for_enabled').capitalize()
-                                  : translate('common.words.off_for_disabled').capitalize()
-                              }"),
-                              subtitle: Text(_repetitionMode == RepetitionMode.DYNAMIC
-                                  ? translate('forms.schedule.repetition_mode_dynamic')
-                                  : translate('forms.schedule.repetition_mode_fixed')),
-                              value: _repetitionMode == RepetitionMode.DYNAMIC,
-                              onChanged: (bool value) {
+                              value: _isActive,
+                              onChanged: (bool? value) {
                                 setState(() {
-                                  _repetitionMode = _repetitionMode == RepetitionMode.DYNAMIC
-                                      ? RepetitionMode.FIXED
-                                      : RepetitionMode.DYNAMIC;
+                                  if (value != null) _isActive = value;
                                 });
-                              },)
+                              },
+                            )
                           ),
                           Align(
                             alignment: Alignment.bottomCenter,
@@ -601,6 +609,369 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     );
   }
 
+  Widget buildDueOnWidget(BuildContext context) {
+    if (_repetitionMode == RepetitionMode.DYNAMIC) {
+      return _buildDueOnDayDropDown(context);
+    }
+    else {
+      if (_selectedRepetitionStep != null && Schedule.isWeekBased(_selectedRepetitionStep!, _customRepetition)) {
+        return _buildWeekDaySelector();
+      }
+      else if (_selectedRepetitionStep != null && Schedule.isMonthBased(_selectedRepetitionStep!, _customRepetition)) {
+        return _buildMonthlyDaySelector();
+      }
+      else if (_selectedRepetitionStep != null && Schedule.isYearBased(_selectedRepetitionStep!, _customRepetition)) {
+        return _buildYearlyDaySelector();
+      }
+      else {
+        return _buildDueOnDayDropDown(context);
+      }
+    }
+  }
+
+  Widget _buildDueOnDayDropDown(BuildContext context) {
+    return DropdownButtonFormField<WhenOnDateFuture?>(
+      onTap: () => FocusScope.of(context).unfocus(),
+      value: _selectedNextDueOn,
+      hint: Text(translate('forms.schedule.due_on_hint')),
+      icon: Icon(Icons.event_available),
+      isExpanded: true,
+      onChanged: (value) {
+        if (value == WhenOnDateFuture.CUSTOM) {
+          final initialScheduleFrom = _customNextDueOn ??
+              truncToDate(DateTime.now());
+          showTweakedDatePicker(
+            context,
+            initialDate: initialScheduleFrom,
+          ).then((selectedDate) {
+            if (selectedDate != null) {
+              setState(() {
+                _updateNextDueOn(selectedDate);
+              });
+            }
+          });
+        }
+        setState(() {
+          _selectedNextDueOn = value;
+        });
+      },
+      validator: (WhenOnDateFuture? value) {
+        if (value == null ||
+            (value == WhenOnDateFuture.CUSTOM && _customNextDueOn == null)) {
+          return translate('forms.schedule.due_at_emphasis');
+        } else {
+          return null;
+        }
+      },
+      items: WhenOnDateFuture.values.map((WhenOnDateFuture whenOnDate) {
+        return DropdownMenuItem(
+          value: whenOnDate,
+          child: Text(
+            whenOnDate == WhenOnDateFuture.CUSTOM &&
+                _customNextDueOn != null &&
+                _dateCannotBeMappedToAWord(_customNextDueOn!)
+                ? formatToDateOrWord(_customNextDueOn!, context)
+                : When.fromWhenOnDateFutureString(whenOnDate),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Row _buildWeekDaySelector() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 5,
+          child: SizedBox(
+            child: Row(
+              children: [
+                Expanded(
+                  child: buildDayItem(DayOfWeek.MONDAY),
+                ),
+                Expanded(
+                  child: buildDayItem(DayOfWeek.TUESDAY),
+                ),
+                Expanded(
+                  child: buildDayItem(DayOfWeek.WEDNESDAY),
+                ),
+                Expanded(
+                  child: buildDayItem(DayOfWeek.THURSDAY),
+                ),
+                Expanded(
+                  child: buildDayItem(DayOfWeek.FRIDAY),
+                ),
+                Expanded(
+                  child: buildDayItem(DayOfWeek.SATURDAY),
+                ),
+                Expanded(
+                  child: buildDayItem(DayOfWeek.SUNDAY),
+                ),
+    
+              ],),
+          ),
+        ),
+        Expanded(child: Align(
+            alignment: Alignment.centerRight,
+            child: Icon(Icons.event_available, color: Colors.black54,))),
+      ],
+    );
+  }
+
+
+  Widget _buildMonthlyDaySelector() {
+
+    return TextFormField(
+      controller: _monthBasedScheduleController,
+      decoration: InputDecoration(
+        hintText: 'Select days per month',
+        suffix: Icon(Icons.event_available, color: Colors.black54),
+        counter: Text(""),
+      ),
+      maxLength: 100,
+      keyboardType: TextInputType.text,
+      readOnly: true,
+     // buildCounter: (context, { int? currentLength, int? maxLength, bool? isFocused }) => null,
+      maxLines: 1,
+      onTap: () {
+        final tempSchedules = monthBasedSchedules.toSet();
+        showCustomDialog(context,
+          title: "Day Of Month",
+          message: "Select the days of a month for this schedule. If a day not exists (e.g. 31. Feb.) the schedule is not triggered.",
+          body: _buildSingleDayOfMonthSelector(tempSchedules),
+          okPressed: () {
+            Navigator.pop(context);
+            monthBasedSchedules = tempSchedules;
+
+            setState(() {
+              _updateMonthBasedText();
+            });
+          },
+          cancelPressed: () => Navigator.pop(context),
+
+          neutralButton: TextButton(
+              onPressed: () {
+                _daysOfMonthSelectorKey.currentState
+                    ?.setState(() {
+                      tempSchedules.clear();
+                    });
+              },
+              child: Text("Clear"),
+          ),
+        );
+      },
+    );
+  }
+
+
+  Widget _buildYearlyDaySelector() {
+
+    return TextFormField(
+      controller: _yearBasedScheduleController,
+      decoration: InputDecoration(
+        hintText: 'Select days per year',
+        suffix: Icon(Icons.event_available, color: Colors.black54),
+        counter: Text(""),
+      ),
+      maxLength: 100,
+      keyboardType: TextInputType.text,
+      readOnly: true,
+      maxLines: 1,
+      onTap: () {
+        final tempSchedules = yearBasedSchedules.toSet();
+        showCustomDialog(context,
+          title: "Days Of Year",
+          message: "Select the days of a year for this schedule. If a day not exists (e.g. 31. Feb.) the schedule is not triggered.",
+          body: _buildMultipleDayOfMonthSelector(tempSchedules),
+          bodyFlex: 4,
+          okPressed: () {
+            Navigator.pop(context);
+            yearBasedSchedules = tempSchedules;
+
+            setState(() {
+              _updateYearBasedText();
+            });
+          },
+          cancelPressed: () => Navigator.pop(context),
+
+          neutralButton: TextButton(
+            onPressed: () {
+              _daysOfYearSelectorKey.currentState
+                  ?.setState(() {
+                tempSchedules.clear();
+              });
+            },
+            child: Text("Clear"),
+          ),
+        );
+      },
+    );
+  }
+
+  void _updateMonthBasedText() {
+    final daysAsString = _getStringFromMonthlyBasedSchedules(monthBasedSchedules);
+    if (daysAsString != null) {
+      _monthBasedScheduleController.text = "On day $daysAsString";
+    }
+    else {
+      _monthBasedScheduleController.text = "";
+    }
+  }
+
+  void _updateYearBasedText() {
+    final daysAsString = _getStringFromYearlyBasedSchedules(yearBasedSchedules);
+    if (daysAsString != null) {
+      _yearBasedScheduleController.text = "On day $daysAsString";
+    }
+    else {
+      _yearBasedScheduleController.text = "";
+    }
+  }
+
+  Widget buildDayItem(DayOfWeek day) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (weekBasedSchedules.contains(day)) {
+            weekBasedSchedules.remove(day);
+          }
+          else {
+            weekBasedSchedules.add(day);
+          }
+        });
+      },
+      child: CircleAvatar(
+        radius: 11,
+        backgroundColor: weekBasedSchedules.contains(day) ? BUTTON_COLOR : Colors.transparent,
+        child: Text(
+          getWeekdayOf(day.index, context).characters.first.toUpperCase(),
+          style: TextStyle(
+            color: weekBasedSchedules.contains(day)
+                ? Colors.white
+                : Colors.black54,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSingleDayOfMonthSelector(Set<int> monthBasedSchedules) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: StatefulBuilder(
+          key: _daysOfMonthSelectorKey,
+          builder: (context, setState) {
+            return _buildDayOfMonthSelector(
+                monthBasedSchedules, 
+                itemCount: 31,
+                onTap: (day) {
+                  setState(() {
+                    if (monthBasedSchedules.contains(day)) {
+                      monthBasedSchedules.remove(day);
+                    }
+                    else {
+                      monthBasedSchedules.add(day);
+                    }
+                  });
+                } 
+            );
+          }),
+    );
+  }
+  
+  Widget _buildMultipleDayOfMonthSelector(Set<AllYearDate> yearBasedSchedules) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: StatefulBuilder(
+          key: _daysOfYearSelectorKey,
+          builder: (context, setState) {
+            final flex = 1;
+            return SingleChildScrollView(
+              child: SizedBox(
+                height: 2500,
+                child: Column(
+                  children: [
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.JANUARY, 31, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.FEBRUARY, 29, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.MARCH, 31, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.APRIL, 30, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.MAY, 31, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.JUNE, 30, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.JULY, 31, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.AUGUST, 31, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.SEPTEMBER, 30, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.OCTOBER, 31, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.NOVEMBER, 30, yearBasedSchedules)),
+                    Expanded(flex: flex, child: _buildMonthForYearSelector(setState, MonthOfYear.DECEMBER, 31, yearBasedSchedules)),
+                  ],
+                ),
+              ),
+            );
+          }),
+    );
+  }
+
+  Widget _buildMonthForYearSelector(StateSetter setState, MonthOfYear monthOfYear, int maxDays, Set<AllYearDate> yearBasedSchedules) {
+    final monthBasedSchedules = _transformToMonthlySchedules(yearBasedSchedules, monthOfYear);
+    return Column(
+      children: [
+        Text(getMonthOf(monthOfYear.index, context)),
+        Expanded(//TODO seems to block scrolling
+            child: _buildDayOfMonthSelector(monthBasedSchedules,
+                itemCount: maxDays,
+                onTap: (day) {
+                  final receivedAllYearDay = AllYearDate(day, monthOfYear);
+                  setState(() {
+                    if (yearBasedSchedules.contains(receivedAllYearDay)) {
+                      yearBasedSchedules.remove(receivedAllYearDay);
+                    }
+                    else {
+                      yearBasedSchedules.add(receivedAllYearDay);
+                    }
+                  });
+                }
+            )),
+
+      ],
+    );
+  }
+
+  Set<int> _transformToMonthlySchedules(Set<AllYearDate> yearBasedSchedules, MonthOfYear monthOfYear) {
+    return yearBasedSchedules
+              .where((e) => e.month == monthOfYear)
+              .map((e) => e.day)
+              .toSet();
+  }
+
+  Widget _buildDayOfMonthSelector(Set<int> monthBasedSchedules, {required int itemCount, required Function(int) onTap}) {
+    return Container(
+      child: GridView.builder(
+        padding: EdgeInsets.zero,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 7,
+        ),
+        itemCount: itemCount,
+        shrinkWrap: false,
+        itemBuilder: (context, index) {
+          final day = index + 1;
+          final date = DateTime(2024, 1, day);
+          return GestureDetector(
+            onTap: () => onTap(day),
+            child: Container(
+              child: FilledCell(
+                date: date,
+                shouldHighlight: monthBasedSchedules.contains(day),
+                backgroundColor: Colors.white60,
+                events: [],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   void _updateNextDueOn(DateTime selectedDate) {
     if (isToday(selectedDate)) {
       _selectedNextDueOn =
@@ -626,4 +997,28 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     final whenOn = fromDateTimeToWhenOnDateFuture(dateTime);
     return whenOn == WhenOnDateFuture.CUSTOM;
   }
+
+  String? _getStringFromMonthlyBasedSchedules(Set<int> monthBasedSchedules) {
+    if (monthBasedSchedules.isEmpty) {
+      return null;
+    }
+
+    final list = monthBasedSchedules.toList();
+    list.sort();
+
+    return list.join(", ");
+  }
+
+  String? _getStringFromYearlyBasedSchedules(Set<AllYearDate> yearBasedSchedules) {
+    if (yearBasedSchedules.isEmpty) {
+      return null;
+    }
+
+    final list = yearBasedSchedules.toList();
+    list.sort();
+
+    return list.map((e) => "${e.day}.${e.month.index+1}.").join(", "); //TODO format
+  }
+
+
 }

@@ -158,6 +158,55 @@ void showConfirmationDialog(BuildContext context, String title, String message,
   );
 }
 
+
+void showCustomDialog(BuildContext context,
+    {required String title, required String message, required Widget body,
+      Icon? icon, Function()? okPressed, Function()? cancelPressed, Widget? neutralButton, int bodyFlex = 1}) {
+
+  List<Widget> actions = [];
+  if (neutralButton != null) {
+    actions.add(neutralButton);
+  }
+  if (cancelPressed != null) {
+    Widget cancelButton = TextButton(
+      child: Text(translate("common.cancel")),
+      onPressed:  cancelPressed,
+    );
+    actions.add(cancelButton);
+  }
+  if (okPressed != null) {
+    Widget okButton = TextButton(
+      child: Text(translate("common.ok")),
+      onPressed:  okPressed,
+    );
+    actions.add(okButton);
+  }
+  AlertDialog alert = AlertDialog(
+    title: icon != null
+      ? Row(children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+        child: icon,
+      ),
+      Text(title)
+    ],)
+      : Text(title),
+    content: Column(
+      children: [
+        Flexible(child: Text(message)),
+        Expanded(flex: bodyFlex, child: body),
+      ],
+    ),
+    actions: actions,
+  );  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
+
 Future<bool?> showDurationPickerDialog({
   required BuildContext context,
   Duration? initialDuration,
