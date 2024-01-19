@@ -1,4 +1,5 @@
 import 'package:calendar_view/calendar_view.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -917,7 +918,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     return Column(
       children: [
         Text(getMonthOf(monthOfYear.index, context)),
-        Expanded(//TODO seems to block scrolling
+        Expanded(
             child: _buildDayOfMonthSelector(monthBasedSchedules,
                 itemCount: maxDays,
                 onTap: (day) {
@@ -931,7 +932,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                     }
                   });
                 }
-            )),
+            ),
+        ),
 
       ],
     );
@@ -945,30 +947,29 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   }
 
   Widget _buildDayOfMonthSelector(Set<int> monthBasedSchedules, {required int itemCount, required Function(int) onTap}) {
-    return Container(
-      child: GridView.builder(
-        padding: EdgeInsets.zero,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 7,
-        ),
-        itemCount: itemCount,
-        shrinkWrap: false,
-        itemBuilder: (context, index) {
-          final day = index + 1;
-          final date = DateTime(2024, 1, day);
-          return GestureDetector(
-            onTap: () => onTap(day),
-            child: Container(
-              child: FilledCell(
-                date: date,
-                shouldHighlight: monthBasedSchedules.contains(day),
-                backgroundColor: Colors.white60,
-                events: [],
-              ),
-            ),
-          );
-        },
+    return GridView.builder(
+      padding: EdgeInsets.zero,
+      physics: NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 7,
       ),
+      itemCount: itemCount,
+      shrinkWrap: false,
+      itemBuilder: (context, index) {
+        final day = index + 1;
+        final date = DateTime(2024, 1, day);
+        return GestureDetector(
+          onTap: () => onTap(day),
+          child: Container(
+            child: FilledCell(
+              date: date,
+              shouldHighlight: monthBasedSchedules.contains(day),
+              backgroundColor: Colors.white60,
+              events: [],
+            ),
+          ),
+        );
+      },
     );
   }
 
