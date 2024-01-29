@@ -12,18 +12,17 @@ enum RepetitionUnit {DAYS, WEEKS, MONTHS, YEARS, MINUTES, HOURS}
 enum RepetitionMode {DYNAMIC, FIXED}
 enum DayOfWeek {MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY}
 enum MonthOfYear {JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER , DECEMBER}
-// if FIXED, we cld define week days for week based intervals
-// and month days for month based (but only to 28th?)
-// and dates for year based (what about leap year?)
-// if a fixed date cannot be resolved it is skipped OR moved to the next possible data (e.g. 29th Feb in a non-leap year would move to 1st March)
-//Redesign Schedule form (!!!):
-// make a new section visible when FIXED based on the interval basis
+enum FixedScheduleType {WEEK_BASED, MONTH_BASED, YEAR_BASED}
 
 class AllYearDate implements Comparable {
   int day;
   MonthOfYear month;
 
   AllYearDate(this.day, this.month);
+
+  AllYearDate.fromValue(int v) : this(v ~/ 100, MonthOfYear.values[v % 100]);
+
+  int get value => (month.index * 100) + day;
 
   @override
   bool operator ==(Object other) =>
@@ -104,10 +103,9 @@ class Schedule {
   RepetitionMode repetitionMode;
 
   
-  //TODO mockup data used
-  Set<DayOfWeek> weekBasedSchedules = {DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY};
-  Set<int> monthBasedSchedules = {3, 31}; // day of month
-  Set<AllYearDate> yearBasedSchedules = {AllYearDate(29, MonthOfYear.FEBRUARY), AllYearDate(12, MonthOfYear.MAY)}; // date of all years
+  Set<DayOfWeek> weekBasedSchedules = {};
+  Set<int> monthBasedSchedules = {}; // day of month
+  Set<AllYearDate> yearBasedSchedules = {}; // date of all years
 
   Schedule({
     required this.aroundStartAt,

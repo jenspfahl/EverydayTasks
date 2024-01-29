@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:floor/floor.dart';
 import 'package:personaltasklogger/db/dao/SequencesDao.dart';
 import 'package:personaltasklogger/db/dao/TaskEventDao.dart';
+import 'package:personaltasklogger/db/entity/ScheduledTaskFixedScheduleEntity.dart';
 import 'package:personaltasklogger/db/entity/SequencesEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskGroupEntity.dart';
@@ -11,6 +12,7 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 
 import 'dao/ScheduledTaskDao.dart';
 import 'dao/ScheduledTaskEventDao.dart';
+import 'dao/ScheduledTaskFixedScheduleDao.dart';
 import 'dao/TaskGroupDao.dart';
 import 'dao/TaskTemplateDao.dart';
 import 'dao/TaskTemplateVariantDao.dart';
@@ -19,14 +21,23 @@ import 'entity/ScheduledTaskEventEntity.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 12, entities: [
-  TaskGroupEntity, TaskEventEntity, TaskTemplateEntity, TaskTemplateVariantEntity, ScheduledTaskEntity, ScheduledTaskEventEntity, SequencesEntity])
+@Database(version: 13, entities: [
+  TaskGroupEntity,
+  TaskEventEntity,
+  TaskTemplateEntity,
+  TaskTemplateVariantEntity,
+  ScheduledTaskEntity,
+  ScheduledTaskFixedScheduleEntity,
+  ScheduledTaskEventEntity,
+  SequencesEntity,
+])
 abstract class AppDatabase extends FloorDatabase {
   TaskGroupDao get taskGroupDao;
   TaskEventDao get taskEventDao;
   TaskTemplateDao get taskTemplateDao;
   TaskTemplateVariantDao get taskTemplateVariantDao;
   ScheduledTaskDao get scheduledTaskDao;
+  ScheduledTaskFixedScheduleDao get scheduledTaskFixedScheduleDao;
   ScheduledTaskEventDao get scheduledTaskEventDao;
   SequencesDao get sequencesDao;
 }
@@ -96,9 +107,25 @@ final migration11To12 = new Migration(11, 12,
           await database.execute("INSERT INTO `SequencesEntity` (`table`, `lastId`) VALUES ('TaskGroupEntity', 1000)");
         });
 
+final migration12To13 = new Migration(12, 13,
+        (sqflite.Database database) async {
+          await database.execute('CREATE TABLE IF NOT EXISTS `ScheduledTaskFixedScheduleEntity` (`id` INTEGER, `scheduledTaskId` INTEGER NOT NULL, `type` INTEGER NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+        });
+
 
 Future<AppDatabase> getDb([String? name]) async => $FloorAppDatabase
     .databaseBuilder(name??'app_database.db')
-    .addMigrations([migration2To3, migration3To4, migration4To5, migration5To6, migration6To7, migration7To8,
-        migration8To9, migration9To10, migration10To11, migration11To12])
+    .addMigrations([
+      migration2To3,
+      migration3To4,
+      migration4To5,
+      migration5To6,
+      migration6To7,
+      migration7To8,
+      migration8To9,
+      migration9To10,
+      migration10To11,
+      migration11To12,
+      migration12To13,
+    ])
     .build();

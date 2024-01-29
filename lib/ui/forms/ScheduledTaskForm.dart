@@ -53,8 +53,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   RepetitionStep? _selectedRepetitionStep;
   CustomRepetition? _customRepetition;
 
-  //TODO load, visualize and save
-  Set<DayOfWeek> weekBasedSchedules = {DayOfWeek.MONDAY, DayOfWeek.FRIDAY};
+  Set<DayOfWeek> weekBasedSchedules = {};
   Set<int> monthBasedSchedules = {}; // day of month
   Set<AllYearDate> yearBasedSchedules = {}; // date of all years
 
@@ -113,6 +112,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       if (_scheduledTask!.reminderNotificationRepetition != null) {
         _reminderRepetition = _scheduledTask!.reminderNotificationRepetition!;
       }
+
+      weekBasedSchedules = _scheduledTask!.schedule.weekBasedSchedules.toSet();
+      monthBasedSchedules = _scheduledTask!.schedule.monthBasedSchedules.toSet();
+      yearBasedSchedules = _scheduledTask!.schedule.yearBasedSchedules.toSet();
     }
     else if (_template != null) {
       titleController.text = _template!.translatedTitle;
@@ -569,6 +572,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       customRepetition: _customRepetition,
                                       repetitionMode: _repetitionMode,
                                     );
+
+                                    schedule.weekBasedSchedules.addAll(weekBasedSchedules);
+                                    schedule.monthBasedSchedules.addAll(monthBasedSchedules);
+                                    schedule.yearBasedSchedules.addAll(yearBasedSchedules);
 
                                     // adjust back
                                     var scheduleFrom = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);

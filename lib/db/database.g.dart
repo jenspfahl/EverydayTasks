@@ -71,6 +71,8 @@ class _$AppDatabase extends AppDatabase {
 
   ScheduledTaskDao? _scheduledTaskDaoInstance;
 
+  ScheduledTaskFixedScheduleDao? _scheduledTaskFixedScheduleDaoInstance;
+
   ScheduledTaskEventDao? _scheduledTaskEventDaoInstance;
 
   SequencesDao? _sequencesDaoInstance;
@@ -81,7 +83,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 12,
+      version: 13,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -107,6 +109,8 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `ScheduledTaskEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER, `taskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `aroundStartAt` INTEGER NOT NULL, `startAt` INTEGER, `repetitionAfter` INTEGER NOT NULL, `exactRepetitionAfter` INTEGER, `exactRepetitionAfterUnit` INTEGER, `lastScheduledEventAt` INTEGER, `active` INTEGER NOT NULL, `pausedAt` INTEGER, `repetitionMode` INTEGER, `reminderNotificationEnabled` INTEGER, `reminderNotificationPeriod` INTEGER, `reminderNotificationUnit` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `ScheduledTaskFixedScheduleEntity` (`id` INTEGER, `scheduledTaskId` INTEGER NOT NULL, `type` INTEGER NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
             'CREATE TABLE IF NOT EXISTS `ScheduledTaskEventEntity` (`id` INTEGER, `taskEventId` INTEGER NOT NULL, `scheduledTaskId` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `SequencesEntity` (`id` INTEGER, `table` TEXT NOT NULL, `lastId` INTEGER NOT NULL, PRIMARY KEY (`id`))');
@@ -116,6 +120,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE INDEX `idx_TaskEventEntity_originTaskTemplateId` ON `TaskEventEntity` (`originTaskTemplateId`)');
         await database.execute(
             'CREATE INDEX `idx_TaskEventEntity_originTaskTemplateVariantId` ON `TaskEventEntity` (`originTaskTemplateVariantId`)');
+        await database.execute(
+            'CREATE INDEX `idx_ScheduledTaskFixedScheduleEntity_scheduledTaskId` ON `ScheduledTaskFixedScheduleEntity` (`scheduledTaskId`)');
         await database.execute(
             'CREATE INDEX `idx_ScheduledTaskEventEntity_taskEventId` ON `ScheduledTaskEventEntity` (`taskEventId`)');
         await database.execute(
@@ -153,6 +159,12 @@ class _$AppDatabase extends AppDatabase {
   ScheduledTaskDao get scheduledTaskDao {
     return _scheduledTaskDaoInstance ??=
         _$ScheduledTaskDao(database, changeListener);
+  }
+
+  @override
+  ScheduledTaskFixedScheduleDao get scheduledTaskFixedScheduleDao {
+    return _scheduledTaskFixedScheduleDaoInstance ??=
+        _$ScheduledTaskFixedScheduleDao(database, changeListener);
   }
 
   @override
@@ -918,6 +930,55 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
   Future<int> deleteScheduledTask(ScheduledTaskEntity scheduledTaskEntity) {
     return _scheduledTaskEntityDeletionAdapter
         .deleteAndReturnChangedRows(scheduledTaskEntity);
+  }
+}
+
+class _$ScheduledTaskFixedScheduleDao extends ScheduledTaskFixedScheduleDao {
+  _$ScheduledTaskFixedScheduleDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _scheduledTaskFixedScheduleEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'ScheduledTaskFixedScheduleEntity',
+            (ScheduledTaskFixedScheduleEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'scheduledTaskId': item.scheduledTaskId,
+                  'type': item.type,
+                  'value': item.value
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<ScheduledTaskFixedScheduleEntity>
+      _scheduledTaskFixedScheduleEntityInsertionAdapter;
+
+  @override
+  Future<List<ScheduledTaskFixedScheduleEntity>> findByScheduledTaskId(
+      int scheduledTaskId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM ScheduledTaskFixedScheduleEntity WHERE scheduledTaskId = ?1',
+        mapper: (Map<String, Object?> row) => ScheduledTaskFixedScheduleEntity(row['id'] as int?, row['scheduledTaskId'] as int, row['type'] as int, row['value'] as int),
+        arguments: [scheduledTaskId]);
+  }
+
+  @override
+  Future<int?> deleteFixedScheduleByScheduledTaskId(int scheduledTaskId) async {
+    return _queryAdapter.query(
+        'DELETE FROM ScheduledTaskFixedScheduleEntity WHERE scheduledTaskId = ?1',
+        mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [scheduledTaskId]);
+  }
+
+  @override
+  Future<int> insertFixedSchedule(
+      ScheduledTaskFixedScheduleEntity scheduledTaskFixedScheduleEntity) {
+    return _scheduledTaskFixedScheduleEntityInsertionAdapter.insertAndReturnId(
+        scheduledTaskFixedScheduleEntity, OnConflictStrategy.abort);
   }
 }
 
