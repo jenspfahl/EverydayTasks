@@ -167,7 +167,43 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
             body: SingleChildScrollView(
               child: Container(
                 child: Builder(
-                  builder: (scaffoldContext) => Form(
+                  builder: (scaffoldContext) {
+                    final dueOnFixedScheduleWidget = buildDueOnWidget(context);
+                    Widget dueOnWidget;
+                    if (dueOnFixedScheduleWidget != null) {
+                      dueOnWidget = Column(
+                        children: [
+                          Container(
+                            height: 64.0,
+                            width: (MediaQuery
+                                .of(context)
+                                .size
+                                .width / 1) - 35,
+                            child: _buildDueOnDayDropDown(context),
+                          ),
+                          Container(
+                            height: 64.0,
+                            width: (MediaQuery
+                                .of(context)
+                                .size
+                                .width / 1) - 35,
+                            child: dueOnFixedScheduleWidget,
+                          ),
+                        ],
+                      );
+                    }
+                    else {
+                      dueOnWidget = Container(
+                        height: 64.0,
+                        width: (MediaQuery
+                            .of(context)
+                            .size
+                            .width / 1) - 35,
+                        child: _buildDueOnDayDropDown(context),
+                      );
+                    }
+
+                    return Form(
                     key: _formKey,
                     child: Padding(
                       padding: EdgeInsets.all(16.0),
@@ -464,11 +500,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
                           Padding(
                             padding: EdgeInsets.only(top: 0.0),
-                            child: Container(
-                              height: 64.0,
-                              width: (MediaQuery.of(context).size.width / 1) - 35,
-                              child: buildDueOnWidget(context),
-                            ),
+                            child: dueOnWidget
                           ),
 
                           Padding(
@@ -607,7 +639,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                         ],
                       ),
                     ),
-                  ),
+                  );
+                  },
                 ),
               ),
             ),
@@ -617,11 +650,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     );
   }
 
-  Widget buildDueOnWidget(BuildContext context) {
-    if (_repetitionMode == RepetitionMode.DYNAMIC) {
-      return _buildDueOnDayDropDown(context);
-    }
-    else {
+  Widget? buildDueOnWidget(BuildContext context) {
+    if (_repetitionMode == RepetitionMode.FIXED) {
       if (_selectedRepetitionStep != null && Schedule.isWeekBased(_selectedRepetitionStep!, _customRepetition)) {
         return _buildWeekDaySelector();
       }
@@ -631,10 +661,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       else if (_selectedRepetitionStep != null && Schedule.isYearBased(_selectedRepetitionStep!, _customRepetition)) {
         return _buildYearlyDaySelector();
       }
-      else {
-        return _buildDueOnDayDropDown(context);
-      }
     }
+    return null;
   }
 
   Widget _buildDueOnDayDropDown(BuildContext context) {
@@ -695,6 +723,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
             child: Row(
               children: [
                 Expanded(
+                  child: Text("But only on "),
+                ),
+                Expanded(
                   child: buildDayItem(DayOfWeek.MONDAY),
                 ),
                 Expanded(
@@ -719,9 +750,6 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
               ],),
           ),
         ),
-        Expanded(child: Align(
-            alignment: Alignment.centerRight,
-            child: Icon(Icons.event_available, color: Colors.black54,))),
       ],
     );
   }
@@ -733,7 +761,6 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       controller: _monthBasedScheduleController,
       decoration: InputDecoration(
         hintText: 'Select days per month',
-        suffix: Icon(Icons.event_available, color: Colors.black54),
         counter: Text(""),
       ),
       maxLength: 100,
@@ -778,7 +805,6 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       controller: _yearBasedScheduleController,
       decoration: InputDecoration(
         hintText: 'Select days per year',
-        suffix: Icon(Icons.event_available, color: Colors.black54),
         counter: Text(""),
       ),
       maxLength: 100,
@@ -819,7 +845,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   void _updateMonthBasedText() {
     final daysAsString = _getStringFromMonthlyBasedSchedules(monthBasedSchedules);
     if (daysAsString != null) {
-      _monthBasedScheduleController.text = "On day $daysAsString";
+      _monthBasedScheduleController.text = "But only on day $daysAsString";
     }
     else {
       _monthBasedScheduleController.text = "";
@@ -829,7 +855,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   void _updateYearBasedText() {
     final daysAsString = _getStringFromYearlyBasedSchedules(yearBasedSchedules);
     if (daysAsString != null) {
-      _yearBasedScheduleController.text = "On day $daysAsString";
+      _yearBasedScheduleController.text = "But only on date $daysAsString";
     }
     else {
       _yearBasedScheduleController.text = "";
