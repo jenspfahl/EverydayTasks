@@ -110,6 +110,7 @@ final migration11To12 = new Migration(11, 12,
 final migration12To13 = new Migration(12, 13,
         (sqflite.Database database) async {
           await database.execute('CREATE TABLE IF NOT EXISTS `ScheduledTaskFixedScheduleEntity` (`id` INTEGER, `scheduledTaskId` INTEGER NOT NULL, `type` INTEGER NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+          await database.execute('CREATE INDEX `idx_ScheduledTaskFixedScheduleEntity_scheduledTaskId` ON `ScheduledTaskFixedScheduleEntity` (`scheduledTaskId`)');
         });
 
 

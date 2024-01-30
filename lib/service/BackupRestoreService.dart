@@ -103,9 +103,6 @@ class BackupRestoreService {
 
           // do a test if it is a app db
           await TaskEventRepository.getAllPaged(ChronologicalPaging.start(10), dbToRestoreName);
-          await TemplateRepository.getAll(true, dbToRestoreName);
-          await ScheduledTaskRepository.getAllPaged(ChronologicalPaging.start(10), dbToRestoreName);
-          await ScheduledTaskEventRepository.findByTaskEventId(1, dbToRestoreName);
           await dbToRestore.close();
 
           // delete journal file
@@ -122,8 +119,9 @@ class BackupRestoreService {
           await getDb();
 
 
-        } catch (e) {
+        } catch (e, trace) {
           print(e);
+          debugPrintStack(stackTrace: trace);
           debugPrint("corrupt file detected, ignore it!");
           if (restoreDbFile?.existsSync()??false) restoreDbFile?.delete();
 

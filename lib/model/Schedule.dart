@@ -20,7 +20,7 @@ class AllYearDate implements Comparable {
 
   AllYearDate(this.day, this.month);
 
-  AllYearDate.fromValue(int v) : this(v ~/ 100, MonthOfYear.values[v % 100]);
+  AllYearDate.fromValue(int v) : this(v % 100, MonthOfYear.values[v ~/ 100]);
 
   int get value => (month.index * 100) + day;
 
