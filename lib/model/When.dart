@@ -159,7 +159,7 @@ class When {
       case WhenOnDatePast.TODAY: return truncToDate(DateTime.now());
       case WhenOnDatePast.YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 1)));
       case WhenOnDatePast.BEFORE_YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 2)));
-      case WhenOnDatePast.CUSTOM: return customDate!;
+      case WhenOnDatePast.CUSTOM: return truncToDate(customDate!);
     }
   }
   static DateTime fromWhenOnDateFutureToDate(WhenOnDateFuture whenOnDate, DateTime? customDate) {
@@ -167,7 +167,7 @@ class When {
       case WhenOnDateFuture.TODAY: return truncToDate(DateTime.now());
       case WhenOnDateFuture.TOMORROW: return truncToDate(DateTime.now().add(Duration(days: 1)));
       case WhenOnDateFuture.AFTER_TOMORROW: return truncToDate(DateTime.now().add(Duration(days: 2)));
-      case WhenOnDateFuture.CUSTOM: return customDate!;
+      case WhenOnDateFuture.CUSTOM: return truncToDate(customDate!);
     }
   }
 

@@ -53,22 +53,24 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   RepetitionStep? _selectedRepetitionStep;
   CustomRepetition? _customRepetition;
 
+  AroundWhenAtDay? _selectedStartAt;
+  TimeOfDay? _customStartAt;
+  RepetitionMode _repetitionMode = RepetitionMode.DYNAMIC;
+
   Set<DayOfWeek> weekBasedSchedules = {};
   Set<int> monthBasedSchedules = {}; // day of month
   Set<AllYearDate> yearBasedSchedules = {}; // date of all years
 
 
+
   bool _isRemindersEnabled = true;
   CustomRepetition _reminderRepetition = CustomRepetition(1, RepetitionUnit.HOURS);
 
-  AroundWhenAtDay? _selectedStartAt;
-  TimeOfDay? _customStartAt;
 
   WhenOnDateFuture? _selectedNextDueOn;
   DateTime? _customNextDueOn;
 
   late bool _isActive;
-  RepetitionMode _repetitionMode = RepetitionMode.DYNAMIC;
 
   static int _repetitionModeHintShownForDynamic = 0;
   static int _repetitionModeHintShownForFixed = 0;
@@ -395,16 +397,18 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                               _selectedRepetitionStep = RepetitionStep.CUSTOM;
                                               _customRepetition = tempSelectedRepetition;
 
-                                              // add interval to due date
-                                              final nextDueDate = Schedule.correctForDefinedSchedules(
-                                                  _customRepetition!.getNextRepetitionFrom(DateTime.now()),
-                                                  _repetitionMode,
-                                                  _selectedRepetitionStep!,
-                                                  _customRepetition,
-                                                  weekBasedSchedules,
-                                                  monthBasedSchedules,
-                                                  yearBasedSchedules,
+                                              final interimSchedule = Schedule(
+                                                aroundStartAt: _selectedStartAt,
+                                                startAtExactly: _customStartAt,
+                                                repetitionStep: _selectedRepetitionStep!,
+                                                customRepetition: _customRepetition,
+                                                repetitionMode: _repetitionMode,
+                                                weekBasedSchedules: weekBasedSchedules,
+                                                monthBasedSchedules: monthBasedSchedules,
+                                                yearBasedSchedules: yearBasedSchedules,
                                               );
+
+                                              final nextDueDate = interimSchedule.getNextRepetitionFrom(DateTime.now());
                                               _updateNextDueOn(nextDueDate);
                                             });
                                           }
@@ -415,16 +419,17 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                           _selectedRepetitionStep = value;
                                           _customRepetition = null;
 
-                                          // add interval to due date
-                                          final nextDueDate = Schedule.correctForDefinedSchedules(
-                                            Schedule.addRepetitionStepToDateTime(DateTime.now(), _selectedRepetitionStep!),
-                                            _repetitionMode,
-                                            _selectedRepetitionStep!,
-                                            _customRepetition,
-                                            weekBasedSchedules,
-                                            monthBasedSchedules,
-                                            yearBasedSchedules,
+                                          final interimSchedule = Schedule(
+                                              aroundStartAt: _selectedStartAt,
+                                              startAtExactly: _customStartAt,
+                                              repetitionStep: _selectedRepetitionStep!,
+                                              customRepetition: _customRepetition,
+                                              repetitionMode: _repetitionMode,
+                                              weekBasedSchedules: weekBasedSchedules,
+                                              monthBasedSchedules: monthBasedSchedules,
+                                              yearBasedSchedules: yearBasedSchedules,
                                           );
+                                          final nextDueDate = interimSchedule.getNextRepetitionFrom(DateTime.now());
                                           _updateNextDueOn(nextDueDate);
                                         });
                                       }
@@ -603,11 +608,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       repetitionStep: _selectedRepetitionStep!,
                                       customRepetition: _customRepetition,
                                       repetitionMode: _repetitionMode,
+                                      weekBasedSchedules: weekBasedSchedules,
+                                      monthBasedSchedules: monthBasedSchedules,
+                                      yearBasedSchedules: yearBasedSchedules,
                                     );
 
-                                    schedule.weekBasedSchedules.addAll(weekBasedSchedules);
-                                    schedule.monthBasedSchedules.addAll(monthBasedSchedules);
-                                    schedule.yearBasedSchedules.addAll(yearBasedSchedules);
 
                                     // adjust back
                                     var scheduleFrom = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
@@ -651,14 +656,28 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   }
 
   Widget? buildDueOnWidget(BuildContext context) {
+    if (_selectedRepetitionStep == null) {
+      return null;
+    }
+    final interimSchedule = Schedule(
+      aroundStartAt: _selectedStartAt,
+      startAtExactly: _customStartAt,
+      repetitionStep: _selectedRepetitionStep!,
+      customRepetition: _customRepetition,
+      repetitionMode: _repetitionMode,
+      weekBasedSchedules: weekBasedSchedules,
+      monthBasedSchedules: monthBasedSchedules,
+      yearBasedSchedules: yearBasedSchedules,
+    );
+
     if (_repetitionMode == RepetitionMode.FIXED) {
-      if (_selectedRepetitionStep != null && Schedule.isWeekBased(_selectedRepetitionStep!, _customRepetition)) {
+      if (_selectedRepetitionStep != null && interimSchedule.isWeekBased()) {
         return _buildWeekDaySelector();
       }
-      else if (_selectedRepetitionStep != null && Schedule.isMonthBased(_selectedRepetitionStep!, _customRepetition)) {
+      else if (_selectedRepetitionStep != null && interimSchedule.isMonthBased()) {
         return _buildMonthlyDaySelector();
       }
-      else if (_selectedRepetitionStep != null && Schedule.isYearBased(_selectedRepetitionStep!, _customRepetition)) {
+      else if (_selectedRepetitionStep != null && interimSchedule.isYearBased()) {
         return _buildYearlyDaySelector();
       }
     }

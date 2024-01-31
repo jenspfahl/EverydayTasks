@@ -162,7 +162,15 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
 
   setNextSchedule(DateTime nextDueDate) {
     final customRepetition = Schedule.fromRepetitionStepToCustomRepetition(schedule.repetitionStep, schedule.customRepetition);
-    lastScheduledEventOn = nextDueDate.subtract(customRepetition.toDuration());
+    final newLastScheduledEventOn = nextDueDate.subtract(customRepetition.toDuration());
+
+    //TODO test this
+    if (schedule.repetitionMode == RepetitionMode.FIXED) {
+      lastScheduledEventOn = schedule.correctForDefinedSchedules(lastScheduledEventOn ?? DateTime.now(), newLastScheduledEventOn);
+    }
+    else {
+      lastScheduledEventOn = newLastScheduledEventOn;
+    }
   }
 
   DateTime? simulateExecuteSchedule(TaskEvent? taskEvent) {
@@ -181,7 +189,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
       }
     }
     else if (schedule.repetitionMode == RepetitionMode.FIXED) {
-      return getNextSchedule();
+      return getNextSchedule()?.add(Duration(days: 1));
     }
     return null;
   }
@@ -196,7 +204,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     if (active && pausedAt != null) {
       final delta = DateTime.now().difference(pausedAt!);
       pausedAt = null;
-      if (lastScheduledEventOn != null) {
+      if (lastScheduledEventOn != null && schedule.repetitionMode != RepetitionMode.FIXED) {
         lastScheduledEventOn = lastScheduledEventOn!.add(delta);
       }
     }
@@ -243,7 +251,6 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     lastScheduledEventOn = other.lastScheduledEventOn;
     reminderNotificationEnabled = other.reminderNotificationEnabled;
     reminderNotificationRepetition = other.reminderNotificationRepetition;
-
   }
 
 }

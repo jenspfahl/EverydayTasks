@@ -96,7 +96,7 @@ class CustomRepetition {
 }
 
 class Schedule {
-  AroundWhenAtDay aroundStartAt;
+  AroundWhenAtDay aroundStartAt = AroundWhenAtDay.NOW;
   TimeOfDay? startAtExactly;
   RepetitionStep repetitionStep;
   CustomRepetition? customRepetition;
@@ -108,74 +108,71 @@ class Schedule {
   Set<AllYearDate> yearBasedSchedules = {}; // date of all years
 
   Schedule({
-    required this.aroundStartAt,
+    AroundWhenAtDay? aroundStartAt,
     this.startAtExactly,
     required this.repetitionStep,
     this.customRepetition,
     required this.repetitionMode,
- /*   required this.weekBasedSchedules,
-    required this.monthBasedSchedules,
-    required this.yearBasedSchedules*/
-  });
+    Set<DayOfWeek>? weekBasedSchedules,
+    Set<int>? monthBasedSchedules,
+    Set<AllYearDate>? yearBasedSchedules,
+  }) {
+    this.aroundStartAt = aroundStartAt ?? AroundWhenAtDay.NOW;
+    if (weekBasedSchedules != null) this.weekBasedSchedules = weekBasedSchedules;
+    if (monthBasedSchedules != null) this.monthBasedSchedules = monthBasedSchedules;
+    if (yearBasedSchedules != null) this.yearBasedSchedules = yearBasedSchedules;
+  }
 
-  DateTime adjustScheduleFrom(DateTime fromDate) {
+
+  DateTime adjustScheduleFromToStartAt(DateTime fromDate) {
     var startAt = When.fromWhenAtDayToTimeOfDay(aroundStartAt, startAtExactly);
     return DateTime(fromDate.year, fromDate.month, fromDate.day, startAt.hour, startAt.minute);
   }
 
 
   DateTime getNextRepetitionFrom(DateTime from) {
-    from = adjustScheduleFrom(from);
-    if (customRepetition != null) {
-      return correctForDefinedSchedules(
-        customRepetition!.getNextRepetitionFrom(from),
-        repetitionMode,
-        repetitionStep,
-        customRepetition,
-        weekBasedSchedules,
-        monthBasedSchedules,
-        yearBasedSchedules,
-      );
+    from = adjustScheduleFromToStartAt(from);
+    final nextDueOnDate = _getScheduleAfter(from);
+
+    if (repetitionMode == RepetitionMode.FIXED) {
+      return correctForDefinedSchedules(from, nextDueOnDate);
     }
-    else if (repetitionStep != RepetitionStep.CUSTOM) {
-      return correctForDefinedSchedules(
-        addRepetitionStepToDateTime(from, repetitionStep),
-        repetitionMode,
-        repetitionStep,
-        customRepetition,
-        weekBasedSchedules,
-        monthBasedSchedules,
-        yearBasedSchedules,
-      );
+    else {
+      return nextDueOnDate;
     }
-    throw new Exception("unknown repetition step");
   }
   
   DateTime getPreviousRepetitionFrom(DateTime from) {
-    from = adjustScheduleFrom(from);
+    from = adjustScheduleFromToStartAt(from);
+    final nextDueOnDate = _getScheduleBefore(from);
+
+
+    if (repetitionMode == RepetitionMode.FIXED) {
+      return correctForDefinedSchedules(from, nextDueOnDate, back: true); //TODO this might fail due to negation
+    }
+    else {
+      return nextDueOnDate;
+    }
+  }
+
+  DateTime _getScheduleAfter(DateTime from) {
     if (customRepetition != null) {
-      return correctForDefinedSchedules( //TODO not sure whether we need this here
-        customRepetition!.getPreviousRepetitionFrom(from),
-        repetitionMode,
-        repetitionStep,
-        customRepetition,
-        weekBasedSchedules,
-        monthBasedSchedules,
-        yearBasedSchedules,
-      );
+      return customRepetition!.getNextRepetitionFrom(from);
     }
     else if (repetitionStep != RepetitionStep.CUSTOM) {
-      return correctForDefinedSchedules(  //TODO not sure whether we need this here
-        subtractRepetitionStepToDateTime(from, repetitionStep),
-        repetitionMode,
-        repetitionStep,
-        customRepetition,
-        weekBasedSchedules,
-        monthBasedSchedules,
-        yearBasedSchedules,
-      );
+      return addRepetitionStepToDateTime(from, repetitionStep);
     }
-    throw new Exception("unknown repetition step");
+    return from;
+  }
+
+  DateTime _getScheduleBefore(DateTime from) {
+    if (customRepetition != null) {
+      return customRepetition!.getPreviousRepetitionFrom(from);
+    }
+    else if (repetitionStep != RepetitionStep.CUSTOM) {
+      return subtractRepetitionStepToDateTime(from, repetitionStep);
+    }
+    return from;
   }
 
   String toStartAtAsString() {
@@ -282,36 +279,34 @@ class Schedule {
     }
   }
 
-  static DateTime correctForDefinedSchedules(DateTime dateTime, RepetitionMode repetitionMode, RepetitionStep repetitionStep, CustomRepetition? customRepetition,
-      Set<DayOfWeek> weekBasedSchedules, Set<int> monthBasedSchedules, Set<AllYearDate> yearBasedSchedules) {
-    if (repetitionMode == RepetitionMode.FIXED) {
-      if (isWeekBased(repetitionStep, customRepetition) && weekBasedSchedules.isNotEmpty) {
-        return findClosestDayOfWeek(weekBasedSchedules, dateTime) ?? dateTime; 
-      }
-      if (isMonthBased(repetitionStep, customRepetition) && monthBasedSchedules.isNotEmpty) {
-        return findClosestDayOfMonth(monthBasedSchedules, dateTime) ?? dateTime;
-      }
-      if (isYearBased(repetitionStep, customRepetition) && yearBasedSchedules.isNotEmpty) {
-        return findClosestAllYearData(yearBasedSchedules, dateTime) ?? dateTime;
-      }
+  DateTime correctForDefinedSchedules(DateTime from, DateTime nextRegularDueDate, {bool back = false}) {
+
+    if (isWeekBased() && weekBasedSchedules.isNotEmpty) {
+      return findClosestDayOfWeek(from, nextRegularDueDate, back: back) ?? nextRegularDueDate;
     }
-    // bypass 
-    return dateTime;
+    if (isMonthBased() && monthBasedSchedules.isNotEmpty) {
+      return findClosestDayOfMonth(nextRegularDueDate) ?? nextRegularDueDate;
+    }
+    if (isYearBased() && yearBasedSchedules.isNotEmpty) {
+      return findClosestAllYearData(nextRegularDueDate) ?? nextRegularDueDate;
+    }
+    // bypass
+    return nextRegularDueDate;
   }
 
-  static bool isWeekBased(RepetitionStep repetitionStep, CustomRepetition? customRepetition) {
+  bool isWeekBased() {
     switch(repetitionStep) {
       case RepetitionStep.WEEKLY: 
       case RepetitionStep.EVERY_OTHER_WEEK: 
         return true;
       case RepetitionStep.CUSTOM: {
-        return customRepetition != null && customRepetition.repetitionUnit == RepetitionUnit.WEEKS;
+        return customRepetition != null && customRepetition!.repetitionUnit == RepetitionUnit.WEEKS;
       }
       default: return false;
     }
   }
   
-  static bool isMonthBased(RepetitionStep repetitionStep, CustomRepetition? customRepetition) {
+  bool isMonthBased() {
     switch(repetitionStep) {
       case RepetitionStep.MONTHLY: 
       case RepetitionStep.EVERY_OTHER_MONTH:
@@ -319,65 +314,116 @@ class Schedule {
       case RepetitionStep.HALF_YEARLY: // equals to 6 months
         return true;
       case RepetitionStep.CUSTOM: {
-        return customRepetition != null && customRepetition.repetitionUnit == RepetitionUnit.MONTHS;
+        return customRepetition != null && customRepetition!.repetitionUnit == RepetitionUnit.MONTHS;
       }
       default: return false;
     }
   }
   
-  static bool isYearBased(RepetitionStep repetitionStep, CustomRepetition? customRepetition) {
+  bool isYearBased() {
     switch(repetitionStep) {
       case RepetitionStep.YEARLY: 
         return true;
       case RepetitionStep.CUSTOM: {
-        return customRepetition != null && customRepetition.repetitionUnit == RepetitionUnit.YEARS;
+        return customRepetition != null && customRepetition!.repetitionUnit == RepetitionUnit.YEARS;
       }
       default: return false;
     }
   }
 
-  static DateTime? findClosestDayOfWeek(Set<DayOfWeek> weekBasedSchedules, DateTime dateTime) {
-    final mondayOfTargetWeek = dateTime.subtract(Duration(days: dateTime.weekday - 1));
+  DateTime? findClosestDayOfWeek(DateTime from, DateTime nextRegularDueDate, {required bool back}) {
+
+    debugPrint("from=$from nextRegularDueDate=$nextRegularDueDate");
     var sorted = weekBasedSchedules.toList();
     sorted.sort((e1, e2) => e1.index - e2.index);
+
+    // first check last execution period
+    final mondayOfFromWeek = from.subtract(Duration(days: from.weekday - 1));
+    debugPrint("mondayOfFromWeek = $mondayOfFromWeek");
+
     var it = sorted.iterator;
     while (it.moveNext()) {
       final dayOfWeekCandidate = it.current;
-      final testDate = mondayOfTargetWeek.add(Duration(days: dayOfWeekCandidate.index));
-      if (testDate == dateTime || testDate.isAfter(dateTime)) {
+      final testDate = mondayOfFromWeek.add(Duration(days: dayOfWeekCandidate.index));
+      debugPrint("compare testDate $testDate => from $from");
+      if (testDate == from || testDate.isAfter(from)) {
+        debugPrint("found from = $testDate");
         return testDate;
       }
     }
-    return dateTime;
+
+    // second check next schedule period
+    var nextNextSchedule = _getScheduleAfter(nextRegularDueDate);
+    if (back) {
+      // because we going back we need to go further one more schedule
+      nextNextSchedule = _getScheduleAfter(nextNextSchedule);
+    }
+    final mondayOfTargetWeek = nextNextSchedule.subtract(Duration(days: nextNextSchedule.weekday - 1));
+    debugPrint("mondayOfTargetWeek = $mondayOfTargetWeek (nextNextSchedule = $nextNextSchedule)");
+
+    final firstDayOfTargetWeek = sorted.first;
+    final target = mondayOfTargetWeek.add(Duration(days: firstDayOfTargetWeek.index));
+    debugPrint("target = $target");
+    return target;
+    /*
+    it = sorted.iterator;
+    while (it.moveNext()) {
+      final dayOfWeekCandidate = it.current;
+      final testDate = mondayOfTargetWeek.add(Duration(days: dayOfWeekCandidate.index));
+      debugPrint("compare testDate $testDate => nextRegularDueDate $nextRegularDueDate"); //TODO from instead nextRegularDueDate
+      //debugPrint("compare testDate $testDate => from $from"); //TODO from instead nextRegularDueDate
+      //if (testDate == from || testDate.isAfter(from)) {
+      if (/*testDate == nextRegularDueDate || */testDate.isAfter(nextRegularDueDate)) {
+        debugPrint("found next = $testDate");
+        return testDate;
+      }
+    }
+
+    //TODO try next weeks until we find something
+    /*final mondayOfNextWeek = mondayOfTargetWeek.add(Duration(days: 7));
+    debugPrint("mondayOfNextWeek = $mondayOfNextWeek ");
+
+    it = sorted.iterator;
+    while (it.moveNext()) {
+      final dayOfWeekCandidate = it.current;
+      final testDate = mondayOfNextWeek.add(Duration(days: dayOfWeekCandidate.index));
+      debugPrint("compare testDate $testDate => nextRegularDueDate $nextRegularDueDate");
+      if (testDate == nextRegularDueDate || testDate.isAfter(nextRegularDueDate)) {
+        debugPrint("found = $testDate");
+        return testDate;
+      }
+    }*/
+
+    return nextRegularDueDate; //TODO we should find something*/
   }
   
-  static DateTime? findClosestDayOfMonth(Set<int> monthBasedSchedules, DateTime dateTime) {
-    final firstDayOfTargetMonth = DateTime(dateTime.year, dateTime.month, 1);
+  DateTime? findClosestDayOfMonth(DateTime nextRegularDueDate) {
+    final firstDayOfTargetMonth = DateTime(nextRegularDueDate.year, nextRegularDueDate.month, 1);
     var sorted = monthBasedSchedules.toList();
     sorted.sort((e1, e2) => e1 - e2);
     var it = sorted.iterator;
     while (it.moveNext()) {
       final dayOfMonthCandidate = it.current;
       final testDate = firstDayOfTargetMonth.add(Duration(days: dayOfMonthCandidate - 1));
-      if (testDate == dateTime || testDate.isAfter(dateTime)) {
+      if (testDate == nextRegularDueDate || testDate.isAfter(nextRegularDueDate)) {
         return testDate;
       }
     }
-    return dateTime;
+    return nextRegularDueDate;
   } 
   
-  static DateTime? findClosestAllYearData(Set<AllYearDate> yearBasedSchedules, DateTime dateTime) {
+  DateTime? findClosestAllYearData(DateTime nextRegularDueDate) {
     var sorted = yearBasedSchedules.toList();
     sorted.sort();
     var it = sorted.reversed.iterator;
     while (it.moveNext()) {
       final allYearDateCandidate = it.current;
-      final testDate = DateTime(dateTime.year, allYearDateCandidate.month.index + 1, allYearDateCandidate.day);
-      if (testDate == dateTime || testDate.isAfter(dateTime)) {
+      final testDate = DateTime(nextRegularDueDate.year, allYearDateCandidate.month.index + 1, allYearDateCandidate.day);
+      if (testDate == nextRegularDueDate || testDate.isAfter(nextRegularDueDate)) {
         return testDate;
       }
     }
-    return dateTime;
+    return nextRegularDueDate;
   }
 
 }
