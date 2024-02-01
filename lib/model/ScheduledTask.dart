@@ -164,9 +164,9 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     final customRepetition = Schedule.fromRepetitionStepToCustomRepetition(schedule.repetitionStep, schedule.customRepetition);
     final newLastScheduledEventOn = nextDueDate.subtract(customRepetition.toDuration());
 
-    //TODO test this
     if (schedule.repetitionMode == RepetitionMode.FIXED) {
-      lastScheduledEventOn = schedule.correctForDefinedSchedules(lastScheduledEventOn ?? DateTime.now(), newLastScheduledEventOn);
+      lastScheduledEventOn = schedule.getPreviousRepetitionFrom(nextDueDate);
+      //TODO lastScheduledEventOn = schedule.correctForDefinedSchedules(lastScheduledEventOn ?? DateTime.now(), newLastScheduledEventOn, moveForward: true);
     }
     else {
       lastScheduledEventOn = newLastScheduledEventOn;
@@ -189,7 +189,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
       }
     }
     else if (schedule.repetitionMode == RepetitionMode.FIXED) {
-      return getNextSchedule()?.add(Duration(days: 1));
+      return getNextScheduleAfter(lastScheduledEventOn);
     }
     return null;
   }

@@ -17,7 +17,7 @@ Color getActionIconColor(BuildContext context) {
 
 Color? tweakAlpha(Color? color, double factor) => color?.withAlpha((color.alpha * factor).toInt());
 
-String truncate(String text, { required int length, omission: '...' }) {
+String truncate(String text, { required int length, omission = '...' }) {
   if (length >= text.length) {
     return text;
   }
