@@ -358,9 +358,14 @@ class Schedule {
       final last = _findBackwardsFromCurrentDate(from, sorted);
       debugPrint("last = $last");
       if (last != null) {
-        //TODO if last the max element in sorted, minus one week
+        // if last the max element in sorted, shift x weeks back
         if (!sorted.any((element) => element.index + 1 > last.weekday)) {
-          return last.subtract(Duration(days: 7));
+          final repetition = fromRepetitionStepToCustomRepetition(repetitionStep, customRepetition);
+          final shift = (repetition.repetitionValue - 1) * 7; // period - 1, e.g. 2 weeks = 1 week, 3 weeks = 2 weeks
+          final corrected = last.subtract(Duration(days: shift));
+          debugPrint("corrected = $corrected");
+
+          return corrected;
         }
         return last;
       }
@@ -398,11 +403,6 @@ class Schedule {
       final testDate = dayBeforeMondayOfFrom.add(Duration(days: dayOfWeekCandidate.index + 1));
       debugPrint("found first schedule in period: $testDate");
       return testDate;
-      /*debugPrint("compare testDate $testDate > from $from");
-      if (testDate.isAfter(from)) {
-        debugPrint("found $testDate after from");
-        return testDate;
-      }*/
     }
     return null;
   }
@@ -443,20 +443,6 @@ class Schedule {
     }
     return null;
     
-  }
-
-  DateTime _findInNextDays(DateTime from, Set<DayOfWeek> checkDays) {
-    for (int day = 0; day < DayOfWeek.values.length; day++) {
-      final checkDate = from.add(Duration(days: day));
-      final checkDayOfWeek = DayOfWeek.values[checkDate.weekday - 1];
-      debugPrint("check set contains checkdate $checkDayOfWeek");
-      if (checkDays.contains(checkDayOfWeek)) {
-        debugPrint("found checkdate = $checkDate");
-
-        return checkDate;
-      }
-    }
-    return from;
   }
   
   DateTime? findClosestDayOfMonth(DateTime nextRegularDueDate) {
