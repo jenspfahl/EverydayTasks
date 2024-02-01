@@ -166,7 +166,6 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
 
     if (schedule.repetitionMode == RepetitionMode.FIXED) {
       lastScheduledEventOn = schedule.getPreviousRepetitionFrom(nextDueDate);
-      //TODO lastScheduledEventOn = schedule.correctForDefinedSchedules(lastScheduledEventOn ?? DateTime.now(), newLastScheduledEventOn, moveForward: true);
     }
     else {
       lastScheduledEventOn = newLastScheduledEventOn;
