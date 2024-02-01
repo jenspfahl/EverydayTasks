@@ -286,19 +286,35 @@ class Schedule {
           extractType: (dateTime) {
             return DayOfWeek.values[from.weekday - 1];
           },
-          extractValue: (weekOfDay) {
-            return weekOfDay.index + 1;
+          extractValue: (dayOfWeek) {
+            return dayOfWeek.index + 1;
           },
           lengthOfPeriod: DayOfWeek.values.length,
       ) ?? nextRegularDueDate;
     }
 
     if (isMonthBased() && monthBasedSchedules.isNotEmpty) {
-      return findClosestDayOfMonth(nextRegularDueDate) ?? nextRegularDueDate;
+      return findClosestDayOfPeriod<int>(from, nextRegularDueDate, monthBasedSchedules, moveForward,
+        extractType: (dateTime) {
+          return dateTime.day;
+        },
+        extractValue: (dayOfMonth) {
+          return dayOfMonth;
+        },
+        lengthOfPeriod: 31, //TODO might be a problem with back and forth calculations because this value is days
+      ) ?? nextRegularDueDate;
     }
 
     if (isYearBased() && yearBasedSchedules.isNotEmpty) {
-      return findClosestAllYearData(nextRegularDueDate) ?? nextRegularDueDate;
+      return findClosestDayOfPeriod<AllYearDate>(from, nextRegularDueDate, yearBasedSchedules, moveForward,
+        extractType: (dateTime) {
+          return AllYearDate(dateTime.day, MonthOfYear.values[dateTime.month - 1]);
+        },
+        extractValue: (dayOfMonth) {
+          return dayOfMonth.value;
+        },
+        lengthOfPeriod: 365, //TODO might be a problem with back and forth calculations because this value is days
+      ) ?? nextRegularDueDate;
     }
     // bypass
     return nextRegularDueDate;
@@ -378,8 +394,8 @@ class Schedule {
 
       debugPrint("last = $last");
       if (last != null) {
-        // if last the max element in sorted, shift x weeks back
-        if (!sorted.any((element) => extractValue(element) > extractValue(extractType(last)))) {
+        // if last the max element in sorted, shift x days back
+        if (!sorted.any((element) => extractValue(element) >= extractValue(extractType(last)))) {
           final repetition = fromRepetitionStepToCustomRepetition(repetitionStep, customRepetition);
           final shift = (repetition.repetitionValue - 1) * lengthOfPeriod; // period - 1, e.g. 2 weeks = 1 week, 3 weeks = 2 weeks
           final corrected = last.subtract(Duration(days: shift));
