@@ -489,20 +489,42 @@ class Schedule {
 
   DateTime? _mapFixedNonWeekScheduleDay<T>(DateTime from, T day) {
     if (day is int) {
-      var date = adjustScheduleFromToStartAt(DateTime(from.year, from.month, day));
-      if (date.day < day) {
-        // the target date was not a valid date, we need to adjust. E.g. 31 Feb is not valid and lands on 2nd March --> adjust to last date in Feb
-       // return date.subtract(Duration(days: date.day));
-        //TODO this leads to be stuck in a period!!
-      }
-      return date;
+      final date = adjustScheduleFromToStartAt(DateTime(from.year, from.month, day));
+      return _correctToLastDayOfMonthIfInvalid(date, day, from);
     }
     else if (day is AllYearDate) {
-      return adjustScheduleFromToStartAt(DateTime(from.year, day.month.index + 1, day.day)); //TODO what happens if e.g. 2023-02-31 doesn't exist?
+      final date = adjustScheduleFromToStartAt(DateTime(from.year, day.month.index + 1, day.day));
+      return _correctToLastDayOfMonthIfInvalid(date, day, from);
     }
     else {
       return null;
     }
+  }
+
+  DateTime? _correctToLastDayOfMonthIfInvalid(DateTime date, day, DateTime from) {
+    if (!_isValidDay(date, day)) {
+      // the target date was not a valid date, we need to adjust. E.g. 31 Feb is not valid and lands on 2nd March --> adjust to last date in Feb
+      //return null; // jump over invalid date if preferred
+      final corrected = date.subtract(Duration(days: date.day)); // adjust invalid date
+      if (corrected == from) {
+        // I was already here
+        return null;
+      }
+      return corrected;
+    }
+    return date;
+  }
+
+
+  bool _isValidDay<T>(DateTime date, T day) {
+    if (day is int && date.day < day) {
+      return false;
+    }
+    else if (day is AllYearDate && date.day < day.day) {
+      return false;
+    }
+
+    return true;
   }
 
 
