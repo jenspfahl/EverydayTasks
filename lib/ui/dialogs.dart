@@ -73,13 +73,14 @@ Future<bool?> showColorPicker(BuildContext context, {required String title, requ
   );
 }
 
-Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate, String? helpText}) {
+Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate, String? helpText, bool Function(DateTime)? selectableDayPredicate}) {
   return showDatePicker(
       context: context,
       helpText: helpText,
       initialDate: initialDate ?? DateTime.now(),
       firstDate: DateTime.now().subtract(Duration(days: MAX_DAYS)),
       lastDate: DateTime.now().add(Duration(days: MAX_DAYS)),
+      selectableDayPredicate: selectableDayPredicate,
       builder: (BuildContext context, Widget? child) {
         return _pickerTheme(context, child);
       }

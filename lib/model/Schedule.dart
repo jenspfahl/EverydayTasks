@@ -527,5 +527,37 @@ class Schedule {
     return true;
   }
 
+  bool appliesToFixedSchedule(DateTime dateTime) {
+    if (repetitionMode == RepetitionMode.FIXED) {
+      if (isWeekBased() && weekBasedSchedules.isNotEmpty) {
+        return weekBasedSchedules.contains(DayOfWeek.values[dateTime.weekday - 1]);
+      }
+      if (isMonthBased() && monthBasedSchedules.isNotEmpty) {
+        final nextDay = dateTime.add(Duration(days: 1));
+        if (!_isValidDay(nextDay, dateTime.day)) {
+          // next is invalid, consider selecting this if we have a schedule for the next 4 days (e.g. 28, 29, 30, 31 of month where only 28 or maybe 29 is valid for February)
+          return monthBasedSchedules.contains(dateTime.day + 0)
+              || monthBasedSchedules.contains(dateTime.day + 1)
+              || monthBasedSchedules.contains(dateTime.day + 2)
+              || monthBasedSchedules.contains(dateTime.day + 3);
+        }
+        return monthBasedSchedules.contains(dateTime.day);
+      }
+      if (isYearBased() && yearBasedSchedules.isNotEmpty) {
+        final nextDay = dateTime.add(Duration(days: 1));
+        var monthOfYear = MonthOfYear.values[dateTime.month - 1];
+        if (!_isValidDay(nextDay, dateTime.day)) {
+          // next is invalid, consider selecting this if we have a schedule for the next 4 days (e.g. 28, 29, 30, 31 of month where only 28 or maybe 29 is valid for February)
+          return yearBasedSchedules.contains(AllYearDate(dateTime.day + 0, monthOfYear))
+              || yearBasedSchedules.contains(AllYearDate(dateTime.day + 1, monthOfYear))
+              || yearBasedSchedules.contains(AllYearDate(dateTime.day + 2, monthOfYear))
+              || yearBasedSchedules.contains(AllYearDate(dateTime.day + 3, monthOfYear));
+        }
+        return yearBasedSchedules.contains(AllYearDate(dateTime.day, monthOfYear));
+      }
+    }
+    return true;
+  }
+
 
 }

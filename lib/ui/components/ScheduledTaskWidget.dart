@@ -463,6 +463,9 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                                 helpText: translate('pages.schedules.action.reset.title_custom',
                                     args: {"title": scheduledTask.translatedTitle}),
                                 initialDate: newNextDueDate,
+                                selectableDayPredicate: (date) {
+                                  return scheduledTask.schedule.appliesToFixedSchedule(date);
+                                }
                               ).then((selectedDate) {
                                 if (selectedDate != null) {
                                   scheduledTask.setNextSchedule(selectedDate);
