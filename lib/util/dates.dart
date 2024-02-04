@@ -99,16 +99,16 @@ String? formatToWord(DateTime dateTime) {
   return null;
 }
 
-String formatToDate(DateTime dateTime, BuildContext context, {bool? showWeekdays}) {
+String formatToDate(DateTime dateTime, BuildContext context, {bool? showWeekdays, bool hideYear = false}) {
   final preferenceService = PreferenceService();
   final prefShowWeekdays = preferenceService.showWeekdays;
   final dateFormatSelection = preferenceService.dateFormatSelection;
-  return formatToDateWithFormatSelection(dateTime, context, dateFormatSelection, showWeekdays ?? prefShowWeekdays);
+  return formatToDateWithFormatSelection(dateTime, context, dateFormatSelection, showWeekdays ?? prefShowWeekdays, hideYear);
 }
 
-formatToDateWithFormatSelection(DateTime dateTime, BuildContext context, int dateFormatSelection, bool showWeekdays) {
+formatToDateWithFormatSelection(DateTime dateTime, BuildContext context, int dateFormatSelection, bool showWeekdays, bool hideYear) {
   final isSameYear = dateTime.year == DateTime.now().year;
-  final formatter = getDateFormat(context, dateFormatSelection, showWeekdays, isSameYear);
+  final formatter = getDateFormat(context, dateFormatSelection, showWeekdays, isSameYear || hideYear);
   return formatter.format(dateTime);
 }
 
@@ -117,7 +117,7 @@ formatToDateWithFormatSelection(DateTime dateTime, BuildContext context, int dat
 String formatAllYearDate(AllYearDate allYearDate, BuildContext context) {
   final locale = currentLocale(context).toString();
   final date = DateTime(2024, allYearDate.month.index + 1, allYearDate.day); // leap year needed to display 29th Feb
-  return DateFormat.MEd(locale).format(date);
+  return formatToDate(date, context, showWeekdays: false, hideYear: true);
 }
 
 // day: 0..6

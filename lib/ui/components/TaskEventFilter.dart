@@ -103,7 +103,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                         ),
                         const Spacer(),
                         Text(taskFilterSettings.filterByDateRange != null
-                            ?  "${formatToDateWithFormatSelection(taskFilterSettings.filterByDateRange!.start, context, 1, false)} ${translate('common.words.to_for_times')} ${formatToDateWithFormatSelection(taskFilterSettings.filterByDateRange!.end, context, 1, false)}"
+                            ?  "${formatToDateWithFormatSelection(taskFilterSettings.filterByDateRange!.start, context, 1, false, false)} ${translate('common.words.to_for_times')} ${formatToDateWithFormatSelection(taskFilterSettings.filterByDateRange!.end, context, 1, false, false)}"
                             : translate('filter.menu.by_date_range')),
                       ]
                   ),

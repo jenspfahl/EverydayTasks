@@ -241,6 +241,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
     }
 
     List<Widget> content = [];
+    var nextSchedule = scheduledTask.getNextSchedule();
     if (!scheduledTask.active || scheduledTask.lastScheduledEventOn == null) {
       content.add(Text("- ${translate('pages.schedules.overview.inactive')} -"));
     }
@@ -284,26 +285,37 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                   ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
                   : Schedule.fromCustomRepetitionToString(scheduledTask.schedule.customRepetition);
       if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
-        var fixedRepetitions = "fixed";
+        String? fixedRepetition = null;
         if (scheduledTask.schedule.isWeekBased()) {
           final s = Schedule.getStringFromWeeklyBasedSchedules(scheduledTask.schedule.weekBasedSchedules, context);
           if (s != null) {
-            fixedRepetitions = s;
+            fixedRepetition = s;
+          }
+          else {
+            fixedRepetition = getShortWeekdayOf(nextSchedule!.weekday, context);
           }
         }
         if (scheduledTask.schedule.isMonthBased()) {
           final s = Schedule.getStringFromMonthlyBasedSchedules(scheduledTask.schedule.monthBasedSchedules, context);
           if (s != null) {
-            fixedRepetitions = s;
+            fixedRepetition = s;
+          }
+          else {
+            fixedRepetition = getDayOfMonth(nextSchedule!.day, context);
           }
         }
         if (scheduledTask.schedule.isYearBased()) {
           final s = Schedule.getStringFromYearlyBasedSchedules(scheduledTask.schedule.yearBasedSchedules, context);
           if (s != null) {
-            fixedRepetitions = s;
+            fixedRepetition = s;
+          }
+          else {
+            fixedRepetition = formatAllYearDate(AllYearDate(nextSchedule!.day, MonthOfYear.values[nextSchedule.month - 1]), context);
           }
         }
-        repetitionString = "$repetitionString ($fixedRepetitions)";
+        if (fixedRepetition != null) {
+          repetitionString = "$repetitionString ($fixedRepetition)";
+        }
       }
       content.add(
         Row(
@@ -432,11 +444,10 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                         return;
                       }
                       final newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
-                      final actualNextDueDate = scheduledTask.getNextSchedule();
                       var nextDueDateAsString = formatToDateOrWord(newNextDueDate!, context,
                           withPreposition: true,
                           makeWhenOnLowerCase: true);
-                      var message = (newNextDueDate != actualNextDueDate)
+                      var message = (newNextDueDate != nextSchedule)
                           ? translate('pages.schedules.action.reset.message_then', args: {
                         "title": scheduledTask.translatedTitle,
                         "nextDueDate": nextDueDateAsString,
