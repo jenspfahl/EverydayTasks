@@ -862,7 +862,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   }
 
   void _updateMonthBasedText() {
-    final daysAsString = _getStringFromMonthlyBasedSchedules(monthBasedSchedules);
+    final daysAsString = Schedule.getStringFromMonthlyBasedSchedules(monthBasedSchedules, context);
     if (daysAsString != null) {
       _monthBasedScheduleController.text = "But only on day $daysAsString";
     }
@@ -872,7 +872,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   }
 
   void _updateYearBasedText() {
-    final daysAsString = _getStringFromYearlyBasedSchedules(yearBasedSchedules);
+    final daysAsString = Schedule.getStringFromYearlyBasedSchedules(yearBasedSchedules, context);
     if (daysAsString != null) {
       _yearBasedScheduleController.text = "But only on date $daysAsString";
     }
@@ -894,10 +894,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
         });
       },
       child: CircleAvatar(
-        radius: 11,
+        radius: 15,
         backgroundColor: weekBasedSchedules.contains(day) ? BUTTON_COLOR : Colors.transparent,
         child: Text(
-          getWeekdayOf(day.index, context).characters.first.toUpperCase(),
+          getShortWeekdayOf(day.index, context).toUpperCase(),
           style: TextStyle(
             color: weekBasedSchedules.contains(day)
                 ? Colors.white
@@ -1049,28 +1049,6 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   bool _dateCannotBeMappedToAWord(DateTime dateTime) {
     final whenOn = fromDateTimeToWhenOnDateFuture(dateTime);
     return whenOn == WhenOnDateFuture.CUSTOM;
-  }
-
-  String? _getStringFromMonthlyBasedSchedules(Set<int> monthBasedSchedules) {
-    if (monthBasedSchedules.isEmpty) {
-      return null;
-    }
-
-    final list = monthBasedSchedules.toList();
-    list.sort();
-
-    return list.join(", ");
-  }
-
-  String? _getStringFromYearlyBasedSchedules(Set<AllYearDate> yearBasedSchedules) {
-    if (yearBasedSchedules.isEmpty) {
-      return null;
-    }
-
-    final list = yearBasedSchedules.toList();
-    list.sort();
-
-    return list.map((e) => "${e.day}.${e.month.index+1}.").join(", "); //TODO format
   }
 
 

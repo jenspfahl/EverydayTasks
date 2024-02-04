@@ -560,4 +560,35 @@ class Schedule {
   }
 
 
+  static String? getStringFromWeeklyBasedSchedules(Set<DayOfWeek> weekBasedSchedules, BuildContext context) {
+    if (weekBasedSchedules.isEmpty) {
+      return null;
+    }
+    return weekBasedSchedules.map((e) => getShortWeekdayOf(e.index, context).toUpperCase()).join(", ");
+  }
+
+  static String? getStringFromMonthlyBasedSchedules(Set<int> monthBasedSchedules, BuildContext context) {
+    if (monthBasedSchedules.isEmpty) {
+      return null;
+    }
+
+    final list = monthBasedSchedules.toList();
+    list.sort();
+
+    return list.map((day) => getDayOfMonth(day, context)).join(", ");
+  }
+
+  static String? getStringFromYearlyBasedSchedules(Set<AllYearDate> yearBasedSchedules, BuildContext context) {
+    if (yearBasedSchedules.isEmpty) {
+      return null;
+    }
+
+    final list = yearBasedSchedules.toList();
+    list.sort();
+
+    return list.map((allYearDate) => formatAllYearDate(allYearDate, context)).join(", ");
+  }
+
+
+
 }

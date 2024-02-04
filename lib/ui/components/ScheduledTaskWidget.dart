@@ -280,6 +280,31 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
           )
       );
       content.add(const Text(""));
+      var repetitionString = scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
+                  ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
+                  : Schedule.fromCustomRepetitionToString(scheduledTask.schedule.customRepetition);
+      if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
+        var fixedRepetitions = "fixed";
+        if (scheduledTask.schedule.isWeekBased()) {
+          final s = Schedule.getStringFromWeeklyBasedSchedules(scheduledTask.schedule.weekBasedSchedules, context);
+          if (s != null) {
+            fixedRepetitions = s;
+          }
+        }
+        if (scheduledTask.schedule.isMonthBased()) {
+          final s = Schedule.getStringFromMonthlyBasedSchedules(scheduledTask.schedule.monthBasedSchedules, context);
+          if (s != null) {
+            fixedRepetitions = s;
+          }
+        }
+        if (scheduledTask.schedule.isYearBased()) {
+          final s = Schedule.getStringFromYearlyBasedSchedules(scheduledTask.schedule.yearBasedSchedules, context);
+          if (s != null) {
+            fixedRepetitions = s;
+          }
+        }
+        repetitionString = "$repetitionString ($fixedRepetitions)";
+      }
       content.add(
         Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -289,9 +314,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                 child: Icon(Icons.next_plan_outlined,
                     color: _getIconColorForMode()),
               ),
-              Text(scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
-                  ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
-                  : Schedule.fromCustomRepetitionToString(scheduledTask.schedule.customRepetition)),
+              Text(repetitionString),
             ]
         ),
       );

@@ -525,7 +525,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
           fontSize: 17,
           color: isDarkMode(context) ? Colors.white : Colors.black,
         ),
-        weekDayStringBuilder: (day) => getWeekdayOf(day, context).characters.first.toUpperCase(),
+        weekDayStringBuilder: (day) => getNarrowWeekdayOf(day, context).toUpperCase(),
       ),
       headerStringBuilder: _headerMonthBuilder,
       onDateLongPress: _onDateLongPress,
