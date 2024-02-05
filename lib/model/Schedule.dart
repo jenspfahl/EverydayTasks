@@ -564,7 +564,7 @@ class Schedule {
     if (weekBasedSchedules.isEmpty) {
       return null;
     }
-    return weekBasedSchedules.map((e) => getShortWeekdayOf(e.index, context).toUpperCase()).join(", ");
+    return weekBasedSchedules.map((e) => getShortWeekdayOf(e.index, context)).join(", ");
   }
 
   static String? getStringFromMonthlyBasedSchedules(Set<int> monthBasedSchedules, BuildContext context) {

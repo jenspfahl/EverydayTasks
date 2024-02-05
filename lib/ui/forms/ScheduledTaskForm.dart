@@ -118,6 +118,19 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       weekBasedSchedules = _scheduledTask!.schedule.weekBasedSchedules.toSet();
       monthBasedSchedules = _scheduledTask!.schedule.monthBasedSchedules.toSet();
       yearBasedSchedules = _scheduledTask!.schedule.yearBasedSchedules.toSet();
+
+      var nextDueOn = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
+
+      if (_repetitionMode == RepetitionMode.FIXED) {
+        if (_scheduledTask!.schedule.isMonthBased()) {
+          // remove the standard repetition day
+          monthBasedSchedules.remove(nextDueOn.day);
+        }
+        if (_scheduledTask!.schedule.isYearBased()) {
+          // remove the standard repetition day
+          yearBasedSchedules.remove(AllYearDate(nextDueOn.day, MonthOfYear.values[nextDueOn.month - 1]));
+        }
+      }
     }
     else if (_template != null) {
       titleController.text = _template!.translatedTitle;
@@ -611,6 +624,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       _customStartAt = TimeOfDay.now();
                                     }
 
+
                                     var schedule = Schedule(
                                       aroundStartAt: _selectedStartAt!,
                                       startAtExactly: _customStartAt,
@@ -622,10 +636,21 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       yearBasedSchedules: yearBasedSchedules,
                                     );
 
+                                    var nextDueOn = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
+
+                                    if (_repetitionMode == RepetitionMode.FIXED) {
+                                      // add the default schedule to the set
+                                      if (schedule.isMonthBased()) {
+                                        schedule.monthBasedSchedules.add(nextDueOn.day);
+                                      }
+                                      if (schedule.isYearBased()) {
+                                        schedule.yearBasedSchedules.add(AllYearDate(nextDueOn.day, MonthOfYear.values[nextDueOn.month - 1]));
+                                      }
+                                    }
+
 
                                     // adjust back
-                                    var scheduleFrom = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
-                                    scheduleFrom = schedule.getPreviousRepetitionFrom(scheduleFrom);
+                                    final scheduleFrom = schedule.getPreviousRepetitionFrom(nextDueOn);
 
 
                                     var scheduledTask = ScheduledTask(
@@ -786,7 +811,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     return TextFormField(
       controller: _monthBasedScheduleController,
       decoration: InputDecoration(
-        hintText: 'Select days per month',
+        hintText: 'Add additional due days per month',
         counter: Text(""),
       ),
       maxLength: 100,
@@ -797,8 +822,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       onTap: () {
         final tempSchedules = monthBasedSchedules.toSet();
         showCustomDialog(context,
-          title: "Day Of Month",
-          message: "Select the days of a month for this schedule. If a day not exists (e.g. 31. Feb.) the schedule is not triggered.",
+          title: "Possible days of an arbitrary month",
+          message: "Select additional due days of an arbitrary month for this schedule. If a day doesn't exist in the actual due month (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
           body: _buildSingleDayOfMonthSelector(tempSchedules),
           okPressed: () {
             Navigator.pop(context);
@@ -830,7 +855,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     return TextFormField(
       controller: _yearBasedScheduleController,
       decoration: InputDecoration(
-        hintText: 'Select days per year',
+        hintText: 'Add additional due days per year',
         counter: Text(""),
       ),
       maxLength: 100,
@@ -840,8 +865,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       onTap: () {
         final tempSchedules = yearBasedSchedules.toSet();
         showCustomDialog(context,
-          title: "Days Of Year",
-          message: "Select the days of a year for this schedule. If a day not exists (e.g. 31. Feb.) the schedule is not triggered.",
+          title: "Possible days of an arbitrary year",
+          message: "Select additional due days of an arbitrary year for this schedule. If a day doesn't exist in the actual due year (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
           body: _buildMultipleDayOfMonthSelector(tempSchedules),
           bodyFlex: 4,
           okPressed: () {
@@ -871,7 +896,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   void _updateMonthBasedText() {
     final daysAsString = Schedule.getStringFromMonthlyBasedSchedules(monthBasedSchedules, context);
     if (daysAsString != null) {
-      _monthBasedScheduleController.text = "But only on day $daysAsString";
+      _monthBasedScheduleController.text = "and on day $daysAsString";
     }
     else {
       _monthBasedScheduleController.text = "";
@@ -881,7 +906,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   void _updateYearBasedText() {
     final daysAsString = Schedule.getStringFromYearlyBasedSchedules(yearBasedSchedules, context);
     if (daysAsString != null) {
-      _yearBasedScheduleController.text = "But only on date $daysAsString";
+      _yearBasedScheduleController.text = "And on date $daysAsString";
     }
     else {
       _yearBasedScheduleController.text = "";
