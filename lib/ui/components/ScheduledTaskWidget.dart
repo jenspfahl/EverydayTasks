@@ -326,7 +326,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                 child: Icon(Icons.next_plan_outlined,
                     color: _getIconColorForMode()),
               ),
-              Text(repetitionString),
+              Flexible(child: Text(repetitionString)),
             ]
         ),
       );

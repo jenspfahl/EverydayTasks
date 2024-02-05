@@ -135,6 +135,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       _isActive = true;
     }
 
+    if (_selectedNextDueOn != null) {
+      _updateFixedWeekSchedule(When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn));
+    }
     _updateMonthBasedText();
     _updateYearBasedText();
 
@@ -346,6 +349,12 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                   onPressed: (int index) {
                                     setState(() {
                                       _repetitionMode = RepetitionMode.values[index];
+                                      if (_selectedNextDueOn != null) {
+                                        _updateFixedWeekSchedule(
+                                            When.fromWhenOnDateFutureToDate(
+                                                _selectedNextDueOn!,
+                                                _customNextDueOn));
+                                      }
                                     });
 
                                     //TODO store a total seen counter
@@ -708,6 +717,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
         }
         setState(() {
           _selectedNextDueOn = value;
+          _updateFixedWeekSchedule(When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn));
         });
       },
       validator: (WhenOnDateFuture? value) {
@@ -741,9 +751,6 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
           child: SizedBox(
             child: Row(
               children: [
-                Expanded(
-                  child: Text("But only on "),
-                ),
                 Expanded(
                   child: buildDayItem(DayOfWeek.MONDAY),
                 ),
@@ -886,7 +893,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       onTap: () {
         setState(() {
           if (weekBasedSchedules.contains(day)) {
-            weekBasedSchedules.remove(day);
+            if (weekBasedSchedules.length > 1) { // don't remove the last weekday
+              weekBasedSchedules.remove(day);
+            }
           }
           else {
             weekBasedSchedules.add(day);
@@ -1043,6 +1052,14 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     } else {
       _customNextDueOn = selectedDate;
       _selectedNextDueOn = WhenOnDateFuture.CUSTOM;
+    }
+
+    _updateFixedWeekSchedule(selectedDate);
+  }
+
+  void _updateFixedWeekSchedule(DateTime selectedDate) {
+    if (_repetitionMode == RepetitionMode.FIXED) {
+      weekBasedSchedules.add(DayOfWeek.values[selectedDate.weekday - 1]);
     }
   }
 

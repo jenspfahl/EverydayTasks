@@ -115,7 +115,6 @@ formatToDateWithFormatSelection(DateTime dateTime, BuildContext context, int dat
 
 // day: 0..6
 String formatAllYearDate(AllYearDate allYearDate, BuildContext context) {
-  final locale = currentLocale(context).toString();
   final date = DateTime(2024, allYearDate.month.index + 1, allYearDate.day); // leap year needed to display 29th Feb
   return formatToDate(date, context, showWeekdays: false, hideYear: true);
 }
