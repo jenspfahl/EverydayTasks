@@ -60,7 +60,7 @@ dev_dependencies:
     sdk: flutter
   floor_generator: ^1.1.0
   build_runner: ^2.0.0
-  flutter_launcher_icons: "^0.9.0"
+  flutter_launcher_icons: "^0.13.1"
   flutter_colorpicker: ^1.0.3
   flutter_iconpicker: ^3.2.2
 
@@ -72,6 +72,8 @@ flutter_icons:
   android: true
   ios: true
   remove_alpha_ios: true
+  adaptive_icon_background: "#9e9d24"
+  adaptive_icon_foreground: "icons/launcher_ptl.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
