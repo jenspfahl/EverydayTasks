@@ -7,7 +7,7 @@ import 'package:personaltasklogger/util/units.dart';
 import '../service/PreferenceService.dart';
 
 enum AroundWhenAtDay {NOW, MORNING, FORENOON, NOON, AFTERNOON, EVENING, NIGHT, CUSTOM}
-enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES, TWENTY_MINUTES, THREE_QUARTERS}
+enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES, TWENTY_MINUTES, THREE_QUARTERS, ONE_AND_A_HALF}
 
 enum WhenOnDatePast {TODAY, YESTERDAY, BEFORE_YESTERDAY, CUSTOM}
 enum WhenOnDateFuture {TODAY, TOMORROW, AFTER_TOMORROW, CUSTOM}
@@ -91,6 +91,7 @@ class When {
       case AroundDurationHours.HALF: return Duration(minutes: 30);
       case AroundDurationHours.THREE_QUARTERS: return Duration(minutes: 45);
       case AroundDurationHours.ONE: return Duration(hours: 1);
+      case AroundDurationHours.ONE_AND_A_HALF: return Duration(hours: 1, minutes: 30);
       case AroundDurationHours.TWO: return Duration(hours: 2);
       case AroundDurationHours.THREE: return Duration(hours: 3);
       case AroundDurationHours.FOUR: return Duration(hours: 4);
@@ -106,6 +107,7 @@ class When {
       case AroundDurationHours.HALF: return _translateAround(translate('common.durations.half_an_hour'));
       case AroundDurationHours.THREE_QUARTERS: return _translateAround(translate('common.durations.three_quarters_of_an_hour'));
       case AroundDurationHours.ONE: return _translateAround(translate('common.durations.an_hour'));
+      case AroundDurationHours.ONE_AND_A_HALF: return _translateAround(translate('common.durations.one_and_a_half'));
       case AroundDurationHours.TWO: return _translateAround(Hours(2).toString());
       case AroundDurationHours.THREE: return _translateAround(Hours(3).toString());
       case AroundDurationHours.FOUR: return _translateAround(Hours(4).toString());

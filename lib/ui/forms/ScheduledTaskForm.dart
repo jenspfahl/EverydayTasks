@@ -1,8 +1,6 @@
 import 'package:calendar_view/calendar_view.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
@@ -333,11 +331,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                         child: Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Stack(children: [
-                                              Icon(Icons.calendar_today, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null,),
-                                              Positioned.fill(top: 4, left: 5.25 ,child: Text("▪", style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
-                                              Positioned.fill(top: 8, left: 12 ,child: Text("?", style: TextStyle(fontWeight: FontWeight.bold, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null, fontSize: 12,))),
-                                            ]),
+                                            _buildDynamicScheduleIcon(context),
                                             Text(Schedule.fromRepetitionModeToString(RepetitionMode.DYNAMIC), textAlign: TextAlign.center,
                                                 style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null)),
                                           ],
@@ -348,10 +342,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                         child: Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Stack(children: [
-                                              Icon(Icons.calendar_today, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.FIXED ? PRIMARY_COLOR : null) : null,),
-                                              Positioned.fill(top: 4, left: 5.25, child: Text("▪ ▪", style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.FIXED ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
-                                            ]),
+                                            _buildFixedScheduleIcon(context, _repetitionMode == RepetitionMode.FIXED),
                                             Text(Schedule.fromRepetitionModeToString(RepetitionMode.FIXED), textAlign: TextAlign.center,
                                                 style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.FIXED ? PRIMARY_COLOR : null) : null)),
                                           ],
@@ -689,6 +680,21 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     );
   }
 
+  Stack _buildDynamicScheduleIcon(BuildContext context) {
+    return Stack(children: [
+      Icon(Icons.calendar_today, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null,),
+      Positioned.fill(top: 4, left: 5.25, child: Text("▪", style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
+      Positioned.fill(top: 8, left: 12, child: Text("?", style: TextStyle(fontWeight: FontWeight.bold, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null, fontSize: 12,))),
+    ]);
+  }
+
+  Stack _buildFixedScheduleIcon(BuildContext context, bool isHighlighted) {
+    return Stack(children: [
+      Icon(Icons.calendar_today, color: isDarkMode(context) ? (isHighlighted ? PRIMARY_COLOR : null) : null,),
+      Positioned.fill(top: 4, left: 5.25, child: Text("▪ ▪", style: TextStyle(color: isDarkMode(context) ? (isHighlighted ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
+    ]);
+  }
+
   Widget? buildDueOnWidget(BuildContext context) {
     if (_selectedRepetitionStep == null) {
       return null;
@@ -811,20 +817,21 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     return TextFormField(
       controller: _monthBasedScheduleController,
       decoration: InputDecoration(
-        hintText: 'Add additional due days per month',
+        hintText: translate('forms.schedule.fixed_monthly_hint'),
         counter: Text(""),
       ),
       maxLength: 100,
       keyboardType: TextInputType.text,
       readOnly: true,
-     // buildCounter: (context, { int? currentLength, int? maxLength, bool? isFocused }) => null,
       maxLines: 1,
       onTap: () {
         final tempSchedules = monthBasedSchedules.toSet();
         showCustomDialog(context,
-          title: "Possible days of an arbitrary month",
-          message: "Select additional due days of an arbitrary month for this schedule. If a day doesn't exist in the actual due month (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
+          title: translate('forms.schedule.fixed_monthly_title'),
+          message: translate('forms.schedule.fixed_monthly_message'),
           body: _buildSingleDayOfMonthSelector(tempSchedules),
+          titleFlex: 10,
+          bodyFlex: 15,
           okPressed: () {
             Navigator.pop(context);
             monthBasedSchedules = tempSchedules;
@@ -842,7 +849,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                       tempSchedules.clear();
                     });
               },
-              child: Text("Clear"),
+              child: Text(translate('common.words.clear').capitalize()),
           ),
         );
       },
@@ -855,7 +862,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     return TextFormField(
       controller: _yearBasedScheduleController,
       decoration: InputDecoration(
-        hintText: 'Add additional due days per year',
+        hintText: translate('forms.schedule.fixed_yearly_hint'),
         counter: Text(""),
       ),
       maxLength: 100,
@@ -865,10 +872,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       onTap: () {
         final tempSchedules = yearBasedSchedules.toSet();
         showCustomDialog(context,
-          title: "Possible days of an arbitrary year",
-          message: "Select additional due days of an arbitrary year for this schedule. If a day doesn't exist in the actual due year (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
+          title: translate('forms.schedule.fixed_yearly_title'),
+          message: translate('forms.schedule.fixed_yearly_message'),
           body: _buildMultipleDayOfMonthSelector(tempSchedules),
-          bodyFlex: 4,
+          titleFlex: 4,
+          bodyFlex: 7,
           okPressed: () {
             Navigator.pop(context);
             yearBasedSchedules = tempSchedules;
@@ -886,7 +894,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                 tempSchedules.clear();
               });
             },
-            child: Text("Clear"),
+            child: Text(translate('common.words.clear').capitalize()),
           ),
         );
       },
@@ -896,7 +904,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   void _updateMonthBasedText() {
     final daysAsString = Schedule.getStringFromMonthlyBasedSchedules(monthBasedSchedules, context);
     if (daysAsString != null) {
-      _monthBasedScheduleController.text = "and on day $daysAsString";
+      _monthBasedScheduleController.text = "${translate('common.words.and')} ${translate('common.words.on_for_dates')} $daysAsString";
     }
     else {
       _monthBasedScheduleController.text = "";
@@ -906,7 +914,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   void _updateYearBasedText() {
     final daysAsString = Schedule.getStringFromYearlyBasedSchedules(yearBasedSchedules, context);
     if (daysAsString != null) {
-      _yearBasedScheduleController.text = "And on date $daysAsString";
+      _yearBasedScheduleController.text = "${translate('common.words.and')} ${translate('common.words.on_for_dates')} $daysAsString";
     }
     else {
       _yearBasedScheduleController.text = "";
@@ -935,7 +943,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
           style: TextStyle(
             color: weekBasedSchedules.contains(day)
                 ? Colors.white
-                : Colors.black54,
+                : isDarkMode(context) ? Colors.white60 : Colors.black54,
             fontSize: 12,
           ),
         ),
@@ -945,31 +953,36 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
   Widget _buildSingleDayOfMonthSelector(Set<int> monthBasedSchedules) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: StatefulBuilder(
-          key: _daysOfMonthSelectorKey,
-          builder: (context, setState) {
-            return _buildDayOfMonthSelector(
-                monthBasedSchedules, 
-                itemCount: 31,
-                onTap: (day) {
-                  setState(() {
-                    if (monthBasedSchedules.contains(day)) {
-                      monthBasedSchedules.remove(day);
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+      child: SingleChildScrollView(
+        child: SizedBox(
+          height: 180,
+          child: StatefulBuilder(
+              key: _daysOfMonthSelectorKey,
+              builder: (context, setState) {
+                return _buildDayOfMonthSelector(
+                    monthBasedSchedules,
+                    itemCount: 31,
+                    onTap: (day) {
+                      setState(() {
+                        if (monthBasedSchedules.contains(day)) {
+                          monthBasedSchedules.remove(day);
+                        }
+                        else {
+                          monthBasedSchedules.add(day);
+                        }
+                      });
                     }
-                    else {
-                      monthBasedSchedules.add(day);
-                    }
-                  });
-                } 
-            );
-          }),
+                );
+              }),
+        ),
+      ),
     );
   }
   
   Widget _buildMultipleDayOfMonthSelector(Set<AllYearDate> yearBasedSchedules) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
       child: StatefulBuilder(
           key: _daysOfYearSelectorKey,
           builder: (context, setState) {
@@ -1050,7 +1063,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
             child: FilledCell(
               date: date,
               shouldHighlight: monthBasedSchedules.contains(day),
-              backgroundColor: Colors.white60,
+              backgroundColor: isDarkMode(context) ? Colors.black12 : Colors.white60,
+              titleColor: isDarkMode(context) ? Colors.white70 : Colors.black12,
               events: [],
             ),
           ),

@@ -75,6 +75,12 @@
       "repetition_mode": "Dynamic repetition mode",
       "repetition_mode_dynamic": "Next task is due based on the chosen interval and when the recent task was done.",
       "repetition_mode_fixed": "Next task is due based on the exact interval, no matter when the recent task was done.",
+      "fixed_monthly_hint" : "Add additional due days per month",
+      "fixed_monthly_title" : "Possible days of an arbitrary month",
+      "fixed_monthly_message" : "Select additional due days of an arbitrary month for this schedule. If a day doesn't exist in the actual due month (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
+      "fixed_yearly_hint" : "Add additional due days per year",
+      "fixed_yearly_title" : "Possible days of an arbitrary year",
+      "fixed_yearly_message" : "Select additional due days of an arbitrary year for this schedule. If a day doesn't exist in the actual due year (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
       "create": {
         "title": "Create new schedule",
         "success": "New schedule with name '{title}' has been created"
@@ -556,7 +562,8 @@
     "durations": {
       "half_an_hour": "half an hour",
       "three_quarters_of_an_hour": "three quarters of an hour",
-      "an_hour": "an hour"
+      "an_hour": "an hour",
+      "one_and_a_half": "one and a half hours"
     },
     "words": {
       "on_for_dates": "on",

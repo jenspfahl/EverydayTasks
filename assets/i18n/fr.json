@@ -76,6 +76,12 @@
       "repetition_mode": "Mode de répétition dynamique",
       "repetition_mode_dynamic": "La prochaine tâche est due, en fonction de la fréquence choisie et de la date de complétion de la dernière occurence. ",
       "repetition_mode_fixed": "La date d'échéance de la prochaine tâche est basée sur la fréquence sélectionnée, indépendamment de la date de complétion de la dernière occurence. ",
+      "fixed_monthly_hint" : "Add additional due days per month",
+      "fixed_monthly_title" : "Possible days of an arbitrary month",
+      "fixed_monthly_message" : "Select additional due days of an arbitrary month for this schedule. If a day doesn't exist in the actual due month (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
+      "fixed_yearly_hint" : "Add additional due days per year",
+      "fixed_yearly_title" : "Possible days of an arbitrary year",
+      "fixed_yearly_message" : "Select additional due days of an arbitrary year for this schedule. If a day doesn't exist in the actual due year (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
       "create": {
         "title": "Créer une tâche planifiée",
         "success": "La nouvelle tâche '{title}' a été créée dans le planning. "
@@ -557,7 +563,8 @@
     "durations": {
       "half_an_hour": "une demie heure",
       "three_quarters_of_an_hour": "trois quarts d'heure",
-      "an_hour": "une heure"
+      "an_hour": "une heure",
+      "one_and_a_half": "one and a half hours"
     },
     "words": {
       "on_for_dates": "le",

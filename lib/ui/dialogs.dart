@@ -162,7 +162,7 @@ void showConfirmationDialog(BuildContext context, String title, String message,
 
 void showCustomDialog(BuildContext context,
     {required String title, required String message, required Widget body,
-      Icon? icon, Function()? okPressed, Function()? cancelPressed, Widget? neutralButton, int bodyFlex = 1}) {
+      Icon? icon, Function()? okPressed, Function()? cancelPressed, Widget? neutralButton, int titleFlex = 1, int bodyFlex = 1}) {
 
   List<Widget> actions = [];
   if (neutralButton != null) {
@@ -194,7 +194,7 @@ void showCustomDialog(BuildContext context,
       : Text(title),
     content: Column(
       children: [
-        Flexible(child: Text(message)),
+        Expanded(flex: titleFlex, child: SingleChildScrollView(child: Text(message))),
         Expanded(flex: bodyFlex, child: body),
       ],
     ),

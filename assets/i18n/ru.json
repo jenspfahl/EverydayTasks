@@ -75,6 +75,12 @@
       "repetition_mode": "Режим динамического повторения",
       "repetition_mode_dynamic": "Следующая задача должна быть выполнена в зависимости от выбранного интервала и времени выполнения последней задачи.",
       "repetition_mode_fixed": "Срок выполнения следующей задачи определяется точным интервалом независимо от того когда была выполнена последняя задача.",
+      "fixed_monthly_hint" : "Add additional due days per month",
+      "fixed_monthly_title" : "Possible days of an arbitrary month",
+      "fixed_monthly_message" : "Select additional due days of an arbitrary month for this schedule. If a day doesn't exist in the actual due month (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
+      "fixed_yearly_hint" : "Add additional due days per year",
+      "fixed_yearly_title" : "Possible days of an arbitrary year",
+      "fixed_yearly_message" : "Select additional due days of an arbitrary year for this schedule. If a day doesn't exist in the actual due year (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
       "create": {
         "title": "Создать новое расписание",
         "success": "Новое расписание '{title}' создано."
@@ -556,7 +562,8 @@
     "durations": {
       "half_an_hour": "пол часа",
       "three_quarters_of_an_hour": "45 минут",
-      "an_hour": "час"
+      "an_hour": "час",
+      "one_and_a_half": "one and a half hours"
     },
     "words": {
       "on_for_dates": "",

@@ -75,6 +75,12 @@
       "repetition_mode": "Dynamische Wiederholung",
       "repetition_mode_dynamic": "Die nächste Aufgabe ist fällig basierend auf dem gewählten Intervall und wann die letzte Aufgabe erledigt wurde.",
       "repetition_mode_fixed": "Die nächste Aufgabe ist fällig gemäß dem gewählten Intervall, ungeachtet wann die letzte Aufgabe erledigt wurde.",
+      "fixed_monthly_hint" : "Zusätzliche Fälligkeitstage pro Monat",
+      "fixed_monthly_title" : "Mögliche Tage eines willkürlichen Monats",
+      "fixed_monthly_message" : "Wähle weitere mögliche Fälligkeitstage eines willkürlichen Monats für diesen Zeitplan aus. Falls ein Tag nicht im Fälligkeitsmonat existiert (z.B. 31. April), wird der Zeitplan entsprechend zeitiger getriggert (hier 30. April). Das gleiche gilt für Schalttage.",
+      "fixed_yearly_hint" : "Zusätzliche Fälligkeitstage pro Jahr",
+      "fixed_yearly_title" : "Mögliche Tage eines willkürlichen Jahres",
+      "fixed_yearly_message" : "Wähle weitere mögliche Fälligkeitstage eines willkürlichen Jahres für diesen Zeitplan aus. Falls ein Tag nicht im Fälligkeitsjahr existiert (z.B. 31. April), wird der Zeitplan entsprechend zeitiger getriggert (hier 30. April). Das gleiche gilt für Schalttage.",
       "create": {
         "title": "Neuer Zeitplan",
         "success": "Neuer Zeitplan '{title}' wurde angelegt"
@@ -610,7 +616,8 @@
     "durations": {
       "half_an_hour": "eine halbe Stunde",
       "three_quarters_of_an_hour": "eine dreiviertel Stunde",
-      "an_hour": "eine Stunde"
+      "an_hour": "eine Stunde",
+      "one_and_a_half": "eineinhalb Stunden"
     },
     "words": {
       "on_for_dates": "am",
