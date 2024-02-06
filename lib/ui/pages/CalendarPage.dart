@@ -822,7 +822,9 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
     final taskGroup = _getTaskGroup(taskGroupId);
     final backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
-    final icon = _getEventIcon(taskGroup);
+    var icon = _getEventIcon(taskGroup);
+
+    icon = _addImportantIndicator(icon, object);
     
     return CustomPaint(
       painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1), _calendarMode == CalendarMode.DAY ? 21 : 7) : null,
@@ -842,7 +844,20 @@ class _CalendarPageStatus extends State<CalendarPage> {
     );
   }
 
-  Icon? _getEventIcon(TaskGroup? taskGroup) {
+  Widget? _addImportantIndicator(Widget? icon, TitleAndDescription? object) {
+    if (icon != null && object is ScheduledTask && object.important) {
+      icon = Wrap(
+          children: [
+            Icon(Icons.priority_high,
+                color: isDarkMode(context) ? Colors.white60 : Colors.black54,
+                size: (16 * _scaleFactor).max(16)),
+            icon
+          ]);
+    }
+    return icon;
+  }
+
+  Widget? _getEventIcon(TaskGroup? taskGroup) {
     final icon = taskGroup != null
         ? Icon(
             taskGroup.getIcon(true).icon,
@@ -901,7 +916,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
         final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
         final taskGroup = _getTaskGroup(taskGroupId);
         final backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
-        final icon = _getEventIcon(taskGroup);
+        var icon = _getEventIcon(taskGroup);
+        icon = _addImportantIndicator(icon, object);
 
         return Container(
           decoration: BoxDecoration(

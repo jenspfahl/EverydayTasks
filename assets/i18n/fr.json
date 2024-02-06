@@ -67,6 +67,7 @@
       "due_at_hint": "Horaire d'échéance",
       "due_at_emphasis": "Veuillez sélectionner l'horaire d'échéance",
       "activate_schedule": "Activer dans le planning",
+      "mark_as_important": "Mark schedule as important",
       "due_on_hint": "Echéance",
       "scheduled_from_hint": "Planifier à partir de ",
       "scheduled_from_emphasis": "Sélectionner la date de début dans le planning",

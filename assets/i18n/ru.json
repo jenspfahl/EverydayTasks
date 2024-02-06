@@ -67,6 +67,7 @@
       "due_at_hint": "Сделать до",
       "due_at_emphasis": "Выберите срок выполнения задачи",
       "activate_schedule": "Активировать расписание",
+      "mark_as_important": "Mark schedule as important",
       "due_on_hint": "Сделать до",
       "scheduled_from_emphasis": "Выберите время начала расписания",
       "activate_reminders": "Активировать напоминание",

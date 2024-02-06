@@ -68,6 +68,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   WhenOnDateFuture? _selectedNextDueOn;
   DateTime? _customNextDueOn;
 
+  bool _isImportant = false;
   late bool _isActive;
 
   static int _repetitionModeHintShownForDynamic = 0;
@@ -104,6 +105,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       }
 
       _isActive = _scheduledTask!.active;
+      _isImportant = _scheduledTask!.important;
       _repetitionMode = _scheduledTask!.schedule.repetitionMode;
 
       if (_scheduledTask!.reminderNotificationEnabled != null) {
@@ -522,6 +524,26 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                           ),
 
                           Padding(
+                              padding: EdgeInsets.only(top: 10.0),
+                              child: CheckboxListTile(
+                                title: Row(
+                                  children: [
+                                    Icon(Icons.priority_high),
+                                    Text(translate('forms.schedule.mark_as_important')),
+                                  ],
+                                ),
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                                value: _isImportant,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    if (value != null) _isImportant = value;
+                                  });
+                                },
+                              )
+                          ),
+
+                          Padding(
                             padding: EdgeInsets.only(top: 20.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -572,7 +594,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     value: _reminderRepetition,
                                     isExpanded: true,
                                     icon: Icon(Icons.notifications_paused),
-                                    onChanged: (value) {},
+                                    onChanged: _isRemindersEnabled ? (value) {} : null,
                                     items: [DropdownMenuItem(
                                         value: _reminderRepetition,
                                         child: Text(translate('forms.schedule.remind_after',
@@ -654,6 +676,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       schedule: schedule,
                                       lastScheduledEventOn: scheduleFrom,
                                       active: _isActive,
+                                      important: _isImportant,
                                       reminderNotificationEnabled: _isRemindersEnabled,
                                       reminderNotificationRepetition: _reminderRepetition
                                     );

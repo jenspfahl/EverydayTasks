@@ -153,9 +153,15 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
           key: GlobalKey(),
           // this makes updating all tiles if state changed
           title: _isExpanded
-              ? Text(kReleaseMode ? scheduledTask.translatedTitle : "${scheduledTask.translatedTitle} (id=${scheduledTask.id})")
+              ? Row(
+                children: [
+                  if (scheduledTask.important) Icon(Icons.priority_high),
+                  Text(kReleaseMode ? scheduledTask.translatedTitle : "${scheduledTask.translatedTitle} (id=${scheduledTask.id})"),
+                ],
+              )
               : Row(
             children: [
+              if (scheduledTask.important) Icon(Icons.priority_high),
               taskGroup.getIcon(true),
               Padding(
                 padding: const EdgeInsets.fromLTRB(4, 0, 0, 0),

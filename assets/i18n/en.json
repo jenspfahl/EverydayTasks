@@ -67,6 +67,7 @@
       "due_at_hint": "Due at",
       "due_at_emphasis": "Select when the task is due",
       "activate_schedule": "Activate schedule",
+      "mark_as_important": "Mark schedule as important",
       "due_on_hint": "Due on",
       "scheduled_from_emphasis": "Select when the schedule starts",
       "activate_reminders": "Activate reminder",

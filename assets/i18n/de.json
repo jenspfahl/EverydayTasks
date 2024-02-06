@@ -67,6 +67,7 @@
       "due_at_hint": "Fällig um",
       "due_at_emphasis": "Wähle wann die Aufgabe fällig ist",
       "activate_schedule": "Aktiviere den Zeitplan",
+      "mark_as_important": "Markiere Zeitplan als wichtig",
       "due_on_hint": "Fällig am",
       "scheduled_from_emphasis": "Wähle ab wann der Zeitplan gilt",
       "activate_reminders": "Aktiviere Erinnerung",

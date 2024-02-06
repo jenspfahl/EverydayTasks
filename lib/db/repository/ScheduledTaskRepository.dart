@@ -172,6 +172,7 @@ class ScheduledTaskRepository {
         scheduledTask.schedule.customRepetition?.repetitionUnit.index,
         scheduledTask.lastScheduledEventOn != null ? dateTimeToEntity(scheduledTask.lastScheduledEventOn!) : null,
         scheduledTask.active,
+        scheduledTask.important,
         scheduledTask.pausedAt != null ? dateTimeToEntity(scheduledTask.pausedAt!) : null,
         scheduledTask.schedule.repetitionMode.index,
         scheduledTask.reminderNotificationEnabled,
@@ -204,6 +205,7 @@ class ScheduledTaskRepository {
         ),
         lastScheduledEventOn: entity.lastScheduledEventAt != null ? dateTimeFromEntity(entity.lastScheduledEventAt!) : null,
         active: entity.active,
+        important: entity.important ?? false,
         pausedAt: entity.pausedAt != null ? dateTimeFromEntity(entity.pausedAt!) : null,
         reminderNotificationEnabled: entity.reminderNotificationEnabled,
         reminderNotificationRepetition: entity.reminderNotificationPeriod != null  && entity.reminderNotificationUnit != null

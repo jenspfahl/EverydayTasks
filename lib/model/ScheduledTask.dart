@@ -14,6 +14,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   int? id;
   int taskGroupId;
   TemplateId? templateId;
+  bool important = false;
 
   DateTime createdAt = DateTime.now();
   Schedule schedule;
@@ -33,6 +34,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     required this.schedule,
     this.lastScheduledEventOn,
     required this.active,
+    this.important = false,
     this.pausedAt,
     this.reminderNotificationEnabled,
     this.reminderNotificationRepetition,
