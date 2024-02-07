@@ -83,6 +83,8 @@ enum GroupCriteria {
   DUE, 
   DUE_SINCE_YESTERDAY, // only available when sort by remaining time
   DUE_AND_IMPORTANT,
+  PAUSED,
+  INACTIVE,
 }
 
 class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with AutomaticKeepAliveClientMixin<ScheduledTaskList> {
@@ -481,13 +483,17 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       ],
     );
 
-    GroupCriteria? lastCriteria = null;
     Map<GroupCriteria, int> groupCounters = HashMap();
     _scheduledTasks.forEach((scheduledTask) {
       final criteria = _getGroupingCriteria(scheduledTask, _sortBy, _importantOnTop);
       if (criteria != null) {
-        final counter = groupCounters[criteria];
-        groupCounters[criteria] = (counter ?? 0) + 1;
+        if (_hideInactive && criteria == GroupCriteria.INACTIVE) {
+          // don't count inactive if hidden
+        }
+        else {
+          final counter = groupCounters[criteria];
+          groupCounters[criteria] = (counter ?? 0) + 1;
+        }
       }
     });
 
@@ -502,52 +508,29 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   controller: _listScrollController,
                   itemBuilder: (context, index) {
                     var scheduledTask = _scheduledTasks[index];
+                    var previousScheduledTask = index > 0 ? _scheduledTasks[index - 1] : null;
                     var taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
                     var row = _buildRow(index, scheduledTask, taskGroup);
                     final criteria = _getGroupingCriteria(scheduledTask, _sortBy, _importantOnTop);
+                    final previousCriteria = previousScheduledTask != null
+                        ? _getGroupingCriteria(previousScheduledTask, _sortBy, _importantOnTop)
+                        : null;
 
-                    if (criteria != null && lastCriteria != criteria) {
-                      final scheduleCount = Schedules(groupCounters[criteria] ?? 0);
 
-                      row = Column(children: [
-                        Divider(),
-                        TextButton(
-                          style: ButtonStyle(
-                            alignment: Alignment.centerLeft,
-                            visualDensity: VisualDensity.compact,
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                                EdgeInsets.zero),
-                          ),
-                          child: Row(
-                            children: [
-                              Text("${_translateCriteria(criteria).capitalize()} ($scheduleCount)",
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 10.0,
-                                ),
-                              ),
-                              Icon(
-                                _hiddenTiles.contains(criteria)
-                                    ? Icons.arrow_drop_up_sharp
-                                    : Icons.arrow_drop_down_sharp,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              if (_hiddenTiles.contains(criteria)) {
-                                _hiddenTiles.remove(criteria);
-                              } else {
-                                _hiddenTiles.add(criteria);
-                              }
-                            });
-                          },
-                        ),
-                        row,
-                      ]);
+                    if (criteria != null && previousCriteria != criteria) {
+                      if (_hideInactive && criteria == GroupCriteria.INACTIVE) {
+                        // don't count inactive if hidden
+                      }
+                      else {
+                        final scheduleCount = Schedules(groupCounters[criteria] ?? 0);
+  
+                        row = Column(children: [
+                          if (_statusTileHidden) Divider(),
+                          _buildGroupHeader(criteria, scheduleCount),
+                          row,
+                        ]);
+                      }
                     }
-                    lastCriteria = criteria;
 
                     return AutoScrollTag(
                       key: ValueKey(index),
@@ -558,6 +541,45 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   }),
             ),
           ],
+        ),
+    );
+  }
+
+  Widget _buildGroupHeader(GroupCriteria criteria, Schedules scheduleCount) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+      child: TextButton(
+          style: ButtonStyle(
+            alignment: Alignment.centerLeft,
+            visualDensity: VisualDensity.compact,
+            padding: MaterialStateProperty.all<EdgeInsets>(
+                EdgeInsets.zero),
+          ),
+          child: Row(
+            children: [
+              Text("${_translateCriteria(criteria).capitalize()} ($scheduleCount)",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 10.0,
+                ),
+              ),
+              Icon(
+                _hiddenTiles.contains(criteria)
+                    ? Icons.arrow_drop_down_sharp
+                    : Icons.arrow_drop_up_sharp,
+                color: Colors.grey,
+              ),
+            ],
+          ),
+          onPressed: () {
+            setState(() {
+              if (_hiddenTiles.contains(criteria)) {
+                _hiddenTiles.remove(criteria);
+              } else {
+                _hiddenTiles.add(criteria);
+              }
+            });
+          },
         ),
     );
   }
@@ -631,7 +653,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       return Container();
     }
     return Visibility(
-      visible: criteria == null || _hiddenTiles.contains(criteria),
+      visible: criteria == null || !_hiddenTiles.contains(criteria),
       child: Padding(
           padding: EdgeInsets.all(4.0),
           child: ScheduledTaskWidget(scheduledTask,
@@ -934,10 +956,14 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     _preferenceService.setBool(PREF_HIDE_INACTIVE, hideInactive);
     _preferenceService.setBool(PREF_IMPORTANT_ON_TOP, importantOnTop);
     setState(() {
+      final sortByChanged = _sortBy != sortBy;
       _sortBy = sortBy;
 
       _hideInactive = hideInactive;
       _importantOnTop = importantOnTop;
+      if (sortByChanged) {
+        _hiddenTiles.clear(); // make all visible
+      }
       _sortList();
     });
   }
@@ -1041,6 +1067,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   GroupCriteria? _getGroupingCriteria(ScheduledTask scheduledTask, SortBy sortBy, bool importantOnTop) {
     if (_sortBy == SortBy.PROGRESS) {
+      if (!scheduledTask.active) {
+        return GroupCriteria.INACTIVE;
+      }
       if (scheduledTask.isDue()) {
         if (importantOnTop && scheduledTask.important) {
           return GroupCriteria.DUE_AND_IMPORTANT;
@@ -1052,8 +1081,14 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       }
     }
     else if (_sortBy == SortBy.REMAINING_TIME) {
-      final nextDueDate = scheduledTask.getNextSchedule()!;
+      if (!scheduledTask.active) {
+        return GroupCriteria.INACTIVE;
+      }
+      if (scheduledTask.isPaused) {
+        return GroupCriteria.PAUSED;
+      }
 
+      final nextDueDate = scheduledTask.getNextSchedule()!;
       if (scheduledTask.isDue()) {
         if (importantOnTop && scheduledTask.important) {
           return GroupCriteria.DUE_AND_IMPORTANT;
@@ -1084,8 +1119,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       case GroupCriteria.DUE_TODAY: return translate('pages.schedules.overview.due_today');
       case GroupCriteria.DUE_TOMORROW: return translate('pages.schedules.overview.due_tomorrow');
       case GroupCriteria.DUE_AFTER_TOMORROW: return translate('pages.schedules.overview.due_after_tomorrow');
-      case GroupCriteria.DUE: return translate('pages.schedules.overview.due_today');
+      case GroupCriteria.DUE: return translate('pages.schedules.overview.due');
       case GroupCriteria.DUE_AND_IMPORTANT: return "${translate('common.words.important').capitalize()}!";
+      case GroupCriteria.PAUSED: return "${translate('pages.schedules.overview.paused').capitalize()}";
+      case GroupCriteria.INACTIVE: return "${translate('pages.schedules.overview.inactive').capitalize()}";
     }
   }
   
