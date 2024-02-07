@@ -107,13 +107,16 @@ class ScheduledTaskRepository {
     final database = await getDb(dbName);
 
     final scheduledTaskDao = database.scheduledTaskDao;
-    return scheduledTaskDao.findAll()
+    final scheduledTasks = await scheduledTaskDao.findAll()
         .then((entities) => entities
           .where((e) => e.active)
           .where((e) => e.pausedAt == null)
-          .map((e) => _mapFromEntity(e))
-          .where((e) => e.isDueNow() || e.isNextScheduleOverdue(false))
-          .length);
+          .map((e) => _mapFromEntity(e)));
+
+    return _addFixedSchedules(scheduledTasks, database).then((schedules) => schedules
+            .where((e) => e.isDue())
+            .length);
+
   }
 
   static Future<List<ScheduledTask>> getByTemplateId(TemplateId templateId) async {
@@ -138,6 +141,7 @@ class ScheduledTaskRepository {
     if (scheduledTask == null) {
       return null;
     }
+
 
     final scheduledTaskFixedScheduleDao = database.scheduledTaskFixedScheduleDao;
     final fixedSchedules = await scheduledTaskFixedScheduleDao.findByScheduledTaskId(scheduledTask.id!);
