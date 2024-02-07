@@ -40,7 +40,7 @@ class DueScheduleCountService {
 
 
   incIfDue(ScheduledTask scheduledTask) {
-    if (scheduledTask.isDueNow() || scheduledTask.isNextScheduleOverdue(false)) {
+    if (scheduledTask.isDue()) {
       inc();
     }
   }
@@ -50,7 +50,7 @@ class DueScheduleCountService {
   }
 
   decIfDue(ScheduledTask scheduledTask) {
-    if (scheduledTask.isDueNow() || scheduledTask.isNextScheduleOverdue(false)) {
+    if (scheduledTask.isDue()) {
       dec();
     }
   }

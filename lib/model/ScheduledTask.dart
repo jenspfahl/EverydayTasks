@@ -79,6 +79,9 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   Duration getMissingDurationAfter(DateTime afterDate) {
     final nextRepetition = schedule.getNextRepetitionFrom(afterDate);
     final now = pausedAt != null ? pausedAt! : DateTime.now();
+    if (schedule.repetitionMode == RepetitionMode.FIXED) {
+      debugPrint("nextRepetition = $nextRepetition last=$lastScheduledEventOn");
+    }
     return nextRepetition.difference(truncToMinutes(now));
   }
 
@@ -90,6 +93,8 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     }
     return null;
   }
+
+  bool isDue() => isDueNow() || isNextScheduleOverdue(false);
 
   bool isNextScheduleReached() {
     var duration = getMissingDuration();

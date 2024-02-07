@@ -338,7 +338,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
       );
       if (scheduledTask.active && !scheduledTask.isPaused && scheduledTask.reminderNotificationEnabled == true && widget.isNotificationsEnabled()) {
 
-        if (scheduledTask.isNextScheduleOverdue(false) || scheduledTask.isDueNow()) {
+        if (scheduledTask.isDue()) {
           content.add(const Text(""));
           content.add(
             Row(

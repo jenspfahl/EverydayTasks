@@ -198,7 +198,8 @@
           "by_remaining_time": "Nach verbleibender Zeit sortieren",
           "by_category": "Nach Kategorien sortieren",
           "by_title": "Nach Titel sortieren",
-          "hide_non_active": "Nicht aktive verbergen"
+          "hide_non_active": "Nicht aktive verbergen",
+          "important_on_top": "Wichtige fällige ganz oben"
         },
         "notifications": {
           "enabled": "Fälligkeitsbenachrichtigung aktiviert",
@@ -213,6 +214,7 @@
         "paused": "pausiert",
         "inactive": "inaktiv",
         "scheduled": "geplant",
+        "later_due": "später fällig",
         "due_yesterday_and_before": "Fällig seit gestern und älter",
         "due_today": "Heute fällig",
         "due_tomorrow": "Morgen fällig",
@@ -634,6 +636,7 @@
       "on_for_enabled": "an",
       "off_for_disabled": "aus",
       "clear": "zurücksetzen",
+      "important": "wichtig",
       "value": "Wert",
       "unit": "Einheit",
       "unknown": "unbekannt",

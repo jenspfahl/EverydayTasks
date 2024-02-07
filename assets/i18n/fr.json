@@ -199,7 +199,8 @@
           "by_remaining_time": "Trier par temps restant",
           "by_category": "Trier par catégorie",
           "by_title": "Trier par titre",
-          "hide_non_active": "Masquer si désactivé"
+          "hide_non_active": "Masquer si désactivé",
+          "important_on_top": "Important due on top"
         },
         "notifications": {
           "enabled": "Notification d'échéance activée",
@@ -214,6 +215,7 @@
         "paused": "en pause",
         "inactive": "inactive",
         "scheduled": "planifiée",
+        "later_due": "due later",
         "due_yesterday_and_before": "Pour avant aujourd'hui",
         "due_today": "Pour aujourd'hui",
         "due_tomorrow": "Pour demain",
@@ -581,6 +583,7 @@
       "on_for_enabled": "activé",
       "off_for_disabled": "désactivé",
       "clear": "effacer",
+      "important": "important",
       "value": "valeur",
       "unit": "unité",
       "unknown": "inconnu",

@@ -872,9 +872,9 @@ class _CalendarPageStatus extends State<CalendarPage> {
     return TextStyle(
             fontSize: (14 * _scaleFactor).max(14),
             fontStyle: object is ScheduledTask ? FontStyle.italic : null,
-            fontWeight: object is ScheduledTask && (object.isDueNow() || object.isNextScheduleOverdue(false)) ? FontWeight.bold : null,
+            fontWeight: object is ScheduledTask && (object.isDue()) ? FontWeight.bold : null,
             color: object is ScheduledTask
-              ? (object.isDueNow() || object.isNextScheduleOverdue(false) )
+              ? (object.isDue())
                 ? Colors.red
                 : object.getDueColor(context, lighter: true)
               : (isDarkMode(context) ? Colors.white70 : Colors.black54), // event.color.accent,
@@ -889,7 +889,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
           : null;
     }
     else if (object is ScheduledTask) {
-      bool isDue = object.isDueNow() || object.isNextScheduleOverdue(false);
+      bool isDue = object.isDue();
       Color color = isDue
           ? Colors.red
           : backgroundColor;

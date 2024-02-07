@@ -198,7 +198,8 @@
           "by_remaining_time": "Sort by remaining time",
           "by_category": "Sort by category",
           "by_title": "Sort by title",
-          "hide_non_active": "Hide inactive"
+          "hide_non_active": "Hide inactive",
+          "important_on_top": "Important due on top"
         },
         "notifications": {
           "enabled": "All reminders and notifications enabled",
@@ -213,6 +214,7 @@
         "paused": "paused",
         "inactive": "inactive",
         "scheduled": "scheduled",
+        "later_due": "due later",
         "due_yesterday_and_before": "Due before today",
         "due_today": "Due today",
         "due_tomorrow": "Due tomorrow",
@@ -580,6 +582,7 @@
       "on_for_enabled": "on",
       "off_for_disabled": "off",
       "clear": "clear",
+      "important": "important",
       "value": "value",
       "unit": "unit",
       "unknown": "unknown",

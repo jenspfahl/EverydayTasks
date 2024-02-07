@@ -198,7 +198,8 @@
           "by_remaining_time": "Сортировать по оставшемуся времени",
           "by_category": "Сортировать по категории",
           "by_title": "Сортировать по заголовку",
-          "hide_non_active": "Скрыть неактивные"
+          "hide_non_active": "Скрыть неактивные",
+          "important_on_top": "Important due on top"
         },
         "notifications": {
           "enabled": "Все напоминания и уведомления включены",
@@ -213,6 +214,7 @@
         "paused": "на паузе",
         "inactive": "неактивно",
         "scheduled": "запланировано",
+        "later_due": "due later",
         "due_yesterday_and_before": "Сделать до сегодня",
         "due_today": "Сделать до сегодня",
         "due_tomorrow": "Сделать до завтра",
@@ -580,6 +582,7 @@
       "on_for_enabled": "вкл",
       "off_for_disabled": "выкл",
       "clear": "очистить",
+      "important": "important",
       "value": "значение",
       "unit": "единица",
       "unknown": "неизвестно",
