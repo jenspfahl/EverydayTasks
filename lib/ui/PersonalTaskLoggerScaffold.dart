@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_translate/flutter_translate.dart';
-import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/service/BackupRestoreService.dart';
 import 'package:personaltasklogger/service/CsvService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
@@ -18,6 +17,7 @@ import 'package:personaltasklogger/ui/utils.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 import '../db/repository/TaskEventRepository.dart';
+import '../db/repository/TaskGroupRepository.dart';
 import '../main.dart';
 import '../service/DueScheduleCountService.dart';
 import 'pages/CalendarPage.dart';
@@ -287,8 +287,10 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                               cancelPressed: () => Navigator.pop(context),
                               okPressed: () async {
                                 Navigator.pop(context);
-                                await _backupRestoreService.restore((success) {
+                                await _backupRestoreService.restore((success) async {
                                   if (success) {
+                                    await TaskGroupRepository.loadAll(true); // load caches
+
                                     toastInfo(context, translate('pages.restore.backup_restored'));
                                     setState(() {
                                       _pages.forEach((page) {
