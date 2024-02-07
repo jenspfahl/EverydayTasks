@@ -7,6 +7,7 @@ import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/model/When.dart';
+import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/components/RepetitionPicker.dart';
 import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
@@ -78,6 +79,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   final _daysOfYearSelectorKey = GlobalKey();
 
   _ScheduledTaskFormState(this._scheduledTask, this._taskGroup, this._template);
+
+  int _showScheduleModeCounter = 0;
 
   @override
   void initState() {
@@ -153,6 +156,12 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     }
     _updateMonthBasedText();
     _updateYearBasedText();
+
+    PreferenceService().getInt(PreferenceService.DATA_SHOW_SCHEDULE_MODE_HINTS).then((value) {
+      if (value != null) {
+        _showScheduleModeCounter = value;
+      }
+    });
 
   }
 
@@ -363,16 +372,23 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       }
                                     });
 
-                                    //TODO store a total seen counter
-                                    if (_repetitionModeHintShownForDynamic < 2 && _repetitionMode == RepetitionMode.DYNAMIC) {
-                                      toastInfo(context, translate('forms.schedule.repetition_mode_dynamic'));
-                                      _repetitionModeHintShownForDynamic++;
-                                    }
-                                    else if (_repetitionModeHintShownForFixed < 2 && _repetitionMode == RepetitionMode.FIXED) {
-                                      toastInfo(context, translate('forms.schedule.repetition_mode_fixed'));
-                                      _repetitionModeHintShownForFixed++;
+                                    // show this hint only 7 times max
+                                    if (_showScheduleModeCounter < 7) {
+                                      if (_repetitionModeHintShownForDynamic < 2 && _repetitionMode == RepetitionMode.DYNAMIC) {
+                                        toastInfo(context, translate('forms.schedule.repetition_mode_dynamic'));
+                                        _repetitionModeHintShownForDynamic++;
+                                        _showScheduleModeCounter++;
+                                      }
+                                      else if (_repetitionModeHintShownForFixed < 2 && _repetitionMode == RepetitionMode.FIXED) {
+                                        toastInfo(context, translate('forms.schedule.repetition_mode_fixed'));
+                                        _repetitionModeHintShownForFixed++;
+                                        _showScheduleModeCounter++;
+                                      }
+                                      debugPrint("_showScheduleModeCounter=$_showScheduleModeCounter");
+                                      PreferenceService().setInt(PreferenceService.DATA_SHOW_SCHEDULE_MODE_HINTS, _showScheduleModeCounter);
                                     }
                                   },
+
                                 ),
                               ),
                           ),

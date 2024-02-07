@@ -21,6 +21,7 @@ class PreferenceService implements ITranslatePreferences {
 
 
   static final DATA_SHOW_SCHEDULED_SUMMARY = "data/showScheduledSummary";
+  static final DATA_SHOW_SCHEDULE_MODE_HINTS = "data/showScheduledModeHint";
   static final DATA_WALKTHROUGH_SHOWN = "data/walkThroughShown";
   static final DATA_CURRENT_CALENDAR_MODE = "data/currentCalendarMode";
   static final DATA_CURRENT_EVENT_TYPE = "data/currentEventType";
