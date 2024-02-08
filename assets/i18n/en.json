@@ -215,6 +215,7 @@
         "paused": "paused",
         "inactive": "inactive",
         "scheduled": "scheduled",
+        "completed": "completed",
         "later_due": "due later",
         "due_yesterday_and_before": "Due before today",
         "due_today": "Due today",

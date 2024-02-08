@@ -254,6 +254,9 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
     else if (scheduledTask.isPaused) {
       content.add(Text("- ${translate('pages.schedules.overview.paused')} -"));
     }
+    else if (scheduledTask.isOneTimeCompleted) {
+      content.add(Text("- ${translate('pages.schedules.overview.completed')} -"));
+    }
     else {
       content.add(
           Row(
@@ -426,9 +429,11 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
               children: [
                 SizedBox(
                   width: 50,
-                  child: TextButton(
-                    child: Icon(Icons.check,
-                        color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
+                  child: Visibility(
+                    visible: !scheduledTask.isOneTimeCompleted,
+                    child: TextButton(
+                      child: Icon(Icons.check,
+                          color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
                     onPressed: () async {
                       if (scheduledTask.isPaused) {
                         toastError(context, translate('pages.schedules.errors.cannot_resume'));
@@ -554,9 +559,11 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                 visible: scheduledTask.active,
                 child: SizedBox(
                   width: 50,
-                  child: TextButton(
-                      child: Icon(scheduledTask.isPaused ? Icons.play_arrow : Icons.pause,
-                          color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
+                  child: Visibility(
+                    visible: !scheduledTask.isOneTimeCompleted,
+                    child: TextButton(
+                        child: Icon(scheduledTask.isPaused ? Icons.play_arrow : Icons.pause,
+                            color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
                       onPressed: () {
                         if (scheduledTask.isPaused) {
                           scheduledTask.resume();
@@ -587,9 +594,10 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                               args: {"title": changedScheduledTask.translatedTitle})
                               : translate('pages.schedules.action.pause_resume.resumed',
                               args: {"title": changedScheduledTask.translatedTitle});
-                          toastInfo(context, msg);
-                        });
-                      }
+                            toastInfo(context, msg);
+                          });
+                        }
+                    ),
                   ),
                 ),
               ),

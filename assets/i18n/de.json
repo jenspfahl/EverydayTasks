@@ -215,6 +215,7 @@
         "paused": "pausiert",
         "inactive": "inaktiv",
         "scheduled": "geplant",
+        "completed": "erledigt",
         "later_due": "später fällig",
         "due_yesterday_and_before": "Fällig seit gestern und älter",
         "due_today": "Heute fällig",

@@ -216,6 +216,7 @@
         "paused": "en pause",
         "inactive": "inactive",
         "scheduled": "planifiée",
+        "completed": "completed",
         "later_due": "due later",
         "due_yesterday_and_before": "Pour avant aujourd'hui",
         "due_today": "Pour aujourd'hui",

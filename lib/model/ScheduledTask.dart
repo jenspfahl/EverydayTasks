@@ -54,6 +54,8 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
 
   bool get isPaused => pausedAt != null;
 
+  bool get isOneTimeCompleted => schedule.repetitionMode == RepetitionMode.ONE_TIME && oneTimeCompletedOn != null;
+
   DateTime? getNextSchedule() => getNextScheduleAfter(lastScheduledEventOn);
 
   DateTime? getNextScheduleAfter(DateTime? after) {
@@ -163,7 +165,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   }
 
   executeSchedule(TaskEvent? taskEvent) {
-    if (schedule.repetitionMode == RepetitionMode.DYNAMIC && oneTimeCompletedOn == null) {
+    if (schedule.repetitionMode == RepetitionMode.ONE_TIME && oneTimeCompletedOn == null) {
       oneTimeCompletedOn = _calcLastScheduledEventOn(taskEvent);
     }
     else {
@@ -250,8 +252,10 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     taskGroupId = other.taskGroupId;
     templateId = other.templateId;
     active = other.active;
+    important = other.important;
     pausedAt = other.pausedAt;
     schedule = other.schedule;
+    oneTimeCompletedOn = other.oneTimeCompletedOn;
     lastScheduledEventOn = other.lastScheduledEventOn;
     reminderNotificationEnabled = other.reminderNotificationEnabled;
     reminderNotificationRepetition = other.reminderNotificationRepetition;

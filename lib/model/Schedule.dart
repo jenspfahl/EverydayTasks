@@ -149,7 +149,7 @@ class Schedule {
   
   DateTime getPreviousRepetitionFrom(DateTime from) {
     if (repetitionMode == RepetitionMode.ONE_TIME && oneTimeDueOn != null) {
-      return adjustScheduleFromToStartAt(oneTimeDueOn!);
+      return from; // no calc back here
     }
     from = adjustScheduleFromToStartAt(from);
     final nextDueOnDate = _getScheduleBefore(from);

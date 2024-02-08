@@ -709,14 +709,15 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     var oneTimeCompletedOn = _scheduledTask?.oneTimeCompletedOn;
                                     if (_repetitionMode == RepetitionMode.ONE_TIME) {
                                       final now = DateTime.now();
-                                      if (nextDueOn.isAfter(now)) {
-                                        // reuse this schedule
+                                      if (_scheduledTask?.isOneTimeCompleted ?? false) {
+                                        // reuse this schedule once completed
                                         scheduleFrom = now;
                                         oneTimeDueOn = nextDueOn;
                                         oneTimeCompletedOn = null;
                                       }
                                       else {
                                         // just update this schedule
+                                        scheduleFrom = _scheduledTask!.lastScheduledEventOn!;
                                         oneTimeDueOn = nextDueOn;
                                       }
                                     }
