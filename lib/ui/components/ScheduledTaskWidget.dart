@@ -287,10 +287,13 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
           )
       );
       content.add(const Text(""));
-      var repetitionString = scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
-                  ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
-                  : Schedule.fromCustomRepetitionToString(scheduledTask.schedule.customRepetition);
-      if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
+      var repetitionString = translate('model.repetition_mode.one_time');
+      if (scheduledTask.schedule.repetitionMode == RepetitionMode.DYNAMIC) {
+        repetitionString = scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
+            ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
+            : Schedule.fromCustomRepetitionToString(scheduledTask.schedule.customRepetition);
+      }
+      else if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
         String? fixedRepetition = null;
         if (scheduledTask.schedule.isWeekBased()) {
           final s = Schedule.getStringFromWeeklyBasedSchedules(scheduledTask.schedule.weekBasedSchedules, context);
@@ -441,100 +444,103 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                 ),
                 SizedBox(
                   width: 50,
-                  child: TextButton(
-                    child: Icon(Icons.replay,
-                        color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-                    onPressed: () {
-                      if (scheduledTask.isPaused) {
-                        toastError(context, translate('pages.schedules.errors.cannot_reset'));
-                        return;
-                      }
-                      final newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
-                      var nextDueDateAsString = formatToDateOrWord(newNextDueDate!, context,
-                          withPreposition: true,
-                          makeWhenOnLowerCase: true);
-                      var message = (newNextDueDate != nextSchedule)
-                          ? translate('pages.schedules.action.reset.message_then', args: {
-                        "title": scheduledTask.translatedTitle,
-                        "nextDueDate": nextDueDateAsString,
-                        "newNextDueDate": formatToTime(newNextDueDate)
-                      })
-                          : translate('pages.schedules.action.reset.message_still', args: {
-                        "title": scheduledTask.translatedTitle,
-                        "nextDueDate": nextDueDateAsString,
-                        "newNextDueDate": formatToTime(newNextDueDate)
-                      });
-                      showConfirmationDialog(
-                        context,
-                        translate('pages.schedules.action.reset.title'),
-                        message,
-                        icon: const Icon(Icons.replay),
-                        okPressed: () {
-                          scheduledTask.executeSchedule(null);
-                          ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-                            final state = widget.pagesHolder
-                                .scheduledTaskList
-                                ?.getGlobalKey()
-                                .currentState;
-                            ScheduledTaskWidget.cancelSnoozedNotification(scheduledTask);
-                            state?.updateScheduledTask(scheduledTask, changedScheduledTask);
+                  child: Visibility(
+                    visible: scheduledTask.schedule.repetitionMode != RepetitionMode.ONE_TIME,
+                    child: TextButton(
+                      child: Icon(Icons.replay,
+                          color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
+                      onPressed: () {
+                        if (scheduledTask.isPaused) {
+                          toastError(context, translate('pages.schedules.errors.cannot_reset'));
+                          return;
+                        }
+                        final newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
+                        var nextDueDateAsString = formatToDateOrWord(newNextDueDate!, context,
+                            withPreposition: true,
+                            makeWhenOnLowerCase: true);
+                        var message = (newNextDueDate != nextSchedule)
+                            ? translate('pages.schedules.action.reset.message_then', args: {
+                          "title": scheduledTask.translatedTitle,
+                          "nextDueDate": nextDueDateAsString,
+                          "newNextDueDate": formatToTime(newNextDueDate)
+                        })
+                            : translate('pages.schedules.action.reset.message_still', args: {
+                          "title": scheduledTask.translatedTitle,
+                          "nextDueDate": nextDueDateAsString,
+                          "newNextDueDate": formatToTime(newNextDueDate)
+                        });
+                        showConfirmationDialog(
+                          context,
+                          translate('pages.schedules.action.reset.title'),
+                          message,
+                          icon: const Icon(Icons.replay),
+                          okPressed: () {
+                            scheduledTask.executeSchedule(null);
+                            ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+                              final state = widget.pagesHolder
+                                  .scheduledTaskList
+                                  ?.getGlobalKey()
+                                  .currentState;
+                              ScheduledTaskWidget.cancelSnoozedNotification(scheduledTask);
+                              state?.updateScheduledTask(scheduledTask, changedScheduledTask);
 
-                            setState(() {
-                              scheduledTask.apply(changedScheduledTask);
-                            });
-
-                            if (widget.onScheduledTaskChanged != null)
-                              widget.onScheduledTaskChanged!(changedScheduledTask);
-
-                            toastInfo(context, translate('pages.schedules.action.reset.success',
-                                args: {"title": changedScheduledTask.translatedTitle}));
-                          });
-                          Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
-
-                          DueScheduleCountService().dec();
-                        },
-                        cancelPressed: () =>
-                            Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
-                        neutralButton: TextButton(
-                            child: Text(translate('common.words.custom').capitalize() + "..."),
-                            onPressed:  () {
-                              showTweakedDatePicker(
-                                context,
-                                helpText: translate('pages.schedules.action.reset.title_custom',
-                                    args: {"title": scheduledTask.translatedTitle}),
-                                initialDate: newNextDueDate,
-                                selectableDayPredicate: (date) {
-                                  return scheduledTask.schedule.appliesToFixedSchedule(date);
-                                }
-                              ).then((selectedDate) {
-                                if (selectedDate != null) {
-                                  scheduledTask.setNextSchedule(selectedDate);
-                                  ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-                                    final state = widget.pagesHolder
-                                        .scheduledTaskList
-                                        ?.getGlobalKey()
-                                        .currentState;
-                                    ScheduledTaskWidget.cancelSnoozedNotification(scheduledTask);
-                                    state?.updateScheduledTask(scheduledTask, changedScheduledTask);
-
-                                    setState(() {
-                                      scheduledTask.apply(changedScheduledTask);
-                                    });
-
-                                    if (widget.onScheduledTaskChanged != null)
-                                      widget.onScheduledTaskChanged!(changedScheduledTask);
-
-                                    toastInfo(context, translate('pages.schedules.action.reset.success_custom',
-                                        args: {"title": changedScheduledTask.translatedTitle}));
-                                  });                                Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
-                                }
-                                else {
-                                  Navigator.pop(context);
-                                }
+                              setState(() {
+                                scheduledTask.apply(changedScheduledTask);
                               });
-                            }),
-                      );
-                    },
+
+                              if (widget.onScheduledTaskChanged != null)
+                                widget.onScheduledTaskChanged!(changedScheduledTask);
+
+                              toastInfo(context, translate('pages.schedules.action.reset.success',
+                                  args: {"title": changedScheduledTask.translatedTitle}));
+                            });
+                            Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
+
+                            DueScheduleCountService().dec();
+                          },
+                          cancelPressed: () =>
+                              Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
+                          neutralButton: TextButton(
+                              child: Text(translate('common.words.custom').capitalize() + "..."),
+                              onPressed:  () {
+                                showTweakedDatePicker(
+                                  context,
+                                  helpText: translate('pages.schedules.action.reset.title_custom',
+                                      args: {"title": scheduledTask.translatedTitle}),
+                                  initialDate: newNextDueDate,
+                                  selectableDayPredicate: (date) {
+                                    return scheduledTask.schedule.appliesToFixedSchedule(date);
+                                  }
+                                ).then((selectedDate) {
+                                  if (selectedDate != null) {
+                                    scheduledTask.setNextSchedule(selectedDate);
+                                    ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+                                      final state = widget.pagesHolder
+                                          .scheduledTaskList
+                                          ?.getGlobalKey()
+                                          .currentState;
+                                      ScheduledTaskWidget.cancelSnoozedNotification(scheduledTask);
+                                      state?.updateScheduledTask(scheduledTask, changedScheduledTask);
+
+                                      setState(() {
+                                        scheduledTask.apply(changedScheduledTask);
+                                      });
+
+                                      if (widget.onScheduledTaskChanged != null)
+                                        widget.onScheduledTaskChanged!(changedScheduledTask);
+
+                                      toastInfo(context, translate('pages.schedules.action.reset.success_custom',
+                                          args: {"title": changedScheduledTask.translatedTitle}));
+                                    });                                Navigator.pop(context);// dismiss dialog, should be moved in Dialogs.dart somehow
+                                  }
+                                  else {
+                                    Navigator.pop(context);
+                                  }
+                                });
+                              }),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],

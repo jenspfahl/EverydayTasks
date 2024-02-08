@@ -77,6 +77,7 @@
       "repetition_mode": "Mode de répétition dynamique",
       "repetition_mode_dynamic": "La prochaine tâche est due, en fonction de la fréquence choisie et de la date de complétion de la dernière occurence. ",
       "repetition_mode_fixed": "La date d'échéance de la prochaine tâche est basée sur la fréquence sélectionnée, indépendamment de la date de complétion de la dernière occurence. ",
+      "repetition_mode_one_shot": "Next task is due based on the provided due date, without any repetition.",
       "fixed_monthly_hint" : "Add additional due days per month",
       "fixed_monthly_title" : "Possible days of an arbitrary month",
       "fixed_monthly_message" : "Select additional due days of an arbitrary month for this schedule. If a day doesn't exist in the actual due month (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
@@ -620,7 +621,8 @@
     },
     "repetition_mode": {
       "dynamic": "Flexible",
-      "fixed": "Fixe"
+      "fixed": "Fixe",
+      "one_time": "One-time"
     }
   },
 

@@ -76,6 +76,7 @@
       "repetition_mode": "Режим динамического повторения",
       "repetition_mode_dynamic": "Следующая задача должна быть выполнена в зависимости от выбранного интервала и времени выполнения последней задачи.",
       "repetition_mode_fixed": "Срок выполнения следующей задачи определяется точным интервалом независимо от того когда была выполнена последняя задача.",
+      "repetition_mode_one_shot": "Next task is due based on the provided due date, without any repetition.",
       "fixed_monthly_hint" : "Add additional due days per month",
       "fixed_monthly_title" : "Possible days of an arbitrary month",
       "fixed_monthly_message" : "Select additional due days of an arbitrary month for this schedule. If a day doesn't exist in the actual due month (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
@@ -619,7 +620,8 @@
     },
     "repetition_mode": {
       "dynamic": "Гибкий",
-      "fixed": "Фиксированный"
+      "fixed": "Фиксированный",
+      "one_time": "One-time"
     }
   },
 

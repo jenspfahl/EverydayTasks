@@ -21,7 +21,7 @@ import 'entity/ScheduledTaskEventEntity.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 14, entities: [
+@Database(version: 15, entities: [
   TaskGroupEntity,
   TaskEventEntity,
   TaskTemplateEntity,
@@ -117,6 +117,11 @@ final migration13To14 = new Migration(13, 14,
         (sqflite.Database database) async {
           await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `important` INTEGER");
         });
+final migration14To15 = new Migration(14, 15,
+        (sqflite.Database database) async {
+          await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `oneTimeDueOn` INTEGER");
+          await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `oneTimeCompletedOn` INTEGER");
+        });
 
 
 Future<AppDatabase> getDb([String? name]) async => $FloorAppDatabase
@@ -134,5 +139,6 @@ Future<AppDatabase> getDb([String? name]) async => $FloorAppDatabase
       migration11To12,
       migration12To13,
       migration13To14,
+      migration14To15,
     ])
     .build();

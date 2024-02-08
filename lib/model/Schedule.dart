@@ -9,7 +9,7 @@ import 'When.dart';
 
 enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, EVERY_OTHER_MONTH, QUARTERLY, HALF_YEARLY, YEARLY, CUSTOM}
 enum RepetitionUnit {DAYS, WEEKS, MONTHS, YEARS, MINUTES, HOURS}
-enum RepetitionMode {DYNAMIC, FIXED}
+enum RepetitionMode {DYNAMIC, FIXED, ONE_TIME}
 enum DayOfWeek {MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY}
 enum MonthOfYear {JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER , DECEMBER}
 enum FixedScheduleType {WEEK_BASED, MONTH_BASED, YEAR_BASED}
@@ -102,7 +102,8 @@ class Schedule {
   CustomRepetition? customRepetition;
   RepetitionMode repetitionMode;
 
-  
+  DateTime? oneTimeDueOn;
+
   Set<DayOfWeek> weekBasedSchedules = {};
   Set<int> monthBasedSchedules = {}; // day of month
   Set<AllYearDate> yearBasedSchedules = {}; // date of all years
@@ -116,6 +117,7 @@ class Schedule {
     Set<DayOfWeek>? weekBasedSchedules,
     Set<int>? monthBasedSchedules,
     Set<AllYearDate>? yearBasedSchedules,
+    this.oneTimeDueOn,
   }) {
     this.aroundStartAt = aroundStartAt ?? AroundWhenAtDay.NOW;
     if (weekBasedSchedules != null) this.weekBasedSchedules = weekBasedSchedules;
@@ -131,6 +133,9 @@ class Schedule {
 
 
   DateTime getNextRepetitionFrom(DateTime from) {
+    if (repetitionMode == RepetitionMode.ONE_TIME && oneTimeDueOn != null) {
+      return adjustScheduleFromToStartAt(oneTimeDueOn!);
+    }
     from = adjustScheduleFromToStartAt(from);
     final nextDueOnDate = _getScheduleAfter(from);
 
@@ -143,6 +148,9 @@ class Schedule {
   }
   
   DateTime getPreviousRepetitionFrom(DateTime from) {
+    if (repetitionMode == RepetitionMode.ONE_TIME && oneTimeDueOn != null) {
+      return adjustScheduleFromToStartAt(oneTimeDueOn!);
+    }
     from = adjustScheduleFromToStartAt(from);
     final nextDueOnDate = _getScheduleBefore(from);
 
@@ -257,6 +265,7 @@ class Schedule {
     switch(repetitionMode) {
       case RepetitionMode.DYNAMIC: return translate('model.repetition_mode.dynamic');
       case RepetitionMode.FIXED: return translate('model.repetition_mode.fixed');
+      case RepetitionMode.ONE_TIME: return translate('model.repetition_mode.one_time');
     }
   }
 

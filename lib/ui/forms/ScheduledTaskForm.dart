@@ -74,7 +74,8 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
   static int _repetitionModeHintShownForDynamic = 0;
   static int _repetitionModeHintShownForFixed = 0;
-  
+  static int _repetitionModeHintShownForOneShot = 0;
+
   final _daysOfMonthSelectorKey = GlobalKey();
   final _daysOfYearSelectorKey = GlobalKey();
 
@@ -359,8 +360,19 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                           ],
                                         )
                                     ),
+                                    SizedBox(
+                                        width: 80,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            _buildOneTimeScheduleIcon(context, _repetitionMode == RepetitionMode.ONE_TIME),
+                                            Text(Schedule.fromRepetitionModeToString(RepetitionMode.ONE_TIME), textAlign: TextAlign.center,
+                                                style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.ONE_TIME ? PRIMARY_COLOR : null) : null)),
+                                          ],
+                                        )
+                                    ),
                                   ],
-                                  isSelected: [_repetitionMode == RepetitionMode.DYNAMIC, _repetitionMode == RepetitionMode.FIXED],
+                                  isSelected: [_repetitionMode == RepetitionMode.DYNAMIC, _repetitionMode == RepetitionMode.FIXED, _repetitionMode == RepetitionMode.ONE_TIME],
                                   onPressed: (int index) {
                                     setState(() {
                                       _repetitionMode = RepetitionMode.values[index];
@@ -384,6 +396,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                         _repetitionModeHintShownForFixed++;
                                         _showScheduleModeCounter++;
                                       }
+                                      else if (_repetitionModeHintShownForOneShot < 2 && _repetitionMode == RepetitionMode.FIXED) {
+                                        toastInfo(context, translate('forms.schedule.repetition_mode_one_shot'));
+                                        _repetitionModeHintShownForOneShot++;
+                                        _showScheduleModeCounter++;
+                                      }
                                       debugPrint("_showScheduleModeCounter=$_showScheduleModeCounter");
                                       PreferenceService().setInt(PreferenceService.DATA_SHOW_SCHEDULE_MODE_HINTS, _showScheduleModeCounter);
                                     }
@@ -398,37 +415,65 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Container(
-                                  height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) - 20,
-                                  //width: (MediaQuery.of(context).size.width / 2) + 10,
-                                  child: DropdownButtonFormField<RepetitionStep?>(
-                                    onTap: () => FocusScope.of(context).unfocus(),
-                                    value: _selectedRepetitionStep,
-                                    hint: Text(translate('forms.schedule.repetition_steps_hint')),
-                                    isExpanded: true,
-                                    icon: Icon(Icons.next_plan_outlined),
-                                    onChanged: (value) {
-                                      if (value == RepetitionStep.CUSTOM) {
-                                        final initialRepetition = _customRepetition ?? (
-                                            _selectedRepetitionStep != null && _selectedRepetitionStep != RepetitionStep.CUSTOM
-                                                ? Schedule.fromRepetitionStepToCustomRepetition(_selectedRepetitionStep!, _customRepetition)
-                                                : null); // null fallback to 0:01
-                                        var tempSelectedRepetition = initialRepetition ?? RepetitionPicker.createDefaultRepetition();
+                                if (_repetitionMode == RepetitionMode.ONE_TIME)
+                                  Container(
+                                    height: 64.0,
+                                    width: (MediaQuery.of(context).size.width / 2) - 20,
+                                    child: _buildDueOnDayDropDown(context),
+                                  )
+                                else
+                                  Container(
+                                    height: 64.0,
+                                    width: (MediaQuery.of(context).size.width / 2) - 20,
+                                    child: DropdownButtonFormField<RepetitionStep?>(
+                                      onTap: () => FocusScope.of(context).unfocus(),
+                                      value: _selectedRepetitionStep,
+                                      hint: Text(translate('forms.schedule.repetition_steps_hint')),
+                                      isExpanded: true,
+                                      icon: Icon(Icons.next_plan_outlined),
+                                      onChanged: (value) {
+                                        if (value == RepetitionStep.CUSTOM) {
+                                          final initialRepetition = _customRepetition ?? (
+                                              _selectedRepetitionStep != null && _selectedRepetitionStep != RepetitionStep.CUSTOM
+                                                  ? Schedule.fromRepetitionStepToCustomRepetition(_selectedRepetitionStep!, _customRepetition)
+                                                  : null); // null fallback to 0:01
+                                          var tempSelectedRepetition = initialRepetition ?? RepetitionPicker.createDefaultRepetition();
 
-                                        showRepetitionPickerDialog(
-                                          context: context,
-                                          description: translate('forms.schedule.custom_repetition_steps_description'),
-                                          initialRepetition: initialRepetition,
-                                          onChanged: (repetition) => tempSelectedRepetition = repetition,
-                                        ).then((okPressed) {
-                                          if (okPressed ?? false) {
-                                            setState(() {
-                                              //TODO map back to predefined repetition steps if custom matches
-                                              _selectedRepetitionStep = RepetitionStep.CUSTOM;
-                                              _customRepetition = tempSelectedRepetition;
+                                          showRepetitionPickerDialog(
+                                            context: context,
+                                            description: translate('forms.schedule.custom_repetition_steps_description'),
+                                            initialRepetition: initialRepetition,
+                                            onChanged: (repetition) => tempSelectedRepetition = repetition,
+                                          ).then((okPressed) {
+                                            if (okPressed ?? false) {
+                                              setState(() {
+                                                //TODO map back to predefined repetition steps if custom matches
+                                                _selectedRepetitionStep = RepetitionStep.CUSTOM;
+                                                _customRepetition = tempSelectedRepetition;
 
-                                              final interimSchedule = Schedule(
+                                                final interimSchedule = Schedule(
+                                                  aroundStartAt: _selectedStartAt,
+                                                  startAtExactly: _customStartAt,
+                                                  repetitionStep: _selectedRepetitionStep!,
+                                                  customRepetition: _customRepetition,
+                                                  repetitionMode: _repetitionMode,
+                                                  weekBasedSchedules: weekBasedSchedules,
+                                                  monthBasedSchedules: monthBasedSchedules,
+                                                  yearBasedSchedules: yearBasedSchedules,
+                                                );
+
+                                                final nextDueDate = interimSchedule.getNextRepetitionFrom(DateTime.now());
+                                                _updateNextDueOn(nextDueDate);
+                                              });
+                                            }
+                                          });
+                                        }
+                                        else {
+                                          setState(() {
+                                            _selectedRepetitionStep = value;
+                                            _customRepetition = null;
+
+                                            final interimSchedule = Schedule(
                                                 aroundStartAt: _selectedStartAt,
                                                 startAtExactly: _customStartAt,
                                                 repetitionStep: _selectedRepetitionStep!,
@@ -437,51 +482,29 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                                 weekBasedSchedules: weekBasedSchedules,
                                                 monthBasedSchedules: monthBasedSchedules,
                                                 yearBasedSchedules: yearBasedSchedules,
-                                              );
-
-                                              final nextDueDate = interimSchedule.getNextRepetitionFrom(DateTime.now());
-                                              _updateNextDueOn(nextDueDate);
-                                            });
-                                          }
-                                        });
-                                      }
-                                      else {
-                                        setState(() {
-                                          _selectedRepetitionStep = value;
-                                          _customRepetition = null;
-
-                                          final interimSchedule = Schedule(
-                                              aroundStartAt: _selectedStartAt,
-                                              startAtExactly: _customStartAt,
-                                              repetitionStep: _selectedRepetitionStep!,
-                                              customRepetition: _customRepetition,
-                                              repetitionMode: _repetitionMode,
-                                              weekBasedSchedules: weekBasedSchedules,
-                                              monthBasedSchedules: monthBasedSchedules,
-                                              yearBasedSchedules: yearBasedSchedules,
-                                          );
-                                          final nextDueDate = interimSchedule.getNextRepetitionFrom(DateTime.now());
-                                          _updateNextDueOn(nextDueDate);
-                                        });
-                                      }
-                                    },
-                                    items: RepetitionStep.values.map((RepetitionStep repetitionStep) {
-                                      return DropdownMenuItem(
-                                          value: repetitionStep,
-                                          child: Text(repetitionStep != RepetitionStep.CUSTOM
-                                              ? Schedule.fromRepetitionStepToString(repetitionStep)
-                                              : Schedule.fromCustomRepetitionToString(_customRepetition))
-                                      );
-                                    }).toList(),
-                                    validator: (RepetitionStep? value) {
-                                      if (value == null || (value == RepetitionStep.CUSTOM && _customRepetition == null)) {
-                                        return translate('forms.schedule.repetition_steps_emphasis');
-                                      } else {
-                                        return null;
-                                      }
-                                    },
+                                            );
+                                            final nextDueDate = interimSchedule.getNextRepetitionFrom(DateTime.now());
+                                            _updateNextDueOn(nextDueDate);
+                                          });
+                                        }
+                                      },
+                                      items: RepetitionStep.values.map((RepetitionStep repetitionStep) {
+                                        return DropdownMenuItem(
+                                            value: repetitionStep,
+                                            child: Text(repetitionStep != RepetitionStep.CUSTOM
+                                                ? Schedule.fromRepetitionStepToString(repetitionStep)
+                                                : Schedule.fromCustomRepetitionToString(_customRepetition))
+                                        );
+                                      }).toList(),
+                                      validator: (RepetitionStep? value) {
+                                        if (value == null || (value == RepetitionStep.CUSTOM && _customRepetition == null)) {
+                                          return translate('forms.schedule.repetition_steps_emphasis');
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                    ),
                                   ),
-                                ),
                                 Container(
                                   height: 64.0,
                                   width: (MediaQuery.of(context).size.width / 2) - 25,
@@ -534,10 +557,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                             ),
                           ),
 
-                          Padding(
-                            padding: EdgeInsets.only(top: 0.0),
-                            child: dueOnWidget
-                          ),
+                          if (_repetitionMode != RepetitionMode.ONE_TIME)
+                            Padding(
+                              padding: EdgeInsets.only(top: 0.0),
+                              child: dueOnWidget
+                            ),
 
                           Padding(
                               padding: EdgeInsets.only(top: 10.0),
@@ -679,8 +703,24 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
 
                                     // adjust back
-                                    final scheduleFrom = schedule.getPreviousRepetitionFrom(nextDueOn);
+                                    var scheduleFrom = schedule.getPreviousRepetitionFrom(nextDueOn);
 
+                                    var oneTimeDueOn = _scheduledTask?.schedule.oneTimeDueOn;
+                                    var oneTimeCompletedOn = _scheduledTask?.oneTimeCompletedOn;
+                                    if (_repetitionMode == RepetitionMode.ONE_TIME) {
+                                      final now = DateTime.now();
+                                      if (nextDueOn.isAfter(now)) {
+                                        // reuse this schedule
+                                        scheduleFrom = now;
+                                        oneTimeDueOn = nextDueOn;
+                                        oneTimeCompletedOn = null;
+                                      }
+                                      else {
+                                        // just update this schedule
+                                        oneTimeDueOn = nextDueOn;
+                                      }
+                                    }
+                                    schedule.oneTimeDueOn = oneTimeDueOn;
 
                                     var scheduledTask = ScheduledTask(
                                       id: _scheduledTask?.id,
@@ -691,6 +731,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       createdAt: _scheduledTask?.createdAt ?? DateTime.now(),
                                       schedule: schedule,
                                       lastScheduledEventOn: scheduleFrom,
+                                      oneTimeCompletedOn: oneTimeCompletedOn,
                                       active: _isActive,
                                       important: _isImportant,
                                       reminderNotificationEnabled: _isRemindersEnabled,
@@ -731,6 +772,13 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     return Stack(children: [
       Icon(Icons.calendar_today, color: isDarkMode(context) ? (isHighlighted ? PRIMARY_COLOR : null) : null,),
       Positioned.fill(top: 4, left: 5.25, child: Text("▪ ▪", style: TextStyle(color: isDarkMode(context) ? (isHighlighted ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
+    ]);
+  }
+
+  Stack _buildOneTimeScheduleIcon(BuildContext context, bool isHighlighted) {
+    return Stack(children: [
+      Icon(Icons.calendar_today, color: isDarkMode(context) ? (isHighlighted ? PRIMARY_COLOR : null) : null,),
+      Positioned.fill(top: 4, left: 5.25, child: Text("▪ ", style: TextStyle(color: isDarkMode(context) ? (isHighlighted ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
     ]);
   }
 

@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 import '../ui/utils.dart';
-import 'Schedule.dart';
 import 'Schedule.dart';
 import 'Template.dart';
 import 'TemplateId.dart';
@@ -19,6 +17,9 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   DateTime createdAt = DateTime.now();
   Schedule schedule;
   DateTime? lastScheduledEventOn;
+
+  DateTime? oneTimeCompletedOn;
+
   bool active = true;
   DateTime? pausedAt;
   bool? reminderNotificationEnabled = true;
@@ -33,6 +34,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     required this.createdAt,
     required this.schedule,
     this.lastScheduledEventOn,
+    this.oneTimeCompletedOn,
     required this.active,
     this.important = false,
     this.pausedAt,
@@ -79,9 +81,6 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   Duration getMissingDurationAfter(DateTime afterDate) {
     final nextRepetition = schedule.getNextRepetitionFrom(afterDate);
     final now = pausedAt != null ? pausedAt! : DateTime.now();
-    if (schedule.repetitionMode == RepetitionMode.FIXED) {
-      debugPrint("nextRepetition = $nextRepetition last=$lastScheduledEventOn");
-    }
     return nextRepetition.difference(truncToMinutes(now));
   }
 
@@ -164,7 +163,12 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   }
 
   executeSchedule(TaskEvent? taskEvent) {
-    lastScheduledEventOn = _calcLastScheduledEventOn(taskEvent);
+    if (schedule.repetitionMode == RepetitionMode.DYNAMIC && oneTimeCompletedOn == null) {
+      oneTimeCompletedOn = _calcLastScheduledEventOn(taskEvent);
+    }
+    else {
+      lastScheduledEventOn = _calcLastScheduledEventOn(taskEvent);
+    }
   }
 
   setNextSchedule(DateTime nextDueDate) {
@@ -174,7 +178,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     if (schedule.repetitionMode == RepetitionMode.FIXED) {
       lastScheduledEventOn = schedule.getPreviousRepetitionFrom(nextDueDate);
     }
-    else {
+    else if (schedule.repetitionMode == RepetitionMode.DYNAMIC) {
       lastScheduledEventOn = newLastScheduledEventOn;
     }
   }
@@ -204,7 +208,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     if (active && pausedAt != null) {
       final delta = DateTime.now().difference(pausedAt!);
       pausedAt = null;
-      if (lastScheduledEventOn != null && schedule.repetitionMode != RepetitionMode.FIXED) {
+      if (lastScheduledEventOn != null && schedule.repetitionMode == RepetitionMode.DYNAMIC) {
         lastScheduledEventOn = lastScheduledEventOn!.add(delta);
       }
     }

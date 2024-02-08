@@ -175,6 +175,8 @@ class ScheduledTaskRepository {
         scheduledTask.schedule.customRepetition?.repetitionValue,
         scheduledTask.schedule.customRepetition?.repetitionUnit.index,
         scheduledTask.lastScheduledEventOn != null ? dateTimeToEntity(scheduledTask.lastScheduledEventOn!) : null,
+        scheduledTask.schedule.oneTimeDueOn != null ? dateTimeToEntity(scheduledTask.schedule.oneTimeDueOn!) : null,
+        scheduledTask.oneTimeCompletedOn != null ? dateTimeToEntity(scheduledTask.oneTimeCompletedOn!) : null,
         scheduledTask.active,
         scheduledTask.important,
         scheduledTask.pausedAt != null ? dateTimeToEntity(scheduledTask.pausedAt!) : null,
@@ -206,8 +208,10 @@ class ScheduledTaskRepository {
           repetitionMode: entity.repetitionMode != null
               ? RepetitionMode.values.elementAt(entity.repetitionMode!)
               : RepetitionMode.DYNAMIC,
+          oneTimeDueOn: entity.oneTimeDueOn != null ? dateTimeFromEntity(entity.oneTimeDueOn!) : null,
         ),
         lastScheduledEventOn: entity.lastScheduledEventAt != null ? dateTimeFromEntity(entity.lastScheduledEventAt!) : null,
+        oneTimeCompletedOn: entity.oneTimeCompletedOn != null ? dateTimeFromEntity(entity.oneTimeCompletedOn!) : null,
         active: entity.active,
         important: entity.important ?? false,
         pausedAt: entity.pausedAt != null ? dateTimeFromEntity(entity.pausedAt!) : null,

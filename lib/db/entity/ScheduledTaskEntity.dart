@@ -20,6 +20,9 @@ class ScheduledTaskEntity {
   final int? exactRepetitionAfterUnit;
 
   final int? lastScheduledEventAt;
+  final int? oneTimeDueOn;
+  final int? oneTimeCompletedOn;
+
   final bool active;
   final bool? important;
   final int? pausedAt;
@@ -44,6 +47,8 @@ class ScheduledTaskEntity {
       this.exactRepetitionAfter,
       this.exactRepetitionAfterUnit,
       this.lastScheduledEventAt,
+      this.oneTimeDueOn,
+      this.oneTimeCompletedOn,
       this.active,
       this.important,
       this.pausedAt,

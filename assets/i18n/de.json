@@ -76,6 +76,7 @@
       "repetition_mode": "Dynamische Wiederholung",
       "repetition_mode_dynamic": "Die nächste Aufgabe ist fällig basierend auf dem gewählten Intervall und wann die letzte Aufgabe erledigt wurde.",
       "repetition_mode_fixed": "Die nächste Aufgabe ist fällig gemäß dem gewählten Intervall, ungeachtet wann die letzte Aufgabe erledigt wurde.",
+      "repetition_mode_one_shot": "Die nächste Aufgabe ist fällig wenn das gewählten Fälligkeitsdatum erreicht wurde, ohne weitere Wiederholungen.",
       "fixed_monthly_hint" : "Zusätzliche Fälligkeitstage pro Monat",
       "fixed_monthly_title" : "Mögliche Tage eines willkürlichen Monats",
       "fixed_monthly_message" : "Wähle weitere mögliche Fälligkeitstage eines willkürlichen Monats für diesen Zeitplan aus. Falls ein Tag nicht im Fälligkeitsmonat existiert (z.B. 31. April), wird der Zeitplan entsprechend zeitiger getriggert (hier 30. April). Das gleiche gilt für Schalttage.",
@@ -673,7 +674,8 @@
     },
     "repetition_mode": {
       "dynamic": "Flexibel",
-      "fixed": "Fest"
+      "fixed": "Fest",
+      "one_time": "Einmalig"
     }
   },
 
