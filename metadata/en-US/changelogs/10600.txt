@@ -1,2 +1,4 @@
-* Reinvent fixed schedules (being more flexible)
-* Mark important schedules
+* Reinvent fixed schedules (support multiple days like MO and FR)
+* Mark important schedules to emphasise them
+* Group schedule list by certain criteria
+* Fix bug when restoring a backup file

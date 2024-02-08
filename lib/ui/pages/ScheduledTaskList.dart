@@ -101,7 +101,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   bool _disableNotification = false;
   SortBy _sortBy = SortBy.PROGRESS;
   bool _hideInactive = false;
-  bool _importantOnTop = false;
+  bool _importantOnTop = true;
   bool _statusTileHidden = true;
   bool _pinSchedulesPage = false;
 
@@ -109,6 +109,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   int _totalDueSchedules = 0;
   int _totalOverdueSchedules = 0;
   int _dueBeforeTodaySchedules = 0;
+  int _dueAndImportantSchedules = 0;
   int _dueTodaySchedules = 0;
   int _dueTomorrowSchedules = 0;
   int _dueAfterTomorrowSchedules = 0;
@@ -457,6 +458,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           child: GestureDetector(
             child: Column(
               children: [
+                if (_importantOnTop) _createStatusRow(Icons.priority_high, Colors.red, translate('common.words.important').capitalize(), _dueAndImportantSchedules),
                 _createStatusRow(Icons.warning_amber_outlined, Colors.red, translate('pages.schedules.overview.due_yesterday_and_before'), _dueBeforeTodaySchedules),
                 _createStatusRow(Icons.warning_amber_outlined, Colors.red, translate('pages.schedules.overview.due_today'), _dueTodaySchedules),
                 _createStatusRow(Icons.schedule, Colors.blue, translate('pages.schedules.overview.due_tomorrow'), _dueTomorrowSchedules),
@@ -984,6 +986,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       _totalDueSchedules = 0;
       _totalOverdueSchedules = 0;
       _dueBeforeTodaySchedules = 0;
+      _dueAndImportantSchedules = 0;
       _dueTodaySchedules = 0;
       _dueTomorrowSchedules = 0;
       _dueAfterTomorrowSchedules = 0;
@@ -1014,9 +1017,15 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           if (nextSchedule != null) {
             if (nextSchedule.isBefore(truncToDate(now))) {
               _dueBeforeTodaySchedules++;
+              if (scheduledTask.important) {
+                _dueAndImportantSchedules++;
+              }
             }
             if (isToday(nextSchedule)) {
               _dueTodaySchedules++;
+              if (scheduledTask.important) {
+                _dueAndImportantSchedules++;
+              }
             }
             if (isTomorrow(nextSchedule)) {
               _dueTomorrowSchedules++;
@@ -1100,6 +1109,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         return GroupCriteria.DUE_TODAY;
       }
       else {
+        if (isToday(nextDueDate)) {
+          return GroupCriteria.DUE_TODAY;
+        }
         if (isTomorrow(nextDueDate)) {
           return GroupCriteria.DUE_TOMORROW;
         }
