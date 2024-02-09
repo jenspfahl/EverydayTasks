@@ -12,6 +12,7 @@ enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MIN
 enum WhenOnDatePast {TODAY, YESTERDAY, BEFORE_YESTERDAY, CUSTOM}
 enum WhenOnDateFuture {TODAY, TOMORROW, AFTER_TOMORROW, CUSTOM}
 
+const ELLIPSIS = "...";
 
 class When {
   AroundWhenAtDay? startAt;
@@ -111,7 +112,7 @@ class When {
       case AroundDurationHours.TWO: return _translateAround(Hours(2).toString());
       case AroundDurationHours.THREE: return _translateAround(Hours(3).toString());
       case AroundDurationHours.FOUR: return _translateAround(Hours(4).toString());
-      case AroundDurationHours.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case AroundDurationHours.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
   }
 
@@ -140,7 +141,7 @@ class When {
       case AroundWhenAtDay.AFTERNOON: return translate('common.times.at_afternoon');
       case AroundWhenAtDay.EVENING: return translate('common.times.in_the_evening');
       case AroundWhenAtDay.NIGHT: return translate('common.times.at_night');
-      case AroundWhenAtDay.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case AroundWhenAtDay.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
   }
 
@@ -178,7 +179,7 @@ class When {
       case WhenOnDatePast.TODAY: return translate('common.dates.today');
       case WhenOnDatePast.YESTERDAY: return translate('common.dates.yesterday');
       case WhenOnDatePast.BEFORE_YESTERDAY: return translate('common.dates.before_yesterday');
-      case WhenOnDatePast.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case WhenOnDatePast.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
   }
   static String fromWhenOnDateFutureString(WhenOnDateFuture whenOnDate) {
@@ -186,7 +187,7 @@ class When {
       case WhenOnDateFuture.TODAY: return translate('common.dates.today');
       case WhenOnDateFuture.TOMORROW: return translate('common.dates.tomorrow');
       case WhenOnDateFuture.AFTER_TOMORROW: return translate('common.dates.after_tomorrow');
-      case WhenOnDateFuture.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case WhenOnDateFuture.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
   }
 

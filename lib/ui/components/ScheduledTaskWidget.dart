@@ -16,6 +16,7 @@ import '../../model/ScheduledTask.dart';
 import '../../model/ScheduledTaskEvent.dart';
 import '../../model/TaskEvent.dart';
 import '../../model/Template.dart';
+import '../../model/When.dart';
 import '../../service/DueScheduleCountService.dart';
 import '../../service/LocalNotificationService.dart';
 import '../../util/dates.dart';
@@ -510,7 +511,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                           cancelPressed: () =>
                               Navigator.pop(context), // dismiss dialog, should be moved in Dialogs.dart somehow
                           neutralButton: TextButton(
-                              child: Text(translate('common.words.custom').capitalize() + "..."),
+                              child: Text(translate('common.words.custom').capitalize() + ELLIPSIS),
                               onPressed:  () {
                                 showTweakedDatePicker(
                                   context,

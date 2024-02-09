@@ -231,7 +231,7 @@ class Schedule {
       case RepetitionStep.QUARTERLY: return translate('model.repetition_step.quarterly');
       case RepetitionStep.HALF_YEARLY: return translate('model.repetition_step.half_yearly');
       case RepetitionStep.YEARLY: return translate('model.repetition_step.yearly');
-      case RepetitionStep.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case RepetitionStep.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
   }
 
@@ -271,7 +271,7 @@ class Schedule {
 
   static String fromCustomRepetitionToString(CustomRepetition? customRepetition) {
     if (customRepetition == null) {
-      return translate('common.words.custom').capitalize() + "...";
+      return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
     final unit = fromCustomRepetitionToUnit(customRepetition);
     return "${translate('model.repetition_step.every')} $unit";

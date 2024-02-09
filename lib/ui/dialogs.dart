@@ -8,6 +8,7 @@ import 'package:personaltasklogger/ui/components/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
+import '../model/When.dart';
 import 'components/ChoiceWidget.dart';
 import 'PersonalTaskLoggerApp.dart';
 import 'components/RepetitionPicker.dart';
@@ -526,7 +527,7 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
           controller: _searchQueryController,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: "${translate('common.search')} ...",
+            hintText: "${translate('common.search')} $ELLIPSIS",
             border: InputBorder.none,
           ),
           style: TextStyle(fontSize: 16.0),
