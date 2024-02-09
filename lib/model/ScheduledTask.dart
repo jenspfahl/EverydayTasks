@@ -87,8 +87,11 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   }
 
   Duration? getPassedDuration() {
+    if (schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+      return DateTime.now().difference(lastScheduledEventOn!);
+    }
     if (lastScheduledEventOn != null) {
-      final now = pausedAt != null ? pausedAt! : DateTime.now();
+      final now = pausedAt != null ? pausedAt! : DateTime.now(); //passed duration is not displayed when paused, so no need to consider it here
       // if last scheduled before actual creation date, cast it to creation date
       return now.difference(truncToMinutes(lastScheduledEventOn!.isBefore(createdAt) ? createdAt : lastScheduledEventOn!));
     }

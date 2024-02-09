@@ -85,6 +85,7 @@ enum GroupCriteria {
   DUE_AND_IMPORTANT,
   PAUSED,
   INACTIVE,
+  COMPLETED
 }
 
 class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with AutomaticKeepAliveClientMixin<ScheduledTaskList> {
@@ -714,6 +715,21 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             return 1;
           }
         }
+
+        if (s1.active && !s2.active) {
+          return -1;
+        }
+        else if (!s1.active && s2.active) {
+          return 1;
+        }
+
+        if (s1.isOneTimeCompleted && !s2.isOneTimeCompleted) {
+          return 1;
+        }
+        else if (!s1.isOneTimeCompleted && s2.isOneTimeCompleted) {
+          return -1;
+        }
+
         return _sortByProgress(s1, s2);
       }
       else if (_sortBy == SortBy.REMAINING_TIME) {
@@ -735,6 +751,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         }
         else if (n1 == null && n2 == null) {
           return _sortByTitleAndId(s1, s2);
+        }
+        else if (s1.isOneTimeCompleted && !s2.isOneTimeCompleted) {
+          return 1;
+        }
+        else if (!s1.isOneTimeCompleted && s2.isOneTimeCompleted) {
+          return -1;
         }
         else if (s1.isPaused && !s2.isPaused) {
           return 1;
@@ -1079,6 +1101,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       if (!scheduledTask.active) {
         return GroupCriteria.INACTIVE;
       }
+      if (scheduledTask.isOneTimeCompleted) {
+        return GroupCriteria.COMPLETED;
+      }
       if (scheduledTask.isDue()) {
         if (importantOnTop && scheduledTask.important) {
           return GroupCriteria.DUE_AND_IMPORTANT;
@@ -1092,6 +1117,9 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     else if (_sortBy == SortBy.REMAINING_TIME) {
       if (!scheduledTask.active) {
         return GroupCriteria.INACTIVE;
+      }
+      if (scheduledTask.isOneTimeCompleted) {
+        return GroupCriteria.COMPLETED;
       }
       if (scheduledTask.isPaused) {
         return GroupCriteria.PAUSED;
@@ -1135,6 +1163,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       case GroupCriteria.DUE_AND_IMPORTANT: return "${translate('common.words.important').capitalize()}!";
       case GroupCriteria.PAUSED: return "${translate('pages.schedules.overview.paused').capitalize()}";
       case GroupCriteria.INACTIVE: return "${translate('pages.schedules.overview.inactive').capitalize()}";
+      case GroupCriteria.COMPLETED: return "${translate('pages.schedules.overview.completed').capitalize()}";
     }
   }
   

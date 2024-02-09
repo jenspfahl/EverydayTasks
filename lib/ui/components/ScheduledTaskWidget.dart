@@ -173,7 +173,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
             children: [
               _isExpanded ? taskGroup.getTaskGroupRepresentation(context, useIconColor: true) : _buildShortProgressText(scheduledTask),
               Visibility(
-                visible: scheduledTask.active,
+                visible: scheduledTask.active && !scheduledTask.isOneTimeCompleted,
                 child: Opacity(
                   opacity: scheduledTask.isPaused ? 0.3 : 1,
                   child: LinearProgressIndicator(
@@ -211,6 +211,9 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
     String text = "";
     if (!scheduledTask.active || scheduledTask.lastScheduledEventOn == null) {
       text = "- ${translate('pages.schedules.overview.inactive')} -";
+    }
+    else if (scheduledTask.isOneTimeCompleted) {
+      text = "- ${translate('pages.schedules.overview.completed')} -";
     }
     else if (scheduledTask.isPaused) {
       text = "- ${translate('pages.schedules.overview.paused')} -";
@@ -290,14 +293,16 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
           )
       );
       content.add(const Text(""));
+
       var repetitionString = translate('model.repetition_mode.one_time');
+
       if (scheduledTask.schedule.repetitionMode == RepetitionMode.DYNAMIC) {
         repetitionString = scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
             ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
             : Schedule.fromCustomRepetitionToString(scheduledTask.schedule.customRepetition);
       }
       else if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
-        String? fixedRepetition = null;
+        String fixedRepetition = translate('model.repetition_mode.fixed');
         if (scheduledTask.schedule.isWeekBased()) {
           final s = Schedule.getStringFromWeeklyBasedSchedules(scheduledTask.schedule.weekBasedSchedules, context);
           if (s != null) {
@@ -325,9 +330,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
             fixedRepetition = formatAllYearDate(AllYearDate(nextSchedule!.day, MonthOfYear.values[nextSchedule.month - 1]), context);
           }
         }
-        if (fixedRepetition != null) {
-          repetitionString = "$repetitionString ($fixedRepetition)";
-        }
+        repetitionString = "$repetitionString ($fixedRepetition)";
       }
       content.add(
         Row(
@@ -434,23 +437,24 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                     child: TextButton(
                       child: Icon(Icons.check,
                           color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-                    onPressed: () async {
-                      if (scheduledTask.isPaused) {
-                        toastError(context, translate('pages.schedules.errors.cannot_resume'));
-                        return;
-                      }
-                      ScheduledTaskWidget.openAddJournalEntryFromSchedule(context, widget.pagesHolder, scheduledTask).then((createdTaskEvent) {
-                        setState(() {}); // refresh ui
-                        if (widget.onAfterJournalEntryFromScheduleCreated != null)
-                          widget.onAfterJournalEntryFromScheduleCreated!(createdTaskEvent);
-                      });
-                    },
+                      onPressed: () async {
+                        if (scheduledTask.isPaused) {
+                          toastError(context, translate('pages.schedules.errors.cannot_resume'));
+                          return;
+                        }
+                        ScheduledTaskWidget.openAddJournalEntryFromSchedule(context, widget.pagesHolder, scheduledTask).then((createdTaskEvent) {
+                          setState(() {}); // refresh ui
+                          if (widget.onAfterJournalEntryFromScheduleCreated != null)
+                            widget.onAfterJournalEntryFromScheduleCreated!(createdTaskEvent);
+                        });
+                      },
+                    ),
                   ),
                 ),
                 SizedBox(
                   width: 50,
                   child: Visibility(
-                    visible: scheduledTask.schedule.repetitionMode != RepetitionMode.ONE_TIME,
+                    visible: scheduledTask.schedule.repetitionMode != RepetitionMode.ONE_TIME, // TODO we could reset start to now if useful with this
                     child: TextButton(
                       child: Icon(Icons.replay,
                           color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
@@ -564,36 +568,36 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                     child: TextButton(
                         child: Icon(scheduledTask.isPaused ? Icons.play_arrow : Icons.pause,
                             color: isDarkMode(context) ? BUTTON_COLOR.shade300 : BUTTON_COLOR),
-                      onPressed: () {
-                        if (scheduledTask.isPaused) {
-                          scheduledTask.resume();
-                          DueScheduleCountService().incIfDue(scheduledTask);
-                        }
-                        else {
-                          scheduledTask.pause();
-                          DueScheduleCountService().decIfDue(scheduledTask);
-                        }
-                        ScheduledTaskRepository.update(scheduledTask)
-                            .then((changedScheduledTask) {
-                          final state = widget.pagesHolder
-                              .scheduledTaskList
-                              ?.getGlobalKey()
-                              .currentState;
-                          ScheduledTaskWidget.cancelSnoozedNotification(scheduledTask);
-                          state?.updateScheduledTask(scheduledTask, changedScheduledTask);
+                        onPressed: () {
+                          if (scheduledTask.isPaused) {
+                            scheduledTask.resume();
+                            DueScheduleCountService().incIfDue(scheduledTask);
+                          }
+                          else {
+                            scheduledTask.pause();
+                            DueScheduleCountService().decIfDue(scheduledTask);
+                          }
+                          ScheduledTaskRepository.update(scheduledTask)
+                              .then((changedScheduledTask) {
+                            final state = widget.pagesHolder
+                                .scheduledTaskList
+                                ?.getGlobalKey()
+                                .currentState;
+                            ScheduledTaskWidget.cancelSnoozedNotification(scheduledTask);
+                            state?.updateScheduledTask(scheduledTask, changedScheduledTask);
 
-                          setState(() {
-                            scheduledTask.apply(changedScheduledTask);
-                          });
+                            setState(() {
+                              scheduledTask.apply(changedScheduledTask);
+                            });
 
-                          if (widget.onScheduledTaskChanged != null)
-                            widget.onScheduledTaskChanged!(changedScheduledTask);
+                            if (widget.onScheduledTaskChanged != null)
+                              widget.onScheduledTaskChanged!(changedScheduledTask);
 
-                          var msg = changedScheduledTask.isPaused
-                              ? translate('pages.schedules.action.pause_resume.paused',
-                              args: {"title": changedScheduledTask.translatedTitle})
-                              : translate('pages.schedules.action.pause_resume.resumed',
-                              args: {"title": changedScheduledTask.translatedTitle});
+                            var msg = changedScheduledTask.isPaused
+                                ? translate('pages.schedules.action.pause_resume.paused',
+                                args: {"title": changedScheduledTask.translatedTitle})
+                                : translate('pages.schedules.action.pause_resume.resumed',
+                                args: {"title": changedScheduledTask.translatedTitle});
                             toastInfo(context, msg);
                           });
                         }
