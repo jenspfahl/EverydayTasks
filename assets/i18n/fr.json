@@ -379,7 +379,11 @@
         },
         "show_daytime_as_word": {
           "title": "Indiquer le moment de la journée",
-          "description": "Par exemple, indiquer '{evening}' pour le soir. "
+          "description": "Par exemple, indiquer '{evening}' pour le soir. ",
+          "configure_daytimes": {
+            "title": "Change preconfigured daytimes",
+            "description": "Changes the actual daytime of e.g. 'evening'"
+          }
         }
       },
       "action_feedback": {

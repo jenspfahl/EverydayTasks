@@ -379,6 +379,10 @@
         "show_daytime_as_word": {
           "title": "Zeige Tageszeit als Wort",
           "description": "Zeigt z.B. '{evening}' für Abends"
+        },
+        "configure_daytimes": {
+          "title": "Ändere vorkonfigurierte Tageszeiten",
+          "description": "Ändert die tatsächliche Tageszeit für z.B. 'Abends'"
         }
       },
       "action_feedback": {

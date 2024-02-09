@@ -131,7 +131,7 @@ class When {
       case AroundWhenAtDay.CUSTOM: return customWhenAt!;
     }
   }
-  static String _fromWhenAtDayToString(AroundWhenAtDay whenAtDay) {
+  static String fromWhenAtDayToWord(AroundWhenAtDay whenAtDay) {
     switch(whenAtDay) {
       case AroundWhenAtDay.NOW: return translate('common.times.now');
       case AroundWhenAtDay.MORNING: return translate('common.times.in_the_morning');
@@ -148,7 +148,7 @@ class When {
     final preferenceService = PreferenceService();
     final showTimeOfDayAsText = preferenceService.showTimeOfDayAsText;
     
-    final asString = _fromWhenAtDayToString(whenAtDay);
+    final asString = fromWhenAtDayToWord(whenAtDay);
     if (showTimeOfDayAsText || whenAtDay == AroundWhenAtDay.NOW || whenAtDay == AroundWhenAtDay.CUSTOM) {
       return asString;
     }

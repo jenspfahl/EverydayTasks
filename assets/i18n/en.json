@@ -379,6 +379,10 @@
         "show_daytime_as_word": {
           "title": "Show daytime as word",
           "description": "E.g. shows '{evening}' for the evening"
+        },
+        "configure_daytimes": {
+          "title": "Change preconfigured daytimes",
+          "description": "Changes the actual daytime of e.g. 'evening'"
         }
       },
       "action_feedback": {

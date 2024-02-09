@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/When.dart';
 
 import 'Severity.dart';
@@ -68,5 +69,7 @@ class TaskEvent extends TitleAndDescription implements Comparable {
     favorite = newTaskEvent.favorite;
     originTemplateId = newTaskEvent.originTemplateId;
   }
+
+  bool isAroundStartAtTheSameAsActualTime() => TimeOfDay.fromDateTime(startedAt) == When.fromWhenAtDayToTimeOfDay(aroundStartedAt, TimeOfDay.fromDateTime(startedAt));
 
 }

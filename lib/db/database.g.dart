@@ -83,7 +83,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 15,
+      version: 16,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -115,6 +115,8 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `SequencesEntity` (`id` INTEGER, `table` TEXT NOT NULL, `lastId` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `KeyValueEntity` (`id` INTEGER, `key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
             'CREATE INDEX `idx_TaskEventEntity_taskGroupId` ON `TaskEventEntity` (`taskGroupId`)');
         await database.execute(
             'CREATE INDEX `idx_TaskEventEntity_originTaskTemplateId` ON `TaskEventEntity` (`originTaskTemplateId`)');
@@ -126,6 +128,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE INDEX `idx_ScheduledTaskEventEntity_taskEventId` ON `ScheduledTaskEventEntity` (`taskEventId`)');
         await database.execute(
             'CREATE INDEX `idx_ScheduledTaskEventEntity_scheduledTaskId` ON `ScheduledTaskEventEntity` (`scheduledTaskId`)');
+        await database.execute(
+            'CREATE UNIQUE INDEX `idx_KeyValue_key` ON `KeyValueEntity` (`key`)');
 
         await callback?.onCreate?.call(database, version);
       },

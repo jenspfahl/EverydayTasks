@@ -106,6 +106,9 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
 
       aroundStartedAt = _taskEvent!.aroundStartedAt;
       startedAt = TimeOfDay.fromDateTime(_taskEvent!.startedAt);
+      if (!_taskEvent!.isAroundStartAtTheSameAsActualTime()) {
+        aroundStartedAt = AroundWhenAtDay.CUSTOM;
+      }
 
       startedOn = truncToDate(_taskEvent!.startedAt);
     }
