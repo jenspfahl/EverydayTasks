@@ -125,6 +125,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
 
       var nextDueOn = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
 
+      if (_repetitionMode == RepetitionMode.ONE_TIME) {
+        _selectedRepetitionStep = null; // we have to store a step even if ONE_TIME, so we null it when loading such modes
+      }
       if (_repetitionMode == RepetitionMode.FIXED) {
         if (_scheduledTask!.schedule.isMonthBased()) {
           // remove the standard repetition day
@@ -497,6 +500,9 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                         );
                                       }).toList(),
                                       validator: (RepetitionStep? value) {
+                                        if (_repetitionMode == RepetitionMode.ONE_TIME) {
+                                          return null;
+                                        }
                                         if (value == null || (value == RepetitionStep.CUSTOM && _customRepetition == null)) {
                                           return translate('forms.schedule.repetition_steps_emphasis');
                                         } else {
@@ -681,7 +687,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     var schedule = Schedule(
                                       aroundStartAt: _selectedStartAt!,
                                       startAtExactly: _customStartAt,
-                                      repetitionStep: _selectedRepetitionStep!,
+                                      repetitionStep: _selectedRepetitionStep ?? RepetitionStep.CUSTOM, // can be null if mode == ONE_TIME
                                       customRepetition: _customRepetition,
                                       repetitionMode: _repetitionMode,
                                       weekBasedSchedules: weekBasedSchedules,
@@ -709,7 +715,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     var oneTimeCompletedOn = _scheduledTask?.oneTimeCompletedOn;
                                     if (_repetitionMode == RepetitionMode.ONE_TIME) {
                                       final now = DateTime.now();
-                                      if (_scheduledTask?.isOneTimeCompleted ?? false) {
+                                      if (_scheduledTask == null || _scheduledTask!.isOneTimeCompleted) {
                                         // reuse this schedule once completed
                                         scheduleFrom = now;
                                         oneTimeDueOn = nextDueOn;
