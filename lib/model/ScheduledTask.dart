@@ -98,7 +98,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     return null;
   }
 
-  bool isDue() => isDueNow() || isNextScheduleOverdue(false);
+  bool isDue() => !isOneTimeCompleted && (isDueNow() || isNextScheduleOverdue(false));
 
   bool isNextScheduleReached() {
     var duration = getMissingDuration();

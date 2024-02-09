@@ -593,7 +593,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final paging = ChronologicalPaging(CalendarConstants.maxDate, ChronologicalPaging.maxId, 10000);
     final scheduledTasks = await ScheduledTaskRepository.getAllPaged(paging);
 
-    return scheduledTasks.where((e) => e.active).toList();
+    return scheduledTasks.where((e) => e.active && !e.isOneTimeCompleted).toList();
   }
 
   Future<CalendarEventData<ScheduledTask>> _mapScheduledTaskToCalendarEventData(ScheduledTask scheduledTask) async {

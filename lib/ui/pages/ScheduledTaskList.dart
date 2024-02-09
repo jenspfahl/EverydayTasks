@@ -987,6 +987,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       _importantOnTop = importantOnTop;
       if (sortByChanged) {
         _hiddenTiles.clear(); // make all visible
+        _selectedTile = -1; // don't select any
       }
       _sortList();
     });
