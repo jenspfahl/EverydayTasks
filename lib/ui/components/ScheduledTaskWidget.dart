@@ -295,15 +295,15 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
       );
       content.add(const Text(""));
 
-      var repetitionString = translate('model.repetition_mode.one_time');
+      var repetitionString = scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
+          ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
+          : Schedule.fromCustomRepetitionToString(scheduledTask.schedule.customRepetition);
 
-      if (scheduledTask.schedule.repetitionMode == RepetitionMode.DYNAMIC) {
-        repetitionString = scheduledTask.schedule.repetitionStep != RepetitionStep.CUSTOM
-            ? Schedule.fromRepetitionStepToString(scheduledTask.schedule.repetitionStep)
-            : Schedule.fromCustomRepetitionToString(scheduledTask.schedule.customRepetition);
+      if (scheduledTask.schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+        repetitionString = translate('model.repetition_mode.one_time');
       }
       else if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
-        String fixedRepetition = translate('model.repetition_mode.fixed');
+        String? fixedRepetition;
         if (scheduledTask.schedule.isWeekBased()) {
           final s = Schedule.getStringFromWeeklyBasedSchedules(scheduledTask.schedule.weekBasedSchedules, context);
           if (s != null) {
@@ -331,8 +331,14 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
             fixedRepetition = formatAllYearDate(AllYearDate(nextSchedule!.day, MonthOfYear.values[nextSchedule.month - 1]), context);
           }
         }
-        repetitionString = "$repetitionString ($fixedRepetition)";
+        if (fixedRepetition != null) {
+          repetitionString = "$repetitionString ($fixedRepetition)";
+        }
+        else {
+          repetitionString = "$repetitionString (${translate('model.repetition_mode.fixed')})";
+        }
       }
+
       content.add(
         Row(
             mainAxisAlignment: MainAxisAlignment.start,
