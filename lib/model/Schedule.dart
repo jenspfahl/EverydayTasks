@@ -451,12 +451,12 @@ class Schedule {
 
   DateTime? _findForwardsFromBeginOfPeriod<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
     final dayBeforePeriodStartOfFrom = from.subtract(Duration(days: extractValue(extractType(from))));
-    debugPrint("dayBeforePeriodStartOfFrom = $dayBeforePeriodStartOfFrom");
+    //debugPrint("dayBeforePeriodStartOfFrom = $dayBeforePeriodStartOfFrom");
 
     final firstDay = days.firstOrNull;
     if (firstDay is DayOfWeek) {
       final date = dayBeforePeriodStartOfFrom.add(Duration(days: extractValue(firstDay)));
-      debugPrint("found first schedule in period: $date");
+      //debugPrint("found first schedule in period: $date");
       return date;
     }
     else {
@@ -467,14 +467,14 @@ class Schedule {
 
   DateTime? _findBackwardsFromCurrentDate<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
     final dayFrom = extractType(from);
-    debugPrint("dayFrom: $dayFrom");
+    //debugPrint("dayFrom: $dayFrom");
 
     final lastDay = days.where((day) => extractValue(day) < extractValue(dayFrom)).lastOrNull;
-    debugPrint("lastDay: $lastDay");
+    //debugPrint("lastDay: $lastDay");
 
     if (lastDay is DayOfWeek) {
       final next = from.add(Duration(days: extractValue(lastDay) - extractValue(dayFrom)));
-      debugPrint("found last in period $next after from");
+      //debugPrint("found last in period $next after from");
       return next;
     }
     else {
@@ -487,7 +487,7 @@ class Schedule {
     final lastDay = days.lastOrNull;
     if (lastDay is DayOfWeek) {
       final date = from.add(Duration(days: extractValue(lastDay) - 1));
-      debugPrint("found last schedule in period: $date");
+      //debugPrint("found last schedule in period: $date");
       return date;
     }
     else {

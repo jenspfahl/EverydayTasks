@@ -1,12 +1,16 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:personaltasklogger/db/repository/KeyValueRepository.dart';
+import 'package:personaltasklogger/model/KeyValue.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:settings_ui/settings_ui.dart';
 
+import '../../db/repository/mapper.dart';
 import '../../service/PreferenceService.dart';
 import '../../util/dates.dart';
 import '../../util/i18n.dart';
@@ -20,8 +24,7 @@ class DayTimeSettingsScreen extends StatefulWidget {
 
 class _DayTimeSettingsScreenState extends State<DayTimeSettingsScreen> {
 
-  final PreferenceService _preferenceService = PreferenceService();
-
+  final whenAtDayTimes = HashMap<AroundWhenAtDay, TimeOfDay>();
 
 
   @override
@@ -29,7 +32,7 @@ class _DayTimeSettingsScreenState extends State<DayTimeSettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(translate('navigation.menus.settings'))),
       body: FutureBuilder(
-        future: _loadAllPrefs(),
+        future: _loadAllTimes(),
         builder: (context, AsyncSnapshot snapshot) => _buildSettingsList(),
       ),
     );
@@ -55,23 +58,32 @@ class _DayTimeSettingsScreenState extends State<DayTimeSettingsScreen> {
   }
 
   SettingsTile _buildSettingsTileForWhenAtDay(AroundWhenAtDay whenAtDay) {
+    final timeOfDay = whenAtDayTimes[whenAtDay] ?? When.fromWhenAtDayToTimeOfDay(whenAtDay, null);
     return SettingsTile(
             title: Text("${When.fromWhenAtDayToWord(whenAtDay)}"),
-            description: Text("${formatTimeOfDay(When.fromWhenAtDayToTimeOfDay(whenAtDay, null))}"),
+            description: Text("${formatTimeOfDay(timeOfDay)}"),
             onPressed: (context) {
-              showTimePicker(context: context, initialTime: When.fromWhenAtDayToTimeOfDay(whenAtDay, null));
-
+              showTimePicker(context: context, initialTime: timeOfDay).then((value) {
+                if (value != null) {
+                  setState(() {
+                    whenAtDayTimes[whenAtDay] = value;
+                  });
+                  KeyValueRepository.save(whenAtDay.toString(), timeOfDayToEntity(value).toString());
+                }
+              });
 
             },
           );
   }
 
-  _loadAllPrefs() async {
+  _loadAllTimes() async {
 
-    final languageSelection = await _preferenceService.getInt(PreferenceService.PREF_LANGUAGE_SELECTION);
-    if (languageSelection != null) {
-    //  _languageSelection = languageSelection;
-    }
+    AroundWhenAtDay.values.forEach((whenAtDay) async {
+      final keyValue = await KeyValueRepository.findByKey(whenAtDay.toString());
+      if (keyValue != null) {
+        whenAtDayTimes[whenAtDay] = timeOfDayFromEntity(int.parse(keyValue.value));
+      }
+    });
 
 
   }

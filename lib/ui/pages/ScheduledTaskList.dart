@@ -1040,11 +1040,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           if (nextSchedule != null) {
             if (nextSchedule.isBefore(truncToDate(now))) {
               _dueBeforeTodaySchedules++;
-              if (scheduledTask.important) {
+              if (scheduledTask.important && !scheduledTask.isOneTimeCompleted) {
                 _dueAndImportantSchedules++;
               }
             }
-            if (isToday(nextSchedule)) {
+            if (isToday(nextSchedule) && !scheduledTask.isOneTimeCompleted) {
               _dueTodaySchedules++;
               if (scheduledTask.important) {
                 _dueAndImportantSchedules++;

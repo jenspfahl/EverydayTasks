@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:personaltasklogger/db/repository/KeyValueRepository.dart';
+import 'package:personaltasklogger/model/KeyValue.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceService implements ITranslatePreferences {
@@ -78,43 +80,85 @@ class PreferenceService implements ITranslatePreferences {
   Future<String?> getString(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    return prefs.getString(key);
+    //var pref = prefs.getString(key);
+    return _getPref(key, () => prefs.getString(key), (val) => val);
+/*
+    final keyValue = await KeyValueRepository.findByKey(key);
+    if (keyValue == null && pref != null) {
+      // migrate to table
+      KeyValueRepository.insert(KeyValue(null, key, pref));
+    }
+    else if (keyValue != null) {
+      return keyValue.value;
+    }
+    return pref;*/
   }
 
   Future<int?> getInt(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getInt(key);
+    return _getPref(key, () => prefs.getInt(key), (val) => int.parse(val));
   }
 
   Future<bool?> getBool(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getBool(key);
-  }
+    return _getPref(key, () => prefs.getBool(key), (val) => val == true.toString());  }
 
   Future<bool> setString(String key, String value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.setString(key, value);
+    return _setPref(prefs, key, value, () => prefs.setString(key, value));
   }
 
   Future<bool> setInt(String key, int value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return _setPref(prefs, key, value, () => prefs.setInt(key, value));
 
     return prefs.setInt(key, value);
   }
 
   Future<bool> setBool(String key, bool value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.setBool(key, value);
+    return _setPref(prefs, key, value, () => prefs.setBool(key, value));
   }
 
   Future<bool> remove(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
+   KeyValueRepository.findByKey(key).then((keyValue) {
+     if (keyValue != null) {
+       KeyValueRepository.delete(keyValue);
+     }
+   });
+
     return prefs.remove(key);
+  }
+
+  Future<T> _getPref<T>(String key, T Function() loadPref, T Function(String) convertValue) async {
+    var pref = loadPref();
+
+    final keyValue = await KeyValueRepository.findByKey(key);
+    if (keyValue == null && pref != null) {
+      // migrate to table
+      KeyValueRepository.insert(KeyValue(null, key, pref.toString()));
+    }
+    else if (keyValue != null) {
+      return convertValue(keyValue.value);
+    }
+    return pref;
+  }
+
+  Future<bool> _setPref(SharedPreferences prefs, String key, dynamic value, Future<bool> Function() storePref) async {
+
+    KeyValueRepository.findByKey(key).then((keyValue) {
+      if (keyValue != null) {
+        keyValue.value = value.toString();
+        KeyValueRepository.update(keyValue);
+      }
+      else {
+        KeyValueRepository.insert(KeyValue(null, key, value));
+      }
+    });
+
+    return storePref();
   }
 
   @override
