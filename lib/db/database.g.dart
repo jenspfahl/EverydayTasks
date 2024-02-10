@@ -77,6 +77,8 @@ class _$AppDatabase extends AppDatabase {
 
   SequencesDao? _sequencesDaoInstance;
 
+  KeyValueDao? _keyValueDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -180,6 +182,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   SequencesDao get sequencesDao {
     return _sequencesDaoInstance ??= _$SequencesDao(database, changeListener);
+  }
+
+  @override
+  KeyValueDao get keyValueDao {
+    return _keyValueDaoInstance ??= _$KeyValueDao(database, changeListener);
   }
 }
 
@@ -1170,5 +1177,100 @@ class _$SequencesDao extends SequencesDao {
   Future<int> updateSequence(SequencesEntity sequence) {
     return _sequencesEntityUpdateAdapter.updateAndReturnChangedRows(
         sequence, OnConflictStrategy.abort);
+  }
+}
+
+class _$KeyValueDao extends KeyValueDao {
+  _$KeyValueDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
+        _keyValueEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'KeyValueEntity',
+            (KeyValueEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'key': item.key,
+                  'value': item.value
+                },
+            changeListener),
+        _keyValueEntityUpdateAdapter = UpdateAdapter(
+            database,
+            'KeyValueEntity',
+            ['id'],
+            (KeyValueEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'key': item.key,
+                  'value': item.value
+                },
+            changeListener),
+        _keyValueEntityDeletionAdapter = DeletionAdapter(
+            database,
+            'KeyValueEntity',
+            ['id'],
+            (KeyValueEntity item) => <String, Object?>{
+                  'id': item.id,
+                  'key': item.key,
+                  'value': item.value
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<KeyValueEntity> _keyValueEntityInsertionAdapter;
+
+  final UpdateAdapter<KeyValueEntity> _keyValueEntityUpdateAdapter;
+
+  final DeletionAdapter<KeyValueEntity> _keyValueEntityDeletionAdapter;
+
+  @override
+  Stream<KeyValueEntity?> findById(int id) {
+    return _queryAdapter.queryStream(
+        'SELECT * FROM KeyValueEntity WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => KeyValueEntity(
+            row['id'] as int?, row['key'] as String, row['value'] as String),
+        arguments: [id],
+        queryableName: 'KeyValueEntity',
+        isView: false);
+  }
+
+  @override
+  Stream<KeyValueEntity?> findByKey(String key) {
+    return _queryAdapter.queryStream(
+        'SELECT * FROM KeyValueEntity WHERE `key` = ?1',
+        mapper: (Map<String, Object?> row) => KeyValueEntity(
+            row['id'] as int?, row['key'] as String, row['value'] as String),
+        arguments: [key],
+        queryableName: 'KeyValueEntity',
+        isView: false);
+  }
+
+  @override
+  Future<List<KeyValueEntity>> findAll() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM KeyValueEntity ORDER BY key, id',
+        mapper: (Map<String, Object?> row) => KeyValueEntity(
+            row['id'] as int?, row['key'] as String, row['value'] as String));
+  }
+
+  @override
+  Future<int> insertKeyValue(KeyValueEntity entity) {
+    return _keyValueEntityInsertionAdapter.insertAndReturnId(
+        entity, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> updateKeyValue(KeyValueEntity entity) {
+    return _keyValueEntityUpdateAdapter.updateAndReturnChangedRows(
+        entity, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> deleteKeyValue(KeyValueEntity entity) {
+    return _keyValueEntityDeletionAdapter.deleteAndReturnChangedRows(entity);
   }
 }

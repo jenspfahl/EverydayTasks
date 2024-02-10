@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:floor/floor.dart';
+import 'package:personaltasklogger/db/dao/KeyValueDao.dart';
 import 'package:personaltasklogger/db/dao/SequencesDao.dart';
 import 'package:personaltasklogger/db/dao/TaskEventDao.dart';
 import 'package:personaltasklogger/db/entity/KeyValueEntity.dart';
@@ -42,6 +43,7 @@ abstract class AppDatabase extends FloorDatabase {
   ScheduledTaskFixedScheduleDao get scheduledTaskFixedScheduleDao;
   ScheduledTaskEventDao get scheduledTaskEventDao;
   SequencesDao get sequencesDao;
+  KeyValueDao get keyValueDao;
 }
 
 final migration2To3 = new Migration(2, 3,
