@@ -25,6 +25,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   bool? reminderNotificationEnabled = true;
   CustomRepetition? reminderNotificationRepetition;
 
+
   ScheduledTask({
     this.id,
     required this.taskGroupId,

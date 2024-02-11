@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:calendar_view/calendar_view.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:patterns_canvas/patterns_canvas.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
+import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
@@ -17,6 +19,7 @@ import 'package:personaltasklogger/util/extensions.dart';
 import '../../db/repository/ChronologicalPaging.dart';
 import '../../db/repository/TaskEventRepository.dart';
 import '../../db/repository/TemplateRepository.dart';
+import '../../model/FutureScheduledTask.dart';
 import '../../model/Template.dart';
 import '../../model/TitleAndDescription.dart';
 import '../../model/When.dart';
@@ -158,11 +161,45 @@ class _CalendarPageStatus extends State<CalendarPage> {
   }
 
   _mapAndAddScheduledTasksToCalendar(List<TitleAndDescription> scheduledTasks) async {
-    final eventData = await Future.wait(scheduledTasks.map((e) => _mapScheduledTaskToCalendarEventData(e as ScheduledTask)));
+    final eventData = await Future.wait(scheduledTasks.map((e) => _mapScheduledTaskToCalendarEventData(e as ScheduledTask))); //TODO load X events for fixed recurring schedules
     _scheduledTaskCalendarEvents.addAll(eventData);
     if (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH) {
       calendarController.addAll(eventData);
     }
+    scheduledTasks
+        .where((e) => e is ScheduledTask)
+        .map((e) => e as ScheduledTask)
+        .forEach((scheduledTask) {
+      if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED && scheduledTask.lastScheduledEventOn != null) {
+        _mapAndAddFutureScheduledTaskToCalendar(scheduledTask, scheduledTask.lastScheduledEventOn!, 1);
+      }
+    });
+  }
+
+  _mapAndAddFutureScheduledTaskToCalendar(ScheduledTask scheduledTask, DateTime dueOn, int level) async {
+    if (level >= 30) {
+      //break
+      return;
+    }
+    final wrapper = FutureScheduledTask(
+        taskGroupId: scheduledTask.taskGroupId,
+        title: kReleaseMode ? scheduledTask.title : "${scheduledTask.title} (repetition $level)",
+        description: scheduledTask.description,
+        createdAt: scheduledTask.createdAt,
+        schedule: scheduledTask.schedule,
+        active: scheduledTask.active,
+        pausedAt: scheduledTask.pausedAt,
+        important: scheduledTask.important,
+        oneTimeCompletedOn: scheduledTask.oneTimeCompletedOn,
+    );
+    wrapper.lastScheduledEventOn = scheduledTask.getNextScheduleAfter(dueOn)!;
+    final eventData = await _mapScheduledTaskToCalendarEventData(wrapper);
+    _scheduledTaskCalendarEvents.add(eventData);
+    if (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH) {
+      calendarController.add(eventData);
+    }
+
+    _mapAndAddFutureScheduledTaskToCalendar(scheduledTask, scheduledTask.getNextScheduleAfter(dueOn)!, level + 1);
   }
 
   _mapAndAddTaskEventsToCalendar(List<TitleAndDescription> taskEvents) async {
@@ -608,8 +645,9 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
 
     var title = scheduledTask.translatedTitle;
-    var startAt = scheduledTask.getNextSchedule()!;
-    var endAt = scheduledTask.getNextSchedule()!.add(duration);
+    var nextSchedule = scheduledTask.getNextSchedule()!;
+    var startAt = nextSchedule;
+    var endAt = nextSchedule.add(duration);
     if (TimeOfDay.fromDateTime(startAt).toDouble() > TimeOfDay.fromDateTime(endAt).toDouble()) {
       endAt = startAt.withoutTime.add(Duration(minutes: (60 * 24) - 1)); // cut end to one minute before end of day
       //TODO render event part for the next day
@@ -617,8 +655,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
 
     final event = CalendarEventData(
-      date: scheduledTask.getNextSchedule()!,
-      endDate: scheduledTask.getNextSchedule()!,
+      date: nextSchedule,
+      endDate: nextSchedule,
       event: scheduledTask,
       title: title,
       description: scheduledTask.translatedDescription??"",
@@ -726,6 +764,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
         child: ScheduledTaskWidget(scheduledTask,
           key: scheduledTaskWidgetKey,
           isInitiallyExpanded: false,
+          isReadOnly: scheduledTask is FutureScheduledTask,
           onScheduledTaskChanged: (changedScheduledTask) async {
             _updateModel(changedScheduledTask);
             final updatedEvent = await _mapScheduledTaskToCalendarEventData(changedScheduledTask);
@@ -821,10 +860,14 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final object = event.event;
     final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
     final taskGroup = _getTaskGroup(taskGroupId);
-    final backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
+    var backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
     var icon = _getEventIcon(taskGroup);
 
     icon = _addImportantIndicator(icon, object);
+
+    if (object is FutureScheduledTask) {
+      backgroundColor = backgroundColor.withOpacity(0.05);
+    }
     
     return CustomPaint(
       painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1), _calendarMode == CalendarMode.DAY ? 21 : 7) : null,
@@ -915,9 +958,13 @@ class _CalendarPageStatus extends State<CalendarPage> {
         final object = event.event;
         final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
         final taskGroup = _getTaskGroup(taskGroupId);
-        final backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
+        var backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
         var icon = _getEventIcon(taskGroup);
         icon = _addImportantIndicator(icon, object);
+
+        if (object is FutureScheduledTask) {
+          backgroundColor = backgroundColor.withOpacity(0.05);
+        }
 
         return Container(
           decoration: BoxDecoration(
