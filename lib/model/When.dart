@@ -120,7 +120,10 @@ class When {
     return translate('common.words.around').capitalize() + " " + addition;
   }
 
-  static TimeOfDay fromWhenAtDayToTimeOfDay(AroundWhenAtDay whenAtDay, TimeOfDay? customWhenAt) {
+  static TimeOfDay fromWhenAtDayToTimeOfDay(AroundWhenAtDay whenAtDay, TimeOfDay? customWhenAt, {bool getDefault = false}) {
+    if (!getDefault && whenAtDay != AroundWhenAtDay.NOW && whenAtDay != AroundWhenAtDay.CUSTOM) {
+      return PreferenceService().getWhenAtDayTimeOfDay(whenAtDay);
+    }
     switch(whenAtDay) {
       case AroundWhenAtDay.NOW: return TimeOfDay.now();
       case AroundWhenAtDay.MORNING: return TimeOfDay(hour: 8, minute: 0);

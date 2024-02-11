@@ -49,15 +49,19 @@ class KeyValueRepository {
 
   }
 
-  static Future<KeyValue> delete(KeyValue keyValue) async {
+  static Future<int> delete(String key) async {
     final database = await getDb();
 
     final keyValueDao = database.keyValueDao;
-    final entity = _mapToEntity(keyValue);
 
-    await keyValueDao.deleteKeyValue(entity);
-    return keyValue;
+    final existing = await KeyValueRepository.findByKey(key);
 
+    if (existing != null) {
+      return keyValueDao.deleteKeyValue(_mapToEntity(existing));
+    }
+    else {
+      return 0;
+    }
   }
 
   static Future<List<KeyValue>> findAll([String? dbName]) async {

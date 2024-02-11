@@ -383,6 +383,10 @@
         "configure_daytimes": {
           "title": "Ändere vorkonfigurierte Tageszeiten",
           "description": "Ändert die tatsächliche Tageszeit für z.B. 'Abends'"
+        },
+        "reset_daytimes": {
+          "title": "Tageszeiten zurücksetzen",
+          "description": "Sollen alle Tageszeiten auf die Default-Werte zurückgesetzt werden?"
         }
       },
       "action_feedback": {

@@ -383,6 +383,10 @@
           "configure_daytimes": {
             "title": "Change preconfigured daytimes",
             "description": "Changes the actual daytime of e.g. 'evening'"
+          },
+          "reset_daytimes": {
+            "title": "Reset daytimes",
+            "description": "Do you want to reset the current configured daytimes to the default values?"
           }
         }
       },

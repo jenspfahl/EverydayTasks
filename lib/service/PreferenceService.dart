@@ -1,10 +1,15 @@
+import 'dart:collection';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/db/repository/KeyValueRepository.dart';
 import 'package:personaltasklogger/model/KeyValue.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../db/repository/mapper.dart';
+import '../model/When.dart';
 
 class PreferenceService implements ITranslatePreferences {
 
@@ -37,6 +42,11 @@ class PreferenceService implements ITranslatePreferences {
     return _service;
   }
 
+  final _whenAtDayTimes = HashMap<AroundWhenAtDay, TimeOfDay>();
+
+
+
+
   PreferenceService._internal() {
     getBool(PreferenceService.PREF_SHOW_BADGE_FOR_DUE_SCHEDULES)
         .then((value) {
@@ -68,6 +78,20 @@ class PreferenceService implements ITranslatePreferences {
         dateFormatSelection = value;
       }
     });
+
+  }
+
+  TimeOfDay getWhenAtDayTimeOfDay(AroundWhenAtDay whenAtDay) => _whenAtDayTimes[whenAtDay] ?? When.fromWhenAtDayToTimeOfDay(whenAtDay, null, getDefault: true);
+  setWhenAtDayTimeOfDay(AroundWhenAtDay whenAtDay, TimeOfDay time) => _whenAtDayTimes[whenAtDay] = time;
+  resetWhenAtDayTimeOfDay(AroundWhenAtDay whenAtDay) => _whenAtDayTimes[whenAtDay] = When.fromWhenAtDayToTimeOfDay(whenAtDay, null, getDefault: true);
+
+  initWhenAtDayTimes() async {
+    for (AroundWhenAtDay whenAtDay in AroundWhenAtDay.values) {
+      final keyValue = await KeyValueRepository.findByKey(whenAtDay.toString());
+      if (keyValue != null) {
+        _whenAtDayTimes[whenAtDay] = timeOfDayFromEntity(int.parse(keyValue.value));
+      }
+    }
   }
 
   bool showBadgeForDueSchedules = true;
@@ -79,19 +103,7 @@ class PreferenceService implements ITranslatePreferences {
 
   Future<String?> getString(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    //var pref = prefs.getString(key);
     return _getPref(key, () => prefs.getString(key), (val) => val);
-/*
-    final keyValue = await KeyValueRepository.findByKey(key);
-    if (keyValue == null && pref != null) {
-      // migrate to table
-      KeyValueRepository.insert(KeyValue(null, key, pref));
-    }
-    else if (keyValue != null) {
-      return keyValue.value;
-    }
-    return pref;*/
   }
 
   Future<int?> getInt(String key) async {
@@ -111,8 +123,6 @@ class PreferenceService implements ITranslatePreferences {
   Future<bool> setInt(String key, int value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return _setPref(prefs, key, value, () => prefs.setInt(key, value));
-
-    return prefs.setInt(key, value);
   }
 
   Future<bool> setBool(String key, bool value) async {
@@ -123,11 +133,7 @@ class PreferenceService implements ITranslatePreferences {
   Future<bool> remove(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-   KeyValueRepository.findByKey(key).then((keyValue) {
-     if (keyValue != null) {
-       KeyValueRepository.delete(keyValue);
-     }
-   });
+    await KeyValueRepository.delete(key);
 
     return prefs.remove(key);
   }

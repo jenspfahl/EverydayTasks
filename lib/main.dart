@@ -15,7 +15,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LocalNotificationService().init();
   await TaskGroupRepository.loadAll(true); // load caches
-
+  await PreferenceService().initWhenAtDayTimes();
   await fillDayNumberCache();
 
 
