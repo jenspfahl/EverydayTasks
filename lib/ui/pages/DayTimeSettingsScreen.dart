@@ -32,12 +32,14 @@ class _DayTimeSettingsScreenState extends State<DayTimeSettingsScreen> {
                   translate('pages.settings.date_n_time.reset_daytimes.description'),
                   okPressed: () async {
                     AroundWhenAtDay.values.forEach((whenAtDay) {
-                      setState(() {
-                        PreferenceService().resetWhenAtDayTimeOfDay(whenAtDay);
-                      });
-                      KeyValueRepository.delete(whenAtDay.toString());
-                      Navigator.pop(context);
+                      if (whenAtDay != AroundWhenAtDay.CUSTOM && whenAtDay != AroundWhenAtDay.NOW) {
+                        setState(() {
+                          PreferenceService().resetWhenAtDayTimeOfDay(whenAtDay);
+                        });
+                        KeyValueRepository.delete(whenAtDay.toString());
+                      }
                     });
+                    Navigator.pop(context);
                   }, cancelPressed: () {
                     Navigator.pop(context);
                   }
