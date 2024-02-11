@@ -876,7 +876,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       return;
     }
     final missingDuration = scheduledTask.getMissingDuration();
-    if (missingDuration != null && !missingDuration.isNegative) {
+    if (missingDuration != null) {
       debugPrint("reschedule ${scheduledTask.id!} with missing duration: $missingDuration");
 
       if (withCancel) {

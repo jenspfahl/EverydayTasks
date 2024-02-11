@@ -144,6 +144,11 @@ class LocalNotificationService {
       [Color? color, List<AndroidNotificationAction>? actions, bool withTranslation = true, CustomRepetition? snoozePeriod]) async {
     final when = tz.TZDateTime.now(tz.local).add(duration);
 
+    if (when.isBefore(DateTime.now())) {
+      debugPrint("Scheduled notification $id in the past, skip ($when)");
+      return;
+    }
+
     final parameterMap = {
       'receiverKey' : receiverKey,
       'id' : id,

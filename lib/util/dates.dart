@@ -25,7 +25,7 @@ Future<void> fillDayNumberCache() async {
 
     for (int i = 0; i <= 31; i++) {
       final ordinal = await _getOrdinalDayFor(i, language);
-      debugPrint("DAYCACHE: $language $i --> $ordinal");
+      //debugPrint("DAYCACHE: $language $i --> $ordinal");
       langMap[i] = ordinal;
       DAY_OF_MONTH_NUMBERS[language] = langMap;
     }
@@ -46,11 +46,11 @@ Future<String> _getOrdinalDayFor(int i, String language) async {
 String getOrdinalDayOf(String language, int day) {
   final langMap = DAY_OF_MONTH_NUMBERS[language];
   if (langMap == null) {
-    debugPrint("DAYCACHE: GET OF $language not found");
+    //debugPrint("DAYCACHE: GET OF $language not found");
     return day.toString();
   }
   final lang = langMap[day];
-  debugPrint("DAYCACHE: GET OF $day in $langMap");
+  //debugPrint("DAYCACHE: GET OF $day in $langMap");
 
   return lang ?? day.toString();
 }
@@ -122,7 +122,7 @@ String formatAllYearDate(AllYearDate allYearDate, BuildContext context) {
 // day: 0..6
 String getDayOfMonth(int day, BuildContext context) {
   final language = currentLocale(context).languageCode.toString();
-  debugPrint("DAYCACHE GET: $language $day");
+  //debugPrint("DAYCACHE GET: $language $day");
   return getOrdinalDayOf(language, day);
 }
 

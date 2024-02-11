@@ -383,7 +383,7 @@ class Schedule {
     required DateTime Function (int repetitionValue, DateTime from) shiftBack,
   }) {
 
-    debugPrint("from=$from nextRegularDueDate=$nextRegularDueDate");
+    //debugPrint("from=$from nextRegularDueDate=$nextRegularDueDate");
 
     final sorted = days.toList();
     sorted.sort((e1, e2) => extractValue(e1) - extractValue(e2));
@@ -392,7 +392,7 @@ class Schedule {
       // first check from current period
       final next = _findForwardsFromCurrentDate(from, sorted, extractType, extractValue);
 
-      debugPrint("next = $next");
+      //debugPrint("next = $next");
       if (next != null) {
         return next;
       }
@@ -400,7 +400,7 @@ class Schedule {
       // second check from next period
       final firstNextPeriod = _findForwardsFromBeginOfPeriod(nextRegularDueDate, sorted, extractType, extractValue);
 
-      debugPrint("firstNextPeriod = $firstNextPeriod");
+      //debugPrint("firstNextPeriod = $firstNextPeriod");
       return firstNextPeriod;
       
     }
@@ -408,13 +408,13 @@ class Schedule {
       // first check from current period (which is after next period here)
       final last = _findBackwardsFromCurrentDate(from, sorted, extractType, extractValue);
 
-      debugPrint("last = $last");
+      //debugPrint("last = $last");
       if (last != null) {
         // if last the max element in sorted, shift x days back
         if (!sorted.any((element) => extractValue(element) >= extractValue(extractType(last)))) {
           final repetition = fromRepetitionStepToCustomRepetition(repetitionStep, customRepetition);
           final corrected = shiftBack(repetition.repetitionValue - 1, last);
-          debugPrint("corrected = $corrected");
+          //debugPrint("corrected = $corrected");
 
           return corrected;
         }
@@ -424,7 +424,7 @@ class Schedule {
       // second check from previous period
       final lastPreviousPeriod = _findBackwardsFromEndOfPeriod(nextRegularDueDate, sorted, extractType, extractValue);
 
-      debugPrint("lastPreviousPeriod = $lastPreviousPeriod");
+      //debugPrint("lastPreviousPeriod = $lastPreviousPeriod");
       return lastPreviousPeriod;
 
     }
@@ -436,11 +436,11 @@ class Schedule {
 
     final dayFrom = extractType(from);
     final nextDay = days.where((day) => extractValue(day) > extractValue(dayFrom)).firstOrNull;
-    debugPrint("nextDay: $nextDay");
+    //debugPrint("nextDay: $nextDay");
 
     if (nextDay is DayOfWeek) {
       final next = from.add(Duration(days: extractValue(nextDay) - extractValue(dayFrom)));
-      debugPrint("found next in period $next after from");
+      //debugPrint("found next in period $next after from");
       return next;
     }
     else {
