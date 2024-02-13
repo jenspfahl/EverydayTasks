@@ -40,9 +40,9 @@
       "when_on_hint": "Дата начала",
       "when_on_emphasis": "Выберите день начала задачи",
       "create": {
-        "title": "Создать новую запись в журнале",
-        "title_from_schedule": "Создать новую запись в журнале из расписанию",
-        "success": "Создана новая запись в журнале '{title}'."
+        "title": "Сделать запись в журнале",
+        "title_from_schedule": "Сделать запись в журнале из расписанию",
+        "success": "Сделана новая запись в журнале '{title}'."
       },
       "change": {
         "title": "Изменить запись в журнала '{title}'",
@@ -67,22 +67,22 @@
       "due_at_hint": "Сделать до",
       "due_at_emphasis": "Выберите срок выполнения задачи",
       "activate_schedule": "Активировать расписание",
-      "mark_as_important": "Mark schedule as important",
+      "mark_as_important": "Отметить расписание как важное",
       "due_on_hint": "Сделать до",
       "scheduled_from_emphasis": "Выберите время начала расписания",
-      "activate_reminders": "Активировать напоминание",
+      "activate_reminders": "Напомнить",
       "remind_again_delay_description": "Выберите задержку перед повторным напоминанием.",
       "remind_after": "Ещё раз после {when}",
       "repetition_mode": "Режим динамического повторения",
       "repetition_mode_dynamic": "Следующая задача должна быть выполнена в зависимости от выбранного интервала и времени выполнения последней задачи.",
       "repetition_mode_fixed": "Срок выполнения следующей задачи определяется точным интервалом независимо от того когда была выполнена последняя задача.",
-      "repetition_mode_one_shot": "Next task is due based on the provided due date, without any repetition.",
-      "fixed_monthly_hint" : "Add additional due days per month",
-      "fixed_monthly_title" : "Possible days of an arbitrary month",
-      "fixed_monthly_message" : "Select additional due days of an arbitrary month for this schedule. If a day doesn't exist in the actual due month (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
-      "fixed_yearly_hint" : "Add additional due days per year",
-      "fixed_yearly_title" : "Possible days of an arbitrary year",
-      "fixed_yearly_message" : "Select additional due days of an arbitrary year for this schedule. If a day doesn't exist in the actual due year (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
+      "repetition_mode_one_shot": "Следующая задача должна быть выполнена в указанный срок, без каких-либо повторений.",
+      "fixed_monthly_hint" : "Добавить дополнительные дни срока по месяцу",
+      "fixed_monthly_title" : "Только возможные дни месяца",
+      "fixed_monthly_message" : "Выберите дополнительные дни срока в месяце для этого расписания. Если день не существует в фактическом месяце выполнения (например, 31 апреля) то расписание срабатывает раньше (т.е. 30 апреля). Так же и с високосными днями.",
+      "fixed_yearly_hint" : "Добавить дополнительные дни срока по году",
+      "fixed_yearly_title" : "Только возможные дни года",
+      "fixed_yearly_message" : "Выберите дополнительные дни срока в году для расписания. Если день не существует в фактическом году выполнения (например, 31 апреля) то расписание срабатывает раньше (т.е. 30 апреля). Так же и с високосными днями.",
       "create": {
         "title": "Создать новое расписание",
         "success": "Новое расписание '{title}' создано."
@@ -138,7 +138,7 @@
       "action": {
         "description" : "Что вы хотите создать?",
         "new_quick_add": {
-          "title": "Новая из Быстрого Добавления",
+          "title": "Из быстрого добавления",
           "description": "Выберите задачу или вариант которую нужно добавить в Быстрое Добавление."
         },
         "new_journal_entry": {
@@ -159,7 +159,7 @@
     "journal": {
       "title": "Журнал",
       "action": {
-        "description" : "Из чего вы хотите создать новую запись в журнале?",
+        "description" : "Из чего вы хотите создать запись в журнале?",
         "from_scratch": {
           "title": "С нуля"
         },
@@ -182,7 +182,7 @@
         "attrib_finished_at": "Конец",
         "attrib_duration": "Продолжительность",
         "associated_task": "Связанная задача",
-        "associated_schedule": "Связанное распиание",
+        "associated_schedule": "Связанное расписание",
         "value_uncategorized": "без категории",
         "value_none": "ничего"
       }
@@ -200,7 +200,7 @@
           "by_category": "Сортировать по категории",
           "by_title": "Сортировать по заголовку",
           "hide_non_active": "Скрыть неактивные",
-          "important_on_top": "Important due on top"
+          "important_on_top": "Важные сроки сверху"
         },
         "notifications": {
           "enabled": "Все напоминания и уведомления включены",
@@ -209,14 +209,14 @@
       },
       "overview": {
         "running": "выполняется",
-        "due": "срок",
+        "due": "в срок",
         "overdue": "просрочено",
         "due_now": "настал срок",
         "paused": "на паузе",
         "inactive": "неактивно",
         "scheduled": "запланировано",
-        "completed": "completed",
-        "later_due": "due later",
+        "completed": "завершено",
+        "later_due": "отсрочить",
         "due_yesterday_and_before": "Сделать до сегодня",
         "due_today": "Сделать до сегодня",
         "due_tomorrow": "Сделать до завтра",
@@ -367,7 +367,7 @@
         "title": "Дата и время",
         "used_date_format": {
           "title": "Используемый формат даты",
-          "description": "E.g. '{example_date}'",
+          "description": "Например '{example_date}'",
           "dialog": {
             "title": "Выберите формат даты"
           }
@@ -381,19 +381,19 @@
           "description": "Например показывать '{evening}' для вечера"
         },
         "configure_daytimes": {
-          "title": "Change preconfigured daytimes",
-          "description": "Changes the actual daytime of e.g. 'evening'"
+          "title": "Изменить предопределённые времена дня",
+          "description": "Изменить время дня например 'вечер'"
         },
         "reset_daytimes": {
-          "title": "Reset daytimes",
-          "description": "Do you want to reset the current configured daytimes to the default values?"
+          "title": "Сбросить времена дня",
+          "description": "Вы желаете сбросить настроенные дни дня на значения по умолчанию?"
         }
       },
       "action_feedback": {
         "title": "Отзыв",
         "show_action_feedback": {
           "title": "Показать отзыв о действии",
-          "description": "Показывает короткое сообщение после нескольких действий пользователя"
+          "description": "Показывает короткое сообщение после нескольких дел"
         },
         "duration": {
           "title": "Длительность отзыва о действии",
@@ -440,8 +440,8 @@
       "restore_aborted" : "Восстановление прервано!"
     },
     "about" : {
-      "title": "Про Everyday Tasks",
-      "message": "Everyday Tasks это простое и быстрое в использовании приложение для записи, отслеживания и планирования ежедневных задач",
+      "title": "Про Ежедневные Дела",
+      "message": "Ежедневные Дела это простое и быстрое в использовании приложение для записи, отслеживания и планирования ежедневных задач",
       "star_it": "Если вам нравится приложение поставьте звездочку {link}"
     }
   },
@@ -576,23 +576,23 @@
       "half_an_hour": "пол часа",
       "three_quarters_of_an_hour": "45 минут",
       "an_hour": "час",
-      "one_and_a_half": "one and a half hours"
+      "one_and_a_half": "полтора часа"
     },
     "words": {
-      "on_for_dates": "",
+      "on_for_dates": "числа",
       "at_for_times": "в",
       "for_for_times": "займёт",
       "in_for_times": "в",
       "to_for_times": "до",
-      "ago_for_times": "{when}",
+      "ago_for_times": "{when} тому",
       "and": "и",
-      "thereof": "из того",
-      "custom": "свой",
-      "around": "вокруг",
+      "thereof": "из них",
+      "custom": "выбрать",
+      "around": "примерно",
       "on_for_enabled": "вкл",
       "off_for_disabled": "выкл",
       "clear": "очистить",
-      "important": "important",
+      "important": "важное",
       "value": "значение",
       "unit": "единица",
       "unknown": "неизвестно",
@@ -630,7 +630,7 @@
     "repetition_mode": {
       "dynamic": "Гибкий",
       "fixed": "Фиксированный",
-      "one_time": "One-time"
+      "one_time": "Одноразово"
     }
   },
 
