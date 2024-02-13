@@ -12,7 +12,9 @@ import 'TitleAndDescription.dart';
 class FutureScheduledTask extends ScheduledTask {
 
   FutureScheduledTask({
+    required super.id,
     required super.taskGroupId,
+    required super.templateId,
     required super.title,
     required super.description,
     required super.createdAt,

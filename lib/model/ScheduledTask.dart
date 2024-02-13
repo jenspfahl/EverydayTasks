@@ -243,7 +243,6 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ScheduledTask &&
-          runtimeType == other.runtimeType &&
           id == other.id;
 
   @override

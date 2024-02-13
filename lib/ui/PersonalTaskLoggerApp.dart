@@ -36,7 +36,6 @@ class PersonalTaskLoggerApp extends StatelessWidget {
           darkTheme: ThemeData(
               brightness: Brightness.dark,
               primaryColor: PRIMARY_COLOR,
-           //   primarySwatch: BUTTON_COLOR,
               checkboxTheme: CheckboxThemeData(
                 fillColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? BUTTON_COLOR : Colors.grey),
               ),
@@ -48,11 +47,6 @@ class PersonalTaskLoggerApp extends StatelessWidget {
                overlayColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? Colors.white : Colors.grey),
                fillColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? BUTTON_COLOR : Colors.grey),
              ),
-            
-             // unselectedWidgetColor: BUTTON_COLOR,
-           /*   switchTheme: SwitchThemeData(
-                overlayColor: BUTTON_COLOR,
-              ),*/
               buttonTheme: ButtonThemeData(
                 colorScheme: ColorScheme.dark(
                   background: BUTTON_COLOR,

@@ -161,7 +161,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
   }
 
   _mapAndAddScheduledTasksToCalendar(List<TitleAndDescription> scheduledTasks) async {
-    final eventData = await Future.wait(scheduledTasks.map((e) => _mapScheduledTaskToCalendarEventData(e as ScheduledTask))); //TODO load X events for fixed recurring schedules
+    final eventData = await Future.wait(scheduledTasks.map((e) => _mapScheduledTaskToCalendarEventData(e as ScheduledTask)));
     _scheduledTaskCalendarEvents.addAll(eventData);
     if (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH) {
       calendarController.addAll(eventData);
@@ -170,21 +170,30 @@ class _CalendarPageStatus extends State<CalendarPage> {
         .where((e) => e is ScheduledTask)
         .map((e) => e as ScheduledTask)
         .forEach((scheduledTask) {
-      if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED && scheduledTask.lastScheduledEventOn != null) {
-        _mapAndAddFutureScheduledTaskToCalendar(scheduledTask, scheduledTask.lastScheduledEventOn!, 1);
-      }
+      _addFutureScheduledTasks(scheduledTask);
     });
   }
 
+  void _addFutureScheduledTasks(ScheduledTask scheduledTask) {
+    if (scheduledTask.schedule.repetitionMode != RepetitionMode.ONE_TIME
+        && scheduledTask.lastScheduledEventOn != null
+        && !scheduledTask.isPaused
+        && scheduledTask.active) {
+      _mapAndAddFutureScheduledTaskToCalendar(scheduledTask, scheduledTask.lastScheduledEventOn!, 1);
+    }
+  }
+
   _mapAndAddFutureScheduledTaskToCalendar(ScheduledTask scheduledTask, DateTime dueOn, int level) async {
-    if (level >= 30) {
+    if (level >= 100) {
       //break
       return;
     }
     final wrapper = FutureScheduledTask(
+        id: scheduledTask.id,
         taskGroupId: scheduledTask.taskGroupId,
-        title: kReleaseMode ? scheduledTask.title : "${scheduledTask.title} (repetition $level)",
-        description: scheduledTask.description,
+        templateId: scheduledTask.templateId,
+        title: kReleaseMode ? scheduledTask.translatedTitle : "${scheduledTask.translatedTitle} (#$level)",
+        description: scheduledTask.translatedDescription,
         createdAt: scheduledTask.createdAt,
         schedule: scheduledTask.schedule,
         active: scheduledTask.active,
@@ -333,8 +342,9 @@ class _CalendarPageStatus extends State<CalendarPage> {
     else if (event is ScheduledTask) {
       final updatedEvent = await _mapScheduledTaskToCalendarEventData(event);
       _scheduledTaskCalendarEvents.add(updatedEvent);
-
       _addToCalendar(updatedEvent);
+
+      _addFutureScheduledTasks(event);
     }
   }
 
@@ -355,6 +365,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
       calendarController.removeWhere((element) => element.event == event);
     }
     else if (event is ScheduledTask) {
+      // this also deletes FutureScheduleTasks
       _scheduledTaskCalendarEvents.removeWhere((e) => e.event == event);
       calendarController.removeWhere((element) => element.event == event);
     }
@@ -753,6 +764,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
     else if (event is ScheduledTask) {
       final scheduledTask = event;
+      var isFutureScheduledTask = scheduledTask is FutureScheduledTask;
       return GestureDetector(
         onLongPress: () {
           sheetController?.close();
@@ -761,37 +773,63 @@ class _CalendarPageStatus extends State<CalendarPage> {
             appScaffoldKey.currentState!.sendEventFromClicked(SCHEDULED_TASK_LIST_ROUTING_KEY, false, scheduledTask.id.toString(), null);
           }
         },
-        child: ScheduledTaskWidget(scheduledTask,
-          key: scheduledTaskWidgetKey,
-          isInitiallyExpanded: false,
-          isReadOnly: scheduledTask is FutureScheduledTask,
-          onScheduledTaskChanged: (changedScheduledTask) async {
-            _updateModel(changedScheduledTask);
-            final updatedEvent = await _mapScheduledTaskToCalendarEventData(changedScheduledTask);
-            setState(() => _selectedEvent = updatedEvent);
-          },
-          onScheduledTaskDeleted: (deletedScheduledTask) {
-            _unselectEvent();
-            _deleteModel(deletedScheduledTask);
-          },
-          pagesHolder: widget.pagesHolder,
-          selectInListWhenChanged: false,
-          isNotificationsEnabled: () {
-            return !_isNotificationsDisabled;
-          },
-          onBeforeRouting: () {
-            // close all and exit calendar before routing to somewhere else
-            sheetController?.close();
-            Navigator.pop(context);
-          },
-          onAfterJournalEntryFromScheduleCreated: (taskEvent) async {
-            if (taskEvent != null) {
-              _addModel(taskEvent);
-              _updateModel(scheduledTask);
-              final updatedEvent = await _mapScheduledTaskToCalendarEventData(scheduledTask);
-              setState(() => _selectedEvent = updatedEvent);
-            }
-          },
+        child: Row(
+          children: [
+            if (isFutureScheduledTask)
+              Expanded(
+                flex: 1,
+                child: GestureDetector(
+                    child: SizedBox(
+                      width: 0,
+                      height: 46,
+                      child: Center(child: Icon(Icons.first_page)),
+                    ),
+                    onTapDown: (_) {
+                      final origin = _scheduledTaskCalendarEvents
+                          .where((event) => event.event?.id == scheduledTask.id && !(event.event is FutureScheduledTask))
+                          .firstOrNull;
+                      if (origin != null) {
+                        _handleTapEvent(origin);
+                        _jumpToSelectionOrToday();
+                      }
+                    }),
+              ),
+            Expanded(
+              flex: 15,
+              child: ScheduledTaskWidget(scheduledTask,
+                key: scheduledTaskWidgetKey,
+                isInitiallyExpanded: false,
+                isReadOnly: isFutureScheduledTask,
+                onScheduledTaskChanged: (changedScheduledTask) async {
+                  _updateModel(changedScheduledTask);
+                  final updatedEvent = await _mapScheduledTaskToCalendarEventData(changedScheduledTask);
+                  setState(() => _selectedEvent = updatedEvent);
+                },
+                onScheduledTaskDeleted: (deletedScheduledTask) {
+                  _unselectEvent();
+                  _deleteModel(deletedScheduledTask);
+                },
+                pagesHolder: widget.pagesHolder,
+                selectInListWhenChanged: false,
+                isNotificationsEnabled: () {
+                  return !_isNotificationsDisabled;
+                },
+                onBeforeRouting: () {
+                  // close all and exit calendar before routing to somewhere else
+                  sheetController?.close();
+                  Navigator.pop(context);
+                },
+                onAfterJournalEntryFromScheduleCreated: (taskEvent) async {
+                  if (taskEvent != null) {
+                    _addModel(taskEvent);
+                    _updateModel(scheduledTask);
+                    final updatedEvent = await _mapScheduledTaskToCalendarEventData(scheduledTask);
+                    setState(() => _selectedEvent = updatedEvent);
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       );
     }

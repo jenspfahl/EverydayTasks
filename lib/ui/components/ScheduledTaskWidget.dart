@@ -42,6 +42,7 @@ class ScheduledTaskWidget extends StatefulWidget {
   final PagesHolder pagesHolder;
   final bool selectInListWhenChanged;
   final bool? isReadOnly;
+  final Widget? leadingIcon;
 
   ScheduledTaskWidget(this.scheduledTask, {
     Key? key,
@@ -56,6 +57,7 @@ class ScheduledTaskWidget extends StatefulWidget {
     required this.pagesHolder,
     required this.selectInListWhenChanged,
     this.isReadOnly,
+    this.leadingIcon,
   }) : super(key: key);
   
   @override
@@ -192,6 +194,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
               ),
             ],
           ),
+          leading: widget.leadingIcon,
           children: expansionWidgets,
           collapsedBackgroundColor: taskGroup.backgroundColor(context),
           backgroundColor: taskGroup.softColor(context),
