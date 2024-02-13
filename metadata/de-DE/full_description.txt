@@ -15,5 +15,5 @@ Wenn dem so ist, dann erfasse oder tracke einfach deine Tätigkeiten mit Everyda
 
 Für mehr Informationen siehe <a href="https://everydaytasks.jepfa.de">everydaytasks.jepfa.de</a>
 
-Wenn du die App magst, gib ihr einen Stern auf <a href="https://github.com/jenspfahl/EverydayTasks">Github</a>
+Wenn du die App magst, gib ihr einen Stern auf <a href="https://github.com/jenspfahl/EverydayTasks">GitHub</a>
 
