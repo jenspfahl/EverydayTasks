@@ -1,6 +1,6 @@
 # Everyday Tasks
 
-Track and log your tasks with EverydayTasks and create schedules for repetitive tasks. See how many time you have spent for certain tasks, and get notified if a scheduled task is due.
+Track and log your tasks with EverydayTasks and create schedules for repetitive tasks. See how much time you have spent for certain tasks, and get notified if a scheduled task is due.
 
 ## Core features of the app
 
