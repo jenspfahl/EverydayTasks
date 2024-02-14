@@ -195,13 +195,19 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   }
 
   DateTime? _calcLastScheduledEventOn(TaskEvent? taskEvent) {
-    if (taskEvent != null && templateId != null &&
-        taskEvent.originTemplateId == templateId) {
-      return taskEvent.startedAt;
+    if (schedule.repetitionMode == RepetitionMode.DYNAMIC) {
+      if (taskEvent != null && templateId != null &&
+          taskEvent.originTemplateId == templateId) {
+        return taskEvent.startedAt;
+      }
+      else {
+        return DateTime.now();
+      }
     }
-    else {
-      return DateTime.now();
+    else if (schedule.repetitionMode == RepetitionMode.FIXED) {
+      return getNextSchedule();
     }
+    return null;
   }
 
   void pause() {
