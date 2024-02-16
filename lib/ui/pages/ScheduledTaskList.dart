@@ -98,7 +98,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   List<ScheduledTask> _scheduledTasks = [];
   bool _initialLoaded = false;
-  int _selectedTile = -1;
+  int? _selectedTileId;
   bool _disableNotification = false;
   SortBy _sortBy = SortBy.PROGRESS;
   bool _hideInactive = false;
@@ -639,7 +639,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         debugPrint("scheduleId = $scheduleId");
         final clickedScheduledTask = _scheduledTasks.firstWhereOrNull((scheduledTask) => scheduledTask.id == scheduleId);
         if (clickedScheduledTask != null) {
-          _updateSelectedTile(_scheduledTasks.indexOf(clickedScheduledTask));
+          _updateSelectedTile(clickedScheduledTask);
           if (actionId == "track") {
             ScheduledTaskWidget.openAddJournalEntryFromSchedule(context, widget._pagesHolder, clickedScheduledTask);
           }
@@ -649,7 +649,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
-    final isExpanded = index == _selectedTile;
+    final isExpanded = scheduledTask.id == _selectedTileId;
     final criteria = _getGroupingCriteria(scheduledTask, _sortBy, _importantOnTop);
 
     if (_hideInactive && !scheduledTask.active) {
@@ -661,10 +661,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           padding: EdgeInsets.all(4.0),
           child: ScheduledTaskWidget(scheduledTask,
             isInitiallyExpanded: isExpanded,
-            shouldExpand: () => index == _selectedTile,
+            shouldExpand: () => scheduledTask.id == _selectedTileId,
             onExpansionChanged: ((expanded) {
               setState(() {
-                _selectedTile = expanded ? index : -1;
+                _selectedTileId = expanded ? scheduledTask.id : null;
               });
             }),
             pagesHolder: widget._pagesHolder,
@@ -679,7 +679,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     setState(() {
       _scheduledTasks.add(scheduledTask);
       _sortList();
-      _updateSelectedTile(_scheduledTasks.indexOf(scheduledTask));
+      _updateSelectedTile(scheduledTask);
       _rescheduleNotification(scheduledTask, withCancel: false);
       _calcOverallStats();
     });
@@ -694,7 +694,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         _scheduledTasks.insert(index, updated);
       }
       _sortList();
-      _updateSelectedTile(_scheduledTasks.indexOf(updated));
+      _updateSelectedTile(updated);
       _calcOverallStats();
 
       _rescheduleNotification(updated,
@@ -810,7 +810,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   void removeScheduledTask(ScheduledTask scheduledTask) {
     setState(() {
       _scheduledTasks.remove(scheduledTask);
-      _selectedTile = -1;
+      _selectedTileId = null;
       _calcOverallStats();
 
       _cancelNotification(scheduledTask);
@@ -987,7 +987,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       _importantOnTop = importantOnTop;
       if (sortByChanged) {
         _hiddenTiles.clear(); // make all visible
-        _selectedTile = -1; // don't select any
+        _selectedTileId = null; // don't select any
       }
       _sortList();
     });
@@ -1087,10 +1087,14 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     _preferenceService.setBool(PreferenceService.DATA_SHOW_SCHEDULED_SUMMARY, !value);
   }
 
-  _updateSelectedTile(int index) {
-    _selectedTile = index;
-    if (index != -1) {
-      _listScrollController.scrollToIndex(index, duration: Duration(milliseconds: 1));
+  _updateSelectedTile(ScheduledTask? scheduledTask) {
+    _selectedTileId = scheduledTask?.id;
+    if (scheduledTask != null) {
+      int index = _scheduledTasks.indexOf(scheduledTask);
+      if (index >= 0) {
+        _listScrollController.scrollToIndex(
+            index, duration: Duration(milliseconds: 1));
+      }
     }
   }
 
