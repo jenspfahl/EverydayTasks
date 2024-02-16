@@ -195,17 +195,29 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   }
 
   DateTime? _calcLastScheduledEventOn(TaskEvent? taskEvent) {
+
+    final startedAtFromTask =
+      (taskEvent != null && templateId != null && taskEvent.originTemplateId == templateId)
+          ? taskEvent.startedAt
+          : null;
+
+
     if (schedule.repetitionMode == RepetitionMode.DYNAMIC) {
-      if (taskEvent != null && templateId != null &&
-          taskEvent.originTemplateId == templateId) {
-        return taskEvent.startedAt;
-      }
-      else {
-        return DateTime.now();
-      }
+      return startedAtFromTask ?? DateTime.now();
     }
     else if (schedule.repetitionMode == RepetitionMode.FIXED) {
-      return getNextSchedule();
+      if (isDue())  {
+        // only complete this schedule if due
+        return getNextSchedule();
+      }
+      else {
+        // keep current state
+        return lastScheduledEventOn;
+      }
+    }
+    else if (schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+      // for one-time we can only set it to done (like dynamic)
+      return startedAtFromTask ?? DateTime.now();
     }
     return null;
   }
