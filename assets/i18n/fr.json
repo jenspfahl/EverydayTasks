@@ -247,6 +247,16 @@
           "title_custom": "La prochaine échéance pour '{title}' est ...",
           "success_custom": "Prochaine échéance pour '{title}' mise à jour"
         },
+        "move_forward": {
+          "title": "Skip due date",
+          "message": "Do you want to move forward the due date of '{title}' to the next date based on the schedule? The schedule is then due {nextDueDate} at {newNextDueDate}.",
+          "success": "Due date for '{title}' updated"
+        },
+        "one_time": {
+          "title": "Stop schedule",
+          "message": "You are about to stop the current one-time schedule of '{title}'. The schedule will be marked as completed without a tracked task event. Are you sure?",
+          "success": "Due date for '{title}' updated"
+        },
         "pause_resume": {
           "paused": "Tâche planifiée '{title}' mise en pause",
           "resumed": "Tâche planifiée '{title}' relancée"

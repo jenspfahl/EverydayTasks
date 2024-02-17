@@ -429,6 +429,11 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
     }
 
     if (widget.isReadOnly != true) {
+      var resetIcon = scheduledTask.schedule.repetitionMode == RepetitionMode.DYNAMIC
+          ? Icons.replay
+          : scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED
+          ? Icons.skip_next
+          : Icons.stop;
       expansionWidgets.addAll([
         Padding(
           padding: EdgeInsets.symmetric(vertical: 4, horizontal: 16),
@@ -478,11 +483,9 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                   SizedBox(
                     width: 50,
                     child: Visibility(
-                      visible: scheduledTask.schedule.repetitionMode !=
-                          RepetitionMode.ONE_TIME,
-                      // TODO we could reset start to now if useful with this
+                      visible: !scheduledTask.isOneTimeCompleted,
                       child: TextButton(
-                        child: Icon(Icons.replay,
+                        child: Icon(resetIcon,
                             color: isDarkMode(context)
                                 ? BUTTON_COLOR.shade300
                                 : BUTTON_COLOR),
@@ -492,34 +495,79 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                                 'pages.schedules.errors.cannot_reset'));
                             return;
                           }
-                          final newNextDueDate = scheduledTask
-                              .simulateExecuteSchedule(null);
+
+                          var newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
+
+
+                          if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
+                            if (!scheduledTask.isDue()) {
+                              // get schedule after next due date to move forward
+                              newNextDueDate = scheduledTask.getNextScheduleAfter(newNextDueDate);
+                            }
+                          }
+                          else if (scheduledTask.schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+                            newNextDueDate = scheduledTask.getNextSchedule();
+                          }
+
                           var nextDueDateAsString = formatToDateOrWord(
                               newNextDueDate!, context,
                               withPreposition: true,
                               makeWhenOnLowerCase: true);
-                          var message = (newNextDueDate != nextSchedule)
-                              ? translate(
-                              'pages.schedules.action.reset.message_then',
-                              args: {
-                                "title": scheduledTask.translatedTitle,
-                                "nextDueDate": nextDueDateAsString,
-                                "newNextDueDate": formatToTime(newNextDueDate)
-                              })
-                              : translate(
-                              'pages.schedules.action.reset.message_still',
-                              args: {
-                                "title": scheduledTask.translatedTitle,
-                                "nextDueDate": nextDueDateAsString,
-                                "newNextDueDate": formatToTime(newNextDueDate)
-                              });
+
+                          String title, message, i18nKeyForSuccess;
+                          if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
+                            title = translate('pages.schedules.action.move_forward.title');
+                            message = translate(
+                                'pages.schedules.action.move_forward.message',
+                                args: {
+                                  "title": scheduledTask.translatedTitle,
+                                  "nextDueDate": nextDueDateAsString,
+                                  "newNextDueDate": formatToTime(newNextDueDate)
+                                });
+                            i18nKeyForSuccess = 'pages.schedules.action.move_forward.success';
+                          }
+                          else if (scheduledTask.schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+                            title = translate('pages.schedules.action.one_time.title');
+                            message = translate(
+                                'pages.schedules.action.one_time.message',
+                                args: {
+                                  "title": scheduledTask.translatedTitle,
+                                });
+                            i18nKeyForSuccess = 'pages.schedules.action.one_time.success';
+                          }
+                          else { // dynamic
+                            title = translate('pages.schedules.action.reset.title');
+                            message = (newNextDueDate != nextSchedule)
+                                ? translate(
+                                'pages.schedules.action.reset.message_then',
+                                args: {
+                                  "title": scheduledTask.translatedTitle,
+                                  "nextDueDate": nextDueDateAsString,
+                                  "newNextDueDate": formatToTime(newNextDueDate)
+                                })
+                                : translate(
+                                'pages.schedules.action.reset.message_still',
+                                args: {
+                                  "title": scheduledTask.translatedTitle,
+                                  "nextDueDate": nextDueDateAsString,
+                                  "newNextDueDate": formatToTime(newNextDueDate)
+                                });
+                            i18nKeyForSuccess = 'pages.schedules.action.reset.success';
+                          }
+
                           showConfirmationDialog(
                             context,
-                            translate('pages.schedules.action.reset.title'),
+                            title,
                             message,
-                            icon: const Icon(Icons.replay),
+                            icon: Icon(resetIcon),
                             okPressed: () {
-                              scheduledTask.executeSchedule(null);
+                              if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
+                                // because the schedule snaps to the next due date we have to substract one day
+                                scheduledTask.lastScheduledEventOn = newNextDueDate?.subtract(Duration(days: 1));
+                              }
+                              else {
+                                scheduledTask.executeSchedule(null);
+                              }
                               ScheduledTaskRepository.update(scheduledTask)
                                   .then((changedScheduledTask) {
                                 final state = widget.pagesHolder
@@ -540,7 +588,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                                       changedScheduledTask);
 
                                 toastInfo(context, translate(
-                                    'pages.schedules.action.reset.success',
+                                    i18nKeyForSuccess,
                                     args: {
                                       "title": changedScheduledTask
                                           .translatedTitle
@@ -553,67 +601,68 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                             },
                             cancelPressed: () =>
                                 Navigator.pop(context),
-                            // dismiss dialog, should be moved in Dialogs.dart somehow
-                            neutralButton: TextButton(
-                                child: Text(translate('common.words.custom')
-                                    .capitalize() + ELLIPSIS),
-                                onPressed: () {
-                                  showTweakedDatePicker(
-                                      context,
-                                      helpText: translate(
-                                          'pages.schedules.action.reset.title_custom',
-                                          args: {
-                                            "title": scheduledTask
-                                                .translatedTitle
-                                          }),
-                                      initialDate: newNextDueDate,
-                                      selectableDayPredicate: (date) {
-                                        return scheduledTask.schedule
-                                            .appliesToFixedSchedule(date);
-                                      }
-                                  ).then((selectedDate) {
-                                    if (selectedDate != null) {
-                                      scheduledTask.setNextSchedule(
-                                          selectedDate);
-                                      ScheduledTaskRepository.update(
-                                          scheduledTask).then((
-                                          changedScheduledTask) {
-                                        final state = widget.pagesHolder
-                                            .scheduledTaskList
-                                            ?.getGlobalKey()
-                                            .currentState;
-                                        ScheduledTaskWidget
-                                            .cancelSnoozedNotification(
-                                            scheduledTask);
-                                        state?.updateScheduledTask(
-                                            scheduledTask,
-                                            changedScheduledTask);
-
-                                        setState(() {
-                                          scheduledTask.apply(
-                                              changedScheduledTask);
-                                        });
-
-                                        if (widget.onScheduledTaskChanged !=
-                                            null)
-                                          widget.onScheduledTaskChanged!(
-                                              changedScheduledTask);
-
-                                        toastInfo(context, translate(
-                                            'pages.schedules.action.reset.success_custom',
+                            neutralButton: scheduledTask.schedule.repetitionMode != RepetitionMode.ONE_TIME
+                                ? TextButton(
+                                  child: Text(translate('common.words.custom')
+                                      .capitalize() + ELLIPSIS),
+                                  onPressed: () {
+                                    showTweakedDatePicker(
+                                        context,
+                                        helpText: translate(
+                                            'pages.schedules.action.reset.title_custom',
                                             args: {
-                                              "title": changedScheduledTask
+                                              "title": scheduledTask
                                                   .translatedTitle
-                                            }));
-                                      });
-                                      Navigator.pop(
-                                          context); // dismiss dialog, should be moved in Dialogs.dart somehow
-                                    }
-                                    else {
-                                      Navigator.pop(context);
-                                    }
-                                  });
-                                }),
+                                            }),
+                                        initialDate: newNextDueDate,
+                                        selectableDayPredicate: (date) {
+                                          return scheduledTask.schedule
+                                              .appliesToFixedSchedule(date);
+                                        }
+                                    ).then((selectedDate) {
+                                      if (selectedDate != null) {
+                                        scheduledTask.setNextSchedule(
+                                            selectedDate);
+                                        ScheduledTaskRepository.update(
+                                            scheduledTask).then((
+                                            changedScheduledTask) {
+                                          final state = widget.pagesHolder
+                                              .scheduledTaskList
+                                              ?.getGlobalKey()
+                                              .currentState;
+                                          ScheduledTaskWidget
+                                              .cancelSnoozedNotification(
+                                              scheduledTask);
+                                          state?.updateScheduledTask(
+                                              scheduledTask,
+                                              changedScheduledTask);
+
+                                          setState(() {
+                                            scheduledTask.apply(
+                                                changedScheduledTask);
+                                          });
+
+                                          if (widget.onScheduledTaskChanged !=
+                                              null)
+                                            widget.onScheduledTaskChanged!(
+                                                changedScheduledTask);
+
+                                          toastInfo(context, translate(
+                                              'pages.schedules.action.reset.success_custom',
+                                              args: {
+                                                "title": changedScheduledTask
+                                                    .translatedTitle
+                                              }));
+                                        });
+                                        Navigator.pop(
+                                            context); // dismiss dialog, should be moved in Dialogs.dart somehow
+                                      }
+                                      else {
+                                        Navigator.pop(context);
+                                      }
+                                    });
+                                  })
+                                : null,
                           );
                         },
                       ),

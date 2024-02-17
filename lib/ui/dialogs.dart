@@ -141,7 +141,7 @@ void showConfirmationDialog(BuildContext context, String title, String message,
   }
   AlertDialog alert = AlertDialog(
     title: icon != null
-      ? Row(children: [
+      ? Wrap(children: [
       Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
         child: icon,

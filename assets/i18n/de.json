@@ -246,6 +246,16 @@
           "title_custom": "Nächste Fälligkeit für '{title}' ist ...",
           "success_custom": "Die nächste Fälligkeit für '{title}' wurde angepasst"
         },
+        "move_forward": {
+          "title": "Fälligkeitsdatum überspringen",
+          "message": "Möchtest du die Fälligkeit für '{title}' auf das nächste Fälligkeitsdatum setzen, basierend auf dem Zeitplan ? Die nächste Fälligkeit ist dann {nextDueDate} um {newNextDueDate}.",
+          "success": "Fälligkeitsdatum für '{title}' angepasst"
+        },
+        "one_time": {
+          "title": "Zeitplan stoppen",
+          "message": "Du kannst den Zeitplan für '{title}' stoppen, ohne eine Aufgaben zu erfassen. Der Zeitplan wird dann als Erledigt markiert. Fortfahren?",
+          "success": "Due date for '{title}' updated"
+        },
         "pause_resume": {
           "paused": "Zeitplan '{title}' pausiert",
           "resumed": "Zeitplan '{title}' wieder fortgesetzt"
