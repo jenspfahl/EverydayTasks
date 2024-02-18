@@ -247,14 +247,14 @@
           "success_custom": "Следующий срок сдачи для '{title}' обновлён"
         },
         "move_forward": {
-          "title": "Skip due date",
-          "message": "Do you want to move forward the due date of '{title}' to the next date based on the schedule? The schedule is then due {nextDueDate} at {newNextDueDate}.",
-          "success": "Due date for '{title}' updated"
+          "title": "Пропустить дату срока",
+          "message": "Вы желаете передвинуть дату срока '{title}' на другую дату основываясь по этому расписанию? Следующий срок тогда будет до {nextDueDate} в {newNextDueDate}.",
+          "success": "Дата срока для '{title}' обновлена"
         },
         "one_time": {
-          "title": "Stop schedule",
-          "message": "You are about to stop the current one-time schedule of '{title}'. The schedule will be marked as completed without a tracked task event. Are you sure?",
-          "success": "Due date for '{title}' updated"
+          "title": "Остановить расписание",
+          "message": "Вы сейчас остановите текущее одноразовое расписание для '{title}'. Это расписание будет отмечено как завершённое без события по отслеживаемой задаче. Вы уверены?",
+          "success": "Дата срока для '{title}' обновлена"
         },
         "pause_resume": {
           "paused": "Расписание '{title}' приостановлено",
