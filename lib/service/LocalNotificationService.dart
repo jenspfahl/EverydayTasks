@@ -181,7 +181,7 @@ class LocalNotificationService {
     await _flutterLocalNotificationsPlugin.cancelAll();
   }
 
-  void handleAppLaunchNotification() {
+  void handleAppLaunchNotification(Function (List<int>) handleActiveNotificationPostHandler) {
     _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails()
         .then((notification) {
           final payload = notification?.notificationResponse?.payload;
@@ -199,7 +199,7 @@ class LocalNotificationService {
       activeNotifications.forEach((element) {
         _handleActiveNotification(element.id, element.channelId);
       });
-
+      handleActiveNotificationPostHandler(activeNotifications.map((e) => e.id).toList());
     });
   }
 

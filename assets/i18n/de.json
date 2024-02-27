@@ -253,7 +253,7 @@
         },
         "one_time": {
           "title": "Zeitplan stoppen",
-          "message": "Du kannst den Zeitplan für '{title}' stoppen, ohne eine Aufgaben zu erfassen. Der Zeitplan wird dann als Erledigt markiert. Fortfahren?",
+          "message": "Du kannst den Zeitplan für '{title}' stoppen, ohne eine Tätigkeit zu erfassen. Der Zeitplan wird dann als Erledigt markiert. Fortfahren?",
           "success": "Due date for '{title}' updated"
         },
         "pause_resume": {

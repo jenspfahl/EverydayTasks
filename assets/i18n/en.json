@@ -253,7 +253,7 @@
         },
         "one_time": {
           "title": "Stop schedule",
-          "message": "You are about to stop the current one-time schedule of '{title}'. The schedule will be marked as completed without a tracked task event. Are you sure?",
+          "message": "You are about to stop the current one-time schedule of '{title}'. The schedule will be marked as completed without a new journal entry. Are you sure?",
           "success": "Due date for '{title}' updated"
         },
         "pause_resume": {
