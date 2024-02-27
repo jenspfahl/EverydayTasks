@@ -174,6 +174,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
     if (widget.stateAsJson != null) {
       _setStateFromJson(widget.stateAsJson!);
       _startTracking(trackingStart: _trackingStart);
+      _showPermanentNotification(true);
     }
 
   }
@@ -594,10 +595,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
   @override
   void deactivate() {
     _timer?.cancel();
-    if (_isTrackingRunning()) {
-      _notificationService.cancelNotification(TRACKING_NOTIFICATION_ID);
-      _preferenceService.remove(getPrefKeyFromTrackingId());
-    }
+
     super.deactivate();
   }
 
