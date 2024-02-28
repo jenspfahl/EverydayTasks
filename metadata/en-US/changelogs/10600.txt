@@ -1,0 +1,8 @@
+* Reinvent fixed schedules (support multiple days like MO and FR)
+* Mark important schedules to emphasise them
+* Group schedule list by certain criteria
+* Add one-time schedules
+* Make default day-time quick selections configurable
+* Display actual recurring schedules in calendar
+* Backup and restore app preferences
+* Fix bug when restoring a backup file

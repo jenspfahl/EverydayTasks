@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:calendar_view/calendar_view.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:patterns_canvas/patterns_canvas.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/db/repository/TaskGroupRepository.dart';
+import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
@@ -17,6 +19,7 @@ import 'package:personaltasklogger/util/extensions.dart';
 import '../../db/repository/ChronologicalPaging.dart';
 import '../../db/repository/TaskEventRepository.dart';
 import '../../db/repository/TemplateRepository.dart';
+import '../../model/FutureScheduledTask.dart';
 import '../../model/Template.dart';
 import '../../model/TitleAndDescription.dart';
 import '../../model/When.dart';
@@ -163,6 +166,49 @@ class _CalendarPageStatus extends State<CalendarPage> {
     if (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH) {
       calendarController.addAll(eventData);
     }
+    scheduledTasks
+        .where((e) => e is ScheduledTask)
+        .map((e) => e as ScheduledTask)
+        .forEach((scheduledTask) {
+      _addFutureScheduledTasks(scheduledTask);
+    });
+  }
+
+  void _addFutureScheduledTasks(ScheduledTask scheduledTask) {
+    if (scheduledTask.schedule.repetitionMode != RepetitionMode.ONE_TIME
+        && scheduledTask.lastScheduledEventOn != null
+        && !scheduledTask.isPaused
+        && scheduledTask.active) {
+      _mapAndAddFutureScheduledTaskToCalendar(scheduledTask, scheduledTask.lastScheduledEventOn!, 1);
+    }
+  }
+
+  _mapAndAddFutureScheduledTaskToCalendar(ScheduledTask scheduledTask, DateTime dueOn, int level) async {
+    if (level >= 100) {
+      //break
+      return;
+    }
+    final wrapper = FutureScheduledTask(
+        id: scheduledTask.id,
+        taskGroupId: scheduledTask.taskGroupId,
+        templateId: scheduledTask.templateId,
+        title: kReleaseMode ? scheduledTask.translatedTitle : "${scheduledTask.translatedTitle} (#$level)",
+        description: scheduledTask.translatedDescription,
+        createdAt: scheduledTask.createdAt,
+        schedule: scheduledTask.schedule,
+        active: scheduledTask.active,
+        pausedAt: scheduledTask.pausedAt,
+        important: scheduledTask.important,
+        oneTimeCompletedOn: scheduledTask.oneTimeCompletedOn,
+    );
+    wrapper.lastScheduledEventOn = scheduledTask.getNextScheduleAfter(dueOn)!;
+    final eventData = await _mapScheduledTaskToCalendarEventData(wrapper);
+    _scheduledTaskCalendarEvents.add(eventData);
+    if (_eventType == EventType.SCHEDULE || _eventType == EventType.BOTH) {
+      calendarController.add(eventData);
+    }
+
+    _mapAndAddFutureScheduledTaskToCalendar(scheduledTask, scheduledTask.getNextScheduleAfter(dueOn)!, level + 1);
   }
 
   _mapAndAddTaskEventsToCalendar(List<TitleAndDescription> taskEvents) async {
@@ -296,8 +342,9 @@ class _CalendarPageStatus extends State<CalendarPage> {
     else if (event is ScheduledTask) {
       final updatedEvent = await _mapScheduledTaskToCalendarEventData(event);
       _scheduledTaskCalendarEvents.add(updatedEvent);
-
       _addToCalendar(updatedEvent);
+
+      _addFutureScheduledTasks(event);
     }
   }
 
@@ -318,6 +365,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
       calendarController.removeWhere((element) => element.event == event);
     }
     else if (event is ScheduledTask) {
+      // this also deletes FutureScheduleTasks
       _scheduledTaskCalendarEvents.removeWhere((e) => e.event == event);
       calendarController.removeWhere((element) => element.event == event);
     }
@@ -525,7 +573,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
           fontSize: 17,
           color: isDarkMode(context) ? Colors.white : Colors.black,
         ),
-        weekDayStringBuilder: (day) => getWeekdayOf((day + 1) % 7, context).characters.first.toUpperCase(),
+        weekDayStringBuilder: (day) => getNarrowWeekdayOf(day, context).toUpperCase(),
       ),
       headerStringBuilder: _headerMonthBuilder,
       onDateLongPress: _onDateLongPress,
@@ -593,7 +641,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final paging = ChronologicalPaging(CalendarConstants.maxDate, ChronologicalPaging.maxId, 10000);
     final scheduledTasks = await ScheduledTaskRepository.getAllPaged(paging);
 
-    return scheduledTasks.where((e) => e.active).toList();
+    return scheduledTasks.where((e) => e.active && !e.isOneTimeCompleted).toList();
   }
 
   Future<CalendarEventData<ScheduledTask>> _mapScheduledTaskToCalendarEventData(ScheduledTask scheduledTask) async {
@@ -608,8 +656,9 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
 
     var title = scheduledTask.translatedTitle;
-    var startAt = scheduledTask.getNextSchedule()!;
-    var endAt = scheduledTask.getNextSchedule()!.add(duration);
+    var nextSchedule = scheduledTask.getNextSchedule()!;
+    var startAt = nextSchedule;
+    var endAt = nextSchedule.add(duration);
     if (TimeOfDay.fromDateTime(startAt).toDouble() > TimeOfDay.fromDateTime(endAt).toDouble()) {
       endAt = startAt.withoutTime.add(Duration(minutes: (60 * 24) - 1)); // cut end to one minute before end of day
       //TODO render event part for the next day
@@ -617,8 +666,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
 
     final event = CalendarEventData(
-      date: scheduledTask.getNextSchedule()!,
-      endDate: scheduledTask.getNextSchedule()!,
+      date: nextSchedule,
+      endDate: nextSchedule,
       event: scheduledTask,
       title: title,
       description: scheduledTask.translatedDescription??"",
@@ -715,6 +764,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
     else if (event is ScheduledTask) {
       final scheduledTask = event;
+      var isFutureScheduledTask = scheduledTask is FutureScheduledTask;
       return GestureDetector(
         onLongPress: () {
           sheetController?.close();
@@ -723,36 +773,63 @@ class _CalendarPageStatus extends State<CalendarPage> {
             appScaffoldKey.currentState!.sendEventFromClicked(SCHEDULED_TASK_LIST_ROUTING_KEY, false, scheduledTask.id.toString(), null);
           }
         },
-        child: ScheduledTaskWidget(scheduledTask,
-          key: scheduledTaskWidgetKey,
-          isInitiallyExpanded: false,
-          onScheduledTaskChanged: (changedScheduledTask) async {
-            _updateModel(changedScheduledTask);
-            final updatedEvent = await _mapScheduledTaskToCalendarEventData(changedScheduledTask);
-            setState(() => _selectedEvent = updatedEvent);
-          },
-          onScheduledTaskDeleted: (deletedScheduledTask) {
-            _unselectEvent();
-            _deleteModel(deletedScheduledTask);
-          },
-          pagesHolder: widget.pagesHolder,
-          selectInListWhenChanged: false,
-          isNotificationsEnabled: () {
-            return !_isNotificationsDisabled;
-          },
-          onBeforeRouting: () {
-            // close all and exit calendar before routing to somewhere else
-            sheetController?.close();
-            Navigator.pop(context);
-          },
-          onAfterJournalEntryFromScheduleCreated: (taskEvent) async {
-            if (taskEvent != null) {
-              _addModel(taskEvent);
-              _updateModel(scheduledTask);
-              final updatedEvent = await _mapScheduledTaskToCalendarEventData(scheduledTask);
-              setState(() => _selectedEvent = updatedEvent);
-            }
-          },
+        child: Row(
+          children: [
+            if (isFutureScheduledTask)
+              Expanded(
+                flex: 1,
+                child: GestureDetector(
+                    child: SizedBox(
+                      width: 0,
+                      height: 46,
+                      child: Center(child: Icon(Icons.first_page)),
+                    ),
+                    onTapDown: (_) {
+                      final origin = _scheduledTaskCalendarEvents
+                          .where((event) => event.event?.id == scheduledTask.id && !(event.event is FutureScheduledTask))
+                          .firstOrNull;
+                      if (origin != null) {
+                        _handleTapEvent(origin);
+                        _jumpToSelectionOrToday();
+                      }
+                    }),
+              ),
+            Expanded(
+              flex: 15,
+              child: ScheduledTaskWidget(scheduledTask,
+                key: scheduledTaskWidgetKey,
+                isInitiallyExpanded: false,
+                isReadOnly: isFutureScheduledTask,
+                onScheduledTaskChanged: (changedScheduledTask) async {
+                  _updateModel(changedScheduledTask);
+                  final updatedEvent = await _mapScheduledTaskToCalendarEventData(changedScheduledTask);
+                  setState(() => _selectedEvent = updatedEvent);
+                },
+                onScheduledTaskDeleted: (deletedScheduledTask) {
+                  _unselectEvent();
+                  _deleteModel(deletedScheduledTask);
+                },
+                pagesHolder: widget.pagesHolder,
+                selectInListWhenChanged: false,
+                isNotificationsEnabled: () {
+                  return !_isNotificationsDisabled;
+                },
+                onBeforeRouting: () {
+                  // close all and exit calendar before routing to somewhere else
+                  sheetController?.close();
+                  Navigator.pop(context);
+                },
+                onAfterJournalEntryFromScheduleCreated: (taskEvent) async {
+                  if (taskEvent != null) {
+                    _addModel(taskEvent);
+                    _updateModel(scheduledTask);
+                    final updatedEvent = await _mapScheduledTaskToCalendarEventData(scheduledTask);
+                    setState(() => _selectedEvent = updatedEvent);
+                  }
+                },
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -821,8 +898,14 @@ class _CalendarPageStatus extends State<CalendarPage> {
     final object = event.event;
     final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
     final taskGroup = _getTaskGroup(taskGroupId);
-    final backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
-    final icon = _getEventIcon(taskGroup);
+    var backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
+    var icon = _getEventIcon(taskGroup);
+
+    icon = _addImportantIndicator(icon, object);
+
+    if (object is FutureScheduledTask) {
+      backgroundColor = backgroundColor.withOpacity(0.05);
+    }
     
     return CustomPaint(
       painter: object is ScheduledTask ? StripePainter(Colors.transparent, backgroundColor.withOpacity(0.1), _calendarMode == CalendarMode.DAY ? 21 : 7) : null,
@@ -842,7 +925,20 @@ class _CalendarPageStatus extends State<CalendarPage> {
     );
   }
 
-  Icon? _getEventIcon(TaskGroup? taskGroup) {
+  Widget? _addImportantIndicator(Widget? icon, TitleAndDescription? object) {
+    if (icon != null && object is ScheduledTask && object.important) {
+      icon = Wrap(
+          children: [
+            Icon(Icons.priority_high,
+                color: isDarkMode(context) ? Colors.white60 : Colors.black54,
+                size: (16 * _scaleFactor).max(16)),
+            icon
+          ]);
+    }
+    return icon;
+  }
+
+  Widget? _getEventIcon(TaskGroup? taskGroup) {
     final icon = taskGroup != null
         ? Icon(
             taskGroup.getIcon(true).icon,
@@ -857,9 +953,9 @@ class _CalendarPageStatus extends State<CalendarPage> {
     return TextStyle(
             fontSize: (14 * _scaleFactor).max(14),
             fontStyle: object is ScheduledTask ? FontStyle.italic : null,
-            fontWeight: object is ScheduledTask && (object.isDueNow() || object.isNextScheduleOverdue(false)) ? FontWeight.bold : null,
+            fontWeight: object is ScheduledTask && (object.isDue()) ? FontWeight.bold : null,
             color: object is ScheduledTask
-              ? (object.isDueNow() || object.isNextScheduleOverdue(false) )
+              ? (object.isDue())
                 ? Colors.red
                 : object.getDueColor(context, lighter: true)
               : (isDarkMode(context) ? Colors.white70 : Colors.black54), // event.color.accent,
@@ -874,7 +970,7 @@ class _CalendarPageStatus extends State<CalendarPage> {
           : null;
     }
     else if (object is ScheduledTask) {
-      bool isDue = object.isDueNow() || object.isNextScheduleOverdue(false);
+      bool isDue = object.isDue();
       Color color = isDue
           ? Colors.red
           : backgroundColor;
@@ -900,8 +996,13 @@ class _CalendarPageStatus extends State<CalendarPage> {
         final object = event.event;
         final taskGroupId = object is TaskEvent ? object.taskGroupId : object is ScheduledTask ? object.taskGroupId : null;
         final taskGroup = _getTaskGroup(taskGroupId);
-        final backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
-        final icon = _getEventIcon(taskGroup);
+        var backgroundColor = isSelected ? taskGroup?.softColor(context) ?? event.color : event.color;
+        var icon = _getEventIcon(taskGroup);
+        icon = _addImportantIndicator(icon, object);
+
+        if (object is FutureScheduledTask) {
+          backgroundColor = backgroundColor.withOpacity(0.05);
+        }
 
         return Container(
           decoration: BoxDecoration(

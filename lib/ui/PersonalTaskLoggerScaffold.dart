@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_translate/flutter_translate.dart';
-import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/service/BackupRestoreService.dart';
 import 'package:personaltasklogger/service/CsvService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
@@ -18,6 +17,7 @@ import 'package:personaltasklogger/ui/utils.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 import '../db/repository/TaskEventRepository.dart';
+import '../db/repository/TaskGroupRepository.dart';
 import '../main.dart';
 import '../service/DueScheduleCountService.dart';
 import 'pages/CalendarPage.dart';
@@ -109,25 +109,29 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
     super.initState();
     _notificationService.addNotificationClickedHandler(sendEventFromClicked);
     _notificationService.addActiveNotificationHandler(sendEventFromActiveNotification);
-    _notificationService.handleAppLaunchNotification();
-
-    //this is a hack since this is QuickAdd/ScheduledTask related code here
-    _preferenceService.getBool(PREF_PIN_QUICK_ADD).then((pinQuickAddPage) {
-      if (pinQuickAddPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schedule Page
-        setState(() {
-          _selectedNavigationIndex = NAVIGATION_IDX_QUICKADD;
-          _pageController.jumpToPage(_selectedNavigationIndex);
+    _notificationService.handleAppLaunchNotification((ids) {
+      if (!ids.contains(TRACKING_NOTIFICATION_ID)) {
+        // don't jump to another if tracking is active
+        //this is a hack since this is QuickAdd/ScheduledTask related code here
+        _preferenceService.getBool(PREF_PIN_QUICK_ADD).then((pinQuickAddPage) {
+          if (pinQuickAddPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schedule Page
+            setState(() {
+              _selectedNavigationIndex = NAVIGATION_IDX_QUICKADD;
+              _pageController.jumpToPage(_selectedNavigationIndex);
+            });
+          }
+          else _preferenceService.getBool(PREF_PIN_SCHEDULES).then((pinSchedulesPage) {
+            if (pinSchedulesPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schedule Page
+              setState(() {
+                _selectedNavigationIndex = NAVIGATION_IDX_TASK_SCHEDULES;
+                _pageController.jumpToPage(_selectedNavigationIndex);
+              });
+            }
+          });
         });
       }
-      else _preferenceService.getBool(PREF_PIN_SCHEDULES).then((pinSchedulesPage) {
-        if (pinSchedulesPage == true && _selectedNavigationIndex != NAVIGATION_IDX_TASK_SCHEDULES) { // only if current is not the Schedule Page
-          setState(() {
-            _selectedNavigationIndex = NAVIGATION_IDX_TASK_SCHEDULES;
-            _pageController.jumpToPage(_selectedNavigationIndex);
-          });
-        }
-      });
-    });
+    }); // here all handlers are invoked
+
 
     _preferenceService.getBool(PreferenceService.DATA_WALKTHROUGH_SHOWN).then((value) {
       if (value == null || value == false) {
@@ -287,8 +291,10 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                               cancelPressed: () => Navigator.pop(context),
                               okPressed: () async {
                                 Navigator.pop(context);
-                                await _backupRestoreService.restore((success) {
+                                await _backupRestoreService.restore((success) async {
                                   if (success) {
+                                    await TaskGroupRepository.loadAll(true); // load caches
+
                                     toastInfo(context, translate('pages.restore.backup_restored'));
                                     setState(() {
                                       _pages.forEach((page) {
@@ -348,7 +354,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                                     launchUrl("https://github.com/jenspfahl/EverydayTasks");
                                   }),
                               Divider(),
-                              Text('© Jens Pfahl 2022, 2023', style: TextStyle(fontSize: 12)),
+                              Text('© Jens Pfahl 2022 - 2024', style: TextStyle(fontSize: 12)),
                             ],
                             applicationIcon: Icon(Icons.task_alt, color: ACCENT_COLOR),
                           );
@@ -695,6 +701,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
   sendEventFromActiveNotification(int id, String? channelId) {
     debugPrint("sendEventFromActiveNotification $id $channelId");
 
+    // detect an active TRACKING notification to determine there is an ongoing tracking
     //this is a hack. The tracking specific code should not live here but it works for now.
     if (id == TRACKING_NOTIFICATION_ID) {
       _preferenceService.getString(getPrefKeyFromTrackingId()).then((payload) {

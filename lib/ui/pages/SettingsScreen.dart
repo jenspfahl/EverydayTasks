@@ -12,6 +12,7 @@ import '../../util/dates.dart';
 import '../../util/i18n.dart';
 import '../PersonalTaskLoggerApp.dart';
 import '../dialogs.dart';
+import 'DayTimeSettingsScreen.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -180,6 +181,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _preferenceService.showTimeOfDayAsText = value;
                 _preferenceService.setBool(PreferenceService.PREF_SHOW_TIME_OF_DAY_AS_TEXT, value);
                  setState(() => _showTimeOfDayAsText = value);
+              },
+            ),
+            SettingsTile(
+              title: Text(translate('pages.settings.date_n_time.configure_daytimes.title')),
+              description: Text(
+                  translate('pages.settings.date_n_time.configure_daytimes.description')),
+              onPressed: (context) {
+                Navigator.push(super.context, MaterialPageRoute(builder: (context) => DayTimeSettingsScreen()));
               },
             ),
           ],

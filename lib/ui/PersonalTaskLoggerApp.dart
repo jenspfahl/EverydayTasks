@@ -1,14 +1,19 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/ui/PersonalTaskLoggerScaffold.dart';
 
 import '../main.dart';
+import '../util/dates.dart';
 
 final PRIMARY_COLOR = Colors.green[50]!;
 final BUTTON_COLOR = Colors.blue;
 final ACCENT_COLOR = Colors.lime[800];
+
 
 class PersonalTaskLoggerApp extends StatelessWidget {
 
@@ -31,7 +36,6 @@ class PersonalTaskLoggerApp extends StatelessWidget {
           darkTheme: ThemeData(
               brightness: Brightness.dark,
               primaryColor: PRIMARY_COLOR,
-           //   primarySwatch: BUTTON_COLOR,
               checkboxTheme: CheckboxThemeData(
                 fillColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? BUTTON_COLOR : Colors.grey),
               ),
@@ -43,11 +47,6 @@ class PersonalTaskLoggerApp extends StatelessWidget {
                overlayColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? Colors.white : Colors.grey),
                fillColor: MaterialStateColor.resolveWith((states) => states.contains(MaterialState.selected) ? BUTTON_COLOR : Colors.grey),
              ),
-            
-             // unselectedWidgetColor: BUTTON_COLOR,
-           /*   switchTheme: SwitchThemeData(
-                overlayColor: BUTTON_COLOR,
-              ),*/
               buttonTheme: ButtonThemeData(
                 colorScheme: ColorScheme.dark(
                   background: BUTTON_COLOR,
@@ -83,6 +82,7 @@ class PersonalTaskLoggerApp extends StatelessWidget {
     }
   );
   }
+
 }
 
 // from https://hillel.dev/2018/08/15/flutter-how-to-rebuild-the-entire-app-to-change-the-theme-or-locale/
@@ -111,5 +111,7 @@ class AppBuilderState extends State<AppBuilder> {
   void rebuild() {
     setState(() {});
   }
+
+
 }
 

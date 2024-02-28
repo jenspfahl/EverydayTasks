@@ -2,6 +2,7 @@ import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 
+import '../model/When.dart';
 import 'PersonalTaskLoggerApp.dart';
 
 bool isDarkMode(BuildContext context) => Theme.of(context).brightness == Brightness.dark;
@@ -17,7 +18,7 @@ Color getActionIconColor(BuildContext context) {
 
 Color? tweakAlpha(Color? color, double factor) => color?.withAlpha((color.alpha * factor).toInt());
 
-String truncate(String text, { required int length, omission: '...' }) {
+String truncate(String text, { required int length, omission = ELLIPSIS }) {
   if (length >= text.length) {
     return text;
   }

@@ -67,6 +67,7 @@
       "due_at_hint": "Due at",
       "due_at_emphasis": "Select when the task is due",
       "activate_schedule": "Activate schedule",
+      "mark_as_important": "Mark schedule as important",
       "due_on_hint": "Due on",
       "scheduled_from_emphasis": "Select when the schedule starts",
       "activate_reminders": "Activate reminder",
@@ -75,6 +76,13 @@
       "repetition_mode": "Dynamic repetition mode",
       "repetition_mode_dynamic": "Next task is due based on the chosen interval and when the recent task was done.",
       "repetition_mode_fixed": "Next task is due based on the exact interval, no matter when the recent task was done.",
+      "repetition_mode_one_shot": "Next task is due based on the provided due date, without any repetition.",
+      "fixed_monthly_hint" : "Add additional due days per month",
+      "fixed_monthly_title" : "Possible days of an arbitrary month",
+      "fixed_monthly_message" : "Select additional due days of an arbitrary month for this schedule. If a day doesn't exist in the actual due month (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
+      "fixed_yearly_hint" : "Add additional due days per year",
+      "fixed_yearly_title" : "Possible days of an arbitrary year",
+      "fixed_yearly_message" : "Select additional due days of an arbitrary year for this schedule. If a day doesn't exist in the actual due year (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
       "create": {
         "title": "Create new schedule",
         "success": "New schedule with name '{title}' has been created"
@@ -191,7 +199,8 @@
           "by_remaining_time": "Sort by remaining time",
           "by_category": "Sort by category",
           "by_title": "Sort by title",
-          "hide_non_active": "Hide inactive"
+          "hide_non_active": "Hide inactive",
+          "important_on_top": "Important due on top"
         },
         "notifications": {
           "enabled": "All reminders and notifications enabled",
@@ -206,6 +215,8 @@
         "paused": "paused",
         "inactive": "inactive",
         "scheduled": "scheduled",
+        "completed": "completed",
+        "later_due": "due later",
         "due_yesterday_and_before": "Due before today",
         "due_today": "Due today",
         "due_tomorrow": "Due tomorrow",
@@ -234,6 +245,16 @@
           "success": "Progress for '{title}' reset to now",
           "title_custom": "Next due date for '{title}' is ...",
           "success_custom": "Next due date for '{title}' updated"
+        },
+        "move_forward": {
+          "title": "Skip due date",
+          "message": "Do you want to move forward the due date of '{title}' to the next date based on the schedule? The schedule is then due {nextDueDate} at {newNextDueDate}.",
+          "success": "Due date for '{title}' updated"
+        },
+        "one_time": {
+          "title": "Stop schedule",
+          "message": "You are about to stop the current one-time schedule of '{title}'. The schedule will be marked as completed without a new journal entry. Are you sure?",
+          "success": "Due date for '{title}' updated"
         },
         "pause_resume": {
           "paused": "Schedule '{title}' paused",
@@ -368,6 +389,14 @@
         "show_daytime_as_word": {
           "title": "Show daytime as word",
           "description": "E.g. shows '{evening}' for the evening"
+        },
+        "configure_daytimes": {
+          "title": "Change preconfigured daytimes",
+          "description": "Changes the actual daytime of e.g. 'evening'"
+        },
+        "reset_daytimes": {
+          "title": "Reset daytimes",
+          "description": "Do you want to reset the current configured daytimes to the default values?"
         }
       },
       "action_feedback": {
@@ -556,7 +585,8 @@
     "durations": {
       "half_an_hour": "half an hour",
       "three_quarters_of_an_hour": "three quarters of an hour",
-      "an_hour": "an hour"
+      "an_hour": "an hour",
+      "one_and_a_half": "one and a half hours"
     },
     "words": {
       "on_for_dates": "on",
@@ -572,6 +602,7 @@
       "on_for_enabled": "on",
       "off_for_disabled": "off",
       "clear": "clear",
+      "important": "important",
       "value": "value",
       "unit": "unit",
       "unknown": "unknown",
@@ -608,7 +639,8 @@
     },
     "repetition_mode": {
       "dynamic": "Flexible",
-      "fixed": "Fixed"
+      "fixed": "Fixed",
+      "one_time": "One-time"
     }
   },
 

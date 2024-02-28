@@ -8,6 +8,7 @@ import 'package:personaltasklogger/ui/components/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
+import '../model/When.dart';
 import 'components/ChoiceWidget.dart';
 import 'PersonalTaskLoggerApp.dart';
 import 'components/RepetitionPicker.dart';
@@ -73,13 +74,14 @@ Future<bool?> showColorPicker(BuildContext context, {required String title, requ
   );
 }
 
-Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate, String? helpText}) {
+Future<DateTime?> showTweakedDatePicker(BuildContext context, {DateTime? initialDate, String? helpText, bool Function(DateTime)? selectableDayPredicate}) {
   return showDatePicker(
       context: context,
       helpText: helpText,
       initialDate: initialDate ?? DateTime.now(),
       firstDate: DateTime.now().subtract(Duration(days: MAX_DAYS)),
       lastDate: DateTime.now().add(Duration(days: MAX_DAYS)),
+      selectableDayPredicate: selectableDayPredicate,
       builder: (BuildContext context, Widget? child) {
         return _pickerTheme(context, child);
       }
@@ -139,7 +141,7 @@ void showConfirmationDialog(BuildContext context, String title, String message,
   }
   AlertDialog alert = AlertDialog(
     title: icon != null
-      ? Row(children: [
+      ? Wrap(children: [
       Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
         child: icon,
@@ -148,6 +150,55 @@ void showConfirmationDialog(BuildContext context, String title, String message,
     ],)
       : Text(title),
     content: Text(message),
+    actions: actions,
+  );  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
+
+
+void showCustomDialog(BuildContext context,
+    {required String title, required String message, required Widget body,
+      Icon? icon, Function()? okPressed, Function()? cancelPressed, Widget? neutralButton, int titleFlex = 1, int bodyFlex = 1}) {
+
+  List<Widget> actions = [];
+  if (neutralButton != null) {
+    actions.add(neutralButton);
+  }
+  if (cancelPressed != null) {
+    Widget cancelButton = TextButton(
+      child: Text(translate("common.cancel")),
+      onPressed:  cancelPressed,
+    );
+    actions.add(cancelButton);
+  }
+  if (okPressed != null) {
+    Widget okButton = TextButton(
+      child: Text(translate("common.ok")),
+      onPressed:  okPressed,
+    );
+    actions.add(okButton);
+  }
+  AlertDialog alert = AlertDialog(
+    title: icon != null
+      ? Row(children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+        child: icon,
+      ),
+      Text(title)
+    ],)
+      : Text(title),
+    content: Column(
+      children: [
+        Expanded(flex: titleFlex, child: SingleChildScrollView(child: Text(message))),
+        Expanded(flex: bodyFlex, child: body),
+      ],
+    ),
     actions: actions,
   );  // show the dialog
   showDialog(
@@ -476,7 +527,7 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
           controller: _searchQueryController,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: "${translate('common.search')} ...",
+            hintText: "${translate('common.search')} $ELLIPSIS",
             border: InputBorder.none,
           ),
           style: TextStyle(fontSize: 16.0),

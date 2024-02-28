@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/ui/forms/ScheduledTaskForm.dart';
 import 'package:personaltasklogger/ui/pages/PageScaffold.dart';
 import 'package:personaltasklogger/util/dates.dart';
+import 'package:personaltasklogger/util/extensions.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
@@ -33,6 +35,7 @@ import 'QuickAddTaskEventPage.dart';
 final String PREF_DISABLE_NOTIFICATIONS = "scheduledTasks/disableNotifications";
 final String PREF_SORT_BY = "scheduledTasks/sortedBy";
 final String PREF_HIDE_INACTIVE = "scheduledTasks/hideInactive";
+final String PREF_IMPORTANT_ON_TOP = "scheduledTasks/importantOnTop";
 final String PREF_PIN_SCHEDULES = "scheduledTasks/pinPage";
 
 final pinSchedulesPageIconKey = new GlobalKey<ToggleActionIconState>();
@@ -72,18 +75,34 @@ class ScheduledTaskList extends PageScaffold<ScheduledTaskListState> {
 
 enum SortBy {PROGRESS, REMAINING_TIME, GROUP, TITLE,}
 
+enum GroupCriteria {
+  NOT_DUE, 
+  DUE_TOMORROW,  // only available when sort by remaining time
+  DUE_AFTER_TOMORROW,  // only available when sort by remaining time
+  DUE_TODAY, // only available when sort by remaining time
+  DUE, 
+  DUE_SINCE_YESTERDAY, // only available when sort by remaining time
+  DUE_AND_IMPORTANT,
+  PAUSED,
+  INACTIVE,
+  COMPLETED
+}
+
 class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with AutomaticKeepAliveClientMixin<ScheduledTaskList> {
 
   final ID_MULTIPLIER_FOR_FIXED_SCHEDULES = 1000000;
 
   final _listScrollController = AutoScrollController(suggestedRowHeight: 40);
 
+  Set<GroupCriteria> _hiddenTiles = Set();
+
   List<ScheduledTask> _scheduledTasks = [];
   bool _initialLoaded = false;
-  int _selectedTile = -1;
+  int? _selectedTileId;
   bool _disableNotification = false;
   SortBy _sortBy = SortBy.PROGRESS;
   bool _hideInactive = false;
+  bool _importantOnTop = true;
   bool _statusTileHidden = true;
   bool _pinSchedulesPage = false;
 
@@ -91,6 +110,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   int _totalDueSchedules = 0;
   int _totalOverdueSchedules = 0;
   int _dueBeforeTodaySchedules = 0;
+  int _dueAndImportantSchedules = 0;
   int _dueTodaySchedules = 0;
   int _dueTomorrowSchedules = 0;
   int _dueAfterTomorrowSchedules = 0;
@@ -118,6 +138,14 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       if (value != null) {
         setState(() {
           _hideInactive = value;
+        });
+      }
+    });
+
+    _preferenceService.getBool(PREF_IMPORTANT_ON_TOP).then((value) {
+      if (value != null) {
+        setState(() {
+          _importantOnTop = value;
         });
       }
     });
@@ -256,7 +284,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                             value: _hideInactive,
                             onChanged: (value) {
                               if (value != null) {
-                                _updateSortBy(_sortBy, !_hideInactive);
+                                _updateSortBy(_sortBy, !_hideInactive, _importantOnTop);
                                 Navigator.of(context).pop();
                               }
                             },
@@ -267,33 +295,58 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                         ]
                     ),
                     value: '5'),
+                if (_sortBy == SortBy.PROGRESS || _sortBy == SortBy.REMAINING_TIME)
+                  PopupMenuItem<String>(
+                      child: Row(
+                          children: [
+                            Checkbox(
+                              value: _importantOnTop,
+                              onChanged: (value) {
+                                if (value != null) {
+                                  _updateSortBy(_sortBy, _hideInactive, !_importantOnTop);
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              visualDensity: VisualDensity(horizontal: VisualDensity.minimumDensity, vertical: 0.0),
+                            ),
+                            const Spacer(),
+                            Text(translate('pages.schedules.menu.sorting.important_on_top')),
+                          ]
+                      ),
+                      value: '6'),
+
 
               ]
           ).then((selected) {
             switch (selected) {
               case '1' :
                 {
-                  _updateSortBy(SortBy.PROGRESS, _hideInactive);
+                  _updateSortBy(SortBy.PROGRESS, _hideInactive, _importantOnTop);
                   break;
                 }
               case '2' :
                 {
-                  _updateSortBy(SortBy.REMAINING_TIME, _hideInactive);
+                  _updateSortBy(SortBy.REMAINING_TIME, _hideInactive, _importantOnTop);
                   break;
                 }
               case '3' :
                 {
-                  _updateSortBy(SortBy.GROUP, _hideInactive);
+                  _updateSortBy(SortBy.GROUP, _hideInactive, _importantOnTop);
                   break;
                 }
               case '4' :
                 {
-                  _updateSortBy(SortBy.TITLE, _hideInactive);
+                  _updateSortBy(SortBy.TITLE, _hideInactive, _importantOnTop);
                   break;
                 }
               case '5' :
                 {
-                  _updateSortBy(_sortBy, !_hideInactive);
+                  _updateSortBy(_sortBy, !_hideInactive, _importantOnTop);
+                  break;
+                }
+              case '6' :
+                {
+                  _updateSortBy(_sortBy, _hideInactive, !_importantOnTop);
                   break;
                 }
             }
@@ -339,6 +392,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return _buildList();
   }
   
@@ -405,6 +459,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
           child: GestureDetector(
             child: Column(
               children: [
+                if (_importantOnTop) _createStatusRow(Icons.priority_high, Colors.red, translate('common.words.important').capitalize(), _dueAndImportantSchedules),
                 _createStatusRow(Icons.warning_amber_outlined, Colors.red, translate('pages.schedules.overview.due_yesterday_and_before'), _dueBeforeTodaySchedules),
                 _createStatusRow(Icons.warning_amber_outlined, Colors.red, translate('pages.schedules.overview.due_today'), _dueTodaySchedules),
                 _createStatusRow(Icons.schedule, Colors.blue, translate('pages.schedules.overview.due_tomorrow'), _dueTomorrowSchedules),
@@ -431,6 +486,19 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       ],
     );
 
+    Map<GroupCriteria, int> groupCounters = HashMap();
+    _scheduledTasks.forEach((scheduledTask) {
+      final criteria = _getGroupingCriteria(scheduledTask, _sortBy, _importantOnTop);
+      if (criteria != null) {
+        if (_hideInactive && criteria == GroupCriteria.INACTIVE) {
+          // don't count inactive if hidden
+        }
+        else {
+          final counter = groupCounters[criteria];
+          groupCounters[criteria] = (counter ?? 0) + 1;
+        }
+      }
+    });
 
     return Padding(
         padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
@@ -443,8 +511,30 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   controller: _listScrollController,
                   itemBuilder: (context, index) {
                     var scheduledTask = _scheduledTasks[index];
+                    var previousScheduledTask = index > 0 ? _scheduledTasks[index - 1] : null;
                     var taskGroup = TaskGroupRepository.findByIdFromCache(scheduledTask.taskGroupId);
-                    final row = _buildRow(index, scheduledTask, taskGroup);
+                    var row = _buildRow(index, scheduledTask, taskGroup);
+                    final criteria = _getGroupingCriteria(scheduledTask, _sortBy, _importantOnTop);
+                    final previousCriteria = previousScheduledTask != null
+                        ? _getGroupingCriteria(previousScheduledTask, _sortBy, _importantOnTop)
+                        : null;
+
+
+                    if (criteria != null && previousCriteria != criteria) {
+                      if (_hideInactive && criteria == GroupCriteria.INACTIVE) {
+                        // don't count inactive if hidden
+                      }
+                      else {
+                        final scheduleCount = Schedules(groupCounters[criteria] ?? 0);
+  
+                        row = Column(children: [
+                          if (_statusTileHidden) Divider(),
+                          _buildGroupHeader(criteria, scheduleCount),
+                          row,
+                        ]);
+                      }
+                    }
+
                     return AutoScrollTag(
                       key: ValueKey(index),
                       controller: _listScrollController,
@@ -454,6 +544,45 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
                   }),
             ),
           ],
+        ),
+    );
+  }
+
+  Widget _buildGroupHeader(GroupCriteria criteria, Schedules scheduleCount) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+      child: TextButton(
+          style: ButtonStyle(
+            alignment: Alignment.centerLeft,
+            visualDensity: VisualDensity.compact,
+            padding: MaterialStateProperty.all<EdgeInsets>(
+                EdgeInsets.zero),
+          ),
+          child: Row(
+            children: [
+              Text("${_translateCriteria(criteria).capitalize()} ($scheduleCount)",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 10.0,
+                ),
+              ),
+              Icon(
+                _hiddenTiles.contains(criteria)
+                    ? Icons.arrow_drop_down_sharp
+                    : Icons.arrow_drop_up_sharp,
+                color: Colors.grey,
+              ),
+            ],
+          ),
+          onPressed: () {
+            setState(() {
+              if (_hiddenTiles.contains(criteria)) {
+                _hiddenTiles.remove(criteria);
+              } else {
+                _hiddenTiles.add(criteria);
+              }
+            });
+          },
         ),
     );
   }
@@ -510,7 +639,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         debugPrint("scheduleId = $scheduleId");
         final clickedScheduledTask = _scheduledTasks.firstWhereOrNull((scheduledTask) => scheduledTask.id == scheduleId);
         if (clickedScheduledTask != null) {
-          _updateSelectedTile(_scheduledTasks.indexOf(clickedScheduledTask));
+          _updateSelectedTile(clickedScheduledTask);
           if (actionId == "track") {
             ScheduledTaskWidget.openAddJournalEntryFromSchedule(context, widget._pagesHolder, clickedScheduledTask);
           }
@@ -520,24 +649,29 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   }
 
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
-    final isExpanded = index == _selectedTile;
+    final isExpanded = scheduledTask.id == _selectedTileId;
+    final criteria = _getGroupingCriteria(scheduledTask, _sortBy, _importantOnTop);
+
     if (_hideInactive && !scheduledTask.active) {
       return Container();
     }
-    return Padding(
-        padding: EdgeInsets.all(4.0),
-        child: ScheduledTaskWidget(scheduledTask,
-          isInitiallyExpanded: isExpanded,
-          shouldExpand: () => index == _selectedTile,
-          onExpansionChanged: ((expanded) {
-            setState(() {
-              _selectedTile = expanded ? index : -1;
-            });
-          }),
-          pagesHolder: widget._pagesHolder,
-          selectInListWhenChanged: true,
-          isNotificationsEnabled: () => !_disableNotification,
-        ),
+    return Visibility(
+      visible: criteria == null || !_hiddenTiles.contains(criteria),
+      child: Padding(
+          padding: EdgeInsets.all(4.0),
+          child: ScheduledTaskWidget(scheduledTask,
+            isInitiallyExpanded: isExpanded,
+            shouldExpand: () => scheduledTask.id == _selectedTileId,
+            onExpansionChanged: ((expanded) {
+              setState(() {
+                _selectedTileId = expanded ? scheduledTask.id : null;
+              });
+            }),
+            pagesHolder: widget._pagesHolder,
+            selectInListWhenChanged: true,
+            isNotificationsEnabled: () => !_disableNotification,
+          ),
+      ),
     );
   }
 
@@ -545,7 +679,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     setState(() {
       _scheduledTasks.add(scheduledTask);
       _sortList();
-      _updateSelectedTile(_scheduledTasks.indexOf(scheduledTask));
+      _updateSelectedTile(scheduledTask);
       _rescheduleNotification(scheduledTask, withCancel: false);
       _calcOverallStats();
     });
@@ -560,7 +694,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         _scheduledTasks.insert(index, updated);
       }
       _sortList();
-      _updateSelectedTile(_scheduledTasks.indexOf(updated));
+      _updateSelectedTile(updated);
       _calcOverallStats();
 
       _rescheduleNotification(updated,
@@ -573,9 +707,40 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   void _sortList() {
     _scheduledTasks..sort((s1, s2) {
       if (_sortBy == SortBy.PROGRESS) {
+        if (_importantOnTop) {
+          if (s1.important && s1.isDue() && !s2.important) {
+            return -1;
+          }
+          else if (!s1.important && s2.important && s2.isDue()) {
+            return 1;
+          }
+        }
+
+        if (s1.active && !s2.active) {
+          return -1;
+        }
+        else if (!s1.active && s2.active) {
+          return 1;
+        }
+
+        if (s1.isOneTimeCompleted && !s2.isOneTimeCompleted) {
+          return 1;
+        }
+        else if (!s1.isOneTimeCompleted && s2.isOneTimeCompleted) {
+          return -1;
+        }
+
         return _sortByProgress(s1, s2);
       }
       else if (_sortBy == SortBy.REMAINING_TIME) {
+        if (_importantOnTop) {
+          if (s1.important && s1.isDue() && !s2.important) {
+            return -1;
+          }
+          else if (!s1.important && s2.important && s2.isDue()) {
+            return 1;
+          }
+        }
         final n1 = s1.active ? s1.getNextSchedule() : null;
         final n2 = s2.active ? s2.getNextSchedule() : null;
         if (n1 == null && n2 != null) {
@@ -586,6 +751,12 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         }
         else if (n1 == null && n2 == null) {
           return _sortByTitleAndId(s1, s2);
+        }
+        else if (s1.isOneTimeCompleted && !s2.isOneTimeCompleted) {
+          return 1;
+        }
+        else if (!s1.isOneTimeCompleted && s2.isOneTimeCompleted) {
+          return -1;
         }
         else if (s1.isPaused && !s2.isPaused) {
           return 1;
@@ -639,7 +810,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
   void removeScheduledTask(ScheduledTask scheduledTask) {
     setState(() {
       _scheduledTasks.remove(scheduledTask);
-      _selectedTile = -1;
+      _selectedTileId = null;
       _calcOverallStats();
 
       _cancelNotification(scheduledTask);
@@ -705,7 +876,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       return;
     }
     final missingDuration = scheduledTask.getMissingDuration();
-    if (missingDuration != null && !missingDuration.isNegative) {
+    if (missingDuration != null) {
       debugPrint("reschedule ${scheduledTask.id!} with missing duration: $missingDuration");
 
       if (withCancel) {
@@ -746,6 +917,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
               ? 'pages.schedules.notification.message_fixed_last_task'
               : 'pages.schedules.notification.message_fixed_task'
             : 'pages.schedules.notification.message_normal_task';
+
+    if (scheduledTask.important) {
+      titleKey = "${translate('common.words.important').capitalize()}: $titleKey";
+    }
 
     final snooze = scheduledTask.reminderNotificationRepetition??CustomRepetition(1, RepetitionUnit.HOURS);
     _notificationService.scheduleNotification(
@@ -800,13 +975,20 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         .forEach((id) => f(id, id - base  == amount));
   }
 
-  void _updateSortBy(SortBy sortBy, bool hideInactive) {
+  void _updateSortBy(SortBy sortBy, bool hideInactive, bool importantOnTop) {
     _preferenceService.setInt(PREF_SORT_BY, sortBy.index);
     _preferenceService.setBool(PREF_HIDE_INACTIVE, hideInactive);
+    _preferenceService.setBool(PREF_IMPORTANT_ON_TOP, importantOnTop);
     setState(() {
+      final sortByChanged = _sortBy != sortBy;
       _sortBy = sortBy;
 
       _hideInactive = hideInactive;
+      _importantOnTop = importantOnTop;
+      if (sortByChanged) {
+        _hiddenTiles.clear(); // make all visible
+        _selectedTileId = null; // don't select any
+      }
       _sortList();
     });
   }
@@ -827,6 +1009,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       _totalDueSchedules = 0;
       _totalOverdueSchedules = 0;
       _dueBeforeTodaySchedules = 0;
+      _dueAndImportantSchedules = 0;
       _dueTodaySchedules = 0;
       _dueTomorrowSchedules = 0;
       _dueAfterTomorrowSchedules = 0;
@@ -846,9 +1029,11 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         else {
           _totalRunningSchedules++;
 
-          if (scheduledTask.isDueNow() ||
-              scheduledTask.isNextScheduleOverdue(false)) {
+          if (scheduledTask.isDue()) {
             _totalDueSchedules++;
+            if (scheduledTask.important && !scheduledTask.isOneTimeCompleted) {
+              _dueAndImportantSchedules++;
+            }
           }
           if (scheduledTask.isNextScheduleOverdue(true)) {
             _totalOverdueSchedules++;
@@ -859,7 +1044,7 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             if (nextSchedule.isBefore(truncToDate(now))) {
               _dueBeforeTodaySchedules++;
             }
-            if (isToday(nextSchedule)) {
+            if (isToday(nextSchedule) && !scheduledTask.isOneTimeCompleted) {
               _dueTodaySchedules++;
             }
             if (isTomorrow(nextSchedule)) {
@@ -902,10 +1087,85 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     _preferenceService.setBool(PreferenceService.DATA_SHOW_SCHEDULED_SUMMARY, !value);
   }
 
-  _updateSelectedTile(int index) {
-    _selectedTile = index;
-    if (index != -1) {
-      _listScrollController.scrollToIndex(index, duration: Duration(milliseconds: 1));
+  _updateSelectedTile(ScheduledTask? scheduledTask) {
+    _selectedTileId = scheduledTask?.id;
+    if (scheduledTask != null) {
+      int index = _scheduledTasks.indexOf(scheduledTask);
+      if (index >= 0) {
+        _listScrollController.scrollToIndex(
+            index, duration: Duration(milliseconds: 1));
+      }
+    }
+  }
+
+  GroupCriteria? _getGroupingCriteria(ScheduledTask scheduledTask, SortBy sortBy, bool importantOnTop) {
+    if (_sortBy == SortBy.PROGRESS) {
+      if (!scheduledTask.active) {
+        return GroupCriteria.INACTIVE;
+      }
+      if (scheduledTask.isOneTimeCompleted) {
+        return GroupCriteria.COMPLETED;
+      }
+      if (scheduledTask.isDue()) {
+        if (importantOnTop && scheduledTask.important) {
+          return GroupCriteria.DUE_AND_IMPORTANT;
+        }
+        return GroupCriteria.DUE;
+      }
+      else {
+        return GroupCriteria.NOT_DUE;
+      }
+    }
+    else if (_sortBy == SortBy.REMAINING_TIME) {
+      if (!scheduledTask.active) {
+        return GroupCriteria.INACTIVE;
+      }
+      if (scheduledTask.isOneTimeCompleted) {
+        return GroupCriteria.COMPLETED;
+      }
+      if (scheduledTask.isPaused) {
+        return GroupCriteria.PAUSED;
+      }
+
+      final nextDueDate = scheduledTask.getNextSchedule()!;
+      if (scheduledTask.isDue()) {
+        if (importantOnTop && scheduledTask.important) {
+          return GroupCriteria.DUE_AND_IMPORTANT;
+        }
+        if (truncToDate(nextDueDate).isBefore(truncToDate(DateTime.now()))) {
+          return GroupCriteria.DUE_SINCE_YESTERDAY;
+        }
+       
+        return GroupCriteria.DUE_TODAY;
+      }
+      else {
+        if (isToday(nextDueDate)) {
+          return GroupCriteria.DUE_TODAY;
+        }
+        if (isTomorrow(nextDueDate)) {
+          return GroupCriteria.DUE_TOMORROW;
+        }
+        if (isAfterTomorrow(nextDueDate)) {
+          return GroupCriteria.DUE_AFTER_TOMORROW;
+        }
+        return GroupCriteria.NOT_DUE;
+      }
+    }
+    return null;
+  }
+
+  String _translateCriteria(GroupCriteria criteria) {
+    switch (criteria) {
+      case GroupCriteria.NOT_DUE: return translate('pages.schedules.overview.later_due');
+      case GroupCriteria.DUE_SINCE_YESTERDAY: return translate('pages.schedules.overview.due_yesterday_and_before');
+      case GroupCriteria.DUE_TODAY: return translate('pages.schedules.overview.due_today');
+      case GroupCriteria.DUE_TOMORROW: return translate('pages.schedules.overview.due_tomorrow');
+      case GroupCriteria.DUE_AFTER_TOMORROW: return translate('pages.schedules.overview.due_after_tomorrow');
+      case GroupCriteria.DUE: return translate('pages.schedules.overview.due');
+      case GroupCriteria.DUE_AND_IMPORTANT: return "${translate('common.words.important').capitalize()}!";
+      case GroupCriteria.PAUSED: return "${translate('pages.schedules.overview.paused').capitalize()}";
+      case GroupCriteria.INACTIVE: return "${translate('pages.schedules.overview.inactive').capitalize()}";
+      case GroupCriteria.COMPLETED: return "${translate('pages.schedules.overview.completed').capitalize()}";
     }
   }
   

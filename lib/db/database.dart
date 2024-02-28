@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:floor/floor.dart';
+import 'package:personaltasklogger/db/dao/KeyValueDao.dart';
 import 'package:personaltasklogger/db/dao/SequencesDao.dart';
 import 'package:personaltasklogger/db/dao/TaskEventDao.dart';
+import 'package:personaltasklogger/db/entity/KeyValueEntity.dart';
+import 'package:personaltasklogger/db/entity/ScheduledTaskFixedScheduleEntity.dart';
 import 'package:personaltasklogger/db/entity/SequencesEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskEventEntity.dart';
 import 'package:personaltasklogger/db/entity/TaskGroupEntity.dart';
@@ -11,6 +14,7 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 
 import 'dao/ScheduledTaskDao.dart';
 import 'dao/ScheduledTaskEventDao.dart';
+import 'dao/ScheduledTaskFixedScheduleDao.dart';
 import 'dao/TaskGroupDao.dart';
 import 'dao/TaskTemplateDao.dart';
 import 'dao/TaskTemplateVariantDao.dart';
@@ -19,16 +23,27 @@ import 'entity/ScheduledTaskEventEntity.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 12, entities: [
-  TaskGroupEntity, TaskEventEntity, TaskTemplateEntity, TaskTemplateVariantEntity, ScheduledTaskEntity, ScheduledTaskEventEntity, SequencesEntity])
+@Database(version: 16, entities: [
+  TaskGroupEntity,
+  TaskEventEntity,
+  TaskTemplateEntity,
+  TaskTemplateVariantEntity,
+  ScheduledTaskEntity,
+  ScheduledTaskFixedScheduleEntity,
+  ScheduledTaskEventEntity,
+  SequencesEntity,
+  KeyValueEntity,
+])
 abstract class AppDatabase extends FloorDatabase {
   TaskGroupDao get taskGroupDao;
   TaskEventDao get taskEventDao;
   TaskTemplateDao get taskTemplateDao;
   TaskTemplateVariantDao get taskTemplateVariantDao;
   ScheduledTaskDao get scheduledTaskDao;
+  ScheduledTaskFixedScheduleDao get scheduledTaskFixedScheduleDao;
   ScheduledTaskEventDao get scheduledTaskEventDao;
   SequencesDao get sequencesDao;
+  KeyValueDao get keyValueDao;
 }
 
 final migration2To3 = new Migration(2, 3,
@@ -96,9 +111,46 @@ final migration11To12 = new Migration(11, 12,
           await database.execute("INSERT INTO `SequencesEntity` (`table`, `lastId`) VALUES ('TaskGroupEntity', 1000)");
         });
 
+final migration12To13 = new Migration(12, 13,
+        (sqflite.Database database) async {
+          await database.execute('CREATE TABLE IF NOT EXISTS `ScheduledTaskFixedScheduleEntity` (`id` INTEGER, `scheduledTaskId` INTEGER NOT NULL, `type` INTEGER NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+          await database.execute('CREATE INDEX `idx_ScheduledTaskFixedScheduleEntity_scheduledTaskId` ON `ScheduledTaskFixedScheduleEntity` (`scheduledTaskId`)');
+        });
+
+final migration13To14 = new Migration(13, 14,
+        (sqflite.Database database) async {
+          await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `important` INTEGER");
+        });
+
+final migration14To15 = new Migration(14, 15,
+        (sqflite.Database database) async {
+          await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `oneTimeDueOn` INTEGER");
+          await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `oneTimeCompletedOn` INTEGER");
+        });
+
+final migration15To16 = new Migration(15, 16,
+        (sqflite.Database database) async {
+          await database.execute('CREATE TABLE IF NOT EXISTS `KeyValueEntity` (`id` INTEGER, `key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY (`id`))');
+          await database.execute('CREATE UNIQUE INDEX `idx_KeyValue_key` ON `KeyValueEntity` (`key`)');
+        });
+
 
 Future<AppDatabase> getDb([String? name]) async => $FloorAppDatabase
     .databaseBuilder(name??'app_database.db')
-    .addMigrations([migration2To3, migration3To4, migration4To5, migration5To6, migration6To7, migration7To8,
-        migration8To9, migration9To10, migration10To11, migration11To12])
+    .addMigrations([
+      migration2To3,
+      migration3To4,
+      migration4To5,
+      migration5To6,
+      migration6To7,
+      migration7To8,
+      migration8To9,
+      migration9To10,
+      migration10To11,
+      migration11To12,
+      migration12To13,
+      migration13To14,
+      migration14To15,
+      migration15To16,
+    ])
     .build();

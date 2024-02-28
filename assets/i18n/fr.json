@@ -67,6 +67,7 @@
       "due_at_hint": "Horaire d'échéance",
       "due_at_emphasis": "Veuillez sélectionner l'horaire d'échéance",
       "activate_schedule": "Activer dans le planning",
+      "mark_as_important": "Mark schedule as important",
       "due_on_hint": "Echéance",
       "scheduled_from_hint": "Planifier à partir de ",
       "scheduled_from_emphasis": "Sélectionner la date de début dans le planning",
@@ -76,6 +77,13 @@
       "repetition_mode": "Mode de répétition dynamique",
       "repetition_mode_dynamic": "La prochaine tâche est due, en fonction de la fréquence choisie et de la date de complétion de la dernière occurence. ",
       "repetition_mode_fixed": "La date d'échéance de la prochaine tâche est basée sur la fréquence sélectionnée, indépendamment de la date de complétion de la dernière occurence. ",
+      "repetition_mode_one_shot": "Next task is due based on the provided due date, without any repetition.",
+      "fixed_monthly_hint" : "Add additional due days per month",
+      "fixed_monthly_title" : "Possible days of an arbitrary month",
+      "fixed_monthly_message" : "Select additional due days of an arbitrary month for this schedule. If a day doesn't exist in the actual due month (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
+      "fixed_yearly_hint" : "Add additional due days per year",
+      "fixed_yearly_title" : "Possible days of an arbitrary year",
+      "fixed_yearly_message" : "Select additional due days of an arbitrary year for this schedule. If a day doesn't exist in the actual due year (e.g. 31th of April) the schedule is triggered earlier (here 30th of April). Same happens for leap days.",
       "create": {
         "title": "Créer une tâche planifiée",
         "success": "La nouvelle tâche '{title}' a été créée dans le planning. "
@@ -192,7 +200,8 @@
           "by_remaining_time": "Trier par temps restant",
           "by_category": "Trier par catégorie",
           "by_title": "Trier par titre",
-          "hide_non_active": "Masquer si désactivé"
+          "hide_non_active": "Masquer si désactivé",
+          "important_on_top": "Important due on top"
         },
         "notifications": {
           "enabled": "Notification d'échéance activée",
@@ -207,6 +216,8 @@
         "paused": "en pause",
         "inactive": "inactive",
         "scheduled": "planifiée",
+        "completed": "completed",
+        "later_due": "due later",
         "due_yesterday_and_before": "Pour avant aujourd'hui",
         "due_today": "Pour aujourd'hui",
         "due_tomorrow": "Pour demain",
@@ -235,6 +246,16 @@
           "success": "Progression de '{title}' réinitilisé à maintenant. ",
           "title_custom": "La prochaine échéance pour '{title}' est ...",
           "success_custom": "Prochaine échéance pour '{title}' mise à jour"
+        },
+        "move_forward": {
+          "title": "Skip due date",
+          "message": "Do you want to move forward the due date of '{title}' to the next date based on the schedule? The schedule is then due {nextDueDate} at {newNextDueDate}.",
+          "success": "Due date for '{title}' updated"
+        },
+        "one_time": {
+          "title": "Stop schedule",
+          "message": "You are about to stop the current one-time schedule of '{title}'. The schedule will be marked as completed without a tracked task event. Are you sure?",
+          "success": "Due date for '{title}' updated"
         },
         "pause_resume": {
           "paused": "Tâche planifiée '{title}' mise en pause",
@@ -368,7 +389,15 @@
         },
         "show_daytime_as_word": {
           "title": "Indiquer le moment de la journée",
-          "description": "Par exemple, indiquer '{evening}' pour le soir. "
+          "description": "Par exemple, indiquer '{evening}' pour le soir. ",
+          "configure_daytimes": {
+            "title": "Change preconfigured daytimes",
+            "description": "Changes the actual daytime of e.g. 'evening'"
+          },
+          "reset_daytimes": {
+            "title": "Reset daytimes",
+            "description": "Do you want to reset the current configured daytimes to the default values?"
+          }
         }
       },
       "action_feedback": {
@@ -557,7 +586,8 @@
     "durations": {
       "half_an_hour": "une demie heure",
       "three_quarters_of_an_hour": "trois quarts d'heure",
-      "an_hour": "une heure"
+      "an_hour": "une heure",
+      "one_and_a_half": "one and a half hours"
     },
     "words": {
       "on_for_dates": "le",
@@ -573,6 +603,7 @@
       "on_for_enabled": "activé",
       "off_for_disabled": "désactivé",
       "clear": "effacer",
+      "important": "important",
       "value": "valeur",
       "unit": "unité",
       "unknown": "inconnu",
@@ -609,7 +640,8 @@
     },
     "repetition_mode": {
       "dynamic": "Flexible",
-      "fixed": "Fixe"
+      "fixed": "Fixe",
+      "one_time": "One-time"
     }
   },
 

@@ -1,5 +1,7 @@
 
+import 'package:personaltasklogger/db/dao/ScheduledTaskFixedScheduleDao.dart';
 import 'package:personaltasklogger/db/entity/ScheduledTaskEntity.dart';
+import 'package:personaltasklogger/db/entity/ScheduledTaskFixedScheduleEntity.dart';
 import 'package:personaltasklogger/db/repository/TemplateRepository.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
@@ -31,6 +33,10 @@ class ScheduledTaskRepository {
       TemplateRepository.cacheParentFor(scheduledTask.templateId!);
     }
 
+    final scheduledTaskFixedScheduleDao = database.scheduledTaskFixedScheduleDao;
+    _insertMappedFixedSchedules(scheduledTask, scheduledTaskFixedScheduleDao);
+
+
     return scheduledTask;
 
   }
@@ -48,13 +54,36 @@ class ScheduledTaskRepository {
     final entity = _mapToEntity(scheduledTask);
 
     await scheduledTaskDao.updateScheduledTask(entity);
+
+    final scheduledTaskFixedScheduleDao = database.scheduledTaskFixedScheduleDao;
+    scheduledTaskFixedScheduleDao.deleteFixedScheduleByScheduledTaskId(scheduledTask.id!);
+    _insertMappedFixedSchedules(scheduledTask, scheduledTaskFixedScheduleDao);
+    
+    
     return scheduledTask;
 
+  }
+
+  static void _insertMappedFixedSchedules(ScheduledTask scheduledTask, ScheduledTaskFixedScheduleDao scheduledTaskFixedScheduleDao) {
+    scheduledTask.schedule.weekBasedSchedules.forEach((dayOfWeek) {
+      scheduledTaskFixedScheduleDao.insertFixedSchedule(_createWeekBasedFixedScheduleToEntity(scheduledTask.id!, dayOfWeek));
+    });
+    
+    scheduledTask.schedule.monthBasedSchedules.forEach((dayOfMonth) {
+      scheduledTaskFixedScheduleDao.insertFixedSchedule(_createMonthBasedFixedScheduleToEntity(scheduledTask.id!, dayOfMonth));
+    });
+    
+    scheduledTask.schedule.yearBasedSchedules.forEach((allYearDate) {
+      scheduledTaskFixedScheduleDao.insertFixedSchedule(_createYearBasedFixedScheduleToEntity(scheduledTask.id!, allYearDate));
+    });
   }
 
   static Future<ScheduledTask> delete(ScheduledTask scheduledTask) async {
 
     final database = await getDb();
+
+    final scheduledTaskFixedScheduleDao = database.scheduledTaskFixedScheduleDao;
+    scheduledTaskFixedScheduleDao.deleteFixedScheduleByScheduledTaskId(scheduledTask.id!);
 
     final scheduledTaskDao = database.scheduledTaskDao;
     final entity = _mapToEntity(scheduledTask);
@@ -68,21 +97,26 @@ class ScheduledTaskRepository {
     final database = await getDb(dbName);
 
     final scheduledTaskDao = database.scheduledTaskDao;
-    return scheduledTaskDao.findAll()
+    final list = await  scheduledTaskDao.findAll()
         .then((entities) => _mapFromEntities(entities));
+    
+    return _addFixedSchedules(list, database);
   }
 
   static Future<int?> countDue([String? dbName]) async {
     final database = await getDb(dbName);
 
     final scheduledTaskDao = database.scheduledTaskDao;
-    return scheduledTaskDao.findAll()
+    final scheduledTasks = await scheduledTaskDao.findAll()
         .then((entities) => entities
           .where((e) => e.active)
           .where((e) => e.pausedAt == null)
-          .map((e) => _mapFromEntity(e))
-          .where((e) => e.isDueNow() || e.isNextScheduleOverdue(false))
-          .length);
+          .map((e) => _mapFromEntity(e)));
+
+    return _addFixedSchedules(scheduledTasks, database).then((schedules) => schedules
+            .where((e) => e.isDue())
+            .length);
+
   }
 
   static Future<List<ScheduledTask>> getByTemplateId(TemplateId templateId) async {
@@ -92,7 +126,7 @@ class ScheduledTaskRepository {
     return (templateId.isVariant
         ? scheduledTaskDao.findByTaskTemplateVariantId(templateId.id)
         : scheduledTaskDao.findByTaskTemplateId(templateId.id))
-        .then((entities) => _mapFromEntities(entities));
+        .then((entities) => _addFixedSchedules(_mapFromEntities(entities), database));
   }
 
   static Future<ScheduledTask?> findById(int id) async {
@@ -100,9 +134,22 @@ class ScheduledTaskRepository {
     final database = await getDb();
 
     final scheduledTaskDao = database.scheduledTaskDao;
-    return await scheduledTaskDao.findById(id)
+    final scheduledTask = await scheduledTaskDao.findById(id)
         .map((e) => e != null ? _mapFromEntity(e) : null)
         .first;
+
+    if (scheduledTask == null) {
+      return null;
+    }
+
+
+    final scheduledTaskFixedScheduleDao = database.scheduledTaskFixedScheduleDao;
+    final fixedSchedules = await scheduledTaskFixedScheduleDao.findByScheduledTaskId(scheduledTask.id!);
+    fixedSchedules.forEach((fixedSchedule) {
+      final type = FixedScheduleType.values[fixedSchedule.type];
+      mapFixedSchedules(scheduledTask.schedule, type, fixedSchedule.value);
+    });
+    return scheduledTask;
   }
 
   static Future<int?> countByTaskGroupId(int taskGroupId) async {
@@ -128,7 +175,10 @@ class ScheduledTaskRepository {
         scheduledTask.schedule.customRepetition?.repetitionValue,
         scheduledTask.schedule.customRepetition?.repetitionUnit.index,
         scheduledTask.lastScheduledEventOn != null ? dateTimeToEntity(scheduledTask.lastScheduledEventOn!) : null,
+        scheduledTask.schedule.oneTimeDueOn != null ? dateTimeToEntity(scheduledTask.schedule.oneTimeDueOn!) : null,
+        scheduledTask.oneTimeCompletedOn != null ? dateTimeToEntity(scheduledTask.oneTimeCompletedOn!) : null,
         scheduledTask.active,
+        scheduledTask.important,
         scheduledTask.pausedAt != null ? dateTimeToEntity(scheduledTask.pausedAt!) : null,
         scheduledTask.schedule.repetitionMode.index,
         scheduledTask.reminderNotificationEnabled,
@@ -158,9 +208,12 @@ class ScheduledTaskRepository {
           repetitionMode: entity.repetitionMode != null
               ? RepetitionMode.values.elementAt(entity.repetitionMode!)
               : RepetitionMode.DYNAMIC,
+          oneTimeDueOn: entity.oneTimeDueOn != null ? dateTimeFromEntity(entity.oneTimeDueOn!) : null,
         ),
         lastScheduledEventOn: entity.lastScheduledEventAt != null ? dateTimeFromEntity(entity.lastScheduledEventAt!) : null,
+        oneTimeCompletedOn: entity.oneTimeCompletedOn != null ? dateTimeFromEntity(entity.oneTimeCompletedOn!) : null,
         active: entity.active,
+        important: entity.important ?? false,
         pausedAt: entity.pausedAt != null ? dateTimeFromEntity(entity.pausedAt!) : null,
         reminderNotificationEnabled: entity.reminderNotificationEnabled,
         reminderNotificationRepetition: entity.reminderNotificationPeriod != null  && entity.reminderNotificationUnit != null
@@ -176,7 +229,56 @@ class ScheduledTaskRepository {
   }
 
 
-  static List<ScheduledTask> _mapFromEntities(List<ScheduledTaskEntity> entities) =>
-      entities.map(_mapFromEntity).toList();
+  static Iterable<ScheduledTask> _mapFromEntities(List<ScheduledTaskEntity> entities) =>
+      entities.map(_mapFromEntity);
+
+  static void mapFixedSchedules(Schedule schedule, FixedScheduleType type, int value) {
+    switch (type) {
+      case FixedScheduleType.WEEK_BASED : {
+        schedule.weekBasedSchedules.add(DayOfWeek.values[value]);
+        break;
+      }
+      case FixedScheduleType.MONTH_BASED : {
+        schedule.monthBasedSchedules.add(value);
+        break;
+      }
+      case FixedScheduleType.YEAR_BASED : {
+        schedule.yearBasedSchedules.add(AllYearDate.fromValue(value));
+        break;
+      }
+    }
+  }
+
+  static Future<List<ScheduledTask>> _addFixedSchedules(Iterable<ScheduledTask> scheduledTasks, AppDatabase database) {
+    final scheduledTaskFixedScheduleDao = database.scheduledTaskFixedScheduleDao;
+    final list = scheduledTasks.map((scheduledTask) async {
+      final fixedSchedules = await scheduledTaskFixedScheduleDao.findByScheduledTaskId(scheduledTask.id!);
+      return _mapFixedSchedules(scheduledTask, fixedSchedules);
+    });
+    
+    return Future.wait(list);
+
+  }
+
+  static ScheduledTask _mapFixedSchedules(ScheduledTask scheduledTask, List<ScheduledTaskFixedScheduleEntity> fixedSchedules) {
+    fixedSchedules.forEach((fixedSchedule) {
+       final type = FixedScheduleType.values[fixedSchedule.type];
+       mapFixedSchedules(scheduledTask.schedule, type, fixedSchedule.value);
+    });
+  
+    return scheduledTask;
+  }
+
+  static ScheduledTaskFixedScheduleEntity _createWeekBasedFixedScheduleToEntity(int scheduledTaskId, DayOfWeek dayOfWeek) {
+    return ScheduledTaskFixedScheduleEntity(null, scheduledTaskId, FixedScheduleType.WEEK_BASED.index, dayOfWeek.index);
+  }
+
+  static ScheduledTaskFixedScheduleEntity _createMonthBasedFixedScheduleToEntity(int scheduledTaskId, int dayOfMonth) {
+    return ScheduledTaskFixedScheduleEntity(null, scheduledTaskId, FixedScheduleType.MONTH_BASED.index, dayOfMonth);
+  }
+
+  static ScheduledTaskFixedScheduleEntity _createYearBasedFixedScheduleToEntity(int scheduledTaskId, AllYearDate allYearDate) {
+    return ScheduledTaskFixedScheduleEntity(null, scheduledTaskId, FixedScheduleType.YEAR_BASED.index, allYearDate.value);
+  }
 
 }

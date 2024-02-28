@@ -1,6 +1,5 @@
 import 'package:floor/floor.dart';
 import 'package:personaltasklogger/db/entity/SequencesEntity.dart';
-import 'package:personaltasklogger/db/entity/TaskTemplateEntity.dart';
 
 @dao
 abstract class SequencesDao {

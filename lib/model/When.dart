@@ -7,11 +7,12 @@ import 'package:personaltasklogger/util/units.dart';
 import '../service/PreferenceService.dart';
 
 enum AroundWhenAtDay {NOW, MORNING, FORENOON, NOON, AFTERNOON, EVENING, NIGHT, CUSTOM}
-enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES, TWENTY_MINUTES, THREE_QUARTERS}
+enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES, TWENTY_MINUTES, THREE_QUARTERS, ONE_AND_A_HALF}
 
 enum WhenOnDatePast {TODAY, YESTERDAY, BEFORE_YESTERDAY, CUSTOM}
 enum WhenOnDateFuture {TODAY, TOMORROW, AFTER_TOMORROW, CUSTOM}
 
+const ELLIPSIS = "...";
 
 class When {
   AroundWhenAtDay? startAt;
@@ -91,6 +92,7 @@ class When {
       case AroundDurationHours.HALF: return Duration(minutes: 30);
       case AroundDurationHours.THREE_QUARTERS: return Duration(minutes: 45);
       case AroundDurationHours.ONE: return Duration(hours: 1);
+      case AroundDurationHours.ONE_AND_A_HALF: return Duration(hours: 1, minutes: 30);
       case AroundDurationHours.TWO: return Duration(hours: 2);
       case AroundDurationHours.THREE: return Duration(hours: 3);
       case AroundDurationHours.FOUR: return Duration(hours: 4);
@@ -106,10 +108,11 @@ class When {
       case AroundDurationHours.HALF: return _translateAround(translate('common.durations.half_an_hour'));
       case AroundDurationHours.THREE_QUARTERS: return _translateAround(translate('common.durations.three_quarters_of_an_hour'));
       case AroundDurationHours.ONE: return _translateAround(translate('common.durations.an_hour'));
+      case AroundDurationHours.ONE_AND_A_HALF: return _translateAround(translate('common.durations.one_and_a_half'));
       case AroundDurationHours.TWO: return _translateAround(Hours(2).toString());
       case AroundDurationHours.THREE: return _translateAround(Hours(3).toString());
       case AroundDurationHours.FOUR: return _translateAround(Hours(4).toString());
-      case AroundDurationHours.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case AroundDurationHours.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
   }
 
@@ -117,7 +120,10 @@ class When {
     return translate('common.words.around').capitalize() + " " + addition;
   }
 
-  static TimeOfDay fromWhenAtDayToTimeOfDay(AroundWhenAtDay whenAtDay, TimeOfDay? customWhenAt) {
+  static TimeOfDay fromWhenAtDayToTimeOfDay(AroundWhenAtDay whenAtDay, TimeOfDay? customWhenAt, {bool getDefault = false}) {
+    if (!getDefault && whenAtDay != AroundWhenAtDay.NOW && whenAtDay != AroundWhenAtDay.CUSTOM) {
+      return PreferenceService().getWhenAtDayTimeOfDay(whenAtDay);
+    }
     switch(whenAtDay) {
       case AroundWhenAtDay.NOW: return TimeOfDay.now();
       case AroundWhenAtDay.MORNING: return TimeOfDay(hour: 8, minute: 0);
@@ -129,7 +135,7 @@ class When {
       case AroundWhenAtDay.CUSTOM: return customWhenAt!;
     }
   }
-  static String _fromWhenAtDayToString(AroundWhenAtDay whenAtDay) {
+  static String fromWhenAtDayToWord(AroundWhenAtDay whenAtDay) {
     switch(whenAtDay) {
       case AroundWhenAtDay.NOW: return translate('common.times.now');
       case AroundWhenAtDay.MORNING: return translate('common.times.in_the_morning');
@@ -138,7 +144,7 @@ class When {
       case AroundWhenAtDay.AFTERNOON: return translate('common.times.at_afternoon');
       case AroundWhenAtDay.EVENING: return translate('common.times.in_the_evening');
       case AroundWhenAtDay.NIGHT: return translate('common.times.at_night');
-      case AroundWhenAtDay.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case AroundWhenAtDay.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
   }
 
@@ -146,7 +152,7 @@ class When {
     final preferenceService = PreferenceService();
     final showTimeOfDayAsText = preferenceService.showTimeOfDayAsText;
     
-    final asString = _fromWhenAtDayToString(whenAtDay);
+    final asString = fromWhenAtDayToWord(whenAtDay);
     if (showTimeOfDayAsText || whenAtDay == AroundWhenAtDay.NOW || whenAtDay == AroundWhenAtDay.CUSTOM) {
       return asString;
     }
@@ -159,7 +165,7 @@ class When {
       case WhenOnDatePast.TODAY: return truncToDate(DateTime.now());
       case WhenOnDatePast.YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 1)));
       case WhenOnDatePast.BEFORE_YESTERDAY: return truncToDate(DateTime.now().subtract(Duration(days: 2)));
-      case WhenOnDatePast.CUSTOM: return customDate!;
+      case WhenOnDatePast.CUSTOM: return truncToDate(customDate!);
     }
   }
   static DateTime fromWhenOnDateFutureToDate(WhenOnDateFuture whenOnDate, DateTime? customDate) {
@@ -167,7 +173,7 @@ class When {
       case WhenOnDateFuture.TODAY: return truncToDate(DateTime.now());
       case WhenOnDateFuture.TOMORROW: return truncToDate(DateTime.now().add(Duration(days: 1)));
       case WhenOnDateFuture.AFTER_TOMORROW: return truncToDate(DateTime.now().add(Duration(days: 2)));
-      case WhenOnDateFuture.CUSTOM: return customDate!;
+      case WhenOnDateFuture.CUSTOM: return truncToDate(customDate!);
     }
   }
 
@@ -176,7 +182,7 @@ class When {
       case WhenOnDatePast.TODAY: return translate('common.dates.today');
       case WhenOnDatePast.YESTERDAY: return translate('common.dates.yesterday');
       case WhenOnDatePast.BEFORE_YESTERDAY: return translate('common.dates.before_yesterday');
-      case WhenOnDatePast.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case WhenOnDatePast.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
   }
   static String fromWhenOnDateFutureString(WhenOnDateFuture whenOnDate) {
@@ -184,7 +190,7 @@ class When {
       case WhenOnDateFuture.TODAY: return translate('common.dates.today');
       case WhenOnDateFuture.TOMORROW: return translate('common.dates.tomorrow');
       case WhenOnDateFuture.AFTER_TOMORROW: return translate('common.dates.after_tomorrow');
-      case WhenOnDateFuture.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case WhenOnDateFuture.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
   }
 

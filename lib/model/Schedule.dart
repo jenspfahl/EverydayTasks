@@ -9,7 +9,44 @@ import 'When.dart';
 
 enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, EVERY_OTHER_MONTH, QUARTERLY, HALF_YEARLY, YEARLY, CUSTOM}
 enum RepetitionUnit {DAYS, WEEKS, MONTHS, YEARS, MINUTES, HOURS}
-enum RepetitionMode {DYNAMIC, FIXED}
+enum RepetitionMode {DYNAMIC, FIXED, ONE_TIME}
+enum DayOfWeek {MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY}
+enum MonthOfYear {JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER , DECEMBER}
+enum FixedScheduleType {WEEK_BASED, MONTH_BASED, YEAR_BASED}
+
+class AllYearDate implements Comparable {
+  int day;
+  MonthOfYear month;
+
+  AllYearDate(this.day, this.month);
+
+  AllYearDate.fromValue(int v) : this(v % 100, MonthOfYear.values[v ~/ 100]);
+
+  int get value => (month.index * 100) + day;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AllYearDate &&
+          runtimeType == other.runtimeType &&
+          day == other.day &&
+          month == other.month;
+
+  @override
+  int get hashCode => day.hashCode ^ month.hashCode;
+
+  @override
+  String toString() {
+    return 'AllYearDate{day: $day, month: $month}';
+  }
+
+  @override
+  int compareTo(other) {
+    int cmp = month.index.compareTo(other.month.index);
+    if (cmp != 0) return cmp;
+    return day.compareTo(other.day);
+  }
+}
 
 class CustomRepetition {
   int repetitionValue;
@@ -59,46 +96,91 @@ class CustomRepetition {
 }
 
 class Schedule {
-  AroundWhenAtDay aroundStartAt;
+  AroundWhenAtDay aroundStartAt = AroundWhenAtDay.NOW;
   TimeOfDay? startAtExactly;
   RepetitionStep repetitionStep;
   CustomRepetition? customRepetition;
   RepetitionMode repetitionMode;
 
+  DateTime? oneTimeDueOn;
+
+  Set<DayOfWeek> weekBasedSchedules = {};
+  Set<int> monthBasedSchedules = {}; // day of month
+  Set<AllYearDate> yearBasedSchedules = {}; // date of all years
+
   Schedule({
-    required this.aroundStartAt,
+    AroundWhenAtDay? aroundStartAt,
     this.startAtExactly,
     required this.repetitionStep,
     this.customRepetition,
     required this.repetitionMode,
-  });
+    Set<DayOfWeek>? weekBasedSchedules,
+    Set<int>? monthBasedSchedules,
+    Set<AllYearDate>? yearBasedSchedules,
+    this.oneTimeDueOn,
+  }) {
+    this.aroundStartAt = aroundStartAt ?? AroundWhenAtDay.NOW;
+    if (weekBasedSchedules != null) this.weekBasedSchedules = weekBasedSchedules;
+    if (monthBasedSchedules != null) this.monthBasedSchedules = monthBasedSchedules;
+    if (yearBasedSchedules != null) this.yearBasedSchedules = yearBasedSchedules;
+  }
 
-  DateTime adjustScheduleFrom(DateTime fromDate) {
+
+  DateTime adjustScheduleFromToStartAt(DateTime fromDate) {
     var startAt = When.fromWhenAtDayToTimeOfDay(aroundStartAt, startAtExactly);
     return DateTime(fromDate.year, fromDate.month, fromDate.day, startAt.hour, startAt.minute);
   }
 
 
   DateTime getNextRepetitionFrom(DateTime from) {
-    from = adjustScheduleFrom(from);
+    if (repetitionMode == RepetitionMode.ONE_TIME && oneTimeDueOn != null) {
+      return adjustScheduleFromToStartAt(oneTimeDueOn!);
+    }
+    from = adjustScheduleFromToStartAt(from);
+    final nextDueOnDate = _getScheduleAfter(from);
+
+    if (repetitionMode == RepetitionMode.FIXED) {
+      return _correctForDefinedSchedules(from, nextDueOnDate, moveForward: true);
+    }
+    else {
+      return nextDueOnDate;
+    }
+  }
+  
+  DateTime getPreviousRepetitionFrom(DateTime from) {
+    if (repetitionMode == RepetitionMode.ONE_TIME && oneTimeDueOn != null) {
+      return from; // no calc back here
+    }
+    from = adjustScheduleFromToStartAt(from);
+    final nextDueOnDate = _getScheduleBefore(from);
+
+
+    if (repetitionMode == RepetitionMode.FIXED) {
+      return _correctForDefinedSchedules(from, nextDueOnDate, moveForward: false); 
+    }
+    else {
+      return nextDueOnDate;
+    }
+  }
+
+  DateTime _getScheduleAfter(DateTime from) {
     if (customRepetition != null) {
       return customRepetition!.getNextRepetitionFrom(from);
     }
     else if (repetitionStep != RepetitionStep.CUSTOM) {
       return addRepetitionStepToDateTime(from, repetitionStep);
     }
-    throw new Exception("unknown repetition step");
+    return from;
   }
-  
-  DateTime getPreviousRepetitionFrom(DateTime from) {
-    from = adjustScheduleFrom(from);
+
+  DateTime _getScheduleBefore(DateTime from) {
     if (customRepetition != null) {
       return customRepetition!.getPreviousRepetitionFrom(from);
     }
     else if (repetitionStep != RepetitionStep.CUSTOM) {
       return subtractRepetitionStepToDateTime(from, repetitionStep);
     }
-    throw new Exception("unknown repetition step");
+    return from;
   }
 
   String toStartAtAsString() {
@@ -149,7 +231,7 @@ class Schedule {
       case RepetitionStep.QUARTERLY: return translate('model.repetition_step.quarterly');
       case RepetitionStep.HALF_YEARLY: return translate('model.repetition_step.half_yearly');
       case RepetitionStep.YEARLY: return translate('model.repetition_step.yearly');
-      case RepetitionStep.CUSTOM: return translate('common.words.custom').capitalize() + "...";
+      case RepetitionStep.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
   }
 
@@ -183,12 +265,13 @@ class Schedule {
     switch(repetitionMode) {
       case RepetitionMode.DYNAMIC: return translate('model.repetition_mode.dynamic');
       case RepetitionMode.FIXED: return translate('model.repetition_mode.fixed');
+      case RepetitionMode.ONE_TIME: return translate('model.repetition_mode.one_time');
     }
   }
 
   static String fromCustomRepetitionToString(CustomRepetition? customRepetition) {
     if (customRepetition == null) {
-      return translate('common.words.custom').capitalize() + "...";
+      return translate('common.words.custom').capitalize() + ELLIPSIS;
     }
     final unit = fromCustomRepetitionToUnit(customRepetition);
     return "${translate('model.repetition_step.every')} $unit";
@@ -204,5 +287,321 @@ class Schedule {
       case RepetitionUnit.YEARS: return Years(customRepetition.repetitionValue, clause);
     }
   }
+
+  DateTime _correctForDefinedSchedules(DateTime from, DateTime nextRegularDueDate, {required bool moveForward}) {
+
+    if (isWeekBased() && weekBasedSchedules.isNotEmpty) {
+      return findClosestDayOfPeriod<DayOfWeek>(from, nextRegularDueDate, weekBasedSchedules, moveForward,
+          extractType: (dateTime) {
+            return DayOfWeek.values[from.weekday - 1];
+          },
+          extractValue: (dayOfWeek) {
+            return dayOfWeek.index + 1;
+          },
+          shiftBack: (repetitionValue, from) {
+            final shift = repetitionValue * DayOfWeek.values.length; // period - 1, e.g. 2 weeks = 1 week, 3 weeks = 2 weeks
+            return from.subtract(Duration(days: shift));
+          },
+      ) ?? nextRegularDueDate;
+    }
+
+    if (isMonthBased() && monthBasedSchedules.isNotEmpty) {
+      return findClosestDayOfPeriod<int>(from, nextRegularDueDate, monthBasedSchedules, moveForward,
+        extractType: (dateTime) {
+          return dateTime.day;
+        },
+        extractValue: (dayOfMonth) {
+          return dayOfMonth;
+        },
+        shiftBack: (repetitionValue, from) {
+          return Jiffy(from).subtract(months: repetitionValue).dateTime;
+        },
+      ) ?? nextRegularDueDate;
+    }
+
+    if (isYearBased() && yearBasedSchedules.isNotEmpty) {
+      return findClosestDayOfPeriod<AllYearDate>(from, nextRegularDueDate, yearBasedSchedules, moveForward,
+        extractType: (dateTime) {
+          return AllYearDate(dateTime.day, MonthOfYear.values[dateTime.month - 1]);
+        },
+        extractValue: (dayOfMonth) {
+          return dayOfMonth.value;
+        },
+        shiftBack: (repetitionValue, from) {
+          return Jiffy(from).subtract(years: repetitionValue).dateTime;
+        },
+      ) ?? nextRegularDueDate;
+    }
+    // bypass
+    return nextRegularDueDate;
+  }
+
+  bool isWeekBased() {
+    switch(repetitionStep) {
+      case RepetitionStep.WEEKLY: 
+      case RepetitionStep.EVERY_OTHER_WEEK: 
+        return true;
+      case RepetitionStep.CUSTOM: {
+        return customRepetition != null && customRepetition!.repetitionUnit == RepetitionUnit.WEEKS;
+      }
+      default: return false;
+    }
+  }
+  
+  bool isMonthBased() {
+    switch(repetitionStep) {
+      case RepetitionStep.MONTHLY: 
+      case RepetitionStep.EVERY_OTHER_MONTH:
+      case RepetitionStep.QUARTERLY: // equals to 3 months
+      case RepetitionStep.HALF_YEARLY: // equals to 6 months
+        return true;
+      case RepetitionStep.CUSTOM: {
+        return customRepetition != null && customRepetition!.repetitionUnit == RepetitionUnit.MONTHS;
+      }
+      default: return false;
+    }
+  }
+  
+  bool isYearBased() {
+    switch(repetitionStep) {
+      case RepetitionStep.YEARLY: 
+        return true;
+      case RepetitionStep.CUSTOM: {
+        return customRepetition != null && customRepetition!.repetitionUnit == RepetitionUnit.YEARS;
+      }
+      default: return false;
+    }
+  }
+
+  DateTime? findClosestDayOfPeriod<T>(
+    DateTime from,
+    DateTime nextRegularDueDate,
+    Set<T> days,
+    bool moveForward, {
+    required T Function (DateTime from) extractType,
+    required int Function (T) extractValue,
+    required DateTime Function (int repetitionValue, DateTime from) shiftBack,
+  }) {
+
+    //debugPrint("from=$from nextRegularDueDate=$nextRegularDueDate");
+
+    final sorted = days.toList();
+    sorted.sort((e1, e2) => extractValue(e1) - extractValue(e2));
+    
+    if (moveForward) {
+      // first check from current period
+      final next = _findForwardsFromCurrentDate(from, sorted, extractType, extractValue);
+
+      //debugPrint("next = $next");
+      if (next != null) {
+        return next;
+      }
+      
+      // second check from next period
+      final firstNextPeriod = _findForwardsFromBeginOfPeriod(nextRegularDueDate, sorted, extractType, extractValue);
+
+      //debugPrint("firstNextPeriod = $firstNextPeriod");
+      return firstNextPeriod;
+      
+    }
+    else {
+      // first check from current period (which is after next period here)
+      final last = _findBackwardsFromCurrentDate(from, sorted, extractType, extractValue);
+
+      //debugPrint("last = $last");
+      if (last != null) {
+        // if last the max element in sorted, shift x days back
+        if (!sorted.any((element) => extractValue(element) >= extractValue(extractType(last)))) {
+          final repetition = fromRepetitionStepToCustomRepetition(repetitionStep, customRepetition);
+          final corrected = shiftBack(repetition.repetitionValue - 1, last);
+          //debugPrint("corrected = $corrected");
+
+          return corrected;
+        }
+        return last;
+      }
+
+      // second check from previous period
+      final lastPreviousPeriod = _findBackwardsFromEndOfPeriod(nextRegularDueDate, sorted, extractType, extractValue);
+
+      //debugPrint("lastPreviousPeriod = $lastPreviousPeriod");
+      return lastPreviousPeriod;
+
+    }
+    
+  }
+
+
+  DateTime? _findForwardsFromCurrentDate<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
+
+    final dayFrom = extractType(from);
+    final nextDay = days.where((day) => extractValue(day) > extractValue(dayFrom)).firstOrNull;
+    //debugPrint("nextDay: $nextDay");
+
+    if (nextDay is DayOfWeek) {
+      final next = from.add(Duration(days: extractValue(nextDay) - extractValue(dayFrom)));
+      //debugPrint("found next in period $next after from");
+      return next;
+    }
+    else {
+      return _mapFixedNonWeekScheduleDay(from, nextDay);
+    }
+  }
+
+
+  DateTime? _findForwardsFromBeginOfPeriod<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
+    final dayBeforePeriodStartOfFrom = from.subtract(Duration(days: extractValue(extractType(from))));
+    //debugPrint("dayBeforePeriodStartOfFrom = $dayBeforePeriodStartOfFrom");
+
+    final firstDay = days.firstOrNull;
+    if (firstDay is DayOfWeek) {
+      final date = dayBeforePeriodStartOfFrom.add(Duration(days: extractValue(firstDay)));
+      //debugPrint("found first schedule in period: $date");
+      return date;
+    }
+    else {
+      return _mapFixedNonWeekScheduleDay(from, firstDay);
+    }
+  }
+
+
+  DateTime? _findBackwardsFromCurrentDate<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
+    final dayFrom = extractType(from);
+    //debugPrint("dayFrom: $dayFrom");
+
+    final lastDay = days.where((day) => extractValue(day) < extractValue(dayFrom)).lastOrNull;
+    //debugPrint("lastDay: $lastDay");
+
+    if (lastDay is DayOfWeek) {
+      final next = from.add(Duration(days: extractValue(lastDay) - extractValue(dayFrom)));
+      //debugPrint("found last in period $next after from");
+      return next;
+    }
+    else {
+      return _mapFixedNonWeekScheduleDay(from, lastDay);
+    }
+  }
+
+
+  DateTime? _findBackwardsFromEndOfPeriod<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
+    final lastDay = days.lastOrNull;
+    if (lastDay is DayOfWeek) {
+      final date = from.add(Duration(days: extractValue(lastDay) - 1));
+      //debugPrint("found last schedule in period: $date");
+      return date;
+    }
+    else {
+      return _mapFixedNonWeekScheduleDay(from, lastDay);
+    }
+  }
+
+
+  DateTime? _mapFixedNonWeekScheduleDay<T>(DateTime from, T day) {
+    if (day is int) {
+      final date = adjustScheduleFromToStartAt(DateTime(from.year, from.month, day));
+      return _correctToLastDayOfMonthIfInvalid(date, day, from);
+    }
+    else if (day is AllYearDate) {
+      final date = adjustScheduleFromToStartAt(DateTime(from.year, day.month.index + 1, day.day));
+      return _correctToLastDayOfMonthIfInvalid(date, day, from);
+    }
+    else {
+      return null;
+    }
+  }
+
+  DateTime? _correctToLastDayOfMonthIfInvalid(DateTime date, day, DateTime from) {
+    if (!_isValidDay(date, day)) {
+      // the target date was not a valid date, we need to adjust. E.g. 31 Feb is not valid and lands on 2nd March --> adjust to last date in Feb
+      //return null; // jump over invalid date if preferred
+      final corrected = date.subtract(Duration(days: date.day)); // adjust invalid date
+      if (corrected == from) {
+        // I was already here
+        return null;
+      }
+      return corrected;
+    }
+    return date;
+  }
+
+
+  bool _isValidDay<T>(DateTime date, T day) {
+    if (day is int && date.day < day) {
+      return false;
+    }
+    else if (day is AllYearDate && date.day < day.day) {
+      return false;
+    }
+
+    return true;
+  }
+
+  bool appliesToFixedSchedule(DateTime dateTime) {
+    if (repetitionMode == RepetitionMode.FIXED) {
+      if (isWeekBased() && weekBasedSchedules.isNotEmpty) {
+        return weekBasedSchedules.contains(DayOfWeek.values[dateTime.weekday - 1]);
+      }
+      if (isMonthBased() && monthBasedSchedules.isNotEmpty) {
+        final nextDay = dateTime.add(Duration(days: 1));
+        if (!_isValidDay(nextDay, dateTime.day)) {
+          // next is invalid, consider selecting this if we have a schedule for the next 4 days (e.g. 28, 29, 30, 31 of month where only 28 or maybe 29 is valid for February)
+          return monthBasedSchedules.contains(dateTime.day + 0)
+              || monthBasedSchedules.contains(dateTime.day + 1)
+              || monthBasedSchedules.contains(dateTime.day + 2)
+              || monthBasedSchedules.contains(dateTime.day + 3);
+        }
+        return monthBasedSchedules.contains(dateTime.day);
+      }
+      if (isYearBased() && yearBasedSchedules.isNotEmpty) {
+        final nextDay = dateTime.add(Duration(days: 1));
+        var monthOfYear = MonthOfYear.values[dateTime.month - 1];
+        if (!_isValidDay(nextDay, dateTime.day)) {
+          // next is invalid, consider selecting this if we have a schedule for the next 4 days (e.g. 28, 29, 30, 31 of month where only 28 or maybe 29 is valid for February)
+          return yearBasedSchedules.contains(AllYearDate(dateTime.day + 0, monthOfYear))
+              || yearBasedSchedules.contains(AllYearDate(dateTime.day + 1, monthOfYear))
+              || yearBasedSchedules.contains(AllYearDate(dateTime.day + 2, monthOfYear))
+              || yearBasedSchedules.contains(AllYearDate(dateTime.day + 3, monthOfYear));
+        }
+        return yearBasedSchedules.contains(AllYearDate(dateTime.day, monthOfYear));
+      }
+    }
+    return true;
+  }
+
+
+  static String? getStringFromWeeklyBasedSchedules(Set<DayOfWeek> weekBasedSchedules, BuildContext context) {
+    if (weekBasedSchedules.isEmpty) {
+      return null;
+    }
+
+    final list = weekBasedSchedules.toList();
+    list.sort((a, b) => a.index - b.index);
+
+    return list.map((e) => getShortWeekdayOf(e.index, context)).join(", ");
+  }
+
+  static String? getStringFromMonthlyBasedSchedules(Set<int> monthBasedSchedules, BuildContext context) {
+    if (monthBasedSchedules.isEmpty) {
+      return null;
+    }
+
+    final list = monthBasedSchedules.toList();
+    list.sort();
+
+    return list.map((day) => getDayOfMonth(day, context)).join(", ");
+  }
+
+  static String? getStringFromYearlyBasedSchedules(Set<AllYearDate> yearBasedSchedules, BuildContext context) {
+    if (yearBasedSchedules.isEmpty) {
+      return null;
+    }
+
+    final list = yearBasedSchedules.toList();
+    list.sort();
+
+    return list.map((allYearDate) => formatAllYearDate(allYearDate, context)).join(", ");
+  }
+
+
 
 }

@@ -56,7 +56,7 @@ class TaskEventWidget extends StatefulWidget {
   static Text buildWhenText(TaskEvent taskEvent, {bool small = false}) {
     if (small) {
       var text = formatToTime(taskEvent.startedAt);
-      if (taskEvent.aroundStartedAt != AroundWhenAtDay.CUSTOM) {
+      if (taskEvent.aroundStartedAt != AroundWhenAtDay.CUSTOM && taskEvent.isAroundStartAtTheSameAsActualTime()) {
         text = When.fromWhenAtDayToString(taskEvent.aroundStartedAt);
       }
       return Text(text, style: TextStyle(fontSize: 10));
@@ -65,10 +65,12 @@ class TaskEventWidget extends StatefulWidget {
       var text = formatToDateTimeRange(
           taskEvent.aroundStartedAt, taskEvent.startedAt,
           taskEvent.aroundDuration, taskEvent.duration,
-          taskEvent.trackingFinishedAt, true);
+          taskEvent.trackingFinishedAt,
+          taskEvent.isAroundStartAtTheSameAsActualTime());
       return Text(text);
     }
   }
+
 }
 
 class TaskEventWidgetState extends State<TaskEventWidget> {

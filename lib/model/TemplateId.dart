@@ -1,6 +1,6 @@
 
 
-class TemplateId extends Comparable {
+class TemplateId implements Comparable {
 
   int id;
   bool isVariant;

@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/util/dates.dart';
 
 import '../ui/utils.dart';
-import 'Schedule.dart';
 import 'Schedule.dart';
 import 'Template.dart';
 import 'TemplateId.dart';
@@ -14,14 +12,19 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   int? id;
   int taskGroupId;
   TemplateId? templateId;
+  bool important = false;
 
   DateTime createdAt = DateTime.now();
   Schedule schedule;
   DateTime? lastScheduledEventOn;
+
+  DateTime? oneTimeCompletedOn;
+
   bool active = true;
   DateTime? pausedAt;
   bool? reminderNotificationEnabled = true;
   CustomRepetition? reminderNotificationRepetition;
+
 
   ScheduledTask({
     this.id,
@@ -32,7 +35,9 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     required this.createdAt,
     required this.schedule,
     this.lastScheduledEventOn,
+    this.oneTimeCompletedOn,
     required this.active,
+    this.important = false,
     this.pausedAt,
     this.reminderNotificationEnabled,
     this.reminderNotificationRepetition,
@@ -49,6 +54,8 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
         super(template.title, template.description);
 
   bool get isPaused => pausedAt != null;
+
+  bool get isOneTimeCompleted => schedule.repetitionMode == RepetitionMode.ONE_TIME && oneTimeCompletedOn != null;
 
   DateTime? getNextSchedule() => getNextScheduleAfter(lastScheduledEventOn);
 
@@ -81,13 +88,18 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   }
 
   Duration? getPassedDuration() {
+    if (schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+      return DateTime.now().difference(lastScheduledEventOn!);
+    }
     if (lastScheduledEventOn != null) {
-      final now = pausedAt != null ? pausedAt! : DateTime.now();
+      final now = pausedAt != null ? pausedAt! : DateTime.now(); //passed duration is not displayed when paused, so no need to consider it here
       // if last scheduled before actual creation date, cast it to creation date
       return now.difference(truncToMinutes(lastScheduledEventOn!.isBefore(createdAt) ? createdAt : lastScheduledEventOn!));
     }
     return null;
   }
+
+  bool isDue() => !isOneTimeCompleted && (isDueNow() || isNextScheduleOverdue(false));
 
   bool isNextScheduleReached() {
     var duration = getMissingDuration();
@@ -157,12 +169,24 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   }
 
   executeSchedule(TaskEvent? taskEvent) {
-    lastScheduledEventOn = _calcLastScheduledEventOn(taskEvent);
+    if (schedule.repetitionMode == RepetitionMode.ONE_TIME && oneTimeCompletedOn == null) {
+      oneTimeCompletedOn = _calcLastScheduledEventOn(taskEvent);
+    }
+    else {
+      lastScheduledEventOn = _calcLastScheduledEventOn(taskEvent);
+    }
   }
 
   setNextSchedule(DateTime nextDueDate) {
     final customRepetition = Schedule.fromRepetitionStepToCustomRepetition(schedule.repetitionStep, schedule.customRepetition);
-    lastScheduledEventOn = nextDueDate.subtract(customRepetition.toDuration());
+    final newLastScheduledEventOn = nextDueDate.subtract(customRepetition.toDuration());
+
+    if (schedule.repetitionMode == RepetitionMode.FIXED) {
+      lastScheduledEventOn = schedule.getPreviousRepetitionFrom(nextDueDate);
+    }
+    else if (schedule.repetitionMode == RepetitionMode.DYNAMIC) {
+      lastScheduledEventOn = newLastScheduledEventOn;
+    }
   }
 
   DateTime? simulateExecuteSchedule(TaskEvent? taskEvent) {
@@ -171,17 +195,29 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   }
 
   DateTime? _calcLastScheduledEventOn(TaskEvent? taskEvent) {
+
+    final startedAtFromTask =
+      (taskEvent != null && templateId != null && taskEvent.originTemplateId == templateId)
+          ? taskEvent.startedAt
+          : null;
+
+
     if (schedule.repetitionMode == RepetitionMode.DYNAMIC) {
-      if (taskEvent != null && templateId != null &&
-          taskEvent.originTemplateId == templateId) {
-        return taskEvent.startedAt;
-      }
-      else {
-        return DateTime.now();
-      }
+      return startedAtFromTask ?? DateTime.now();
     }
     else if (schedule.repetitionMode == RepetitionMode.FIXED) {
-      return getNextSchedule();
+      if (isDue())  {
+        // only complete this schedule if due
+        return getNextSchedule();
+      }
+      else {
+        // keep current state
+        return lastScheduledEventOn;
+      }
+    }
+    else if (schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+      // for one-time we can only set it to done (like dynamic)
+      return startedAtFromTask ?? DateTime.now();
     }
     return null;
   }
@@ -196,7 +232,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     if (active && pausedAt != null) {
       final delta = DateTime.now().difference(pausedAt!);
       pausedAt = null;
-      if (lastScheduledEventOn != null) {
+      if (lastScheduledEventOn != null && schedule.repetitionMode == RepetitionMode.DYNAMIC) {
         lastScheduledEventOn = lastScheduledEventOn!.add(delta);
       }
     }
@@ -225,7 +261,6 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ScheduledTask &&
-          runtimeType == other.runtimeType &&
           id == other.id;
 
   @override
@@ -238,12 +273,13 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     taskGroupId = other.taskGroupId;
     templateId = other.templateId;
     active = other.active;
+    important = other.important;
     pausedAt = other.pausedAt;
     schedule = other.schedule;
+    oneTimeCompletedOn = other.oneTimeCompletedOn;
     lastScheduledEventOn = other.lastScheduledEventOn;
     reminderNotificationEnabled = other.reminderNotificationEnabled;
     reminderNotificationRepetition = other.reminderNotificationRepetition;
-
   }
 
 }

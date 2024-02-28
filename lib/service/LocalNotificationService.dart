@@ -144,6 +144,11 @@ class LocalNotificationService {
       [Color? color, List<AndroidNotificationAction>? actions, bool withTranslation = true, CustomRepetition? snoozePeriod]) async {
     final when = tz.TZDateTime.now(tz.local).add(duration);
 
+    if (when.isBefore(DateTime.now())) {
+      debugPrint("Scheduled notification $id in the past, skip ($when)");
+      return;
+    }
+
     final parameterMap = {
       'receiverKey' : receiverKey,
       'id' : id,
@@ -176,7 +181,7 @@ class LocalNotificationService {
     await _flutterLocalNotificationsPlugin.cancelAll();
   }
 
-  void handleAppLaunchNotification() {
+  void handleAppLaunchNotification(Function (List<int>) handleActiveNotificationPostHandler) {
     _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails()
         .then((notification) {
           final payload = notification?.notificationResponse?.payload;
@@ -194,7 +199,7 @@ class LocalNotificationService {
       activeNotifications.forEach((element) {
         _handleActiveNotification(element.id, element.channelId);
       });
-
+      handleActiveNotificationPostHandler(activeNotifications.map((e) => e.id).toList());
     });
   }
 

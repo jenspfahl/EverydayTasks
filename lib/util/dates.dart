@@ -1,12 +1,60 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:ordinal_formatter/ordinal_formatter.dart';
+import 'package:personaltasklogger/main.dart';
+import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/util/units.dart';
 
 import 'i18n.dart';
+
+
+final DAY_OF_MONTH_NUMBERS = HashMap<String, Map<int, String>>(); // language, then day of month --> ordinal day
+
+Future<void> fillDayNumberCache() async {
+  final it = SUPPORTED_LANGUAGES.iterator;
+  while (it.moveNext()) {
+    final language = it.current;
+    final langMap = HashMap<int, String>();
+
+    for (int i = 0; i <= 31; i++) {
+      final ordinal = await _getOrdinalDayFor(i, language);
+      //debugPrint("DAYCACHE: $language $i --> $ordinal");
+      langMap[i] = ordinal;
+      DAY_OF_MONTH_NUMBERS[language] = langMap;
+    }
+  }
+
+}
+
+Future<String> _getOrdinalDayFor(int i, String language) async {
+  String ordinalNumber;
+  try {
+    ordinalNumber = await OrdinalFormatter().format(i, language) ?? '$i';
+  } on PlatformException catch (e) {
+    ordinalNumber = '$i';
+  }
+  return ordinalNumber;
+}
+
+String getOrdinalDayOf(String language, int day) {
+  final langMap = DAY_OF_MONTH_NUMBERS[language];
+  if (langMap == null) {
+    //debugPrint("DAYCACHE: GET OF $language not found");
+    return day.toString();
+  }
+  final lang = langMap[day];
+  //debugPrint("DAYCACHE: GET OF $day in $langMap");
+
+  return lang ?? day.toString();
+}
+
 
 DateTime fillToWholeDate(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day, 23, 59, 59, 9999);
@@ -51,24 +99,45 @@ String? formatToWord(DateTime dateTime) {
   return null;
 }
 
-String formatToDate(DateTime dateTime, BuildContext context, {bool? showWeekdays}) {
+String formatToDate(DateTime dateTime, BuildContext context, {bool? showWeekdays, bool hideYear = false}) {
   final preferenceService = PreferenceService();
   final prefShowWeekdays = preferenceService.showWeekdays;
   final dateFormatSelection = preferenceService.dateFormatSelection;
-  return formatToDateWithFormatSelection(dateTime, context, dateFormatSelection, showWeekdays ?? prefShowWeekdays);
+  return formatToDateWithFormatSelection(dateTime, context, dateFormatSelection, showWeekdays ?? prefShowWeekdays, hideYear);
 }
 
-formatToDateWithFormatSelection(DateTime dateTime, BuildContext context, int dateFormatSelection, bool showWeekdays) {
+formatToDateWithFormatSelection(DateTime dateTime, BuildContext context, int dateFormatSelection, bool showWeekdays, bool hideYear) {
   final isSameYear = dateTime.year == DateTime.now().year;
-  final formatter = getDateFormat(context, dateFormatSelection, showWeekdays, isSameYear);
+  final formatter = getDateFormat(context, dateFormatSelection, showWeekdays, isSameYear || hideYear);
   return formatter.format(dateTime);
 }
 
 
-String getWeekdayOf(int day, BuildContext context) {
+// day: 0..6
+String formatAllYearDate(AllYearDate allYearDate, BuildContext context) {
+  final date = DateTime(2024, allYearDate.month.index + 1, allYearDate.day); // leap year needed to display 29th Feb
+  return formatToDate(date, context, showWeekdays: false, hideYear: true);
+}
+
+// day: 0..6
+String getDayOfMonth(int day, BuildContext context) {
+  final language = currentLocale(context).languageCode.toString();
+  //debugPrint("DAYCACHE GET: $language $day");
+  return getOrdinalDayOf(language, day);
+}
+
+// day: 0..6
+String getNarrowWeekdayOf(int day, BuildContext context) {
   final locale = currentLocale(context).toString();
   initializeDateFormatting(locale);
-  return DateFormat.EEEE(locale).dateSymbols.WEEKDAYS[day];
+  return DateFormat.EEEE(locale).dateSymbols.NARROWWEEKDAYS[(day + 1) % 7];
+}
+
+// day: 0..6
+String getShortWeekdayOf(int day, BuildContext context) {
+  final locale = currentLocale(context).toString();
+  initializeDateFormatting(locale);
+  return DateFormat.EEEE(locale).dateSymbols.SHORTWEEKDAYS[(day + 1) % 7];
 }
 
 String getMonthOf(int month, BuildContext context) {
@@ -77,7 +146,7 @@ String getMonthOf(int month, BuildContext context) {
   return DateFormat.MMM(locale).dateSymbols.MONTHS[month];
 }
 
- getDateFormat(BuildContext context, int dateFormatSelection, bool showWeekdays, bool withoutYear) {
+getDateFormat(BuildContext context, int dateFormatSelection, bool showWeekdays, bool withoutYear) {
 
    final locale = currentLocale(context).toString();
   initializeDateFormatting(locale);
