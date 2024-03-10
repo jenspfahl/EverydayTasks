@@ -101,12 +101,9 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
 
   bool isDue() => !isOneTimeCompleted && (isDueNow() || isNextScheduleOverdue(false));
 
-  bool isNextScheduleReached() {
-    var duration = getMissingDuration();
-    if (duration != null) {
-      return _getRoundedDurationValue(duration) == 0;
-    }
-    return false;
+  bool isNextScheduleAlmostReached() {
+    return (getNextRepetitionIndicatorValue()??0.0) > 0.9;
+
   }
 
   bool isDueNow() => getNextSchedule() != null && truncToMinutes(getNextSchedule()!) == truncToMinutes(DateTime.now());
@@ -125,7 +122,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   }
 
   /*
-   * Returns the duration in the next bigger unit then the repitition steps are defined.
+   * Returns the duration in the next bigger unit then the repetition steps are defined.
    */
   int _getRoundedDurationValue(Duration duration) {
       if (schedule.repetitionStep == RepetitionStep.DAILY

@@ -98,7 +98,20 @@ class ScheduledTaskWidget extends StatefulWidget {
           .currentState
           ?.addTaskEvent(insertedTaskEvent, justSetState: true);
 
-      scheduledTask.executeSchedule(insertedTaskEvent);
+      if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
+
+        // move schedule forward if check-marked directly
+        var newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
+        if (!scheduledTask.isDue()) {
+          // get schedule after next due date to move forward
+          newNextDueDate = scheduledTask.getNextScheduleAfter(newNextDueDate);
+        }
+        // because the schedule snaps to the next due date we have to subtract one day
+        scheduledTask.lastScheduledEventOn = newNextDueDate?.subtract(Duration(days: 1));
+      }
+      else {
+        scheduledTask.executeSchedule(insertedTaskEvent);
+      }
       ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
         cancelSnoozedNotification(scheduledTask);
         pagesHolder
@@ -185,9 +198,9 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                     value: scheduledTask.isNextScheduleOverdue(true) ? null : scheduledTask.getNextRepetitionIndicatorValue(),
                     color: scheduledTask.isNextScheduleOverdue(false)
                         ? Colors.red[500]
-                        : (scheduledTask.isNextScheduleReached()
-                        ? scheduledTask.getDueColor(context, lighter: false)
-                        : null),
+                        : (scheduledTask.isNextScheduleAlmostReached()
+                          ? scheduledTask.getDueColor(context, lighter: false)
+                          : null),
                     backgroundColor: scheduledTask.getDueBackgroundColor(context),
                   ),
                 ),
@@ -562,7 +575,7 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                             icon: Icon(resetIcon),
                             okPressed: () {
                               if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
-                                // because the schedule snaps to the next due date we have to substract one day
+                                // because the schedule snaps to the next due date we have to subtract one day
                                 scheduledTask.lastScheduledEventOn = newNextDueDate?.subtract(Duration(days: 1));
                               }
                               else {
