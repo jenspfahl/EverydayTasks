@@ -160,7 +160,16 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     var scheduledDuration = getScheduledDuration();
     var missingDuration = getMissingDuration();
     if (scheduledDuration != null && missingDuration != null) {
-      return 1 - (missingDuration.inMinutes / (scheduledDuration.inMinutes != 0 ? scheduledDuration.inMinutes : 1));
+      final value = 1 - (missingDuration.inMinutes / (scheduledDuration.inMinutes != 0 ? scheduledDuration.inMinutes : 1));
+      if (value.isNegative && schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+        // It can be negative if the schedule was reused after stopped or done and due date was set to a past date (which is an unusual use case).
+        // With having this, we cannot really compare by progress since the start value is random by the users reactivation date
+        final missingDays = missingDuration.inHours / 24;
+        return 1 + (missingDays * 0.5);
+      }
+      else {
+        return value;
+      }
     }
     return null;
   }

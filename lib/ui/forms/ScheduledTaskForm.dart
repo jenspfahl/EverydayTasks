@@ -712,15 +712,12 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     var scheduleFrom = schedule.getPreviousRepetitionFrom(nextDueOn);
 
                                     var oneTimeDueOn = _scheduledTask?.schedule.oneTimeDueOn;
-                                    DateTime? oneTimeCompletedOn = null;
                                     if (_repetitionMode == RepetitionMode.ONE_TIME) {
-                                      oneTimeCompletedOn = _scheduledTask?.oneTimeCompletedOn;
                                       final now = DateTime.now();
                                       if (_scheduledTask == null || _scheduledTask!.isOneTimeCompleted) {
                                         // reuse this schedule once completed
                                         scheduleFrom = now;
                                         oneTimeDueOn = nextDueOn;
-                                        oneTimeCompletedOn = null;
                                       }
                                       else {
                                         // just update this schedule
@@ -739,7 +736,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       createdAt: _scheduledTask?.createdAt ?? DateTime.now(),
                                       schedule: schedule,
                                       lastScheduledEventOn: scheduleFrom,
-                                      oneTimeCompletedOn: oneTimeCompletedOn,
+                                      oneTimeCompletedOn: null,
                                       active: _isActive,
                                       important: _isImportant,
                                       reminderNotificationEnabled: _isRemindersEnabled,
