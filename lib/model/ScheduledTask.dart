@@ -125,7 +125,10 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
    * Returns the duration in the next bigger unit then the repetition steps are defined.
    */
   int _getRoundedDurationValue(Duration duration) {
-      if (schedule.repetitionStep == RepetitionStep.DAILY
+    if (schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+      return duration.inHours;
+    }
+    if (schedule.repetitionStep == RepetitionStep.DAILY
         || schedule.repetitionStep == RepetitionStep.EVERY_OTHER_DAY
         || (schedule.repetitionStep == RepetitionStep.CUSTOM
               && schedule.customRepetition?.repetitionUnit == RepetitionUnit.DAYS)
@@ -165,7 +168,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
         // It can be negative if the schedule was reused after stopped or done and due date was set to a past date (which is an unusual use case).
         // With having this, we cannot really compare by progress since the start value is random by the users reactivation date
         final missingDays = missingDuration.inHours / 24;
-        return 1 + (missingDays * 0.5);
+        return 1 + (missingDays.abs() * 0.5);
       }
       else {
         return value;
