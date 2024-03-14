@@ -101,12 +101,9 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
 
   bool isDue() => !isOneTimeCompleted && (isDueNow() || isNextScheduleOverdue(false));
 
-  bool isNextScheduleReached() {
-    var duration = getMissingDuration();
-    if (duration != null) {
-      return _getRoundedDurationValue(duration) == 0;
-    }
-    return false;
+  bool isNextScheduleAlmostReached() {
+    return (getNextRepetitionIndicatorValue()??0.0) > 0.9;
+
   }
 
   bool isDueNow() => getNextSchedule() != null && truncToMinutes(getNextSchedule()!) == truncToMinutes(DateTime.now());
@@ -125,10 +122,13 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   }
 
   /*
-   * Returns the duration in the next bigger unit then the repitition steps are defined.
+   * Returns the duration in the next bigger unit then the repetition steps are defined.
    */
   int _getRoundedDurationValue(Duration duration) {
-      if (schedule.repetitionStep == RepetitionStep.DAILY
+    if (schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+      return duration.inHours;
+    }
+    if (schedule.repetitionStep == RepetitionStep.DAILY
         || schedule.repetitionStep == RepetitionStep.EVERY_OTHER_DAY
         || (schedule.repetitionStep == RepetitionStep.CUSTOM
               && schedule.customRepetition?.repetitionUnit == RepetitionUnit.DAYS)
@@ -163,7 +163,16 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     var scheduledDuration = getScheduledDuration();
     var missingDuration = getMissingDuration();
     if (scheduledDuration != null && missingDuration != null) {
-      return 1 - (missingDuration.inMinutes / (scheduledDuration.inMinutes != 0 ? scheduledDuration.inMinutes : 1));
+      final value = 1 - (missingDuration.inMinutes / (scheduledDuration.inMinutes != 0 ? scheduledDuration.inMinutes : 1));
+      if (value.isNegative && schedule.repetitionMode == RepetitionMode.ONE_TIME) {
+        // It can be negative if the schedule was reused after stopped or done and due date was set to a past date (which is an unusual use case).
+        // With having this, we cannot really compare by progress since the start value is random by the users reactivation date
+        final missingDays = missingDuration.inHours / 24;
+        return 1 + (missingDays.abs() * 0.5);
+      }
+      else {
+        return value;
+      }
     }
     return null;
   }
