@@ -1,0 +1,3 @@
+* Completing fixed schedules will also move non-due schedules further
+* Fix sort order of reused One-Time schedules
+* Fix progress bar color when close to due
