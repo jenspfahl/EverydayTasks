@@ -466,6 +466,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     Template? template;
     late String message;
     Widget? createAction;
+    Widget? moveAction;
     Widget? changeAction;
     Widget? deleteAction;
     if (selectedItem == null) {
@@ -509,14 +510,23 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
               taskGroup!,
               formTitle: translate('pages.tasks.action.add_task.title'),
               createNew: true,
+              allowUpdateTaskGroup: true,
             );
           }));
 
           if (newTemplate != null) {
             TemplateRepository.save(newTemplate).then((newTemplate) {
+              if (taskGroup!.id != newTemplate.taskGroupId) {
+                reload();
+              }
+              else {
+                _addTaskTemplate(
+                    newTemplate as TaskTemplate,
+                    TaskGroupRepository.findByIdFromCache(newTemplate.taskGroupId));
+              }
+
               toastInfo(context, translate('pages.tasks.action.add_task.success',
                   args: {"title" : newTemplate.translatedTitle}));
-              _addTaskTemplate(newTemplate as TaskTemplate, taskGroup!);
             });
           }
         },
@@ -565,6 +575,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 title: template!.translatedTitle + " (${translate('pages.tasks.action.clone_variant.cloned_postfix')})",
                 template: template,
                 createNew: true,
+                allowUpdateTaskGroup: false,
               );
             }));
 
@@ -585,6 +596,14 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             }
           },
         );
+
+        moveAction = TextButton(
+          child: const Icon(Icons.move_up),
+          onPressed: () async {
+            Navigator.pop(context);
+          },
+        );
+
         changeAction = TextButton(
           child: const Icon(Icons.edit),
           onPressed: () async {
@@ -596,6 +615,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 formTitle: translate('pages.tasks.action.change_variant.title'),
                 template: template,
                 createNew: false,
+                allowUpdateTaskGroup: false,
               );
             }));
 
@@ -628,6 +648,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 template: template,
                 title: template!.translatedTitle + " (${translate('pages.tasks.action.add_variant.variant_postfix')})",
                 createNew: true,
+                allowUpdateTaskGroup: false,
               );
             }));
 
@@ -643,6 +664,14 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             }
           },
         );
+
+        moveAction = TextButton(
+          child: const Icon(Icons.move_down),
+          onPressed: () async {
+            Navigator.pop(context);
+          },
+        );
+
         changeAction = TextButton(
           child: const Icon(Icons.edit),
           onPressed: () async {
@@ -654,6 +683,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 formTitle: translate('pages.tasks.action.change_task.title'),
                 template: template,
                 createNew: false,
+                allowUpdateTaskGroup: true,
               );
             }));
 
@@ -661,10 +691,34 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
               TemplateRepository.save(changedTemplate)
                   .then((changedTemplate) {
 
-                toastInfo(context, translate('pages.tasks.action.add_task.success',
-                  args: {"title": changedTemplate.translatedTitle}));
+                if (changedTemplate.taskGroupId != template?.taskGroupId) {
+                  //update children variants to ensure that changed TaskGroup has been saved
+                  TemplateRepository.getAllTaskTemplateVariantsByTask(
+                      changedTemplate.tId!, true).then((childrenVariants) {
+                        List<Future<Template>> wait = [];
+                    childrenVariants.forEach((variant) {
+                      variant.taskGroupId = changedTemplate.taskGroupId;
+                      wait.add(TemplateRepository.update(variant));
+                    });
 
-                _updateTaskTemplate(changedTemplate as TaskTemplate, taskGroup!);
+                    Future.wait(wait).then((_) {
+                      toastInfo(context,
+                          translate('pages.tasks.action.change_task.success',
+                              args: {"title": changedTemplate.translatedTitle}));
+
+                      reload();
+                    });
+                  });
+                }
+                else {
+                  toastInfo(context,
+                      translate('pages.tasks.action.change_task.success',
+                          args: {"title": changedTemplate.translatedTitle}));
+
+                  _updateTaskTemplate(
+                      changedTemplate as TaskTemplate, taskGroup!);
+                }
+
               });
             }
           },
@@ -684,6 +738,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             ),
           ];
           if (createAction != null) sheetChildren.add(createAction);
+          if (moveAction != null) buttonBarChildren.add(moveAction);
           if (changeAction != null) buttonBarChildren.add(changeAction);
           if (deleteAction != null) buttonBarChildren.add(deleteAction);
           sheetChildren.add(ButtonBar(

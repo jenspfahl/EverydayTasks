@@ -186,6 +186,28 @@ class TemplateRepository {
         });
   }
 
+  static Future<List<TaskTemplateVariant>> getAllTaskTemplateVariantsByTask(TemplateId templateTaskId, bool inclHidden, [String? dbName]) async {
+    if (templateTaskId.isVariant) {
+      return [];
+    }
+    final database = await getDb(dbName);
+
+    final taskTemplateVariantDao = database.taskTemplateVariantDao;
+    return taskTemplateVariantDao.findAll()
+        .then((entities) => _mapTemplateVariantsFromEntities(entities))
+        .then((dbTemplateVariants) {
+          Set<TaskTemplateVariant> templates = HashSet();
+          templates.addAll(dbTemplateVariants); // must come first since it may override predefined
+          templates.addAll(predefinedTaskTemplateVariants);
+          final templateList = templates
+              .where((element) => element.taskTemplateId == templateTaskId.id)
+              .where((element) => inclHidden || !(element.hidden??false))
+              .toList()..sort();
+
+          return templateList;
+        });
+  }
+
   static Future<List<Template>> getAll(bool inclHidden, [String? dbName]) async {
     final taskTemplatesFuture = getAllTaskTemplates(inclHidden, dbName);
     final taskTemplateVariantsFuture = getAllTaskTemplateVariants(inclHidden, dbName);

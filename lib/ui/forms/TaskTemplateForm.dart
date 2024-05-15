@@ -12,14 +12,18 @@ import 'package:personaltasklogger/ui/dialogs.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
+import '../../db/repository/TaskGroupRepository.dart';
+
 class TaskTemplateForm extends StatefulWidget {
   final TaskGroup _taskGroup;
   final Template? template;
   final bool createNew;
+  final bool allowUpdateTaskGroup;
   final String formTitle;
   final String? title;
 
-  TaskTemplateForm(this._taskGroup, {this.template, required this.createNew, this.title, required this.formTitle});
+  TaskTemplateForm(this._taskGroup,
+      {this.template, required this.createNew, required this.allowUpdateTaskGroup, this.title, required this.formTitle});
 
   @override
   State<StatefulWidget> createState() {
@@ -32,6 +36,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
 
+  late TaskGroup _selectedTaskGroup; // only used for tasks, not for variants, see widget.allowUpdateTaskGroup
   Template? template;
   
   Severity _severity = Severity.MEDIUM;
@@ -62,6 +67,8 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
     AroundWhenAtDay? aroundStartedAt;
     TimeOfDay? startedAt;
 
+    _selectedTaskGroup = widget._taskGroup;
+
     if (template != null) {
     
       if (template!.severity != null) {
@@ -79,6 +86,11 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
     
       aroundStartedAt = template!.when?.startAt;
       startedAt = template!.when?.startAtExactly;
+
+      if (widget.allowUpdateTaskGroup) {
+        _selectedTaskGroup =
+            TaskGroupRepository.findByIdFromCache(template!.taskGroupId);
+      }
     
     }
     
@@ -158,7 +170,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                         controller: titleController,
                         decoration: InputDecoration(
                           hintText: translate('forms.task.title_hint'),
-                          icon: widget._taskGroup.getIcon(true),
+                          icon: widget.allowUpdateTaskGroup ? const Icon(Icons.task_alt) : widget._taskGroup.getIcon(true),
                         ),
                         maxLength: 50,
                         keyboardType: TextInputType.text,
@@ -179,6 +191,34 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
                         keyboardType: TextInputType.text,
                         maxLines: 1,
                       ),
+                      if (widget.allowUpdateTaskGroup)
+                        DropdownButtonFormField<TaskGroup?>(
+                          onTap: () => FocusScope.of(context).unfocus(),
+                          value: _selectedTaskGroup,
+                          icon: const Icon(Icons.category_outlined),
+                          hint: Text(translate('forms.task_event.category_hint')),
+                          isExpanded: true,
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() {
+                                _selectedTaskGroup = value;
+                              });
+                            }
+                          },
+                          items: TaskGroupRepository.getAllCached(inclHidden: false).map((TaskGroup group) {
+                            return DropdownMenuItem(
+                              value: group,
+                              child: group.getTaskGroupRepresentation(context, useIconColor: true),
+                            );
+                          }).toList(),
+                          validator: (TaskGroup? value) {
+                            if (value == null) {
+                              return translate('forms.task_event.category_emphasis');
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
                       Padding(
                         padding: EdgeInsets.only(top: 20.0),
                         child: SeverityPicker(
@@ -396,7 +436,7 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
 
     final taskTemplate = TaskTemplate(
       id: id,
-      taskGroupId: widget._taskGroup.id!,
+      taskGroupId: _selectedTaskGroup.id!,
       title: titleController.text,
       description: descriptionController.text,
       when: when,
