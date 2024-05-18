@@ -304,6 +304,9 @@
           "title": "Modifier une tâche",
           "success": "La tâche '{title}' a été modifiée"
         },
+        "move_task_down": {
+          "success": "Task with name '{title}' transformed to variant"
+        },
         "add_variant": {
           "title": "Ajouter une nouvelle sous-tâche",
           "variant_postfix": "sous-tâche",
@@ -312,6 +315,9 @@
         "change_variant": {
           "title": "Modifier une sous-tâche",
           "success": "La sous-tâche '{title}' a été modifiée"
+        },
+        "move_variant_up": {
+          "success": "Variant with name '{title}' transformed to task"
         },
         "clone_variant": {
           "title": "Copier une sous-tâche",

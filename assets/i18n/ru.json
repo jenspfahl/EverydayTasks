@@ -303,6 +303,9 @@
           "title": "Изменить задачу",
           "success": "Задача '{title}' изменена"
         },
+        "move_task_down": {
+          "success": "Task with name '{title}' transformed to variant"
+        },
         "add_variant": {
           "title": "Добавить новый вариант",
           "variant_postfix": "вариант",
@@ -311,6 +314,9 @@
         "change_variant": {
           "title": "Изменить вариант",
           "success": "Вариант'{title}' изменён"
+        },
+        "move_variant_up": {
+          "success": "Variant with name '{title}' transformed to task"
         },
         "clone_variant": {
           "title": "Клонировать вариант",

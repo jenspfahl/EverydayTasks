@@ -303,6 +303,9 @@
           "title": "Aufgabe ändern",
           "success": "Aufgabe '{title}' geändert"
         },
+        "move_task_down": {
+          "success": "Aufgabe '{title}' als Variante umgewandelt"
+        },
         "add_variant": {
           "title": "Neue Variante hinzufügen",
           "variant_postfix": "Variante",
@@ -311,6 +314,9 @@
         "change_variant": {
           "title": "Variante ändern",
           "success": "Variante '{title}' geändert"
+        },
+        "move_variant_up": {
+          "success": "Variante '{title}' als Aufgabe umgewandelt"
         },
         "clone_variant": {
           "title": "Variante klonen",

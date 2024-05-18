@@ -257,6 +257,9 @@ class TemplateRepository {
     return null;
   }
 
+  static List<TaskTemplate> findAllPredefinedTaskTemplates() => predefinedTaskTemplates;
+  static List<TaskTemplateVariant> findAllPredefinedTaskTemplateVariants() => predefinedTaskTemplateVariants;
+
   static Template findPredefinedTemplate(TemplateId tId) {
     if (tId.isVariant) {
       final foundVariant = predefinedTaskTemplateVariants.firstWhere((variant) => variant.tId == tId);

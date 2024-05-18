@@ -34,11 +34,12 @@ class TaskTemplateList extends PageScaffold<TaskTemplateListState> {
   final bool? expandAll;
   bool isModal = false;
   final String? initialSelectedKey;
+  final int? rootTaskGroupId;
   
-  TaskTemplateList(this._pagesHolder): _selectedItem = null, onlyHidden = null, hideEmptyNodes = null, expandAll = null, initialSelectedKey = null;
+  TaskTemplateList(this._pagesHolder): _selectedItem = null, onlyHidden = null, hideEmptyNodes = null, expandAll = null, initialSelectedKey = null, rootTaskGroupId = null;
   TaskTemplateList.withSelectionCallback(
       this._selectedItem,
-      {this.onlyHidden, this.hideEmptyNodes, this.expandAll, this.initialSelectedKey, Key? key})
+      {this.onlyHidden, this.hideEmptyNodes, this.expandAll, this.initialSelectedKey, Key? key, this.rootTaskGroupId})
       :  _pagesHolder = null, isModal = true, super(key: key);
 
 
@@ -91,18 +92,34 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   void _loadTemplates(String? selectedNodeKey) {
     final taskTemplatesFuture = TemplateRepository.getAllTaskTemplates(widget.onlyHidden??false);
     final taskTemplateVariantsFuture = TemplateRepository.getAllTaskTemplateVariants(widget.onlyHidden??false);
-    
+    debugPrint("Root=${widget.rootTaskGroupId}");
+
     _nodes = TaskGroupRepository.getAllCached(inclHidden: widget.onlyHidden??false)
+        .where((group) => widget.rootTaskGroupId == null || widget.rootTaskGroupId == group.id)
         .map((group) => _createTaskGroupNode(group, [], widget.expandAll??false))
         .toList();
-    
+    debugPrint("Root=${widget.rootTaskGroupId}, nodes=${_nodes.length}");
     Future.wait([taskTemplatesFuture, taskTemplateVariantsFuture]).then((allTemplates) {
     
       setState(() {
-        _allTemplates = allTemplates;
+        if (widget.rootTaskGroupId != null) {
+          final filteredTasks = allTemplates.first.where((template) {
+            final task = template as TaskTemplate;
+            return widget.rootTaskGroupId == task.taskGroupId;
+          });
+
+          _allTemplates = [filteredTasks.toList(), <TaskTemplateVariant>[]];
+          debugPrint("_allTemplates=$_allTemplates");
+
+
+        }
+        else {
+          _allTemplates = allTemplates;
+          
+        }
         _selectedNodeKey = selectedNodeKey; // before fillNodes to expand selection
         // filter only hidden but non-hidden if have hidden leaves
-        _fillNodes(allTemplates, widget.hideEmptyNodes??false, widget.expandAll??false);
+        _fillNodes(_allTemplates, widget.hideEmptyNodes??false, widget.expandAll??false);
     
         if (_selectedNodeKey != null) {
           _updateSelection(_selectedNodeKey!);
@@ -126,8 +143,9 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   void _fillNodes(List<List<Template>> allTemplates, bool hideEmptyNodes, bool expandAll) {
     final taskTemplates = allTemplates[0] as List<TaskTemplate>;
     final taskTemplateVariants = allTemplates[1] as List<TaskTemplateVariant>;
-    
+    debugPrint("task=$taskTemplates");
     _nodes = TaskGroupRepository.getAllCached(inclHidden: widget.onlyHidden??false)
+        .where((group) => widget.rootTaskGroupId == null || widget.rootTaskGroupId == group.id)
         .map((group) =>
         _createTaskGroupNode(
             group,
@@ -352,7 +370,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
   Node<TaskTemplate> _createTaskTemplateNode(TaskTemplate template,
       TaskGroup group,
       List<Node<dynamic>> templateVariants, bool expandAll) {
-    debugPrint("${template.tId} is hidden ${template.hidden}");
+    debugPrint("create task: ${template.tId} is hidden ${template.hidden}");
     return Node(
       key: template.getKey(),
       label: template.translatedTitle,
@@ -601,6 +619,54 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
           child: const Icon(Icons.move_up),
           onPressed: () async {
             Navigator.pop(context);
+            if (template!.isVariant()) {
+
+
+              final existingPredefined = TemplateRepository.findAllPredefinedTaskTemplates()
+                  .where((existing) => (
+                  existing.taskGroupId == template?.taskGroupId &&
+                      existing.title == template?.title))
+                  .firstOrNull;
+
+              debugPrint("existingPredefined=$existingPredefined");
+
+              TaskTemplate newTask;
+              Future<Template> originWait;
+              if (existingPredefined != null) {
+                existingPredefined.hidden = false;
+                existingPredefined.description = template.description;
+                existingPredefined.when = template.when;
+                existingPredefined.severity = template.severity;
+                existingPredefined.favorite = template.favorite;
+
+                originWait = TemplateRepository.save(existingPredefined);
+                newTask = existingPredefined;
+              }
+              else {
+                final newTaskTemplate = TaskTemplate(
+                  taskGroupId: template.taskGroupId,
+                  title: template.title,
+                  description: template.description,
+                  when: template.when,
+                  severity: template.severity,
+                  favorite: template.favorite,
+                );
+
+                originWait = TemplateRepository.insert(newTaskTemplate);
+                newTask = newTaskTemplate;
+              }
+              final deleteWait = TemplateRepository.delete(template);
+
+              Future.wait([originWait, deleteWait]).then((value) {
+                _addTaskTemplate(
+                    newTask,
+                    TaskGroupRepository.findByIdFromCache(newTask.taskGroupId));
+                _removeTemplate(template!);
+
+                toastInfo(context, translate('pages.tasks.action.move_variant_up.success',
+                    args: {"title" : newTask.translatedTitle}));
+              });
+            }
           },
         );
 
@@ -669,6 +735,81 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
           child: const Icon(Icons.move_down),
           onPressed: () async {
             Navigator.pop(context);
+
+            //TODO if has children/variants, deny!! if (TemplateRepository.getParentId(id))
+
+            Object? selectedItem = null;
+            showTemplateDialog(context,
+              translate('filter.filter_by_task_title'),
+              translate('filter.filter_by_task_description'),
+              rootTaskGroupId: template!.taskGroupId,
+              initialSelectedKey: null,
+              expandAll: true,
+              selectedItem: (item) {
+                selectedItem = item;
+              },
+              okPressed: () {
+                if (selectedItem != null && selectedItem is TaskTemplate) {
+                  Navigator.pop(context);
+
+                  final selectedTaskTemplate = selectedItem as TaskTemplate;
+
+                  if (!template!.isVariant()) {
+
+                    final existingPredefined = TemplateRepository.findAllPredefinedTaskTemplateVariants()
+                      .where((existing) => (
+                        existing.taskGroupId == template?.taskGroupId &&
+                            existing.taskTemplateId == selectedTaskTemplate.tId!.id &&
+                            existing.title == template?.title))
+                      .firstOrNull;
+
+                    debugPrint("existingPredefined=$existingPredefined");
+
+                    TaskTemplateVariant newVariant;
+                    Future<Template> originWait;
+                    if (existingPredefined != null) {
+                      existingPredefined.hidden = false;
+                      existingPredefined.description = template.description;
+                      existingPredefined.when = template.when;
+                      existingPredefined.severity = template.severity;
+                      existingPredefined.favorite = template.favorite;
+
+                      originWait = TemplateRepository.save(existingPredefined);
+                      newVariant = existingPredefined;
+                    }
+                    else {
+                      final newTaskTemplateVariant = TaskTemplateVariant(
+                        taskGroupId: template.taskGroupId,
+                        taskTemplateId: selectedTaskTemplate.tId!.id,
+                        title: template.title,
+                        description: template.description,
+                        when: template.when,
+                        severity: template.severity,
+                        favorite: template.favorite,
+                      );
+                      originWait = TemplateRepository.insert(newTaskTemplateVariant);
+                      newVariant = newTaskTemplateVariant;
+                    }
+                    final deleteWait = TemplateRepository.delete(template);
+
+                    Future.wait([originWait, deleteWait]).then((value) {
+                      _addTaskTemplateVariant(
+                          newVariant,
+                          TaskGroupRepository.findByIdFromCache(newVariant.taskGroupId),
+                          selectedTaskTemplate
+                      );
+                      _removeTemplate(template!);
+
+                      toastInfo(context, translate('pages.tasks.action.move_task_down.success',
+                          args: {"title" : newVariant.translatedTitle}));
+                    });
+                  }
+                }
+              },
+              cancelPressed: () =>
+                  Navigator.pop(context),
+            );
+
           },
         );
 
