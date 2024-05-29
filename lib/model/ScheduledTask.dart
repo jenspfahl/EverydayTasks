@@ -66,6 +66,13 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     return null;
   }
 
+  DateTime? getPreviousScheduleBefore(DateTime? before) {
+    if (before != null) {
+      return schedule.getPreviousRepetitionFrom(before);
+    }
+    return null;
+  }
+
   Duration? getScheduledDuration() {
     if (lastScheduledEventOn != null) {
       var nextRepetition = schedule.getNextRepetitionFrom(lastScheduledEventOn!);
