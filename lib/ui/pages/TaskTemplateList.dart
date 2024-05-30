@@ -736,7 +736,10 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
           onPressed: () async {
             Navigator.pop(context);
 
-            //TODO if has children/variants, deny!! if (TemplateRepository.getParentId(id))
+            if (hasChildren) {
+              toastError(context, translate('pages.tasks.action.remove_task.error_has_children'));
+              return;
+            }
 
             Object? selectedItem = null;
             showTemplateDialog(context,

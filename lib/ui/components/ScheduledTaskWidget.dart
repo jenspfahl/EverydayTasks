@@ -145,7 +145,8 @@ class ScheduledTaskWidget extends StatefulWidget {
   }
 
   static void cancelSnoozedNotification(ScheduledTask scheduledTask) {
-    LocalNotificationService().cancelNotification(scheduledTask.id! + LocalNotificationService.RESCHEDULED_IDS_RANGE);
+    LocalNotificationService().cancelNotification(scheduledTask.id! + SNOOZED_NOTIFICATION_ID_OFFSET);
+    LocalNotificationService().cancelNotification(scheduledTask.id! + SNOOZED_NOTIFICATION_ID_OFFSET * -1); // pre notification
   }
 }
 

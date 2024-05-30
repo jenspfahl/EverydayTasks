@@ -14,11 +14,14 @@ const CHANNEL_ID_SCHEDULES = 'de.jepfa.ptl.notifications.schedules';
 const CHANNEL_ID_TRACKING = 'de.jepfa.ptl.notifications.tracking';
 
 
+
+const FIXED_SCHEDULE_NOTIFICATION_OFFSET =   1000000;
+const SNOOZED_NOTIFICATION_ID_OFFSET     = 100000000;
+
 // stolen from https://github.com/iloveteajay/flutter_local_notification/https://github.com/iloveteajay/flutter_local_notification/
+
 class LocalNotificationService {
   static final RESCHEDULE_JSON_START_MARKER = "-###";
-
-  static final int RESCHEDULED_IDS_RANGE = 100000000;
 
   static final LocalNotificationService _notificationService = LocalNotificationService._internal();
 
@@ -84,7 +87,7 @@ class LocalNotificationService {
           CustomRepetition snooze = CustomRepetition(snoozePeriodValue, snoozePeriodUnit);
 
           // hack to move the id out of ScheduledTaskId range to not overwrite them
-          int newId = id < RESCHEDULED_IDS_RANGE ? RESCHEDULED_IDS_RANGE + id : id;
+          int newId = id < SNOOZED_NOTIFICATION_ID_OFFSET ? SNOOZED_NOTIFICATION_ID_OFFSET + id : id;
 
           await notificationService.init();
           notificationService.scheduleNotification(

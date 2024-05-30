@@ -85,7 +85,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 16,
+      version: 17,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -109,7 +109,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `TaskTemplateVariantEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `startedAt` INTEGER, `aroundStartedAt` INTEGER, `duration` INTEGER, `aroundDuration` INTEGER, `severity` INTEGER, `favorite` INTEGER NOT NULL, `hidden` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `ScheduledTaskEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER, `taskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `aroundStartAt` INTEGER NOT NULL, `startAt` INTEGER, `repetitionAfter` INTEGER NOT NULL, `exactRepetitionAfter` INTEGER, `exactRepetitionAfterUnit` INTEGER, `lastScheduledEventAt` INTEGER, `oneTimeDueOn` INTEGER, `oneTimeCompletedOn` INTEGER, `active` INTEGER NOT NULL, `important` INTEGER, `pausedAt` INTEGER, `repetitionMode` INTEGER, `reminderNotificationEnabled` INTEGER, `reminderNotificationPeriod` INTEGER, `reminderNotificationUnit` INTEGER, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `ScheduledTaskEntity` (`id` INTEGER, `taskGroupId` INTEGER NOT NULL, `taskTemplateId` INTEGER, `taskTemplateVariantId` INTEGER, `title` TEXT NOT NULL, `description` TEXT, `createdAt` INTEGER NOT NULL, `aroundStartAt` INTEGER NOT NULL, `startAt` INTEGER, `repetitionAfter` INTEGER NOT NULL, `exactRepetitionAfter` INTEGER, `exactRepetitionAfterUnit` INTEGER, `lastScheduledEventAt` INTEGER, `oneTimeDueOn` INTEGER, `oneTimeCompletedOn` INTEGER, `active` INTEGER NOT NULL, `important` INTEGER, `pausedAt` INTEGER, `repetitionMode` INTEGER, `reminderNotificationEnabled` INTEGER, `reminderNotificationPeriod` INTEGER, `reminderNotificationUnit` INTEGER, `preNotificationEnabled` INTEGER, `preNotificationPeriod` INTEGER, `preNotificationUnit` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `ScheduledTaskFixedScheduleEntity` (`id` INTEGER, `scheduledTaskId` INTEGER NOT NULL, `type` INTEGER NOT NULL, `value` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
@@ -766,7 +766,12 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
                           ? null
                           : (item.reminderNotificationEnabled! ? 1 : 0),
                   'reminderNotificationPeriod': item.reminderNotificationPeriod,
-                  'reminderNotificationUnit': item.reminderNotificationUnit
+                  'reminderNotificationUnit': item.reminderNotificationUnit,
+                  'preNotificationEnabled': item.preNotificationEnabled == null
+                      ? null
+                      : (item.preNotificationEnabled! ? 1 : 0),
+                  'preNotificationPeriod': item.preNotificationPeriod,
+                  'preNotificationUnit': item.preNotificationUnit
                 },
             changeListener),
         _scheduledTaskEntityUpdateAdapter = UpdateAdapter(
@@ -799,7 +804,12 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
                           ? null
                           : (item.reminderNotificationEnabled! ? 1 : 0),
                   'reminderNotificationPeriod': item.reminderNotificationPeriod,
-                  'reminderNotificationUnit': item.reminderNotificationUnit
+                  'reminderNotificationUnit': item.reminderNotificationUnit,
+                  'preNotificationEnabled': item.preNotificationEnabled == null
+                      ? null
+                      : (item.preNotificationEnabled! ? 1 : 0),
+                  'preNotificationPeriod': item.preNotificationPeriod,
+                  'preNotificationUnit': item.preNotificationUnit
                 },
             changeListener),
         _scheduledTaskEntityDeletionAdapter = DeletionAdapter(
@@ -832,7 +842,12 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
                           ? null
                           : (item.reminderNotificationEnabled! ? 1 : 0),
                   'reminderNotificationPeriod': item.reminderNotificationPeriod,
-                  'reminderNotificationUnit': item.reminderNotificationUnit
+                  'reminderNotificationUnit': item.reminderNotificationUnit,
+                  'preNotificationEnabled': item.preNotificationEnabled == null
+                      ? null
+                      : (item.preNotificationEnabled! ? 1 : 0),
+                  'preNotificationPeriod': item.preNotificationPeriod,
+                  'preNotificationUnit': item.preNotificationUnit
                 },
             changeListener);
 
@@ -878,7 +893,12 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
                 ? null
                 : (row['reminderNotificationEnabled'] as int) != 0,
             row['reminderNotificationPeriod'] as int?,
-            row['reminderNotificationUnit'] as int?));
+            row['reminderNotificationUnit'] as int?,
+            row['preNotificationEnabled'] == null
+                ? null
+                : (row['preNotificationEnabled'] as int) != 0,
+            row['preNotificationPeriod'] as int?,
+            row['preNotificationUnit'] as int?));
   }
 
   @override
@@ -886,7 +906,7 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
       int taskTemplateId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM ScheduledTaskEntity WHERE taskTemplateId = ?1 ORDER BY createdAt DESC, id DESC',
-        mapper: (Map<String, Object?> row) => ScheduledTaskEntity(row['id'] as int?, row['taskGroupId'] as int, row['taskTemplateId'] as int?, row['taskTemplateVariantId'] as int?, row['title'] as String, row['description'] as String?, row['createdAt'] as int, row['aroundStartAt'] as int, row['startAt'] as int?, row['repetitionAfter'] as int, row['exactRepetitionAfter'] as int?, row['exactRepetitionAfterUnit'] as int?, row['lastScheduledEventAt'] as int?, row['oneTimeDueOn'] as int?, row['oneTimeCompletedOn'] as int?, (row['active'] as int) != 0, row['important'] == null ? null : (row['important'] as int) != 0, row['pausedAt'] as int?, row['repetitionMode'] as int?, row['reminderNotificationEnabled'] == null ? null : (row['reminderNotificationEnabled'] as int) != 0, row['reminderNotificationPeriod'] as int?, row['reminderNotificationUnit'] as int?),
+        mapper: (Map<String, Object?> row) => ScheduledTaskEntity(row['id'] as int?, row['taskGroupId'] as int, row['taskTemplateId'] as int?, row['taskTemplateVariantId'] as int?, row['title'] as String, row['description'] as String?, row['createdAt'] as int, row['aroundStartAt'] as int, row['startAt'] as int?, row['repetitionAfter'] as int, row['exactRepetitionAfter'] as int?, row['exactRepetitionAfterUnit'] as int?, row['lastScheduledEventAt'] as int?, row['oneTimeDueOn'] as int?, row['oneTimeCompletedOn'] as int?, (row['active'] as int) != 0, row['important'] == null ? null : (row['important'] as int) != 0, row['pausedAt'] as int?, row['repetitionMode'] as int?, row['reminderNotificationEnabled'] == null ? null : (row['reminderNotificationEnabled'] as int) != 0, row['reminderNotificationPeriod'] as int?, row['reminderNotificationUnit'] as int?, row['preNotificationEnabled'] == null ? null : (row['preNotificationEnabled'] as int) != 0, row['preNotificationPeriod'] as int?, row['preNotificationUnit'] as int?),
         arguments: [taskTemplateId]);
   }
 
@@ -895,7 +915,7 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
       int taskTemplateVariantId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM ScheduledTaskEntity WHERE taskTemplateVariantId = ?1 ORDER BY createdAt DESC, id DESC',
-        mapper: (Map<String, Object?> row) => ScheduledTaskEntity(row['id'] as int?, row['taskGroupId'] as int, row['taskTemplateId'] as int?, row['taskTemplateVariantId'] as int?, row['title'] as String, row['description'] as String?, row['createdAt'] as int, row['aroundStartAt'] as int, row['startAt'] as int?, row['repetitionAfter'] as int, row['exactRepetitionAfter'] as int?, row['exactRepetitionAfterUnit'] as int?, row['lastScheduledEventAt'] as int?, row['oneTimeDueOn'] as int?, row['oneTimeCompletedOn'] as int?, (row['active'] as int) != 0, row['important'] == null ? null : (row['important'] as int) != 0, row['pausedAt'] as int?, row['repetitionMode'] as int?, row['reminderNotificationEnabled'] == null ? null : (row['reminderNotificationEnabled'] as int) != 0, row['reminderNotificationPeriod'] as int?, row['reminderNotificationUnit'] as int?),
+        mapper: (Map<String, Object?> row) => ScheduledTaskEntity(row['id'] as int?, row['taskGroupId'] as int, row['taskTemplateId'] as int?, row['taskTemplateVariantId'] as int?, row['title'] as String, row['description'] as String?, row['createdAt'] as int, row['aroundStartAt'] as int, row['startAt'] as int?, row['repetitionAfter'] as int, row['exactRepetitionAfter'] as int?, row['exactRepetitionAfterUnit'] as int?, row['lastScheduledEventAt'] as int?, row['oneTimeDueOn'] as int?, row['oneTimeCompletedOn'] as int?, (row['active'] as int) != 0, row['important'] == null ? null : (row['important'] as int) != 0, row['pausedAt'] as int?, row['repetitionMode'] as int?, row['reminderNotificationEnabled'] == null ? null : (row['reminderNotificationEnabled'] as int) != 0, row['reminderNotificationPeriod'] as int?, row['reminderNotificationUnit'] as int?, row['preNotificationEnabled'] == null ? null : (row['preNotificationEnabled'] as int) != 0, row['preNotificationPeriod'] as int?, row['preNotificationUnit'] as int?),
         arguments: [taskTemplateVariantId]);
   }
 
@@ -937,7 +957,12 @@ class _$ScheduledTaskDao extends ScheduledTaskDao {
                 ? null
                 : (row['reminderNotificationEnabled'] as int) != 0,
             row['reminderNotificationPeriod'] as int?,
-            row['reminderNotificationUnit'] as int?),
+            row['reminderNotificationUnit'] as int?,
+            row['preNotificationEnabled'] == null
+                ? null
+                : (row['preNotificationEnabled'] as int) != 0,
+            row['preNotificationPeriod'] as int?,
+            row['preNotificationUnit'] as int?),
         arguments: [id],
         queryableName: 'ScheduledTaskEntity',
         isView: false);

@@ -23,7 +23,7 @@ import 'entity/ScheduledTaskEventEntity.dart';
 
 part 'database.g.dart'; // the generated code will be there
 
-@Database(version: 16, entities: [
+@Database(version: 17, entities: [
   TaskGroupEntity,
   TaskEventEntity,
   TaskTemplateEntity,
@@ -134,6 +134,12 @@ final migration15To16 = new Migration(15, 16,
           await database.execute('CREATE UNIQUE INDEX `idx_KeyValue_key` ON `KeyValueEntity` (`key`)');
         });
 
+final migration16To17 = new Migration(16, 17,
+        (sqflite.Database database) async {
+      await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `preNotificationEnabled` INTEGER");
+      await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `preNotificationPeriod` INTEGER");
+      await database.execute("ALTER TABLE ScheduledTaskEntity ADD COLUMN `preNotificationUnit` INTEGER");
+    });
 
 Future<AppDatabase> getDb([String? name]) async => $FloorAppDatabase
     .databaseBuilder(name??'app_database.db')
@@ -152,5 +158,6 @@ Future<AppDatabase> getDb([String? name]) async => $FloorAppDatabase
       migration13To14,
       migration14To15,
       migration15To16,
+      migration16To17,
     ])
     .build();

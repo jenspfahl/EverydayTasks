@@ -73,6 +73,8 @@
       "activate_reminders": "Aktiviere Erinnerung",
       "remind_again_delay_description": "Wähle wann erneut erinnert werden soll.",
       "remind_after": "Erneut nach {when}",
+      "remind_before_description": "Wähle Vorab-Erinnering",
+      "remind_before": "{when} vorher",
       "repetition_mode": "Dynamische Wiederholung",
       "repetition_mode_dynamic": "Die nächste Aufgabe ist fällig basierend auf dem gewählten Intervall und wann die letzte Aufgabe erledigt wurde.",
       "repetition_mode_fixed": "Die nächste Aufgabe ist fällig gemäß dem gewählten Intervall, ungeachtet wann die letzte Aufgabe erledigt wurde.",
@@ -234,6 +236,12 @@
         "message_normal_task": "Geplante Aufgabe '{title}' ist fällig!",
         "message_fixed_task": "Geplante feste Aufgabe '{title}' ist fällig!",
         "message_fixed_last_task": "Geplante feste Aufgabe '{title}' ist fällig! Bitte klicken um weitere Benachrichtigungen zu erhalten!",
+        "pre_notification": {
+          "title_normal_task": "Geplante Aufgabe bald fällig",
+          "title_fixed_task": "Geplante feste Aufgabe bald fällig",
+          "message_normal_task": "Geplante Aufgabe '{title}' ist in {when} fällig!",
+          "message_fixed_task": "Geplante feste Aufgabe '{title}' ist in {when} fällig!"
+        },
         "action_track": "Erfassen",
         "action_snooze": "In {when} erinnern"
       },

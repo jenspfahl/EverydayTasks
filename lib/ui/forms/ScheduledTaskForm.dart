@@ -66,6 +66,10 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   CustomRepetition _reminderRepetition = CustomRepetition(1, RepetitionUnit.HOURS);
 
 
+  bool _isPreNotificationEnabled = false;
+  CustomRepetition _preNotification = CustomRepetition(1, RepetitionUnit.HOURS);
+
+
   WhenOnDateFuture? _selectedNextDueOn;
   DateTime? _customNextDueOn;
 
@@ -117,6 +121,13 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
       }
       if (_scheduledTask!.reminderNotificationRepetition != null) {
         _reminderRepetition = _scheduledTask!.reminderNotificationRepetition!;
+      }
+
+      if (_scheduledTask!.preNotificationEnabled != null) {
+        _isPreNotificationEnabled = _scheduledTask!.preNotificationEnabled!;
+      }
+      if (_scheduledTask!.preNotification != null) {
+        _preNotification = _scheduledTask!.preNotification!;
       }
 
       weekBasedSchedules = _scheduledTask!.schedule.weekBasedSchedules.toSet();
@@ -652,9 +663,75 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                               ],
                             ),
                           ),
+
+                          Padding(
+                            padding: EdgeInsets.only(top: 5.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                    height: 64.0,
+                                    width: (MediaQuery.of(context).size.width / 2) - 60,
+                                    child: CheckboxListTile(
+                                      title: Text(translate('forms.schedule.remind_before_description')),
+                                      contentPadding: EdgeInsets.zero,
+                                      dense: true,
+                                      value: _isPreNotificationEnabled,
+                                      onChanged: _isRemindersEnabled
+                                          ? (bool? value) {
+                                              setState(() {
+                                                if (value != null) _isPreNotificationEnabled = value;
+                                              });
+                                            }
+                                          : null,
+                                    )
+                                ),
+                                Container(
+                                  height: 64.0,
+                                  width: (MediaQuery.of(context).size.width / 2) + 10,
+                                  child: DropdownButtonFormField<CustomRepetition>(
+                                    onTap: () {
+                                      FocusScope.of(context).unfocus();
+                                      Navigator.pop(context);
+
+                                      CustomRepetition? tempSelectedRepetition = null;
+                                      showRepetitionPickerDialog(
+                                        context: context,
+                                        description: translate('forms.schedule.remind_before_description'),
+                                        initialRepetition: _preNotification,
+                                        supportedUnits: [RepetitionUnit.MINUTES, RepetitionUnit.HOURS, RepetitionUnit.DAYS, RepetitionUnit.WEEKS, RepetitionUnit.MONTHS],
+                                        onChanged: (repetition) {
+                                          tempSelectedRepetition = repetition;
+                                        },
+                                      ).then((okPressed) {
+                                        if (okPressed ?? false) {
+                                          setState(() {
+                                            if (tempSelectedRepetition != null) {
+                                              _preNotification = tempSelectedRepetition!;
+                                            }
+                                          });
+                                        }
+                                      });
+                                    },
+                                    value: _preNotification,
+                                    isExpanded: true,
+                                    icon: Icon(Icons.notification_add),
+                                    onChanged: _isRemindersEnabled && _isPreNotificationEnabled ? (value) {} : null,
+                                    items: [DropdownMenuItem(
+                                        value: _preNotification,
+                                        child: Text(translate('forms.schedule.remind_before',
+                                            args: {"when": Schedule.fromCustomRepetitionToUnit(_preNotification, usedClause(context, Clause.dative))})
+                                        ))
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
                           Padding(
                             padding: EdgeInsets.only(top: 10.0),
-                            child: CheckboxListTile(
+                            child: SwitchListTile(
                               title: Text(translate('forms.schedule.activate_schedule')),
                               dense: true,
                               contentPadding: EdgeInsets.zero,
@@ -740,10 +817,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       active: _isActive,
                                       important: _isImportant,
                                       reminderNotificationEnabled: _isRemindersEnabled,
-                                      reminderNotificationRepetition: _reminderRepetition
+                                      reminderNotificationRepetition: _reminderRepetition,
+                                      preNotificationEnabled: _isPreNotificationEnabled,
+                                      preNotification: _preNotification,
                                     );
 
-                                    debugPrint("_isRemindersEnabled=$_isRemindersEnabled $_reminderRepetition");
                                     Navigator.pop(context, scheduledTask);
                                   }
                                 },
