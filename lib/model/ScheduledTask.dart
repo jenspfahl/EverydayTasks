@@ -217,7 +217,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   DateTime? _calcLastScheduledEventOn(TaskEvent? taskEvent) {
 
     final startedAtFromTask =
-      (taskEvent != null && templateId != null && taskEvent.originTemplateId == templateId)
+      (taskEvent != null)
           ? taskEvent.startedAt
           : null;
 
