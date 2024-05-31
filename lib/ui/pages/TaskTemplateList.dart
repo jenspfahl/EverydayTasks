@@ -35,11 +35,12 @@ class TaskTemplateList extends PageScaffold<TaskTemplateListState> {
   bool isModal = false;
   final String? initialSelectedKey;
   final int? rootTaskGroupId;
+  final Template? templateToExclude;
   
-  TaskTemplateList(this._pagesHolder): _selectedItem = null, onlyHidden = null, hideEmptyNodes = null, expandAll = null, initialSelectedKey = null, rootTaskGroupId = null;
+  TaskTemplateList(this._pagesHolder): _selectedItem = null, onlyHidden = null, hideEmptyNodes = null, expandAll = null, initialSelectedKey = null, rootTaskGroupId = null, templateToExclude = null;
   TaskTemplateList.withSelectionCallback(
       this._selectedItem,
-      {this.onlyHidden, this.hideEmptyNodes, this.expandAll, this.initialSelectedKey, Key? key, this.rootTaskGroupId})
+      {this.onlyHidden, this.hideEmptyNodes, this.expandAll, this.initialSelectedKey, Key? key, this.rootTaskGroupId, this.templateToExclude})
       :  _pagesHolder = null, isModal = true, super(key: key);
 
 
@@ -105,7 +106,8 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
         if (widget.rootTaskGroupId != null) {
           final filteredTasks = allTemplates.first.where((template) {
             final task = template as TaskTemplate;
-            return widget.rootTaskGroupId == task.taskGroupId;
+            return widget.rootTaskGroupId == task.taskGroupId
+              && widget.templateToExclude != template;
           });
 
           _allTemplates = [filteredTasks.toList(), <TaskTemplateVariant>[]];
@@ -154,6 +156,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                   ? true // filter all to filter non-hidden with hidden children
                   : (template.hidden??false)==false
                 )
+                .where((template) => widget.templateToExclude == null || template != widget.templateToExclude)
                 .map((template) =>
                 _createTaskTemplateNode(
                     template,
@@ -743,11 +746,13 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
 
             Object? selectedItem = null;
             showTemplateDialog(context,
-              translate('filter.filter_by_task_title'),
-              translate('filter.filter_by_task_description'),
+              translate('pages.tasks.action.move_task_down.title'),
+              translate('pages.tasks.action.move_task_down.message'),
               rootTaskGroupId: template!.taskGroupId,
+              templateToExclude: template,
               initialSelectedKey: null,
               expandAll: true,
+              bodyFlex: 50,
               selectedItem: (item) {
                 selectedItem = item;
               },

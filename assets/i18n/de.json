@@ -312,7 +312,9 @@
           "success": "Aufgabe '{title}' geändert"
         },
         "move_task_down": {
-          "success": "Aufgabe '{title}' als Variante umgewandelt"
+          "title": "Aufgabe in Variante umwandeln",
+          "message": "Zu welcher Aufgabe soll die umgewandelte Variante gehören?",
+          "success": "Aufgabe '{title}' in Variante umgewandelt"
         },
         "add_variant": {
           "title": "Neue Variante hinzufügen",

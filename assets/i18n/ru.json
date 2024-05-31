@@ -312,6 +312,8 @@
           "success": "Задача '{title}' изменена"
         },
         "move_task_down": {
+          "title": "Transform task to variant",
+          "message": "To which task shall the transformed variant belong to?",
           "success": "Task with name '{title}' transformed to variant"
         },
         "add_variant": {
