@@ -73,8 +73,8 @@
       "activate_reminders": "Напомнить",
       "remind_again_delay_description": "Выберите задержку перед повторным напоминанием.",
       "remind_after": "Ещё раз после {when}",
-      "remind_before_description": "Choose in-advance reminder",
-      "remind_before": "{when} before",
+      "remind_before_description": "Выберите предварительное напоминание",
+      "remind_before": "перед {when}",
       "repetition_mode": "Режим динамического повторения",
       "repetition_mode_dynamic": "Следующая задача должна быть выполнена в зависимости от выбранного интервала и времени выполнения последней задачи.",
       "repetition_mode_fixed": "Срок выполнения следующей задачи определяется точным интервалом независимо от того когда была выполнена последняя задача.",
@@ -237,10 +237,10 @@
         "message_fixed_task": "Наступил срок фиксированной задачи '{title}'!",
         "message_fixed_last_task": "Наступил срок фиксированной задачи '{title}'! Пожалуйста нажмите для дальнейшего уведомления!",
         "pre_notification": {
-          "title_normal_task": "Scheduled task is due soon",
-          "title_fixed_task": "Scheduled fixed task is due soon",
-          "message_normal_task": "Scheduled task '{title}' is due in {when}.",
-          "message_fixed_task": "Scheduled fixed task '{title}' is due in {when}."
+          "title_normal_task": "Скоро наступит срок запланированной задачи",
+          "title_fixed_task": "Скоро наступит срок запланированной фиксированной задачи",
+          "message_normal_task": "В {when} наступит срок запланированной задачи '{title}'.",
+          "message_fixed_task": "В {when} наступит срок запланированной фиксированной задачи '{title}'."
         },
         "action_track": "Записать или отследить",
         "action_snooze": "Напомнить в {when}"
@@ -312,9 +312,9 @@
           "success": "Задача '{title}' изменена"
         },
         "move_task_down": {
-          "title": "Transform task to variant",
-          "message": "To which task shall the transformed variant belong to?",
-          "success": "Task with name '{title}' transformed to variant"
+          "title": "Преобразовать задачу в вариант",
+          "message": "К какой задаче этот преобразованный вариант будет принадлежать??",
+          "success": "Задача '{title}' преобразована в вариант"
         },
         "add_variant": {
           "title": "Добавить новый вариант",
@@ -326,7 +326,7 @@
           "success": "Вариант'{title}' изменён"
         },
         "move_variant_up": {
-          "success": "Variant with name '{title}' transformed to task"
+          "success": "Вариант с названием '{title}' преобразован в задачу"
         },
         "clone_variant": {
           "title": "Клонировать вариант",
