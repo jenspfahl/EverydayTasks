@@ -72,8 +72,11 @@ class CsvService {
           } else {
             successHandler(false, null);
           }
+    } on FileSystemException catch (e) {
+      errorHandler("Cannot create file! " + e.message);
+      print(e);
     } catch (e) {
-      errorHandler("Cannot export database!");
+      errorHandler("Cannot create file!");
       print(e);
     }
 
