@@ -97,6 +97,7 @@ flutter:
     - assets/i18n/en.json
     - assets/i18n/fr.json
     - assets/i18n/ru.json
+    - assets/i18n/es.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

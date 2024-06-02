@@ -58,7 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: Text(translate('pages.settings.common.language.title')),
               description: Text(_getLanguageSelectionAsString(_preferenceService.languageSelection, localizationDelegate)),
               onPressed: (context) {
-
+                var languageSelection = _languageSelection;
                 showChoiceDialog(context, translate('pages.settings.common.language.dialog.title'),
                     [
                       _getLanguageSelectionAsString(0, localizationDelegate),
@@ -66,15 +66,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _getLanguageSelectionAsString(2, localizationDelegate),
                       _getLanguageSelectionAsString(3, localizationDelegate),
                       _getLanguageSelectionAsString(4, localizationDelegate),
+                      _getLanguageSelectionAsString(5, localizationDelegate),
                     ],
-                    initialSelected: _languageSelection,
+                    initialSelected: languageSelection,
                     okPressed: () {
-                      Navigator.pop(context);
-                      _preferenceService.setInt(PreferenceService.PREF_LANGUAGE_SELECTION, _languageSelection)
-                      .then((value) {
-                        _preferenceService.languageSelection = _languageSelection;
+                      Navigator.of(context).pop("ok");
+                      debugPrint("store language $languageSelection");
 
+                      _preferenceService.setInt(PreferenceService.PREF_LANGUAGE_SELECTION, languageSelection)
+                      .then((_) {
                         setState(() {
+                          _languageSelection = languageSelection;
+                          _preferenceService.languageSelection = languageSelection;
                           _preferenceService.getPreferredLocale().then((locale) {
                             Locale newLocale;
                             if (locale == null) {
@@ -96,9 +99,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       });
                     },
                     selectionChanged: (selection) {
-                      _languageSelection = selection;
+                      languageSelection = selection;
+                      debugPrint("language changed to $languageSelection");
                     }
-                );
+                ).then((value) {
+                  debugPrint("value = $value");
+
+                  if (value == null) {
+                    // dismiss
+                    setState(() {
+                      debugPrint("language choice dismissed");
+                      _loadAllPrefs();
+                    });
+                  }
+                });
               },
             ),
             SettingsTile.switchTile(
@@ -269,6 +283,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final languageSelection = await _preferenceService.getInt(PreferenceService.PREF_LANGUAGE_SELECTION);
     if (languageSelection != null) {
       _languageSelection = languageSelection;
+      debugPrint("language is $_languageSelection");
     }
 
     final showTimeOfDayAsText = await _preferenceService.getBool(PreferenceService.PREF_SHOW_TIME_OF_DAY_AS_TEXT);
@@ -340,6 +355,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case 2: return translate('pages.settings.common.language.dialog.options.german');
       case 3: return translate('pages.settings.common.language.dialog.options.french');
       case 4: return translate('pages.settings.common.language.dialog.options.russian');
+      case 5: return translate('pages.settings.common.language.dialog.options.spain');
     }
     final systemLanguage = Platform.localeName
         .split("_")

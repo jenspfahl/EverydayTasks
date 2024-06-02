@@ -8,7 +8,7 @@ import 'package:personaltasklogger/util/dates.dart';
 import 'ui/PersonalTaskLoggerApp.dart';
 
 const String APP_NAME = "Everyday Tasks";
-const SUPPORTED_LANGUAGES = ['en', 'de', 'fr', 'ru'];
+const SUPPORTED_LANGUAGES = ['en', 'de', 'fr', 'ru', 'es'];
 
 
 Future<void> main() async {

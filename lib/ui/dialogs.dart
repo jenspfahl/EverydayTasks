@@ -400,7 +400,7 @@ Future<bool?> showSeverityPicker(BuildContext context, Severity? initialSeverity
   );
 }
 
-Future<void> showChoiceDialog(BuildContext context, String title, List<String> choices, {
+Future<dynamic> showChoiceDialog(BuildContext context, String title, List<String> choices, {
   Function()? okPressed,
   Function()? cancelPressed,
   int? initialSelected,

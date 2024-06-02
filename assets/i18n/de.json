@@ -380,7 +380,8 @@
               "german": "Deutsch",
               "french": "Français",
               "breton": "Brezhoneg",
-              "russian": "Русский"
+              "russian": "Русский",
+              "spain": "Español"
             }
           },
           "language_not_supported": "'{languageCode}' nicht unterstützt"
