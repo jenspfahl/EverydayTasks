@@ -1,0 +1,4 @@
+* Custom in-advance notification for upcoming scheduled tasks
+* Transform tasks to variants and back
+* Add spanish language
+* Bugfixes
