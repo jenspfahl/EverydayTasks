@@ -20,7 +20,7 @@ class TaskTemplate extends Template {
     bool? hidden,
   }) : super(
       tId: id != null ? new TemplateId.forTaskTemplate(id) : null,
-      taskGroupId: taskGroupId, 
+      taskGroupId: taskGroupId,
       title: title, 
       description: description, 
       when: when, 

@@ -291,7 +291,7 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
   }
 
   void _cancelSnoozedNotification(ScheduledTask scheduledTask) {
-    LocalNotificationService().cancelNotification(scheduledTask.id! + LocalNotificationService.RESCHEDULED_IDS_RANGE);
+    LocalNotificationService().cancelNotification(scheduledTask.id! + SNOOZED_NOTIFICATION_ID_OFFSET);
   }
 
   void updateTaskEvent(TaskEvent origin, TaskEvent updated, {required bool selectItem }) {

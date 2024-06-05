@@ -25,6 +25,8 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   bool? reminderNotificationEnabled = true;
   CustomRepetition? reminderNotificationRepetition;
 
+  bool? preNotificationEnabled = false;
+  CustomRepetition? preNotification;
 
   ScheduledTask({
     this.id,
@@ -41,6 +43,8 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     this.pausedAt,
     this.reminderNotificationEnabled,
     this.reminderNotificationRepetition,
+    this.preNotificationEnabled,
+    this.preNotification,
   })
   : super(title, description);
 
@@ -62,6 +66,13 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   DateTime? getNextScheduleAfter(DateTime? after) {
     if (after != null) {
       return schedule.getNextRepetitionFrom(after);
+    }
+    return null;
+  }
+
+  DateTime? getPreviousScheduleBefore(DateTime? before) {
+    if (before != null) {
+      return schedule.getPreviousRepetitionFrom(before);
     }
     return null;
   }
@@ -206,7 +217,7 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
   DateTime? _calcLastScheduledEventOn(TaskEvent? taskEvent) {
 
     final startedAtFromTask =
-      (taskEvent != null && templateId != null && taskEvent.originTemplateId == templateId)
+      (taskEvent != null)
           ? taskEvent.startedAt
           : null;
 
@@ -289,6 +300,8 @@ class ScheduledTask extends TitleAndDescription implements Comparable {
     lastScheduledEventOn = other.lastScheduledEventOn;
     reminderNotificationEnabled = other.reminderNotificationEnabled;
     reminderNotificationRepetition = other.reminderNotificationRepetition;
+    preNotificationEnabled = other.preNotificationEnabled;
+    preNotification = other.preNotification;
   }
 
 }

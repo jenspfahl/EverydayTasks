@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/Severity.dart';
+import 'package:personaltasklogger/model/Template.dart';
 import 'package:personaltasklogger/ui/components/DurationPicker.dart';
 import 'package:personaltasklogger/ui/components/SeverityPicker.dart';
 import 'package:personaltasklogger/ui/pages/TaskTemplateList.dart';
@@ -316,6 +317,9 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
       bool? hideEmptyNodes,
       bool? expandAll,
       String? initialSelectedKey,
+      int? rootTaskGroupId,
+      Template? templateToExclude,
+      int bodyFlex = 100,
     }) {
   Widget cancelButton = TextButton(
     child: Text(translate("common.cancel")),
@@ -337,7 +341,7 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
         children: [
           TemplateDialogDescription(description, templateDialogDescriptionStateKey),
           Expanded(
-            flex: 100,
+            flex: bodyFlex,
             child: SizedBox(
               width: 3000,
               height: 3000,
@@ -346,6 +350,8 @@ Future<bool?> showTemplateDialog(BuildContext context, String title, String desc
                 onlyHidden: onlyHidden,
                 hideEmptyNodes: hideEmptyNodes,
                 expandAll: expandAll,
+                rootTaskGroupId: rootTaskGroupId,
+                templateToExclude: templateToExclude,
                 initialSelectedKey: initialSelectedKey,
                 key: taskTemplateListStateKey,
               ),
@@ -394,7 +400,7 @@ Future<bool?> showSeverityPicker(BuildContext context, Severity? initialSeverity
   );
 }
 
-Future<void> showChoiceDialog(BuildContext context, String title, List<String> choices, {
+Future<dynamic> showChoiceDialog(BuildContext context, String title, List<String> choices, {
   Function()? okPressed,
   Function()? cancelPressed,
   int? initialSelected,
@@ -482,8 +488,11 @@ class TemplateDialogBarState extends State<TemplateDialogBar> {
     final expandIcon = ToggleActionIcon(Icons.unfold_less, Icons.unfold_more, _isAllExpanded, widget.expandIconKey);
 
     return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text(widget.title),
+          Flexible(
+              flex: 30,
+              child: Text(widget.title)),
           Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,

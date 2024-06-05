@@ -189,11 +189,14 @@ class PreferenceService implements ITranslatePreferences {
   }
 
   Locale? _getLocaleFromSelection(int languageSelection) {
+    debugPrint("stored language choice: $languageSelection");
+
     switch (languageSelection) {
       case 1: return Locale('en');
       case 2: return Locale('de');
       case 3: return Locale('fr');
       case 4: return Locale('ru');
+      case 5: return Locale('es');
     }
     return null;
   }

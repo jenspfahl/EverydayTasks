@@ -10,7 +10,25 @@ Track and log your tasks with EverydayTasks and create schedules for repetitive 
 - create schedules for repetitive tasks with a custom interval and get notified when they are due 
 - use dozens of predefined tasks and variants or create your own tasks 
 
+
 For more information see [https://everydaytasks.jepfa.de](https://everydaytasks.jepfa.de)
+
+## Screenshots
+<details>
+<summary>Show screenshots</summary>
+
+![](metadata/en-US/images/phoneScreenshots/1.png)
+![](metadata/en-US/images/phoneScreenshots/3.png)
+![](metadata/en-US/images/phoneScreenshots/4.png)
+![](metadata/en-US/images/phoneScreenshots/5.png)
+
+Dark theme:
+![](metadata/en-US/images/phoneScreenshots/a.png)
+![](metadata/en-US/images/phoneScreenshots/b.png)
+![](metadata/en-US/images/phoneScreenshots/c.png)
+![](metadata/en-US/images/phoneScreenshots/d.png)
+
+</details>
 
 ## Download
 

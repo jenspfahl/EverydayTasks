@@ -73,6 +73,8 @@
       "activate_reminders": "Activate reminder",
       "remind_again_delay_description": "Choose a delay when to remind again.",
       "remind_after": "Again after {when}",
+      "remind_before_description": "Choose in-advance reminder",
+      "remind_before": "{when} before",
       "repetition_mode": "Dynamic repetition mode",
       "repetition_mode_dynamic": "Next task is due based on the chosen interval and when the recent task was done.",
       "repetition_mode_fixed": "Next task is due based on the exact interval, no matter when the recent task was done.",
@@ -234,6 +236,12 @@
         "message_normal_task": "Scheduled task '{title}' is due!",
         "message_fixed_task": "Scheduled fixed task '{title}' is due!",
         "message_fixed_last_task": "Scheduled fixed task '{title}' is due! Please click to get future notifications!",
+        "pre_notification": {
+          "title_normal_task": "Scheduled task is due soon",
+          "title_fixed_task": "Scheduled fixed task is due soon",
+          "message_normal_task": "Scheduled task '{title}' is due in {when}.",
+          "message_fixed_task": "Scheduled fixed task '{title}' is due in {when}."
+        },
         "action_track": "Log or track",
         "action_snooze": "Remind in {when}"
       },
@@ -303,6 +311,11 @@
           "title": "Change task",
           "success": "Task with name '{title}' changed"
         },
+        "move_task_down": {
+          "title": "Transform task to variant",
+          "message": "To which task shall the transformed variant belong to?",
+          "success": "Task with name '{title}' transformed to variant"
+        },
         "add_variant": {
           "title": "Add new variant",
           "variant_postfix": "variant",
@@ -311,6 +324,9 @@
         "change_variant": {
           "title": "Change variant",
           "success": "Variant with name '{title}' changed"
+        },
+        "move_variant_up": {
+          "success": "Variant with name '{title}' transformed to task"
         },
         "clone_variant": {
           "title": "Clone variant",
@@ -364,7 +380,8 @@
               "german": "Deutsch",
               "french": "Français",
               "breton": "Brezhoneg",
-              "russian": "Русский"
+              "russian": "Русский",
+              "spain": "Español"
             }
           },
           "language_not_supported": "'{languageCode}' not supported"

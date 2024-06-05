@@ -10,7 +10,6 @@ import 'When.dart';
 abstract class Template extends TitleAndDescription implements Comparable {
   TemplateId? tId;
   int taskGroupId;
-  TaskGroup? taskGroup;
 
   When? when;
   Severity? severity;

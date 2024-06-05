@@ -106,8 +106,8 @@ class ScheduledTaskWidget extends StatefulWidget {
           // get schedule after next due date to move forward
           newNextDueDate = scheduledTask.getNextScheduleAfter(newNextDueDate);
         }
-        // because the schedule snaps to the next due date we have to subtract one day
-        scheduledTask.lastScheduledEventOn = newNextDueDate?.subtract(Duration(days: 1));
+        scheduledTask.lastScheduledEventOn = scheduledTask.getPreviousScheduleBefore(newNextDueDate);
+
       }
       else {
         scheduledTask.executeSchedule(insertedTaskEvent);
@@ -145,7 +145,8 @@ class ScheduledTaskWidget extends StatefulWidget {
   }
 
   static void cancelSnoozedNotification(ScheduledTask scheduledTask) {
-    LocalNotificationService().cancelNotification(scheduledTask.id! + LocalNotificationService.RESCHEDULED_IDS_RANGE);
+    LocalNotificationService().cancelNotification(scheduledTask.id! + SNOOZED_NOTIFICATION_ID_OFFSET);
+    LocalNotificationService().cancelNotification(scheduledTask.id! + SNOOZED_NOTIFICATION_ID_OFFSET * -1); // pre notification
   }
 }
 
@@ -575,8 +576,8 @@ class ScheduledTaskWidgetState extends State<ScheduledTaskWidget> {
                             icon: Icon(resetIcon),
                             okPressed: () {
                               if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
-                                // because the schedule snaps to the next due date we have to subtract one day
-                                scheduledTask.lastScheduledEventOn = newNextDueDate?.subtract(Duration(days: 1));
+                                scheduledTask.lastScheduledEventOn = scheduledTask.getPreviousScheduleBefore(newNextDueDate);
+
                               }
                               else {
                                 scheduledTask.executeSchedule(null);

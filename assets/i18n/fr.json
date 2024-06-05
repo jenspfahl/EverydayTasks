@@ -74,6 +74,8 @@
       "activate_reminders": "Activer les rappels",
       "remind_again_delay_description": "Veuillez choisir un délai de répétition des rappels",
       "remind_after": "Rappel après {when}",
+      "remind_before_description": "Choose in-advance reminder",
+      "remind_before": "{when} before",
       "repetition_mode": "Mode de répétition dynamique",
       "repetition_mode_dynamic": "La prochaine tâche est due, en fonction de la fréquence choisie et de la date de complétion de la dernière occurence. ",
       "repetition_mode_fixed": "La date d'échéance de la prochaine tâche est basée sur la fréquence sélectionnée, indépendamment de la date de complétion de la dernière occurence. ",
@@ -235,6 +237,12 @@
         "message_normal_task": "La tâche '{title}' est arrivée à échéance ! ",
         "message_fixed_task": "La tâche planifiée fixe '{title}' est arrivée à échéance ! ",
         "message_fixed_last_task": "La tâche planifiée fixe '{title}' est arrivée à échéance ! Veuillez cliquer pour obtenir les notifications ultérieures ! ",
+        "pre_notification": {
+          "title_normal_task": "Scheduled task is due soon",
+          "title_fixed_task": "Scheduled fixed task is due soon",
+          "message_normal_task": "Scheduled task '{title}' is due in {when}.",
+          "message_fixed_task": "Scheduled fixed task '{title}' is due in {when}."
+        },
         "action_track": "Journal ou suivi",
         "action_snooze": "Rappel dans {when}"
       },
@@ -304,6 +312,11 @@
           "title": "Modifier une tâche",
           "success": "La tâche '{title}' a été modifiée"
         },
+        "move_task_down": {
+          "title": "Transform task to variant",
+          "message": "To which task shall the transformed variant belong to?",
+          "success": "Task with name '{title}' transformed to variant"
+        },
         "add_variant": {
           "title": "Ajouter une nouvelle sous-tâche",
           "variant_postfix": "sous-tâche",
@@ -312,6 +325,9 @@
         "change_variant": {
           "title": "Modifier une sous-tâche",
           "success": "La sous-tâche '{title}' a été modifiée"
+        },
+        "move_variant_up": {
+          "success": "Variant with name '{title}' transformed to task"
         },
         "clone_variant": {
           "title": "Copier une sous-tâche",
@@ -365,7 +381,8 @@
               "german": "Deutsch",
               "french": "Français",
               "breton": "Brezhoneg",
-              "russian": "Русский"
+              "russian": "Русский",
+              "spain": "Español"
             }
           },
           "language_not_supported": "La langue '{languageCode}' n'est pas supportée"

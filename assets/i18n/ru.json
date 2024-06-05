@@ -73,6 +73,8 @@
       "activate_reminders": "Напомнить",
       "remind_again_delay_description": "Выберите задержку перед повторным напоминанием.",
       "remind_after": "Ещё раз после {when}",
+      "remind_before_description": "Выберите предварительное напоминание",
+      "remind_before": "перед {when}",
       "repetition_mode": "Режим динамического повторения",
       "repetition_mode_dynamic": "Следующая задача должна быть выполнена в зависимости от выбранного интервала и времени выполнения последней задачи.",
       "repetition_mode_fixed": "Срок выполнения следующей задачи определяется точным интервалом независимо от того когда была выполнена последняя задача.",
@@ -234,6 +236,12 @@
         "message_normal_task": "Наступил срок задачи '{title}'!",
         "message_fixed_task": "Наступил срок фиксированной задачи '{title}'!",
         "message_fixed_last_task": "Наступил срок фиксированной задачи '{title}'! Пожалуйста нажмите для дальнейшего уведомления!",
+        "pre_notification": {
+          "title_normal_task": "Скоро наступит срок запланированной задачи",
+          "title_fixed_task": "Скоро наступит срок запланированной фиксированной задачи",
+          "message_normal_task": "В {when} наступит срок запланированной задачи '{title}'.",
+          "message_fixed_task": "В {when} наступит срок запланированной фиксированной задачи '{title}'."
+        },
         "action_track": "Записать или отследить",
         "action_snooze": "Напомнить в {when}"
       },
@@ -303,6 +311,11 @@
           "title": "Изменить задачу",
           "success": "Задача '{title}' изменена"
         },
+        "move_task_down": {
+          "title": "Преобразовать задачу в вариант",
+          "message": "К какой задаче этот преобразованный вариант будет принадлежать??",
+          "success": "Задача '{title}' преобразована в вариант"
+        },
         "add_variant": {
           "title": "Добавить новый вариант",
           "variant_postfix": "вариант",
@@ -311,6 +324,9 @@
         "change_variant": {
           "title": "Изменить вариант",
           "success": "Вариант'{title}' изменён"
+        },
+        "move_variant_up": {
+          "success": "Вариант с названием '{title}' преобразован в задачу"
         },
         "clone_variant": {
           "title": "Клонировать вариант",
@@ -364,7 +380,8 @@
               "german": "Deutsch",
               "french": "Français",
               "breton": "Brezhoneg",
-              "russian": "Русский"
+              "russian": "Русский",
+              "spain": "Español"
             }
           },
           "language_not_supported": "'{languageCode}' not supported"

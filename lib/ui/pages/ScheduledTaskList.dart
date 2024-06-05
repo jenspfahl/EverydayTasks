@@ -90,8 +90,6 @@ enum GroupCriteria {
 
 class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with AutomaticKeepAliveClientMixin<ScheduledTaskList> {
 
-  final ID_MULTIPLIER_FOR_FIXED_SCHEDULES = 1000000;
-
   final _listScrollController = AutoScrollController(suggestedRowHeight: 40);
 
   Set<GroupCriteria> _hiddenTiles = Set();
@@ -626,13 +624,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       final notificationId = int.tryParse(payload);
       if (notificationId != null) {
         debugPrint("notificationId = $notificationId");
-        int scheduleId = notificationId;
+        int scheduleId = notificationId.abs(); // consider pre-notification
         // first remove mask for rescheduled notifications
-        if (scheduleId >= LocalNotificationService.RESCHEDULED_IDS_RANGE) {
-          scheduleId = scheduleId % LocalNotificationService.RESCHEDULED_IDS_RANGE;
+        if (scheduleId >= SNOOZED_NOTIFICATION_ID_OFFSET) {
+          scheduleId = scheduleId % SNOOZED_NOTIFICATION_ID_OFFSET;
         }
         // then remove mask for fixed further notifications
-        if (scheduleId >= ID_MULTIPLIER_FOR_FIXED_SCHEDULES) {
+        if (scheduleId >= FIXED_SCHEDULE_NOTIFICATION_OFFSET) {
           scheduleId = int.parse(scheduleId.toString().substring(1));
         }
 
@@ -908,8 +906,39 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     }
   }
 
-  void scheduleNotification(int id, ScheduledTask scheduledTask, TaskGroup taskGroup, Duration missingDuration, bool isFixed, bool isLast) {
-    var titleKey = isFixed
+  void scheduleNotification(int id, ScheduledTask scheduledTask, TaskGroup taskGroup, 
+      Duration missingDuration, bool isFixed, bool isLast) {
+
+    final preNotificationDuration = scheduledTask.preNotification?.toDuration();
+
+    if (scheduledTask.preNotificationEnabled == true && preNotificationDuration != null) {
+      var title = isFixed
+          ? translate('pages.schedules.notification.pre_notification.title_fixed_task')
+          : translate('pages.schedules.notification.pre_notification.title_normal_task');
+      var messageKey = isFixed
+          ? 'pages.schedules.notification.pre_notification.message_fixed_task'
+          : 'pages.schedules.notification.pre_notification.message_normal_task';
+
+      if (scheduledTask.important) {
+        title = "${translate('common.words.important').capitalize()}: $title";
+      }
+
+      final preMinutes = missingDuration.inMinutes - preNotificationDuration.inMinutes;
+      final duration = Duration(minutes: preMinutes);
+
+      title = "$title (${taskGroup.translatedName})";
+      final message = translate(messageKey, args: {
+        "title": scheduledTask.translatedTitle,
+        "when": Schedule.fromCustomRepetitionToUnit(scheduledTask.preNotification!, usedClause(context, Clause.dative))
+      });
+
+      // negative id space for pre-notifications
+      _doScheduleNotification( -id, scheduledTask, taskGroup, duration, title, message, null);
+
+    }
+    
+    
+    var title = isFixed
             ? translate('pages.schedules.notification.title_fixed_task')
             : translate('pages.schedules.notification.title_normal_task');
     var messageKey = isFixed
@@ -919,22 +948,33 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             : 'pages.schedules.notification.message_normal_task';
 
     if (scheduledTask.important) {
-      titleKey = "${translate('common.words.important').capitalize()}: $titleKey";
+      title = "${translate('common.words.important').capitalize()}: $title";
     }
 
     final snooze = scheduledTask.reminderNotificationRepetition??CustomRepetition(1, RepetitionUnit.HOURS);
+
+    title = "$title (${taskGroup.translatedName})";
+    final message = translate(messageKey, args: {"title": scheduledTask.translatedTitle});
+    _doScheduleNotification(id, scheduledTask, taskGroup, missingDuration, title, message, snooze);
+    
+    
+  }
+  void _doScheduleNotification(int id, ScheduledTask scheduledTask, TaskGroup taskGroup, 
+      Duration missingDuration, String title, String message, CustomRepetition? snooze) {
+    
     _notificationService.scheduleNotification(
         widget.getRoutingKey(),
         id,
-        "$titleKey (${taskGroup.translatedName})",
-        translate(messageKey, args: {"title": scheduledTask.translatedTitle}),
+        title,
+        message,
         missingDuration,
         CHANNEL_ID_SCHEDULES,
         taskGroup.backgroundColor(context),
         [
           AndroidNotificationAction("track", translate('pages.schedules.notification.action_track'), showsUserInterface: true),
-          AndroidNotificationAction("snooze", translate('pages.schedules.notification.action_snooze',
-            args: {"when" : Schedule.fromCustomRepetitionToUnit(snooze, usedClause(context, Clause.dative))}), showsUserInterface: false),
+          if (snooze != null)
+            AndroidNotificationAction("snooze", translate('pages.schedules.notification.action_snooze',
+              args: {"when" : Schedule.fromCustomRepetitionToUnit(snooze, usedClause(context, Clause.dative))}), showsUserInterface: false),
         ],
         true,
         snooze,
@@ -945,16 +985,19 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
     // cancel dynamic mode
     debugPrint("cancel dynamic ${scheduledTask.id!}");
     _notificationService.cancelNotification(scheduledTask.id!);
+    _notificationService.cancelNotification(scheduledTask.id! * -1); // pre-notification
 
     // cancel fixed mode
     if (alsoFixedMode) {
       forFixedNotificationIds(scheduledTask.id!, (notificationId, _) {
         debugPrint("cancel fixed $notificationId");
         _notificationService.cancelNotification(notificationId);
+        _notificationService.cancelNotification(notificationId * -1); // pre-notification
       });
       forFixedNotificationIdsLegacy(scheduledTask.id!, (notificationId, _) {
         debugPrint("legacy cancel fixed $notificationId");
         _notificationService.cancelNotification(notificationId);
+        _notificationService.cancelNotification(notificationId * -1); // pre-notification
       });
     }
 
@@ -964,13 +1007,13 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
 
   forFixedNotificationIds(int scheduledTaskId, Function(int, bool) f) {
     const amount = 10;
-    List.generate(amount, (baseId) => ID_MULTIPLIER_FOR_FIXED_SCHEDULES * (baseId + 1) + scheduledTaskId)
-        .forEach((id) => f(id, id ~/ ID_MULTIPLIER_FOR_FIXED_SCHEDULES  == amount));
+    List.generate(amount, (baseId) => FIXED_SCHEDULE_NOTIFICATION_OFFSET * (baseId + 1) + scheduledTaskId)
+        .forEach((id) => f(id, id ~/ FIXED_SCHEDULE_NOTIFICATION_OFFSET  == amount));
   }
 
   forFixedNotificationIdsLegacy(int scheduledTaskId, Function(int, bool) f) {
     const amount = 10;
-    int base = scheduledTaskId * ID_MULTIPLIER_FOR_FIXED_SCHEDULES;
+    int base = scheduledTaskId * FIXED_SCHEDULE_NOTIFICATION_OFFSET;
     List.generate(amount, (baseId) => base + baseId + 1)
         .forEach((id) => f(id, id - base  == amount));
   }

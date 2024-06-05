@@ -33,6 +33,11 @@ class ScheduledTaskEntity {
   int? reminderNotificationPeriod;
   int? reminderNotificationUnit;
 
+  bool? preNotificationEnabled;
+  int? preNotificationPeriod;
+  int? preNotificationUnit;
+
+
   ScheduledTaskEntity(
       this.id,
       this.taskGroupId,
@@ -56,5 +61,8 @@ class ScheduledTaskEntity {
       this.reminderNotificationEnabled,
       this.reminderNotificationPeriod,
       this.reminderNotificationUnit,
+      this.preNotificationEnabled,
+      this.preNotificationPeriod,
+      this.preNotificationUnit,
       );
 }
