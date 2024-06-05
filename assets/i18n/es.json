@@ -73,8 +73,8 @@
       "activate_reminders": "Activar aviso",
       "remind_again_delay_description": "Elija una espera para recibir un recordatorio.",
       "remind_after": "Nuevamente luego de {when}",
-      "remind_before_description": "Choose in-advance reminder",
-      "remind_before": "{when} before",
+      "remind_before_description": "Elija recordatorio por adelantado",
+      "remind_before": "{when} antes",
       "repetition_mode": "Modo de repetición dinámica",
       "repetition_mode_dynamic": "La siguiente tarea vence en función del intervalo elegido y de cuando se completó la tarea reciente.",
       "repetition_mode_fixed": "La siguiente tarea vence según el intervalo exacto, sin importar cuando se completó la tarea reciente.",
@@ -237,10 +237,10 @@
         "message_fixed_task": "La tarea fija programada '{title}' está vencida!",
         "message_fixed_last_task": "La tarea fija programada '{title}' está vencida! Por favor clickee para tener futuras notificaciones!",
         "pre_notification": {
-          "title_normal_task": "Scheduled task is due soon",
-          "title_fixed_task": "Scheduled fixed task is due soon",
-          "message_normal_task": "Scheduled task '{title}' is due in {when}.",
-          "message_fixed_task": "Scheduled fixed task '{title}' is due in {when}."
+          "title_normal_task": "La tarea programada vence próximamente",
+          "title_fixed_task": "La tarea fija programada vence próximamente",
+          "message_normal_task": "La tarea programada '{title}' vence en {when}.",
+          "message_fixed_task": "La tarea fija programada '{title}' vence en {when}."
         },
         "action_track": "Registrar o supervisar",
         "action_snooze": "Recordatorio en {when}"
@@ -312,9 +312,9 @@
           "success": "Se modificó la tarea '{title}'"
         },
         "move_task_down": {
-          "title": "Transform task to variant",
-          "message": "To which task shall the transformed variant belong to?",
-          "success": "Task with name '{title}' transformed to variant"
+          "title": "Transformar tarea en variante",
+          "message": "¿A qué tarea pertenecerá la variante transformada?",
+          "success": "La tarea con nombre '{title}' fue transformada en una variante"
         },
         "add_variant": {
           "title": "Agregar nueva variante",
@@ -326,7 +326,7 @@
           "success": "Se modificó la variante '{title}'"
         },
         "move_variant_up": {
-          "success": "Variant with name '{title}' transformed to task"
+          "success": "La variante con nombre '{title}' fue transformada en tarea"
         },
         "clone_variant": {
           "title": "Clonar variante",
