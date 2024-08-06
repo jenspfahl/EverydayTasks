@@ -200,9 +200,12 @@ class LocalNotificationService {
     AndroidFlutterLocalNotificationsPlugin? nativePlugin = _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation();
     nativePlugin?.getActiveNotifications().then((activeNotifications) {
       activeNotifications.forEach((element) {
-        _handleActiveNotification(element.id, element.channelId);
+        final id = element.id;
+        if (id != null) {
+          _handleActiveNotification(id, element.channelId);
+        }
       });
-      handleActiveNotificationPostHandler(activeNotifications.map((e) => e.id).toList());
+      handleActiveNotificationPostHandler(activeNotifications.where((e) => e.id != null).map((e) => e.id!).toList());
     });
   }
 

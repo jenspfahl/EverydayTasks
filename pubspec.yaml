@@ -15,42 +15,45 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.7.0+10700
+version: 1.7.1+10701
 
 environment:
-  sdk: ">=3.0.0"
-  flutter: 3.10.5
+  sdk: ">=3.4.0"
+  flutter: 3.22.0
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_local_notifications: ^12.0.4
+  flutter_local_notifications: ^17.2.1+2
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  material_design_icons_flutter: ^5.0.6595
+  material_design_icons_flutter: ^7.0.7296
   floor: ^1.1.0
   intl: any
   numberpicker: ^2.1.1
   flutter_treeview: ^1.0.6+1
-  jiffy: ^5.0.0
-  shared_preferences: ^2.0.0-nullsafety
-  fl_chart: ^0.50.1
-  package_info_plus: ^1.4.2
+  jiffy: ^6.3.1
+  shared_preferences: ^2.3.1
+  fl_chart: ^0.68.0
+  package_info_plus: ^8.0.1
   url_launcher: ^6.0.20
   settings_ui: ^2.0.2
-  permission_handler: ^10.4.3
+  permission_handler: ^11.3.1
   sqflite: ^2.0.1
   path: ^1.8.0
-  file_picker: ^5.2.2
+  file_picker: ^8.0.6
   flutter_translate: ^4.0.3
-  csv: ^5.0.1
-  showcaseview: ^2.0.3
+  csv: ^6.0.0
+  showcaseview: ^3.0.0
   patterns_canvas: ^0.4.0
   scroll_to_index: ^3.0.1
   ordinal_formatter: ^0.1.4
+  flutter_colorpicker: ^1.0.3
+  flutter_iconpicker: ^3.3.3
+  win32: ^5.5.1
   calendar_view:
     path: ./flutter_calendar_view
 
@@ -61,8 +64,7 @@ dev_dependencies:
   floor_generator: ^1.1.0
   build_runner: ^2.0.0
   flutter_launcher_icons: "^0.13.1"
-  flutter_colorpicker: ^1.0.3
-  flutter_iconpicker: ^3.2.2
+
 
 dependency_overrides:
   package_info_plus: ^4.0.1
@@ -98,30 +100,3 @@ flutter:
     - assets/i18n/fr.json
     - assets/i18n/ru.json
     - assets/i18n/es.json
-
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
-
