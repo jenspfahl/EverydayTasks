@@ -160,7 +160,7 @@ class PreferenceService implements ITranslatePreferences {
         KeyValueRepository.update(keyValue);
       }
       else {
-        KeyValueRepository.insert(KeyValue(null, key, value));
+        KeyValueRepository.insert(KeyValue(null, key, value.toString()));
       }
     });
 

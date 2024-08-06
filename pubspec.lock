@@ -399,6 +399,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_timezone:
+    dependency: "direct main"
+    description:
+      name: flutter_timezone
+      sha256: "0cb5498dedfaac615c779138194052f04524c31d958fab33d378f22b6cc14686"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   flutter_translate:
     dependency: "direct main"
     description:
