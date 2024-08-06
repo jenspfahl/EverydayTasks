@@ -30,6 +30,7 @@ class PersonalTaskLoggerApp extends StatelessWidget {
           supportedLocales: localizationDelegate.supportedLocales,
           locale: localizationDelegate.currentLocale,
           darkTheme: ThemeData(
+              useMaterial3: false,
               brightness: Brightness.dark,
               primaryColor: PRIMARY_COLOR,
               checkboxTheme: CheckboxThemeData(
@@ -60,6 +61,7 @@ class PersonalTaskLoggerApp extends StatelessWidget {
 
           ),
           theme: ThemeData(
+            useMaterial3: false,
             brightness: Brightness.light,
             primaryColor: PRIMARY_COLOR,
             primarySwatch: BUTTON_COLOR,
