@@ -119,9 +119,14 @@ class LocalNotificationService {
     InitializationSettings(android: initializationSettingsAndroid);
 
     tz.initializeTimeZones();
-    final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
-    debugPrint("currentTimeZone=$currentTimeZone");
-    tz.setLocalLocation(tz.getLocation(currentTimeZone));
+    try {
+      final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
+      debugPrint("currentTimeZone=$currentTimeZone");
+      tz.setLocalLocation(tz.getLocation(currentTimeZone));
+    } catch (e) {
+      // ignore instead of failing
+      print(e);
+    }
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onDidReceiveNotificationResponse: (NotificationResponse response) async {
