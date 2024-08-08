@@ -148,6 +148,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       DueScheduleCountService().gather();
     });
 
+    _notificationService.requestPermissions();
   }
 
   PageScaffold getSelectedPage() {

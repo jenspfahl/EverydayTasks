@@ -272,5 +272,10 @@ class LocalNotificationService {
       actions: actions,
     );
   }
+
+  void requestPermissions() {
+    AndroidFlutterLocalNotificationsPlugin? nativePlugin = _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation();
+    nativePlugin?.requestExactAlarmsPermission();
+  }
 }
 

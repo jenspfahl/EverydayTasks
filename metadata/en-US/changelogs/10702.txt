@@ -1,0 +1,2 @@
+* Fix Schedule notification bug #79
+* (Upgrade target version and dependencies)
