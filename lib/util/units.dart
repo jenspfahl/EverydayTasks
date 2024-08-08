@@ -15,11 +15,11 @@ Clause? usedClause(BuildContext context, Clause clause) {
   return null;
 }
 
-abstract class Unit {
+abstract class GeneralUnit {
   num value;
   Clause? clause;
 
-  Unit(this.value, [this.clause]);
+  GeneralUnit(this.value, [this.clause]);
 
   String getSubKey();
 
@@ -47,7 +47,7 @@ abstract class Unit {
 
 }
 
-class Years extends Unit {
+class Years extends GeneralUnit {
 
   Years(num value, [Clause? clause]) : super(value, clause);
 
@@ -56,7 +56,7 @@ class Years extends Unit {
     return "year";
   }
 }
-class Months extends Unit {
+class Months extends GeneralUnit {
 
   Months(num value, [Clause? clause]) : super(value, clause);
 
@@ -66,7 +66,7 @@ class Months extends Unit {
   }
 }
 
-class Weeks extends Unit {
+class Weeks extends GeneralUnit {
 
   Weeks(num value, [Clause? clause]) : super(value, clause);
 
@@ -77,7 +77,7 @@ class Weeks extends Unit {
 
 }
 
-class Days extends Unit {
+class Days extends GeneralUnit {
 
   Days(num value, [Clause? clause]) : super(value, clause);
 
@@ -88,7 +88,7 @@ class Days extends Unit {
 
 }
 
-class Hours extends Unit {
+class Hours extends GeneralUnit {
 
   Hours(num value, [Clause? clause]) : super(value, clause);
 
@@ -99,7 +99,7 @@ class Hours extends Unit {
 
 }
 
-class Minutes extends Unit {
+class Minutes extends GeneralUnit {
 
   Minutes(num value, [Clause? clause]) : super(value, clause);
 
@@ -110,7 +110,7 @@ class Minutes extends Unit {
 
 }
 
-class Seconds extends Unit {
+class Seconds extends GeneralUnit {
 
   Seconds(num value, [Clause? clause]) : super(value, clause);
 
@@ -121,7 +121,7 @@ class Seconds extends Unit {
 
 }
 
-class Items extends Unit {
+class Items extends GeneralUnit {
 
   Items(num value, [Clause? clause]) : super(value, clause);
 
@@ -132,7 +132,7 @@ class Items extends Unit {
 
 }
 
-class Schedules extends Unit {
+class Schedules extends GeneralUnit {
 
   Schedules(num value, [Clause? clause]) : super(value, clause);
 

@@ -22,9 +22,9 @@ import 'taskGroupIcons.dart';
 
 final int MAX_DAYS = 7300; // around 20 years
 
-Future<IconData?> showIconPicker(BuildContext context, String title) {
+Future<IconData?> showIconPickerDialog(BuildContext context, String title) {
 
-  return FlutterIconPicker.showIconPicker(context,
+  return showIconPicker(context,
       iconSize: 32.0,
       title: Text(title),
       iconColor: BUTTON_COLOR,
@@ -111,7 +111,8 @@ Theme _pickerTheme(BuildContext context, Widget? child) {
           ),
           textButtonTheme: TextButtonThemeData(
             style: TextButton.styleFrom(
-              primary: BUTTON_COLOR,
+              iconColor: BUTTON_COLOR,
+             // primary: BUTTON_COLOR,
             ),
           ),
         ),

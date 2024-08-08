@@ -846,22 +846,39 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
   Stack _buildDynamicScheduleIcon(BuildContext context) {
     return Stack(children: [
       Icon(Icons.calendar_today, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null,),
-      Positioned.fill(top: 4, left: 5.25, child: Text("▪", style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
-      Positioned.fill(top: 8, left: 12, child: Text("?", style: TextStyle(fontWeight: FontWeight.bold, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null, fontSize: 12,))),
+      Positioned(top: 13.0, left: 5.5,
+        child: SizedBox(height: 4, width: 4,
+          child: Container(
+              decoration: BoxDecoration(color: _repetitionMode == RepetitionMode.DYNAMIC ? (isDarkMode(context) ? PRIMARY_COLOR : BUTTON_COLOR) : Colors.grey[600])))
+      ),
+      Positioned.fill(top: 8, left: 13, child: Text("?", style: TextStyle(fontWeight: FontWeight.bold, color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null, fontSize: 12,))),
     ]);
   }
 
   Stack _buildFixedScheduleIcon(BuildContext context, bool isHighlighted) {
     return Stack(children: [
       Icon(Icons.calendar_today, color: isDarkMode(context) ? (isHighlighted ? PRIMARY_COLOR : null) : null,),
-      Positioned.fill(top: 4, left: 5.25, child: Text("▪ ▪", style: TextStyle(color: isDarkMode(context) ? (isHighlighted ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
+      Positioned(top: 13.0, left: 5.5,
+          child: SizedBox(height: 4, width: 4,
+              child: Container(
+                  decoration: BoxDecoration(color: _repetitionMode == RepetitionMode.FIXED ? (isDarkMode(context) ? PRIMARY_COLOR : BUTTON_COLOR) : Colors.grey[600])))
+      ),
+      Positioned(top: 13.0, left: 14.5,
+          child: SizedBox(height: 4, width: 4,
+              child: Container(
+                  decoration: BoxDecoration(color: _repetitionMode == RepetitionMode.FIXED ? (isDarkMode(context) ? PRIMARY_COLOR : BUTTON_COLOR) : Colors.grey[600])))
+      ),
     ]);
   }
 
   Stack _buildOneTimeScheduleIcon(BuildContext context, bool isHighlighted) {
     return Stack(children: [
       Icon(Icons.calendar_today, color: isDarkMode(context) ? (isHighlighted ? PRIMARY_COLOR : null) : null,),
-      Positioned.fill(top: 4, left: 5.25, child: Text("▪ ", style: TextStyle(color: isDarkMode(context) ? (isHighlighted ? PRIMARY_COLOR : null) : null, fontSize: 14,))),
+      Positioned(top: 13.0, left: 5.5,
+          child: SizedBox(height: 4, width: 4,
+              child: Container(
+                  decoration: BoxDecoration(color: _repetitionMode == RepetitionMode.ONE_TIME ? (isDarkMode(context) ? PRIMARY_COLOR : BUTTON_COLOR) : Colors.grey[600])))
+      )
     ]);
   }
 

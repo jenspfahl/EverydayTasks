@@ -183,7 +183,7 @@ class _DynamicPickerState<T> extends State<DynamicPicker> {
 
   Widget _itemBuilder(BuildContext context, int index) {
     final themeData = Theme.of(context);
-    final defaultStyle = widget.textStyle ?? themeData.textTheme.bodyText2;
+    final defaultStyle = widget.textStyle ?? themeData.textTheme.bodyMedium;
     final selectedStyle = TextStyle(color: isDarkMode(context) ? Colors.white : BUTTON_COLOR, fontSize: 24);
 
     final value = _getValueFromIndex(index % itemCount);

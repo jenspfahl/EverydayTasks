@@ -148,6 +148,7 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
       DueScheduleCountService().gather();
     });
 
+    _notificationService.requestPermissions();
   }
 
   PageScaffold getSelectedPage() {
@@ -164,417 +165,468 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
           _dismissShowcaseBanner();
         });
       },
-      builder: Builder(
-          builder : (context) {
-            return Scaffold(
-              drawer: _isSearching ? null : SizedBox(
-                width: 250,
-                child: Drawer(
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: [
-                      SizedBox(
-                        height: 150,
-                        child: DrawerHeader(
-                          decoration: BoxDecoration(
-                            color: PRIMARY_COLOR,
-                          ),
-                          child: Align(
-                            alignment: AlignmentDirectional.bottomStart,
-                            child: Column(
-                              children: [
-                                Text(""),
-                                Align(
-                                  alignment: AlignmentDirectional.centerStart,
-                                  child: Row(
-                                    children: [
-                                      Text(APP_NAME,
-                                        style: TextStyle(
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black
-                                        ),
-                                      ),
-                                      Icon(Icons.task_alt, color: ACCENT_COLOR),
-                                    ],
-                                  ),
-                                ),
-                                Align(
-                                    alignment: AlignmentDirectional.centerStart,
-                                    child: Text(translate('navigation.header_subtitle'),
-                                        style: TextStyle(color: Colors.grey[700]))),
-                              ],
-                            ),
-                          ),
-                        ),
+      builder: (context) {
+        return Scaffold(
+          drawer: _isSearching ? null : SizedBox(
+            width: 250,
+            child: Drawer(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  SizedBox(
+                    height: 150,
+                    child: DrawerHeader(
+                      decoration: BoxDecoration(
+                        color: PRIMARY_COLOR,
                       ),
-                      ListTile(
-                        leading: const Icon(Icons.settings),
-                        title: Text(translate('navigation.menus.settings')),
-                        onTap: () {
-                          Navigator.pop(context);
-                          Navigator.push(super.context, MaterialPageRoute(builder: (context) => SettingsScreen()))
-                              .then((_) {
-                            setState(() {
-                              getSelectedPage().getGlobalKey().currentState?.setState(() {
-                                // refresh current page
-                                debugPrint("refresh ..");
-                              });
-                              _pages.forEach((page) {
-                                page.getGlobalKey().currentState?.reload();
-                              });
-                            });
-                          });
-                        },
-                      ),
-                      Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.import_export),
-                        title: Text(translate('navigation.menus.export_as_csv')),
-                        onTap: () async {
-                          Navigator.pop(context);
-
-                          showConfirmationDialog(context,
-                              translate('navigation.menus.export_as_csv'),
-                              translate('pages.export.description'),
-                              cancelPressed: () => Navigator.pop(context),
-                              okPressed: () {
-                                Navigator.pop(context);
-                                CsvService().backup(context,
-                                        (success, dstPath) {
-                                      if (success) {
-                                        toastInfo(context, translate('pages.export.export_created', args: {'dst_path' : dstPath }));
-                                      }
-                                      else {
-                                        toastInfo(context, translate('pages.export.export_aborted'));
-                                      }
-                                    }, (errorMsg) => toastError(context, errorMsg));
-                              }
-                          );
-
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.save_alt_outlined),
-                        title: Text(translate('navigation.menus.backup_as_file')),
-                        onTap: () async {
-                          Navigator.pop(context);
-
-                          showConfirmationDialog(context,
-                              translate('navigation.menus.backup_as_file'),
-                              translate('pages.backup.description'),
-                              cancelPressed: () => Navigator.pop(context),
-                              okPressed: () {
-                                Navigator.pop(context);
-
-                                _backupRestoreService.backup(
-                                        (success, dstPath) {
-                                      if (success) {
-                                        toastInfo(context, translate('pages.backup.backup_created', args: {'dst_path' : dstPath }));
-                                      }
-                                      else {
-                                        toastInfo(context, translate('pages.backup.backup_aborted'));
-                                      }
-                                    }, (errorMsg) => toastError(context, errorMsg));
-                              }
-                          );
-
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.restore),
-                        title: Text(translate('navigation.menus.restore_from_file')),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          showConfirmationDialog(context, translate('pages.restore.dialog.title'), translate('pages.restore.dialog.message'),
-                              icon: const Icon(Icons.warning_amber_outlined),
-                              cancelPressed: () => Navigator.pop(context),
-                              okPressed: () async {
-                                Navigator.pop(context);
-                                await _backupRestoreService.restore((success) async {
-                                  if (success) {
-                                    await TaskGroupRepository.loadAll(true); // load caches
-
-                                    toastInfo(context, translate('pages.restore.backup_restored'));
-                                    setState(() {
-                                      _pages.forEach((page) {
-                                        page.getGlobalKey().currentState?.reload();
-                                      });
-                                    });
-                                  }
-                                  else {
-                                    toastInfo(context, translate('pages.restore.restore_aborted'));
-                                  }
-                                }, (errorMsg) => toastError(context, errorMsg));
-                              });
-                        },
-                      ),
-                      Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.run_circle_outlined),
-                        title: Text(translate('navigation.menus.start_app_walk')),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _startAppWalkThrough(context);
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.help_outline),
-                        title: Text(translate('navigation.menus.online_help')),
-                        onTap: () {
-                          Navigator.pop(context);
-                          launchUrl("https://everydaytasks.jepfa.de");
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.info_outline),
-                        title: Text(translate('navigation.menus.about_the_app')),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          final packageInfo = await PackageInfo.fromPlatform();
-                          final version = packageInfo.version;
-
-                          showAboutDialog(
-                            context: context,
-                            applicationVersion: version,
-                            applicationName: APP_NAME,
-                            children: [
-                              Text(translate('pages.about.message')),
-                              Text(''),
-                              InkWell(
-                                  child: Text.rich(
-                                    TextSpan(
-                                      text: translate('pages.about.star_it', args: {"link": ""}),
-                                      children: <TextSpan>[
-                                        TextSpan(text: "github.com/jenspfahl/EverydayTasks", style: TextStyle(decoration: TextDecoration.underline)),
-                                      ],
+                      child: Align(
+                        alignment: AlignmentDirectional.bottomStart,
+                        child: Column(
+                          children: [
+                            Text(""),
+                            Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Row(
+                                children: [
+                                  Text(APP_NAME,
+                                    style: TextStyle(
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black
                                     ),
                                   ),
-                                  onTap: () {
-                                    launchUrl("https://github.com/jenspfahl/EverydayTasks");
-                                  }),
-                              Divider(),
-                              Text('© Jens Pfahl 2022 - 2024', style: TextStyle(fontSize: 12)),
-                            ],
-                            applicationIcon: Icon(Icons.task_alt, color: ACCENT_COLOR),
-                          );
-
-                        },
-                      ),
-                      Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.translate),
-                        title: Text(translate('navigation.menus.help_translate')),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          launchUrl("https://github.com/jenspfahl/EverydayTasks/blob/master/TRANSLATE.md");
-                        },
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.bug_report_outlined),
-                        title: Text(translate('navigation.menus.report_a_bug')),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          final packageInfo = await PackageInfo.fromPlatform();
-                          final version = packageInfo.version;
-                          final build = packageInfo.buildNumber;
-
-                          final title = Uri.encodeComponent("A bug in version $version ($build)");
-                          final body = Uri.encodeComponent("Please describe ..");
-                          launchUrl("https://github.com/jenspfahl/EverydayTasks/issues/new?title=$title&body=$body");
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              appBar: AppBar(
-                title: _isSearching ? _buildSearchField() : getSelectedPage().getTitle(),
-                actions: _buildActions(context),
-              ),
-              body: Stack(
-                children: [
-                  PageView(
-                    controller: _pageController,
-                    onPageChanged: (newIndex) {
-                      setState(() {
-                        _selectedNavigationIndex = newIndex;
-                        _clearOrCloseSearchBar(context, true);
-                      });
-                    },
-                    children: _pages,
-                  ),
-                  Visibility(
-                    visible: _showBanner,
-                    child: SizedBox(
-                      child: Container(
-                        child: MaterialBanner(
-                           // backgroundColor: Colors.transparent,
-                            elevation: 3,
-                            content: Text(translate('walk_through.banner.text')),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  _startAppWalkThrough(context);
-                                },
-                                child: Text(translate('walk_through.banner.start_action')),
+                                  Icon(Icons.task_alt, color: ACCENT_COLOR),
+                                ],
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  setState(() => _dismissShowcaseBanner());
-                                },
-                                child: Text(translate('walk_through.banner.dismiss_action')),
-                              ),
-                            ]),
+                            ),
+                            Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: Text(
+                                    translate('navigation.header_subtitle'),
+                                    style: TextStyle(color: Colors.grey[700]))),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width / 4,
-                        height: 150,
-                        child: DraggableScrollableSheet(
-                          controller: _calendarDragScrollController,
-                          initialChildSize: 0.15,
-                          minChildSize: 0.15,
-                          maxChildSize: 0.5,
-                          snap: true,
-                          builder: (context, scrollController) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                  color: PRIMARY_COLOR,
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(8),
-                                      topRight: Radius.circular(8),
-                                  ),
-                                  border: Border(
-                                   // left: BorderSide(), //TODO doesn't work
-                                    //right: BorderSide(color: Colors.black54, width: 1),
-                                    // top: BorderSide(color: Colors.black54, width: 1),
-                                  ),
-                              ),
-                              child: Showcase(
-                                key: showcaseExtensionsIcon,
-                                title: translate('walk_through.extensions.title'),
-                                description: translate('walk_through.extensions.description'),
-                                targetPadding: EdgeInsets.all(8),
-                                overlayOpacity: showcaseOpacity,
-                                child: ListView(
-                                  controller: scrollController,
-                                  children: [
-                                    Icon(Icons.drag_handle, color: Colors.black38),
-                                    Container(
-                                      color: isDarkMode(context) ? null: Colors.white54,
-                                      child: IconButton(
-                                        icon: Icon(Icons.calendar_month_sharp, color: Colors.black54,),
-                                        onPressed: () {
-                                          _calendarDragScrollController.animateTo(0.15, duration: const Duration(milliseconds: 100), curve: Curves.easeOutBack);
-                                          Navigator.push(super.context, MaterialPageRoute(builder: (context) => CalendarPage(_pagesHolder)))
-                                              .then((_) {
-                                          });
-                                        },
-                                      ),
-                                    ),
+                  ListTile(
+                    leading: const Icon(Icons.settings),
+                    title: Text(translate('navigation.menus.settings')),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(super.context, MaterialPageRoute(
+                          builder: (context) => SettingsScreen()))
+                          .then((_) {
+                        setState(() {
+                          getSelectedPage()
+                              .getGlobalKey()
+                              .currentState
+                              ?.setState(() {
+                            // refresh current page
+                            debugPrint("refresh ..");
+                          });
+                          _pages.forEach((page) {
+                            page
+                                .getGlobalKey()
+                                .currentState
+                                ?.reload();
+                          });
+                        });
+                      });
+                    },
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.import_export),
+                    title: Text(translate('navigation.menus.export_as_csv')),
+                    onTap: () async {
+                      Navigator.pop(context);
+
+                      showConfirmationDialog(context,
+                          translate('navigation.menus.export_as_csv'),
+                          translate('pages.export.description'),
+                          cancelPressed: () => Navigator.pop(context),
+                          okPressed: () {
+                            Navigator.pop(context);
+                            CsvService().backup(context,
+                                    (success, dstPath) {
+                                  if (success) {
+                                    toastInfo(context, translate(
+                                        'pages.export.export_created',
+                                        args: {'dst_path': dstPath}));
+                                  }
+                                  else {
+                                    toastInfo(context, translate(
+                                        'pages.export.export_aborted'));
+                                  }
+                                }, (errorMsg) => toastError(context, errorMsg));
+                          }
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.save_alt_outlined),
+                    title: Text(translate('navigation.menus.backup_as_file')),
+                    onTap: () async {
+                      Navigator.pop(context);
+
+                      showConfirmationDialog(context,
+                          translate('navigation.menus.backup_as_file'),
+                          translate('pages.backup.description'),
+                          cancelPressed: () => Navigator.pop(context),
+                          okPressed: () {
+                            Navigator.pop(context);
+
+                            _backupRestoreService.backup(
+                                    (success, dstPath) {
+                                  if (success) {
+                                    toastInfo(context, translate(
+                                        'pages.backup.backup_created',
+                                        args: {'dst_path': dstPath}));
+                                  }
+                                  else {
+                                    toastInfo(context, translate(
+                                        'pages.backup.backup_aborted'));
+                                  }
+                                }, (errorMsg) => toastError(context, errorMsg));
+                          }
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.restore),
+                    title: Text(
+                        translate('navigation.menus.restore_from_file')),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      showConfirmationDialog(
+                          context, translate('pages.restore.dialog.title'),
+                          translate('pages.restore.dialog.message'),
+                          icon: const Icon(Icons.warning_amber_outlined),
+                          cancelPressed: () => Navigator.pop(context),
+                          okPressed: () async {
+                            Navigator.pop(context);
+                            await _backupRestoreService.restore((
+                                success) async {
+                              if (success) {
+                                await TaskGroupRepository.loadAll(
+                                    true); // load caches
+
+                                toastInfo(context,
+                                    translate('pages.restore.backup_restored'));
+                                setState(() {
+                                  _pages.forEach((page) {
+                                    page
+                                        .getGlobalKey()
+                                        .currentState
+                                        ?.reload();
+                                  });
+                                });
+                              }
+                              else {
+                                toastInfo(context,
+                                    translate('pages.restore.restore_aborted'));
+                              }
+                            }, (errorMsg) => toastError(context, errorMsg));
+                          });
+                    },
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.run_circle_outlined),
+                    title: Text(translate('navigation.menus.start_app_walk')),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _startAppWalkThrough(context);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.help_outline),
+                    title: Text(translate('navigation.menus.online_help')),
+                    onTap: () {
+                      Navigator.pop(context);
+                      launchUrl("https://everydaytasks.jepfa.de");
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title: Text(translate('navigation.menus.about_the_app')),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final packageInfo = await PackageInfo.fromPlatform();
+                      final version = packageInfo.version;
+
+                      showAboutDialog(
+                        context: context,
+                        applicationVersion: version,
+                        applicationName: APP_NAME,
+                        children: [
+                          Text(translate('pages.about.message')),
+                          Text(''),
+                          InkWell(
+                              child: Text.rich(
+                                TextSpan(
+                                  text: translate('pages.about.star_it',
+                                      args: {"link": ""}),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                        text: "github.com/jenspfahl/EverydayTasks",
+                                        style: TextStyle(
+                                            decoration: TextDecoration
+                                                .underline)),
                                   ],
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
+                              onTap: () {
+                                launchUrl(
+                                    "https://github.com/jenspfahl/EverydayTasks");
+                              }),
+                          Divider(),
+                          Text('© Jens Pfahl 2022 - 2024',
+                              style: TextStyle(fontSize: 12)),
+                        ],
+                        applicationIcon: Icon(Icons.task_alt,
+                            color: ACCENT_COLOR),
+                      );
+                    },
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.translate),
+                    title: Text(translate('navigation.menus.help_translate')),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      launchUrl(
+                          "https://github.com/jenspfahl/EverydayTasks/blob/master/TRANSLATE.md");
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.bug_report_outlined),
+                    title: Text(translate('navigation.menus.report_a_bug')),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final packageInfo = await PackageInfo.fromPlatform();
+                      final version = packageInfo.version;
+                      final build = packageInfo.buildNumber;
+
+                      final title = Uri.encodeComponent(
+                          "A bug in version $version ($build)");
+                      final body = Uri.encodeComponent("Please describe ..");
+                      launchUrl(
+                          "https://github.com/jenspfahl/EverydayTasks/issues/new?title=$title&body=$body");
+                    },
                   ),
                 ],
               ),
-              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-              floatingActionButton: Showcase(
-                key: showcaseFloatingButton,
-                title: translate('walk_through.action_button.title'),
-                description: translate('walk_through.action_button.description'),
-                targetPadding: EdgeInsets.all(8),
-                overlayOpacity: showcaseOpacity,
-                child: FloatingActionButton(
-                  onPressed: () {
-                    getSelectedPage().getGlobalKey().currentState?.handleFABPressed(context);
-                  },
-                  child: getSelectedPage().getIcon(),
+            ),
+          ),
+          appBar: AppBar(
+            title: _isSearching ? _buildSearchField() : getSelectedPage()
+                .getTitle(),
+            actions: _buildActions(context),
+          ),
+          body: Stack(
+            children: [
+              PageView(
+                controller: _pageController,
+                onPageChanged: (newIndex) {
+                  setState(() {
+                    _selectedNavigationIndex = newIndex;
+                    _clearOrCloseSearchBar(context, true);
+                  });
+                },
+                children: _pages,
+              ),
+              Visibility(
+                visible: _showBanner,
+                child: SizedBox(
+                  child: Container(
+                    child: MaterialBanner(
+                      // backgroundColor: Colors.transparent,
+                        elevation: 3,
+                        content: Text(translate('walk_through.banner.text')),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              _startAppWalkThrough(context);
+                            },
+                            child: Text(
+                                translate('walk_through.banner.start_action')),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() => _dismissShowcaseBanner());
+                            },
+                            child: Text(translate(
+                                'walk_through.banner.dismiss_action')),
+                          ),
+                        ]),
+                  ),
                 ),
               ),
-              bottomNavigationBar: BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                showUnselectedLabels: true,
-                showSelectedLabels: true,
-                items: <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Showcase(
-                      key: showcaseQuickAddIcon,
-                      title: translate('walk_through.quick_add.title'),
-                      description: translate('walk_through.quick_add.description'),
-                      targetPadding: EdgeInsets.all(16),
-                      overlayOpacity: showcaseOpacity,
-                      child: Icon(Icons.add_circle_outline_outlined),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Center(
+                  child: SizedBox(
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width / 4,
+                    height: 150,
+                    child: DraggableScrollableSheet(
+                      controller: _calendarDragScrollController,
+                      initialChildSize: 0.15,
+                      minChildSize: 0.15,
+                      maxChildSize: 0.5,
+                      snap: true,
+                      builder: (context, scrollController) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: PRIMARY_COLOR,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(8),
+                              topRight: Radius.circular(8),
+                            ),
+                            border: Border(
+                              // left: BorderSide(), //TODO doesn't work
+                              //right: BorderSide(color: Colors.black54, width: 1),
+                              // top: BorderSide(color: Colors.black54, width: 1),
+                            ),
+                          ),
+                          child: Showcase(
+                            key: showcaseExtensionsIcon,
+                            title: translate('walk_through.extensions.title'),
+                            description: translate(
+                                'walk_through.extensions.description'),
+                            targetPadding: EdgeInsets.all(8),
+                            overlayOpacity: showcaseOpacity,
+                            child: ListView(
+                              controller: scrollController,
+                              children: [
+                                Icon(Icons.drag_handle, color: Colors.black38),
+                                Container(
+                                  color: isDarkMode(context) ? null : Colors
+                                      .white54,
+                                  child: IconButton(
+                                    icon: Icon(Icons.calendar_month_sharp,
+                                      color: Colors.black54,),
+                                    onPressed: () {
+                                      _calendarDragScrollController.animateTo(
+                                          0.15, duration: const Duration(
+                                          milliseconds: 100),
+                                          curve: Curves.easeOutBack);
+                                      Navigator.push(super.context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  CalendarPage(_pagesHolder)))
+                                          .then((_) {});
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    label: translate('pages.quick_add.title'),
                   ),
-                  BottomNavigationBarItem(
-                    icon: Showcase(
-                      key: showcaseJournalIcon,
-                      title: translate('walk_through.journal.title'),
-                      description: translate('walk_through.journal.description'),
-                      targetPadding: EdgeInsets.all(16),
-                      overlayOpacity: showcaseOpacity,
-                      child: Icon(Icons.event_available_rounded),
-                    ),
-                    label: translate('pages.journal.title'),
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Showcase(
-                      key: showcaseSchedulesIcon,
-                      title: translate('walk_through.schedules.title'),
-                      description: translate('walk_through.schedules.description'),
-                      targetPadding: EdgeInsets.all(16),
-                      overlayOpacity: showcaseOpacity,
-                      child: ValueListenableBuilder<int>(
-                        valueListenable: DueScheduleCountService().count,
-
-                        builder: (BuildContext context, int value, Widget? child) {
-                          return Badge(
-                            isLabelVisible: DueScheduleCountService().shouldShowIndicatorValue(),
-                            child: Icon(Icons.next_plan_outlined),
-                            label: Text("$value"),
-                            textColor: Colors.white,
-                            backgroundColor: Colors.red,
-                          );
-                        },
-                      ),
-                    ),
-                    label: translate('pages.schedules.title'),
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Showcase(
-                      key: showcaseTasksIcon,
-                      title: translate('walk_through.tasks.title'),
-                      description: translate('walk_through.tasks.description'),
-                      targetPadding: EdgeInsets.all(16),
-                      overlayOpacity: showcaseOpacity,
-                      child: Icon(Icons.task_alt),
-                    ),
-                    label: translate('pages.tasks.title'),
-                  ),
-                ],
-                selectedItemColor: ACCENT_COLOR,
-                unselectedItemColor: Colors.grey.shade600,
-                currentIndex: _selectedNavigationIndex,
-                onTap: (index) {
-                  _pageController.animateToPage(index, duration: Duration(milliseconds: 300), curve: Curves.ease);
-                },
+                ),
               ),
-            );
-          }
-      ),
+            ],
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation
+              .centerDocked,
+          floatingActionButton: Showcase(
+            key: showcaseFloatingButton,
+            title: translate('walk_through.action_button.title'),
+            description: translate('walk_through.action_button.description'),
+            targetPadding: EdgeInsets.all(8),
+            overlayOpacity: showcaseOpacity,
+            child: FloatingActionButton(
+              onPressed: () {
+                getSelectedPage()
+                    .getGlobalKey()
+                    .currentState
+                    ?.handleFABPressed(context);
+              },
+              child: getSelectedPage().getIcon(),
+            ),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            showUnselectedLabels: true,
+            showSelectedLabels: true,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Showcase(
+                  key: showcaseQuickAddIcon,
+                  title: translate('walk_through.quick_add.title'),
+                  description: translate('walk_through.quick_add.description'),
+                  targetPadding: EdgeInsets.all(16),
+                  overlayOpacity: showcaseOpacity,
+                  child: Icon(Icons.add_circle_outline_outlined),
+                ),
+                label: translate('pages.quick_add.title'),
+              ),
+              BottomNavigationBarItem(
+                icon: Showcase(
+                  key: showcaseJournalIcon,
+                  title: translate('walk_through.journal.title'),
+                  description: translate('walk_through.journal.description'),
+                  targetPadding: EdgeInsets.all(16),
+                  overlayOpacity: showcaseOpacity,
+                  child: Icon(Icons.event_available_rounded),
+                ),
+                label: translate('pages.journal.title'),
+              ),
+              BottomNavigationBarItem(
+                icon: Showcase(
+                  key: showcaseSchedulesIcon,
+                  title: translate('walk_through.schedules.title'),
+                  description: translate('walk_through.schedules.description'),
+                  targetPadding: EdgeInsets.all(16),
+                  overlayOpacity: showcaseOpacity,
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: DueScheduleCountService().count,
+
+                    builder: (BuildContext context, int value, Widget? child) {
+                      return Badge(
+                        isLabelVisible: DueScheduleCountService()
+                            .shouldShowIndicatorValue(),
+                        child: Icon(Icons.next_plan_outlined),
+                        label: Text("$value"),
+                        textColor: Colors.white,
+                        backgroundColor: Colors.red,
+                      );
+                    },
+                  ),
+                ),
+                label: translate('pages.schedules.title'),
+              ),
+              BottomNavigationBarItem(
+                icon: Showcase(
+                  key: showcaseTasksIcon,
+                  title: translate('walk_through.tasks.title'),
+                  description: translate('walk_through.tasks.description'),
+                  targetPadding: EdgeInsets.all(16),
+                  overlayOpacity: showcaseOpacity,
+                  child: Icon(Icons.task_alt),
+                ),
+                label: translate('pages.tasks.title'),
+              ),
+            ],
+            selectedItemColor: ACCENT_COLOR,
+            unselectedItemColor: Colors.grey.shade600,
+            currentIndex: _selectedNavigationIndex,
+            onTap: (index) {
+              _pageController.animateToPage(
+                  index, duration: Duration(milliseconds: 300),
+                  curve: Curves.ease);
+            },
+          ),
+        );
+      }
     );
   }
 

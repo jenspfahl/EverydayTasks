@@ -4,7 +4,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:personaltasklogger/util/dates.dart';
 import 'package:personaltasklogger/util/extensions.dart';
 
-import '../util/units.dart';
+import 'package:personaltasklogger/util/units.dart';
 import 'When.dart';
 
 enum RepetitionStep {DAILY, EVERY_OTHER_DAY, WEEKLY, EVERY_OTHER_WEEK, MONTHLY, EVERY_OTHER_MONTH, QUARTERLY, HALF_YEARLY, YEARLY, CUSTOM}
@@ -55,7 +55,7 @@ class CustomRepetition {
   CustomRepetition(this.repetitionValue, this.repetitionUnit);
 
   DateTime getNextRepetitionFrom(DateTime from) {
-    var jiffy = Jiffy(from);
+    var jiffy = Jiffy.parseFromDateTime(from);
     switch(repetitionUnit) {
       case RepetitionUnit.MINUTES: return jiffy.add(minutes: repetitionValue).dateTime;
       case RepetitionUnit.HOURS: return jiffy.add(hours: repetitionValue).dateTime;
@@ -67,7 +67,7 @@ class CustomRepetition {
   }
 
   DateTime getPreviousRepetitionFrom(DateTime from) {
-    var jiffy = Jiffy(from);
+    var jiffy = Jiffy.parseFromDateTime(from);
     switch(repetitionUnit) {
       case RepetitionUnit.MINUTES: return jiffy.subtract(minutes: repetitionValue).dateTime;
       case RepetitionUnit.HOURS: return jiffy.subtract(hours: repetitionValue).dateTime;
@@ -196,11 +196,11 @@ class Schedule {
       case RepetitionStep.EVERY_OTHER_DAY: return from.add(Duration(days: 2));
       case RepetitionStep.WEEKLY: return from.add(Duration(days: 7));
       case RepetitionStep.EVERY_OTHER_WEEK: return from.add(Duration(days: 14));
-      case RepetitionStep.MONTHLY: return Jiffy(from).add(months: 1).dateTime;
-      case RepetitionStep.EVERY_OTHER_MONTH: return Jiffy(from).add(months: 2).dateTime;
-      case RepetitionStep.QUARTERLY: return Jiffy(from).add(months: 3).dateTime;
-      case RepetitionStep.HALF_YEARLY: return Jiffy(from).add(months: 6).dateTime;
-      case RepetitionStep.YEARLY: return Jiffy(from).add(years: 1).dateTime;
+      case RepetitionStep.MONTHLY: return Jiffy.parseFromDateTime(from).add(months: 1).dateTime;
+      case RepetitionStep.EVERY_OTHER_MONTH: return Jiffy.parseFromDateTime(from).add(months: 2).dateTime;
+      case RepetitionStep.QUARTERLY: return Jiffy.parseFromDateTime(from).add(months: 3).dateTime;
+      case RepetitionStep.HALF_YEARLY: return Jiffy.parseFromDateTime(from).add(months: 6).dateTime;
+      case RepetitionStep.YEARLY: return Jiffy.parseFromDateTime(from).add(years: 1).dateTime;
       case RepetitionStep.CUSTOM: throw new Exception("custom repetition step not allowed here");
     }
   }
@@ -211,11 +211,11 @@ class Schedule {
       case RepetitionStep.EVERY_OTHER_DAY: return from.subtract(Duration(days: 2));
       case RepetitionStep.WEEKLY: return from.subtract(Duration(days: 7));
       case RepetitionStep.EVERY_OTHER_WEEK: return from.subtract(Duration(days: 14));
-      case RepetitionStep.MONTHLY: return Jiffy(from).subtract(months: 1).dateTime;
-      case RepetitionStep.EVERY_OTHER_MONTH: return Jiffy(from).subtract(months: 2).dateTime;
-      case RepetitionStep.QUARTERLY: return Jiffy(from).subtract(months: 3).dateTime;
-      case RepetitionStep.HALF_YEARLY: return Jiffy(from).subtract(months: 6).dateTime;
-      case RepetitionStep.YEARLY: return Jiffy(from).subtract(years: 1).dateTime;
+      case RepetitionStep.MONTHLY: return Jiffy.parseFromDateTime(from).subtract(months: 1).dateTime;
+      case RepetitionStep.EVERY_OTHER_MONTH: return Jiffy.parseFromDateTime(from).subtract(months: 2).dateTime;
+      case RepetitionStep.QUARTERLY: return Jiffy.parseFromDateTime(from).subtract(months: 3).dateTime;
+      case RepetitionStep.HALF_YEARLY: return Jiffy.parseFromDateTime(from).subtract(months: 6).dateTime;
+      case RepetitionStep.YEARLY: return Jiffy.parseFromDateTime(from).subtract(years: 1).dateTime;
       case RepetitionStep.CUSTOM: throw new Exception("custom repetition step not allowed here");
     }
   }
@@ -277,7 +277,7 @@ class Schedule {
     return "${translate('model.repetition_step.every')} $unit";
   }
 
-  static Unit fromCustomRepetitionToUnit(CustomRepetition customRepetition, [Clause? clause]) {
+  static GeneralUnit fromCustomRepetitionToUnit(CustomRepetition customRepetition, [Clause? clause]) {
     switch(customRepetition.repetitionUnit) {
       case RepetitionUnit.MINUTES: return Minutes(customRepetition.repetitionValue, clause);
       case RepetitionUnit.HOURS: return Hours(customRepetition.repetitionValue, clause);
@@ -314,7 +314,7 @@ class Schedule {
           return dayOfMonth;
         },
         shiftBack: (repetitionValue, from) {
-          return Jiffy(from).subtract(months: repetitionValue).dateTime;
+          return Jiffy.parseFromDateTime(from).subtract(months: repetitionValue).dateTime;
         },
       ) ?? nextRegularDueDate;
     }
@@ -328,7 +328,7 @@ class Schedule {
           return dayOfMonth.value;
         },
         shiftBack: (repetitionValue, from) {
-          return Jiffy(from).subtract(years: repetitionValue).dateTime;
+          return Jiffy.parseFromDateTime(from).subtract(years: repetitionValue).dateTime;
         },
       ) ?? nextRegularDueDate;
     }

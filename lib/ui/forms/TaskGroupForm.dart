@@ -123,7 +123,7 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
                         children: [
                           OutlinedButton.icon(
                             onPressed: () async {
-                              final iconData = await showIconPicker(context, translate('forms.task_group.change_icon.message'));
+                              final iconData = await showIconPickerDialog(context, translate('forms.task_group.change_icon.message'));
                               if (iconData != null) {
                                 setState(() => _taskGroup!.iconData = iconData);
                               }

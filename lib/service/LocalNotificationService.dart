@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -118,6 +119,14 @@ class LocalNotificationService {
     InitializationSettings(android: initializationSettingsAndroid);
 
     tz.initializeTimeZones();
+    try {
+      final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
+      debugPrint("currentTimeZone=$currentTimeZone");
+      tz.setLocalLocation(tz.getLocation(currentTimeZone));
+    } catch (e) {
+      // ignore instead of failing
+      print(e);
+    }
 
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onDidReceiveNotificationResponse: (NotificationResponse response) async {
@@ -145,33 +154,45 @@ class LocalNotificationService {
 
   Future<void> scheduleNotification(String receiverKey, int id, String title, message, Duration duration, String channelId,
       [Color? color, List<AndroidNotificationAction>? actions, bool withTranslation = true, CustomRepetition? snoozePeriod]) async {
-    final when = tz.TZDateTime.now(tz.local).add(duration);
 
-    if (when.isBefore(DateTime.now())) {
-      debugPrint("Scheduled notification $id in the past, skip ($when)");
+    if (duration.isNegative || duration.inSeconds < 10) {
+      debugPrint(
+          "Scheduled notification $id in the past, skip");
       return;
     }
 
+    final now = DateTime.now().add(duration);
+
+    var zonedTime = tz.TZDateTime.local(now.year, now.month, now.day, now.hour, now.minute, now.second);
+    if (duration.inMinutes >= 1) {
+      // truncate to full minutes if duration greater than one minute
+      zonedTime = zonedTime.subtract(Duration(seconds: zonedTime.second));
+    }
+
     final parameterMap = {
-      'receiverKey' : receiverKey,
-      'id' : id,
-      'title' : title,
-      'message' : message,
-      'channelId' : channelId,
-      'color' : color?.value,
-      'actions' : actions?.map((a) => a.id + "-" + a.showsUserInterface.toString() + "-" + a.title).toList(),
-      'snooze_period_value' : snoozePeriod?.repetitionValue,
-      'snooze_period_unit' : snoozePeriod?.repetitionUnit.index,
+      'receiverKey': receiverKey,
+      'id': id,
+      'title': title,
+      'message': message,
+      'channelId': channelId,
+      'color': color?.value,
+      'actions': actions?.map((a) =>
+      a.id + "-" + a.showsUserInterface.toString() + "-" + a.title).toList(),
+      'snooze_period_value': snoozePeriod?.repetitionValue,
+      'snooze_period_unit': snoozePeriod?.repetitionUnit.index,
     };
     final parametersAsJson = jsonEncode(parameterMap);
+
+    debugPrint("Schedule $id ($zonedTime), duration=${duration} tz=${tz.local}");
+
 
     await _flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         title,
         message,
-        when.subtract(Duration(seconds: when.second)), // trunc seconds
+        zonedTime,
         NotificationDetails(android: _createNotificationDetails(color, channelId, false, actions, withTranslation)),
-        androidAllowWhileIdle: true,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         payload: receiverKey + "-" + id.toString() + RESCHEDULE_JSON_START_MARKER + parametersAsJson);
   }
@@ -200,11 +221,15 @@ class LocalNotificationService {
     AndroidFlutterLocalNotificationsPlugin? nativePlugin = _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation();
     nativePlugin?.getActiveNotifications().then((activeNotifications) {
       activeNotifications.forEach((element) {
-        _handleActiveNotification(element.id, element.channelId);
+        final id = element.id;
+        if (id != null) {
+          _handleActiveNotification(id, element.channelId);
+        }
       });
-      handleActiveNotificationPostHandler(activeNotifications.map((e) => e.id).toList());
+      handleActiveNotificationPostHandler(activeNotifications.where((e) => e.id != null).map((e) => e.id!).toList());
     });
   }
+
 
   void _handlePayload(bool isAppLaunch, String payload, String? actionId) {
     debugPrint("_handlePayload=$payload $isAppLaunch");
@@ -246,6 +271,11 @@ class LocalNotificationService {
       importance: Importance.high,
       actions: actions,
     );
+  }
+
+  void requestPermissions() {
+    AndroidFlutterLocalNotificationsPlugin? nativePlugin = _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation();
+    nativePlugin?.requestExactAlarmsPermission();
   }
 }
 
