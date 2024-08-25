@@ -410,7 +410,7 @@ class Schedule {
 
       //debugPrint("last = $last");
       if (last != null) {
-        // if last the max element in sorted, shift x days back
+        // if last is the max element in sorted, shift x days back
         if (!sorted.any((element) => extractValue(element) >= extractValue(extractType(last)))) {
           final repetition = fromRepetitionStepToCustomRepetition(repetitionStep, customRepetition);
           final corrected = shiftBack(repetition.repetitionValue - 1, last);

@@ -791,7 +791,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                     var oneTimeDueOn = _scheduledTask?.schedule.oneTimeDueOn;
                                     if (_repetitionMode == RepetitionMode.ONE_TIME) {
                                       final now = DateTime.now();
-                                      if (_scheduledTask == null || _scheduledTask!.isOneTimeCompleted) {
+                                      if (_scheduledTask == null || _scheduledTask.isOneTimeCompleted) {
                                         // reuse this schedule once completed
                                         scheduleFrom = now;
                                         oneTimeDueOn = nextDueOn;
@@ -1119,6 +1119,22 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
           }
           else {
             weekBasedSchedules.add(day);
+          }
+
+          final nextDueOn = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
+          final nextDueWeekday = DayOfWeek.values[nextDueOn.weekday - 1];
+          if (!weekBasedSchedules.contains(nextDueWeekday)) {
+            //update due date to first selected day
+            final days = weekBasedSchedules.toList();
+            days.sort((d1, d2) {
+              return d1.index == d2.index ? 0 : d1.index < d2.index ? 1 : -1;
+            });
+            final firstSelectedDay = days.first;
+            final delta = firstSelectedDay.index + 1 - nextDueOn.weekday;
+            if (delta != 0) {
+              final correctedDueDate = nextDueOn.add(Duration(days: delta));
+              _updateNextDueOn(correctedDueDate);
+            }
           }
         });
       },
