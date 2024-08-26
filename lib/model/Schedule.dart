@@ -298,10 +298,6 @@ class Schedule {
           extractValue: (dayOfWeek) {
             return dayOfWeek.index + 1;
           },
-          shiftBack: (repetitionValue, from) {
-            final shift = repetitionValue * DayOfWeek.values.length; // period - 1, e.g. 2 weeks = 1 week, 3 weeks = 2 weeks
-            return from.subtract(Duration(days: shift));
-          },
       ) ?? nextRegularDueDate;
     }
 
@@ -312,10 +308,7 @@ class Schedule {
         },
         extractValue: (dayOfMonth) {
           return dayOfMonth;
-        },
-        shiftBack: (repetitionValue, from) {
-          return Jiffy.parseFromDateTime(from).subtract(months: repetitionValue).dateTime;
-        },
+        }
       ) ?? nextRegularDueDate;
     }
 
@@ -326,10 +319,7 @@ class Schedule {
         },
         extractValue: (dayOfMonth) {
           return dayOfMonth.value;
-        },
-        shiftBack: (repetitionValue, from) {
-          return Jiffy.parseFromDateTime(from).subtract(years: repetitionValue).dateTime;
-        },
+        }
       ) ?? nextRegularDueDate;
     }
     // bypass
@@ -380,7 +370,6 @@ class Schedule {
     bool moveForward, {
     required T Function (DateTime from) extractType,
     required int Function (T) extractValue,
-    required DateTime Function (int repetitionValue, DateTime from) shiftBack,
   }) {
 
     //debugPrint("from=$from nextRegularDueDate=$nextRegularDueDate");
@@ -413,14 +402,6 @@ class Schedule {
 
       //debugPrint("last = $last");
       if (last != null) {
-        // if last is the max element in sorted, shift x days back
-        /*if (!sortedDescending.any((element) => extractValue(element) >= extractValue(extractType(last)))) {
-          final repetition = fromRepetitionStepToCustomRepetition(repetitionStep, customRepetition);
-          final corrected = shiftBack(repetition.repetitionValue - 1, last);
-          //debugPrint("corrected = $corrected");
-
-          return corrected;
-        }*/
         return last;
       }
 
