@@ -1,0 +1,3 @@
+* Fix fixed and weekly based schedule due data calculation (#83)
+* Fix wrong number of due and overdue schedules in overview
+* Ensure selected due dates match selected week days (for fixed week based schedules)

@@ -1063,41 +1063,41 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
       _scheduledTasks
           .forEach((scheduledTask) {
 
-        if (!scheduledTask.active) {
-          _inactiveSchedules++;
-        }
-        else if (scheduledTask.isPaused) {
-          _pausedSchedules++;
-        }
-        else {
-          _totalRunningSchedules++;
+          if (!scheduledTask.active) {
+            _inactiveSchedules++;
+          }
+          else if (scheduledTask.isPaused) {
+            _pausedSchedules++;
+          }
+          else if (!scheduledTask.isOneTimeCompleted) {
+            _totalRunningSchedules++;
 
-          if (scheduledTask.isDue()) {
-            _totalDueSchedules++;
-            if (scheduledTask.important && !scheduledTask.isOneTimeCompleted) {
-              _dueAndImportantSchedules++;
+            if (scheduledTask.isDue()) {
+              _totalDueSchedules++;
+              if (scheduledTask.important) {
+                _dueAndImportantSchedules++;
+              }
             }
-          }
-          if (scheduledTask.isNextScheduleOverdue(true)) {
-            _totalOverdueSchedules++;
-          }
+            if (scheduledTask.isNextScheduleOverdue(true)) {
+              _totalOverdueSchedules++;
+            }
 
-          final nextSchedule = scheduledTask.getNextSchedule();
-          if (nextSchedule != null) {
-            if (nextSchedule.isBefore(truncToDate(now))) {
-              _dueBeforeTodaySchedules++;
-            }
-            if (isToday(nextSchedule) && !scheduledTask.isOneTimeCompleted) {
-              _dueTodaySchedules++;
-            }
-            if (isTomorrow(nextSchedule)) {
-              _dueTomorrowSchedules++;
-            }
-            if (isAfterTomorrow(nextSchedule)) {
-              _dueAfterTomorrowSchedules++;
+            final nextSchedule = scheduledTask.getNextSchedule();
+            if (nextSchedule != null) {
+              if (nextSchedule.isBefore(truncToDate(now))) {
+                _dueBeforeTodaySchedules++;
+              }
+              if (isToday(nextSchedule)) {
+                _dueTodaySchedules++;
+              }
+              if (isTomorrow(nextSchedule)) {
+                _dueTomorrowSchedules++;
+              }
+              if (isAfterTomorrow(nextSchedule)) {
+                _dueAfterTomorrowSchedules++;
+              }
             }
           }
-        }
       });
     });
   }
