@@ -385,44 +385,47 @@ class Schedule {
 
     //debugPrint("from=$from nextRegularDueDate=$nextRegularDueDate");
 
-    final sorted = days.toList();
-    sorted.sort((e1, e2) => extractValue(e1) - extractValue(e2));
-    
     if (moveForward) {
-      // first check from current period
-      final next = _findForwardsFromCurrentDate(from, sorted, extractType, extractValue);
+      final sortedAscending = days.toList();
+      sortedAscending.sort((e1, e2) => extractValue(e1) - extractValue(e2));
+
+      // first try to find next in current period
+      final next = _findForwardsFromCurrentDate(from, sortedAscending, extractType, extractValue);
 
       //debugPrint("next = $next");
       if (next != null) {
         return next;
       }
       
-      // second check from next period
-      final firstNextPeriod = _findForwardsFromBeginOfPeriod(nextRegularDueDate, sorted, extractType, extractValue);
+      // second try to find first in next period
+      final firstNextPeriod = _findForwardsFromBeginOfPeriodIn(nextRegularDueDate, sortedAscending, extractType, extractValue);
 
       //debugPrint("firstNextPeriod = $firstNextPeriod");
       return firstNextPeriod;
       
     }
     else {
-      // first check from current period (which is after next period here)
-      final last = _findBackwardsFromCurrentDate(from, sorted, extractType, extractValue);
+      final sortedDescending = days.toList();
+      sortedDescending.sort((e1, e2) => extractValue(e2) - extractValue(e1));
+
+      // first try to find last in current period 
+      final last = _findBackwardsFromCurrentDate(from, sortedDescending, extractType, extractValue);
 
       //debugPrint("last = $last");
       if (last != null) {
         // if last is the max element in sorted, shift x days back
-        if (!sorted.any((element) => extractValue(element) >= extractValue(extractType(last)))) {
+        /*if (!sortedDescending.any((element) => extractValue(element) >= extractValue(extractType(last)))) {
           final repetition = fromRepetitionStepToCustomRepetition(repetitionStep, customRepetition);
           final corrected = shiftBack(repetition.repetitionValue - 1, last);
           //debugPrint("corrected = $corrected");
 
           return corrected;
-        }
+        }*/
         return last;
       }
 
       // second check from previous period
-      final lastPreviousPeriod = _findBackwardsFromEndOfPeriod(nextRegularDueDate, sorted, extractType, extractValue);
+      final lastPreviousPeriod = _findBackwardsFromEndOfPeriod(nextRegularDueDate, sortedDescending, extractType, extractValue);
 
       //debugPrint("lastPreviousPeriod = $lastPreviousPeriod");
       return lastPreviousPeriod;
@@ -435,11 +438,12 @@ class Schedule {
   DateTime? _findForwardsFromCurrentDate<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
 
     final dayFrom = extractType(from);
-    final nextDay = days.where((day) => extractValue(day) > extractValue(dayFrom)).firstOrNull;
+    final dayFromValue = extractValue(dayFrom);
+    final nextDay = days.where((day) => extractValue(day) > dayFromValue).firstOrNull;
     //debugPrint("nextDay: $nextDay");
 
     if (nextDay is DayOfWeek) {
-      final next = from.add(Duration(days: extractValue(nextDay) - extractValue(dayFrom)));
+      final next = from.add(Duration(days: extractValue(nextDay) - dayFromValue));
       //debugPrint("found next in period $next after from");
       return next;
     }
@@ -449,13 +453,15 @@ class Schedule {
   }
 
 
-  DateTime? _findForwardsFromBeginOfPeriod<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
-    final dayBeforePeriodStartOfFrom = from.subtract(Duration(days: extractValue(extractType(from))));
-    //debugPrint("dayBeforePeriodStartOfFrom = $dayBeforePeriodStartOfFrom");
-
+  DateTime? _findForwardsFromBeginOfPeriodIn<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
     final firstDay = days.firstOrNull;
     if (firstDay is DayOfWeek) {
-      final date = dayBeforePeriodStartOfFrom.add(Duration(days: extractValue(firstDay)));
+      // get the day before Monday of the target period
+      final dayBeforeWeekStart = from.subtract(Duration(days: extractValue(extractType(from))));
+      debugPrint("dayBeforeWeekStart = $dayBeforeWeekStart");
+
+      // add the number of the first week day (Monday = 1, etc)
+      final date = dayBeforeWeekStart.add(Duration(days: extractValue(firstDay)));
       //debugPrint("found first schedule in period: $date");
       return date;
     }
@@ -467,15 +473,16 @@ class Schedule {
 
   DateTime? _findBackwardsFromCurrentDate<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
     final dayFrom = extractType(from);
+    final dayFromValue = extractValue(dayFrom);
     //debugPrint("dayFrom: $dayFrom");
 
-    final lastDay = days.where((day) => extractValue(day) < extractValue(dayFrom)).lastOrNull;
+    final lastDay = days.where((day) => extractValue(day) < dayFromValue).firstOrNull;
     //debugPrint("lastDay: $lastDay");
 
     if (lastDay is DayOfWeek) {
-      final next = from.add(Duration(days: extractValue(lastDay) - extractValue(dayFrom)));
-      //debugPrint("found last in period $next after from");
-      return next;
+      final last = from.subtract(Duration(days: dayFromValue - extractValue(lastDay)));
+      //debugPrint("found last in period $last after from");
+      return last;
     }
     else {
       return _mapFixedNonWeekScheduleDay(from, lastDay);
@@ -484,11 +491,22 @@ class Schedule {
 
 
   DateTime? _findBackwardsFromEndOfPeriod<T>(DateTime from, List<T> days, T Function (DateTime) extractType, int Function (T) extractValue) {
-    final lastDay = days.lastOrNull;
+    final lastDay = days.firstOrNull;
     if (lastDay is DayOfWeek) {
+
+      // get the day after Sunday of the target period
+      final dayAfterWeekEnd = from.add(Duration(days: 7 + 1 - extractValue(extractType(from))));
+      debugPrint("dayAfterWeekEnd = $dayAfterWeekEnd");
+
+      // subtract the backwarded number of the last week day (Monday = 1 --> 7 - 1 = 6)
+      final date = dayAfterWeekEnd.subtract(Duration(days: 7 + 1 - extractValue(lastDay)));
+      //debugPrint("found first schedule in period: $date");
+      return date;
+
+      /*
       final date = from.add(Duration(days: extractValue(lastDay) - 1));
       //debugPrint("found last schedule in period: $date");
-      return date;
+      return date;*/
     }
     else {
       return _mapFixedNonWeekScheduleDay(from, lastDay);

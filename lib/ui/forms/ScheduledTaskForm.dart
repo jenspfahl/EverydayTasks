@@ -92,47 +92,47 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
     super.initState();
 
     if (_scheduledTask != null) {
-      titleController.text = _scheduledTask!.translatedTitle;
-      descriptionController.text = _scheduledTask!.translatedDescription ?? "";
+      titleController.text = _scheduledTask.translatedTitle;
+      descriptionController.text = _scheduledTask.translatedDescription ?? "";
 
-      _selectedRepetitionStep = _scheduledTask!.schedule.repetitionStep;
-      _customRepetition = _scheduledTask!.schedule.customRepetition;
+      _selectedRepetitionStep = _scheduledTask.schedule.repetitionStep;
+      _customRepetition = _scheduledTask.schedule.customRepetition;
 
-      _selectedStartAt = _scheduledTask!.schedule.aroundStartAt;
-      final startedAt = _scheduledTask!.schedule.startAtExactly;
+      _selectedStartAt = _scheduledTask.schedule.aroundStartAt;
+      final startedAt = _scheduledTask.schedule.startAtExactly;
       if (startedAt != null && _selectedStartAt == AroundWhenAtDay.CUSTOM) {
         _selectedStartAt = AroundWhenAtDay.CUSTOM; // Former NOW is now CUSTOM
         _customStartAt = startedAt;
       }
 
-      if (_scheduledTask?.lastScheduledEventOn != null) {
+      if (_scheduledTask.lastScheduledEventOn != null) {
         // adjust forth
-        final nextDueDate = _scheduledTask!.schedule.getNextRepetitionFrom(_scheduledTask!.lastScheduledEventOn!);
+        final nextDueDate = _scheduledTask.schedule.getNextRepetitionFrom(_scheduledTask.lastScheduledEventOn!);
         _selectedNextDueOn = fromDateTimeToWhenOnDateFuture(nextDueDate);
         _customNextDueOn = nextDueDate;
       }
 
-      _isActive = _scheduledTask!.active;
-      _isImportant = _scheduledTask!.important;
-      _repetitionMode = _scheduledTask!.schedule.repetitionMode;
+      _isActive = _scheduledTask.active;
+      _isImportant = _scheduledTask.important;
+      _repetitionMode = _scheduledTask.schedule.repetitionMode;
 
-      if (_scheduledTask!.reminderNotificationEnabled != null) {
-        _isRemindersEnabled = _scheduledTask!.reminderNotificationEnabled!;
+      if (_scheduledTask.reminderNotificationEnabled != null) {
+        _isRemindersEnabled = _scheduledTask.reminderNotificationEnabled!;
       }
-      if (_scheduledTask!.reminderNotificationRepetition != null) {
-        _reminderRepetition = _scheduledTask!.reminderNotificationRepetition!;
-      }
-
-      if (_scheduledTask!.preNotificationEnabled != null) {
-        _isPreNotificationEnabled = _scheduledTask!.preNotificationEnabled!;
-      }
-      if (_scheduledTask!.preNotification != null) {
-        _preNotification = _scheduledTask!.preNotification!;
+      if (_scheduledTask.reminderNotificationRepetition != null) {
+        _reminderRepetition = _scheduledTask.reminderNotificationRepetition!;
       }
 
-      weekBasedSchedules = _scheduledTask!.schedule.weekBasedSchedules.toSet();
-      monthBasedSchedules = _scheduledTask!.schedule.monthBasedSchedules.toSet();
-      yearBasedSchedules = _scheduledTask!.schedule.yearBasedSchedules.toSet();
+      if (_scheduledTask.preNotificationEnabled != null) {
+        _isPreNotificationEnabled = _scheduledTask.preNotificationEnabled!;
+      }
+      if (_scheduledTask.preNotification != null) {
+        _preNotification = _scheduledTask.preNotification!;
+      }
+
+      weekBasedSchedules = _scheduledTask.schedule.weekBasedSchedules.toSet();
+      monthBasedSchedules = _scheduledTask.schedule.monthBasedSchedules.toSet();
+      yearBasedSchedules = _scheduledTask.schedule.yearBasedSchedules.toSet();
 
       var nextDueOn = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
 
@@ -140,11 +140,11 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
         _selectedRepetitionStep = null; // we have to store a step even if ONE_TIME, so we null it when loading such modes
       }
       if (_repetitionMode == RepetitionMode.FIXED) {
-        if (_scheduledTask!.schedule.isMonthBased()) {
+        if (_scheduledTask.schedule.isMonthBased()) {
           // remove the standard repetition day
           monthBasedSchedules.remove(nextDueOn.day);
         }
-        if (_scheduledTask!.schedule.isYearBased()) {
+        if (_scheduledTask.schedule.isYearBased()) {
           // remove the standard repetition day
           yearBasedSchedules.remove(AllYearDate(nextDueOn.day, MonthOfYear.values[nextDueOn.month - 1]));
         }
@@ -798,7 +798,7 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                       }
                                       else {
                                         // just update this schedule
-                                        scheduleFrom = _scheduledTask!.lastScheduledEventOn!;
+                                        scheduleFrom = _scheduledTask.lastScheduledEventOn!;
                                         oneTimeDueOn = nextDueOn;
                                       }
                                     }
