@@ -35,7 +35,6 @@ dependencies:
   floor: ^1.1.0
   intl: any
   numberpicker: ^2.1.1
-  flutter_treeview: ^1.0.6+1
   jiffy: ^6.3.1
   shared_preferences: ^2.3.1
   fl_chart: ^0.68.0
@@ -57,6 +56,9 @@ dependencies:
   win32: ^5.5.1
   calendar_view:
     path: ./flutter_calendar_view
+  flutter_treeview:
+    path: ./flutter_treeview
+
 
 
 dev_dependencies:
