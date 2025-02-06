@@ -221,6 +221,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                             icon: Icon(Icons.event_available),
                           ),
                           maxLength: 50,
+                          enabled: !_isTrackingRunning(),
                           keyboardType: TextInputType.text,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -237,15 +238,17 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                           ),
                           maxLength: 500,
                           keyboardType: TextInputType.text,
+                          enabled: !_isTrackingRunning(),
                           maxLines: 1,
                         ),
                         DropdownButtonFormField<TaskGroup?>(
                           onTap: () => FocusScope.of(context).unfocus(),
                           value: _selectedTaskGroup,
                           icon: const Icon(Icons.category_outlined),
+                          iconDisabledColor: _isTrackingRunning() ? Colors.redAccent : null,
                           hint: Text(translate('forms.task_event.category_hint')),
                           isExpanded: true,
-                          onChanged: (value) {
+                          onChanged: _isTrackingRunning() ? null : (value) {
                             setState(() {
                               _selectedTaskGroup = value;
                             });
@@ -270,6 +273,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                             showText: true,
                             singleButtonWidth: 100,
                             initialSeverity: _severity,
+                            isDisabled: _isTrackingRunning(),
                             onChanged: (severity) =>_severity = severity,
                           ),
                         ),
