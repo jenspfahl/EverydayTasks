@@ -382,7 +382,8 @@
               "french": "Français",
               "breton": "Brezhoneg",
               "russian": "Русский",
-              "spain": "Español"
+              "spain": "Español",
+              "chinese": "中国人"
             }
           },
           "language_not_supported": "La langue '{languageCode}' n'est pas supportée"

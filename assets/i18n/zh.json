@@ -1,0 +1,975 @@
+{
+  "navigation": {
+    "header_subtitle": "跟踪、记录和安排任务",
+    "menus": {
+      "settings": "设置",
+      "export_as_csv": "导出为CSV文件",
+      "backup_as_file": "创建备份文件",
+      "restore_from_file": "从文件恢复",
+      "start_app_walk": "开始应用引导",
+      "online_help": "在线帮助",
+      "about_the_app": "关于此应用",
+      "help_translate": "帮助翻译",
+      "report_a_bug": "报告错误"
+    }
+  },
+  
+  "system": {
+    "notifications": {
+      "channel_schedules": "有关到期计划任务的通知",
+      "channel_tracking": "跟踪通知",
+      "channel_others": "普通通知",
+      "denied_permission_message": "没有此权限将无法接收通知。"
+    }
+  },
+  
+  "forms": {
+    "common": {
+      "title_emphasis": "请输入标题",
+      "description_hint": "可选描述",
+      "button_save": "保存"
+    },
+    "task_event": {
+      "title_hint": "日志条目的标题",
+      "category_hint": "属于类别",
+      "category_emphasis": "请选择一个类别",
+      "duration_hint": "持续时间",
+      "duration_emphasis": "请选择一个持续时间",
+      "when_at_hint": "执行时间",
+      "when_at_emphasis": "选择任务开始的时间",
+      "when_on_hint": "开始日期",
+      "when_on_emphasis": "选择任务开始的日期",
+      "create": {
+        "title": "创建新的日志条目",
+        "title_from_schedule": "从计划创建新的日志条目",
+        "success": "名为'{title}'的新日志条目已创建"
+      },
+      "change": {
+        "title": "更改名为'{title}'的日志条目",
+        "success": "名为'{title}'的日志条目已更改"
+      },
+      "tracking": {
+        "start_tracking_title": "开始跟踪",
+        "start_tracking_message": "当开始跟踪时，一些值将会被覆盖。继续吗？",
+        "stop_tracking_first": "请先停止跟踪！",
+        "tracking_started": "跟踪开始",
+        "tracking_resumed": "跟踪已恢复",
+        "tracking_stopped": "跟踪停止",
+        "tracking_started_at": "跟踪开始于 {when}",
+        "task_started_at": "'{title}' 开始于 {when}"
+      }
+    },
+    "schedule": {
+      "title_hint": "计划的标题",
+      "repetition_steps_hint": "间隔",
+      "custom_repetition_steps_description": "选择自定义间隔。",
+      "repetition_steps_emphasis": "选择任务的间隔",
+      "due_at_hint": "截止于",
+      "due_at_emphasis": "选择任务何时到期",
+      "activate_schedule": "激活计划",
+      "mark_as_important": "将计划标记为重要",
+      "due_on_hint": "截止于",
+      "scheduled_from_emphasis": "选择计划开始的时间",
+      "activate_reminders": "激活提醒",
+      "remind_again_delay_description": "选择再次提醒的延迟。",
+      "remind_after": "在 {when} 再次提醒",
+      "remind_before_description": "选择提前提醒",
+      "remind_before": "提前 {when} 提醒",
+      "repetition_mode": "动态重复模式",
+      "repetition_mode_dynamic": "下一个任务基于所选间隔和最近任务完成的时间来决定。",
+      "repetition_mode_fixed": "下一个任务基于确切的间隔，无论最近的任务何时完成。",
+      "repetition_mode_one_shot": "下一个任务基于提供的截止日期，不重复。",
+      "fixed_monthly_hint": "每月添加额外的截止日期",
+      "fixed_monthly_title": "任意月份的可能日期",
+      "fixed_monthly_message": "选择该计划在任意月份的额外截止日期。如果某个月份不存在该日期（例如4月31日），则计划会提前触发（这里是在4月30日）。对于闰年也是同样的处理方式。",
+      "fixed_yearly_hint": "每年添加额外的截止日期",
+      "fixed_yearly_title": "任意一年的可能日期",
+      "fixed_yearly_message": "选择该计划在任意一年的额外截止日期。如果某一年不存在该日期（例如4月31日），则计划会提前触发（这里是在4月30日）。对于闰年也是同样的处理方式。",
+      "create": {
+        "title": "创建新计划",
+        "success": "名为'{title}'的新计划已创建"
+      },
+      "change": {
+        "title": "更改名为'{title}'的计划",
+        "success": "名为'{title}'的计划已更改"
+      }
+    },
+    "task": {
+      "title_hint": "任务标题",
+      "duration_hint": "通常持续时间",
+      "when_at_hint": "通常执行时间",
+      "reset": {
+        "title": "恢复默认",
+        "message_task": "这将把当前任务 '{title}' 恢复到预设的默认状态。",
+        "message_variant": "这将把当前变体 '{title}' 恢复到预设的默认状态。"
+      }
+    },
+    "task_group": {
+      "title_hint": "类别的名称",
+      "reset": {
+        "title": "恢复默认",
+        "message": "这将把当前类别 '{name}' 恢复到预设的默认状态"
+      },
+      "change_icon": {
+        "title": "更换图标",
+        "message": "选择一个图标"
+      },
+      "change_color": {
+        "title": "更换颜色",
+        "message": "选择一种颜色"
+      }
+    }
+  },
+  "pages": {
+    "quick_add": {
+      "title": "快速添加",
+      "menu": {
+        "pinning": {
+          "pinned": "快速添加已固定为起始页",
+          "unpinned": "已取消快速添加作为起始页的固定"
+        },
+        "grouping": {
+          "by_categories": "按类别分组",
+          "not_by_categories": "不按类别分组"
+        },
+        "sorting": {
+          "by_category": "按类别排序",
+          "by_title": "按标题排序"
+        }
+      },
+      "action": {
+        "description" : "你想创建什么？",
+        "new_quick_add": {
+          "title": "新的快速添加",
+          "description": "选择一个任务或变体以添加到快速添加中。"
+        },
+        "new_journal_entry": {
+          "title": "新的日志条目",
+          "description": "选择一个类别、任务或变体来创建一个新的日志条目。"
+        }
+      },
+      "addition": {
+        "success": "'{title}' 已被添加到快速添加",
+        "exists": "快速添加 '{title}' 仍然存在"
+      },
+      "deletion": {
+        "title": "移除快速添加",
+        "description": "你确定要移除 '{title}' 的快速添加吗？这不会影响相关联的任务。",
+        "success": "'{title}' 的快速添加已被移除"
+      }
+    },
+    "journal": {
+      "title": "日志",
+      "action": {
+        "description" : "你想从哪里创建新的日志条目？",
+        "from_scratch": {
+          "title": "从头开始"
+        },
+        "from_task": {
+          "title": "从任务",
+          "description": "选择一个类别、任务或变体来创建一个新的日志条目。"
+        },
+        "deletion": {
+          "title": "删除日志条目",
+          "message": "你确定要删除条目 '{title}' 吗？",
+          "success": "日志条目 '{title}' 已被删除"
+        }
+      },
+      "details": {
+        "title": "条目详情",
+        "attrib_title": "标题",
+        "attrib_category": "类别",
+        "attrib_created_at": "创建于",
+        "attrib_started_at": "开始于",
+        "attrib_finished_at": "完成于",
+        "attrib_duration": "实际时长",
+        "associated_task": "关联任务",
+        "associated_schedule": "关联计划",
+        "value_uncategorized": "未分类",
+        "value_none": "无"
+      }
+    },
+    "schedules": {
+      "title": "计划",
+      "menu": {
+        "pinning": {
+          "pinned": "计划已固定为起始页",
+          "unpinned": "已取消计划作为起始页的固定"
+        },
+        "sorting": {
+          "by_progress": "按进度排序",
+          "by_remaining_time": "按剩余时间排序",
+          "by_category": "按类别排序",
+          "by_title": "按标题排序",
+          "hide_non_active": "隐藏非活动",
+          "important_on_top": "重要的优先显示"
+        },
+        "notifications": {
+          "enabled": "所有提醒和通知已启用",
+          "disabled": "所有提醒和通知已禁用"
+        }
+      },
+      "overview": {
+        "running": "进行中",
+        "due": "到期",
+        "overdue": "逾期",
+        "due_now": "立即到期",
+        "paused": "暂停",
+        "inactive": "非活动",
+        "scheduled": "已安排",
+        "completed": "已完成",
+        "later_due": "稍后到期",
+        "due_yesterday_and_before": "今天之前到期",
+        "due_today": "今天到期",
+        "due_tomorrow": "明天到期",
+        "due_after_tomorrow": "后天及以后到期",
+        "paused_schedules": "暂停的计划",
+        "inactive_schedules": "非活动的计划",
+        "reminder_activated" : "提醒已激活",
+        "reminder_passed" : "提醒已过期",
+        "remind_again" : "再次提醒",
+        "remind_again_successful" : "提醒将在 {when} 再次出现"
+      },
+      "notification": {
+        "title_normal_task": "到期计划任务",
+        "title_fixed_task": "到期固定计划任务",
+        "message_normal_task": "计划任务 '{title}' 到期了！",
+        "message_fixed_task": "固定计划任务 '{title}' 到期了！",
+        "message_fixed_last_task": "固定计划任务 '{title}' 到期了！请点击以获取未来的通知！",
+        "pre_notification": {
+          "title_normal_task": "计划任务即将到期",
+          "title_fixed_task": "固定计划任务即将到期",
+          "message_normal_task": "计划任务 '{title}' 将在 {when} 到期。",
+          "message_fixed_task": "固定计划任务 '{title}' 将在 {when} 到期。"
+        },
+        "action_track": "记录或跟踪",
+        "action_snooze": "在 {when} 提醒我"
+      },
+      "action": {
+        "reset": {
+          "title": "重置进度",
+          "message_then": "你确定要重置 '{title}' 的进度吗？该计划然后会在 {nextDueDate} 在 {newNextDueDate} 到期。",
+          "message_still": "你确定要重置 '{title}' 的进度吗？该计划仍会在 {nextDueDate} 在 {newNextDueDate} 到期。",
+          "success": "'{title}' 的进度已重置到现在",
+          "title_custom": "'{title}' 的下一个到期日期是 ...",
+          "success_custom": "'{title}' 的下一个到期日期已更新"
+        },
+        "move_forward": {
+          "title": "跳过到期日期",
+          "message": "你想将 '{title}' 的到期日期提前到基于计划的下一个日期吗？该计划然后会在 {nextDueDate} 在 {newNextDueDate} 到期。",
+          "success": "'{title}' 的到期日期已更新"
+        },
+        "one_time": {
+          "title": "停止计划",
+          "message": "你正准备停止当前的一次性计划 '{title}'。该计划将被标记为已完成而没有新的日志条目。你确定吗？",
+          "success": "'{title}' 的到期日期已更新"
+        },
+        "pause_resume": {
+          "paused": "计划 '{title}' 已暂停",
+          "resumed": "计划 '{title}' 已恢复"
+        },
+        "addition": {
+          "title": "安排任务",
+          "message": "选择一个类别、任务或变体来进行重复安排。"
+        },
+        "deletion": {
+          "title": "删除计划",
+          "message": "你确定要删除计划 '{title}' 吗？",
+          "success": "计划 '{title}' 已被删除"
+        }
+      },
+      "errors": {
+        "cannot_resume": "无法执行暂停的计划！请先恢复它！",
+        "cannot_reset": "无法重置暂停的计划！请先恢复它！",
+        "cannot_change_paused": "无法更改暂停的计划！请先恢复它！",
+        "no_journal_entries": "此计划尚未有日志条目"
+      }
+    },
+    "tasks": {
+      "title": "任务",
+      "menu":  {
+        "restore_a_task": {
+          "title": "恢复任务",
+          "description": "选择一个以前移除的预定义任务或变体以恢复。",
+          "success_group": "类别 '{name}' 已恢复。",
+          "success_task": "任务 '{title}' 已恢复。",
+          "success_variant": "变体 '{title}' 已恢复。",
+          "success_variant_parent_task": "变体 '{title}' 和父任务已恢复。"
+        }
+      },
+      "action": {
+        "error_nothing_selected": "请选择一项！",
+        "description_nothing_selected": "创建新类别。要更改现有类别，请先选择它。",
+        "description_group": "在 '{groupName}' 下面添加新任务或更改或删除当前选定的类别。",
+        "description_task": "更改或删除选定的任务 '{title}' 或在其下添加新变体。",
+        "description_variant": "更改或删除选定的变体 '{title}' 或将其克隆为新的。",
+        "add_task": {
+          "title": "添加新任务",
+          "success": "名为 '{title}' 的新任务已添加"
+        },
+        "change_task": {
+          "title": "更改任务",
+          "success": "名为 '{title}' 的任务已更改"
+        },
+        "move_task_down": {
+          "title": "将任务转换为变体",
+          "message": "转换后的变体应该属于哪个任务？",
+          "success": "名为 '{title}' 的任务已转换为变体"
+        },
+        "add_variant": {
+          "title": "添加新变体",
+          "variant_postfix": "变体",
+          "success": "名为 '{title}' 的变体已添加"
+        },
+        "change_variant": {
+          "title": "更改变体",
+          "success": "名为 '{title}' 的变体已更改"
+        },
+        "move_variant_up": {
+          "success": "名为 '{title}' 的变体已转换为任务"
+        },
+        "clone_variant": {
+          "title": "克隆变体",
+          "success": "名为 '{title}' 的变体已克隆",
+          "cloned_postfix": "已克隆"
+        },
+        "remove_task": {
+          "error_has_children": "请先移除子项！",
+          "title": "移除任务",
+          "message_custom": "这将移除当前的任务 '{title}'。这不可撤销！",
+          "message_predefined": "这将通过隐藏当前任务 '{title}' 来移除它。你可以通过点击恢复操作图标来恢复它。",
+          "success": "任务 '{title}' 已被移除"
+        },
+        "remove_variant": {
+          "title": "移除变体",
+          "message_custom": "这将移除当前的变体 '{title}'。这不可撤销！",
+          "message_predefined": "这将通过隐藏当前变体 '{title}' 来移除它。你可以通过点击恢复操作图标来恢复它。",
+          "success": "变体 '{title}' 已被移除"
+        },
+        "create_task_group": {
+          "title": "创建类别",
+          "success": "类别 '{name}' 已创建"
+        },
+        "change_task_group": {
+          "title": "更改类别",
+          "success": "类别 '{name}' 已更改"
+        },
+        "remove_task_group": {
+          "error_has_children": "请先移除子任务！",
+          "error_has_schedules": "请先移除关联的计划！",
+          "title": "移除类别",
+          "message_custom": "这将移除当前的类别 '{name}'。这不可撤销！",
+          "message_predefined": "这将通过隐藏当前类别 '{name}' 来移除它。你可以通过点击恢复操作图标来恢复它。",
+          "success": "类别 '{name}' 已被移除"
+        }
+      }
+    },
+    "calendar": {
+      "title": "任务日历"
+    },
+    "settings": {
+      "common": {
+        "title": "常规",
+        "language": {
+          "title": "语言",
+          "dialog": {
+            "title": "选择一种语言",
+            "options": {
+              "system_default": "系统语言",
+              "english": "English",
+              "german": "Deutsch",
+              "french": "Français",
+              "breton": "Brezhoneg",
+              "russian": "Русский",
+              "spain": "Español",
+              "chinese": "中国人"
+            }
+          },
+          "language_not_supported": "'{languageCode}' 不支持"
+        },
+        "theme": {
+          "title": "深色主题"
+        }
+      },
+      "date_n_time": {
+        "title": "日期与时间",
+        "used_date_format": {
+          "title": "使用的日期格式",
+          "description": "例如 '{example_date}'",
+          "dialog": {
+            "title": "选择日期格式"
+          }
+        },
+        "show_weekdays": {
+          "title": "显示星期几",
+          "description": "为日期显示星期几"
+        },
+        "show_daytime_as_word": {
+          "title": "以文字显示时间段",
+          "description": "例如，晚上显示为 '{evening}'"
+        },
+        "configure_daytimes": {
+          "title": "更改预配置的时间段",
+          "description": "更改如 '晚上' 的实际时间段"
+        },
+        "reset_daytimes": {
+          "title": "重置时间段",
+          "description": "你想要将当前配置的时间段重置为默认值吗？"
+        }
+      },
+      "action_feedback": {
+        "title": "操作反馈",
+        "show_action_feedback": {
+          "title": "显示操作反馈",
+          "description": "在用户执行某些操作后显示简短消息"
+        },
+        "duration": {
+          "title": "操作反馈持续时间",
+          "description": "消息消失前的持续时间",
+          "dialog": {
+            "title": "选择你的阅读时长",
+            "options": {
+              "slow": "我需要更多时间",
+              "normal": "正常速度",
+              "quick": "我读得快",
+              "fast": "我是超级快"
+            }
+          }
+        }
+      },
+      "behaviour": {
+        "title": "行为",
+        "set_schedules_automatically_done": {
+          "title": "自动设置计划完成",
+          "description" : "当使用一个或多个计划创建新的日志条目时，自动设置这些计划为完成状态。"
+        },
+        "show_schedules_count_as_badge": {
+          "title": "显示到期计划任务指示器",
+          "description" : "显示徽章指示器，显示到期或逾期的计划任务数量。"
+        }
+      }
+    },
+    "export": {
+      "description": "在这里，您可以导出所有的日志条目为CSV文件。导出在后台进行，可能需要一些时间。",
+      "export_created" : "CSV 文件 {dst_path} 已创建",
+      "export_aborted" : "CSV 导出已中止！"
+    },
+    "backup": {
+      "description": "创建备份以便在另一台设备上或重新安装后恢复您的数据。",
+      "backup_created" : "备份文件 {dst_path} 已创建",
+      "backup_aborted" : "备份已中止！"
+    },
+    "restore": {
+      "dialog": {
+        "title": "从文件恢复",
+        "message": "恢复备份文件将会覆盖您当前的所有数据！继续吗？"
+      },
+      "backup_restored" : "备份已恢复",
+      "restore_aborted" : "恢复已中止！"
+    },
+    "about" : {
+      "title": "关于日常任务",
+      "message": "Everyday Tasks 是一款易于使用且快速的应用程序，用于记录、跟踪和安排日常任务",
+      "star_it": "如果你喜欢这个应用程序，在 {link} 上给它一颗星"
+    }
+  },
+  "filter": {
+    "menu": {
+      "by_date_range": "按日期范围筛选",
+      "by_severity": "按严重性筛选",
+      "by_favorites": "筛选收藏",
+      "by_schedule": "按计划筛选",
+      "by_task": "按任务筛选",
+      "clear_all": "清除所有筛选条件"
+    },
+    "hint_filter_by_schedule": "已选择按计划 '{title}' 筛选。点击 '{clearAll}' 以重置。",
+    "filter_by_task_title": "按任务筛选",
+    "filter_by_task_description": "选择一个类别、任务或变体来筛选。"
+  },
+  "stats": {
+    "title": "日志统计",
+    "total_count": "总数",
+    "total_duration": "总时长",
+    "by_categories": "按类别",
+    "by_tasks": "按任务"
+  },
+  "walk_through": {
+    "banner": {
+      "text": "学习如何使用应用程序！在这里开始引导。",
+      "start_action": "开始",
+      "dismiss_action": "关闭"
+    },
+    "action_button": {
+      "title": "跟踪任务、创建计划等",
+      "description": "点击这里跟踪任务、添加书签或创建计划。操作基于所选页面。"
+    },
+    "quick_add": {
+      "title": "快速跟踪你最重要的任务",
+      "description": "你可以在这里为你最常执行的任务添加书签，以便快速完成它们。"
+    },
+    "journal": {
+      "title": "查看所有已完成的任务",
+      "description": "在这个页面上，你会看到所有曾经跟踪和记录的已完成任务。"
+    },
+    "schedules": {
+      "title": "安排重复任务",
+      "description": "在这个页面上，你可以根据计划定义重复任务，并在到期时收到通知。"
+    },
+    "tasks": {
+      "title": "管理所有预定义任务",
+      "description": "在这里你可以管理所有要作为模板使用的类别、任务和变体。"
+    },
+    "extensions": {
+      "title": "向上拖动查看更多扩展",
+      "description": "你可以在这里访问额外的功能，比如整体的日历视图。"
+    }
+  },
+  "common": {
+    "ok": "确定",
+    "cancel": "取消",
+    "search": "搜索",
+    "units": {
+      "year": {
+        "zero": "年",
+        "one": "年",
+        "two": "年",
+        "other": "年"
+      },
+      "month": {
+        "zero": "月",
+        "one": "月",
+        "two": "月",
+        "other": "月"
+      },
+      "week": {
+        "zero": "周",
+        "one": "周",
+        "two": "周",
+        "other": "周"
+      },
+      "day": {
+        "zero": "天",
+        "one": "天",
+        "two": "天",
+        "other": "天"
+      },
+      "hour": {
+        "zero": "小时",
+        "one": "小时",
+        "two": "小时",
+        "other": "小时"
+      },
+      "minute": {
+        "zero": "分钟",
+        "one": "分钟",
+        "two": "分钟",
+        "other": "分钟"
+      },
+      "second": {
+        "zero": "秒",
+        "one": "秒",
+        "two": "秒",
+        "other": "秒"
+      },
+      "item": {
+        "zero": "条目",
+        "one": "条目",
+        "two": "条目",
+        "other": "条目"
+      },
+      "schedule": {
+        "zero": "计划",
+        "one": "计划",
+        "two": "计划",
+        "other": "计划"
+      }
+    },
+    "dates": {
+      "before_yesterday": "前天之前",
+      "yesterday": "昨天",
+      "today": "今天",
+      "tomorrow": "明天",
+      "after_tomorrow": "后天之后"
+    },
+    "times": {
+      "now": "现在",
+      "in_the_morning": "早上",
+      "at_forenoon": "上午",
+      "at_noon": "中午",
+      "at_afternoon": "下午",
+      "in_the_evening": "晚上",
+      "at_night": "深夜"
+    },
+    "durations": {
+      "half_an_hour": "半小时",
+      "three_quarters_of_an_hour": "四十五分钟",
+      "an_hour": "一小时",
+      "one_and_a_half": "一个半小时"
+    },
+    "words": {
+      "on_for_dates": "在",
+      "at_for_times": "在",
+      "for_for_times": "为",
+      "in_for_times": "在",
+      "to_for_times": "至",
+      "ago_for_times": "{when} 前",
+      "and": "和",
+      "thereof": "其中",
+      "custom": "自定义",
+      "around": "大约",
+      "on_for_enabled": "开启",
+      "off_for_disabled": "关闭",
+      "clear": "清除",
+      "important": "重要",
+      "value": "值",
+      "unit": "单位",
+      "unknown": "未知",
+      "others": "其他",
+      "total": "总计"
+    }
+  },
+  
+  "model": {
+    "severity": {
+      "easy": "轻松",
+      "medium": "正常",
+      "hard": "困难"
+    },
+    "repetition_step": {
+      "daily": "每天",
+      "every_other_day": "每隔一天",
+      "weekly": "每周",
+      "every_other_week": "每两周",
+      "monthly": "每月",
+      "every_other_month": "每两个月",
+      "quarterly": "每季度",
+      "half_yearly": "每半年",
+      "yearly": "每年",
+      "every": "每"
+    },
+    "repetition_unit": {
+      "minutes": "分钟",
+      "hours": "小时",
+      "days": "天",
+      "weeks": "周",
+      "months": "月",
+      "years": "年"
+    },
+    "repetition_mode": {
+      "dynamic": "灵活",
+      "fixed": "固定",
+      "one_time": "一次性"
+    }
+  },
+  
+  "task_groups": {
+    "cleaning_n_tidy_up": {
+      "name": "清洁与整理",
+      "templates": {
+        "tidy_up": {
+          "title": "整理",
+          "variants": {
+            "tidy_up_kitchen": {
+              "title": "整理厨房"
+            },
+            "tidy_up_living_room": {
+              "title": "整理客厅"
+            }
+          }
+        },
+        "cleaning": {
+          "title": "清洁",
+          "variants": {
+            "cleaning_toilet": {
+              "title": "清洁厕所"
+            },
+            "cleaning_sink": {
+              "title": "清洁水槽"
+            },
+            "cleaning_shower_o_bathtub": {
+              "title": "清洁淋浴间/浴缸"
+            },
+            "cleaning_windows": {
+              "title": "清洁窗户"
+            },
+            "cleaning_fridge": {
+              "title": "清洁冰箱"
+            }
+          }
+        },
+        "hoovering": {
+          "title": "吸尘"
+        },
+        "wiping": {
+          "title": "擦拭"
+        },
+        "empty_bin": {
+          "title": "清空垃圾桶"
+        },
+        "dispose_wastepaper_n_used_glass": {
+          "title": "处理废纸和用过的玻璃制品"
+        }
+      }
+    },
+    "laundry": {
+      "name": "洗衣",
+      "templates": {
+        "fill_washing_machine": {
+          "title": "装填洗衣机"
+        },
+        "empty_washing_machine": {
+          "title": "清空洗衣机",
+          "description": "清空并晾晒衣物"
+        },
+        "get_from_laundry_rack": {
+          "title": "从晾衣架取下"
+        },
+        "put_to_closet": {
+          "title": "放入衣柜"
+        },
+        "ironing": {
+          "title": "熨烫"
+        },
+        "change_bed_linen": {
+          "title": "更换床单"
+        },
+        "change_towels": {
+          "title": "更换毛巾"
+        }
+      }
+    },
+    "cooking": {
+      "name": "烹饪",
+      "templates": {
+        "prepare_breakfast": {
+          "title": "准备早餐"
+        },
+        "cook_lunch": {
+          "title": "做午餐"
+        },
+        "prepare_dinner": {
+          "title": "准备晚餐"
+        }
+      }
+    },
+    "dishes": {
+      "name": "餐具",
+      "templates": {
+        "wash_up": {
+          "title": "洗碗",
+          "variants": {
+            "wash_up_after_dinner": {
+              "title": "晚餐后洗碗"
+            },
+            "wash_up_after_lunch": {
+              "title": "午餐后洗碗"
+            }
+          }
+        },
+        "dry_up": {
+          "title": "擦干"
+        },
+        "fill_n_start_dishwasher": {
+          "title": "装填并启动洗碗机"
+        },
+        "empty_dishwasher": {
+          "title": "清空洗碗机"
+        }
+      }
+    },
+    "errands": {
+      "name": "差事",
+      "templates": {
+        "shop_groceries": {
+          "title": "购买杂货"
+        },
+        "shop_diapers": {
+          "title": "购买尿布"
+        }
+      }
+    },
+    "kids": {
+      "name": "孩子",
+      "templates": {
+        "feeding": {
+          "title": "喂食"
+        },
+        "bring_to_daycare": {
+          "title": "送到托儿所"
+        },
+        "pickup_from_daycare": {
+          "title": "从托儿所接回"
+        },
+        "bring_to_bed": {
+          "title": "哄睡觉"
+        }
+      }
+    },
+    "indoor_plants": {
+      "name": "室内植物",
+      "templates": {
+        "water_plants": {
+          "title": "浇水"
+        },
+        "dung_plants": {
+          "title": "施肥"
+        }
+      }
+    },
+    "garden": {
+      "name": "花园",
+      "templates": {
+        "water_vegetable_patch": {
+          "title": "浇灌菜园"
+        },
+        "dig_vegetable_patch": {
+          "title": "翻耕菜园"
+        },
+        "cut_lawn": {
+          "title": "修剪草坪"
+        }
+      }
+    },
+    "maintenance": {
+      "name": "维护",
+      "templates": {
+        "defrost_fridge": {
+          "title": "解冻冰箱"
+        },
+        "fixing": {
+          "title": "修理"
+        }
+      }
+    },
+    "organization": {
+      "name": "组织",
+      "templates": {
+        "organize_vacation": {
+          "title": "安排假期"
+        },
+        "shop_gifts": {
+          "title": "挑选礼物"
+        }
+      }
+    },
+    "car": {
+      "name": "汽车",
+      "templates": {
+        "regular_inspection": {
+          "title": "定期检查"
+        },
+        "change_windshield_wipers": {
+          "title": "更换雨刷"
+        },
+        "change_tires": {
+          "title": "更换轮胎",
+          "description": "冬季/夏季轮胎"
+        }
+      }
+    },
+    "pets": {
+      "name": "宠物",
+      "templates": {
+        "go_for_a_walk": {
+          "title": "遛狗",
+          "description": "带狗散步"
+        },
+        "clean_aquarium_terrarium": {
+          "title": "清洁鱼缸/爬虫箱"
+        },
+        "go_to_vet": {
+          "title": "看兽医"
+        }
+      }
+    },
+    "finance": {
+      "name": "财务",
+      "templates": {
+        "pay_instalments": {
+          "title": "支付分期付款"
+        },
+        "pay_rent": {
+          "title": "支付房租"
+        }
+      }
+    },
+    "health": {
+      "name": "健康",
+      "templates": {
+        "take_medication": {
+          "title": "服药"
+        },
+        "regular_health_check_up": {
+          "title": "常规体检"
+        },
+        "yearly_dentist_examination": {
+          "title": "年度牙科检查"
+        }
+      }
+    },
+    "sport": {
+      "name": "运动",
+      "templates": {
+        "go_to_gym": {
+          "title": "去健身房"
+        },
+        "do_a_workout": {
+          "title": "锻炼"
+        }
+      }
+    },
+    "work": {
+      "name": "工作",
+      "templates": {
+        "submit_expenses": {
+          "title": "提交费用"
+        },
+        "negotiate_salary": {
+          "title": "协商薪资"
+        }
+      }
+    },
+    "private": {
+      "name": "私人事务",
+      "templates": {
+        "call_a_friend": {
+          "title": "打电话给朋友"
+        },
+        "visit_family": {
+          "title": "拜访家人"
+        }
+      }
+    },
+    "hygiene": {
+      "name": "卫生",
+      "templates": {
+        "brush_toots": {
+          "title": "刷牙"
+        },
+        "take_a_shower": {
+          "title": "洗澡"
+        },
+        "go_to_the_hairdresser": {
+          "title": "理发"
+        }
+      }
+    },
+    "voluntary": {
+      "name": "志愿活动",
+      "templates": {
+        "donate_blood": {
+          "title": "献血"
+        },
+        "support_others": {
+          "title": "帮助他人"
+        }
+      }
+    },
+    "others": {
+      "name": "其他"
+    },
+    "deleted": {
+      "name": ""
+    }
+  }
+}

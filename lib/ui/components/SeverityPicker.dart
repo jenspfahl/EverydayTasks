@@ -9,15 +9,17 @@ class SeverityPicker extends StatefulWidget {
   final double singleButtonWidth;
   final Severity? initialSeverity;
   final ValueChanged<Severity> onChanged;
+  final bool? isDisabled;
 
   const SeverityPicker({
     Key? key,
     required this.showText,
     required this.singleButtonWidth,
     this.initialSeverity, 
-    required this.onChanged,
+    required this.onChanged,this.isDisabled
   });
-  
+
+
   @override
   _SeverityPickerState createState() => _SeverityPickerState();
 
@@ -96,7 +98,7 @@ class _SeverityPickerState extends State<SeverityPicker> {
         ),
       ],
       isSelected: _severitySelection,
-      onPressed: (int index) {
+      onPressed: widget.isDisabled == true ? null : (int index) {
         FocusScope.of(context).unfocus();
         widget.onChanged(Severity.values.elementAt(index));
         setState(() {
