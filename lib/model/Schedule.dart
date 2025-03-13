@@ -55,27 +55,48 @@ class CustomRepetition {
   CustomRepetition(this.repetitionValue, this.repetitionUnit);
 
   DateTime getNextRepetitionFrom(DateTime from) {
-    var jiffy = Jiffy.parseFromDateTime(from);
-    switch(repetitionUnit) {
-      case RepetitionUnit.MINUTES: return jiffy.add(minutes: repetitionValue).dateTime;
-      case RepetitionUnit.HOURS: return jiffy.add(hours: repetitionValue).dateTime;
-      case RepetitionUnit.DAYS: return jiffy.add(days: repetitionValue).dateTime;
-      case RepetitionUnit.WEEKS: return jiffy.add(weeks: repetitionValue).dateTime;
-      case RepetitionUnit.MONTHS: return jiffy.add(months: repetitionValue).dateTime;
-      case RepetitionUnit.YEARS: return jiffy.add(years: repetitionValue).dateTime;
-    }
+    return _addOrSubtractFrom(from, true);
   }
 
   DateTime getPreviousRepetitionFrom(DateTime from) {
+    return _addOrSubtractFrom(from, false);
+  }
+
+  DateTime _addOrSubtractFrom(DateTime from, bool addElseSubtract) {
     var jiffy = Jiffy.parseFromDateTime(from);
-    switch(repetitionUnit) {
-      case RepetitionUnit.MINUTES: return jiffy.subtract(minutes: repetitionValue).dateTime;
-      case RepetitionUnit.HOURS: return jiffy.subtract(hours: repetitionValue).dateTime;
-      case RepetitionUnit.DAYS: return jiffy.subtract(days: repetitionValue).dateTime;
-      case RepetitionUnit.WEEKS: return jiffy.subtract(weeks: repetitionValue).dateTime;
-      case RepetitionUnit.MONTHS: return jiffy.subtract(months: repetitionValue).dateTime;
-      case RepetitionUnit.YEARS: return jiffy.subtract(years: repetitionValue).dateTime;
+
+    final duration = this.toDuration();
+
+    DateTime result;
+    if (addElseSubtract) {
+      result = jiffy.addDuration(duration).dateTime;
     }
+    else {
+      result = jiffy.subtractDuration(duration).dateTime;
+    }
+    final possibleDaylightSavingHourDelta = from.hour - result.hour;
+    if (possibleDaylightSavingHourDelta != 0) {
+      var savingAdjustmentHours = Duration(hours: possibleDaylightSavingHourDelta.abs());
+      if (possibleDaylightSavingHourDelta < 1) {
+        // From non-Daylight Saving to Daylight Saving (mostly in March)
+        if (addElseSubtract) {
+          return result.subtract(savingAdjustmentHours);
+        }
+        else {
+          return result.add(savingAdjustmentHours);
+        }
+      }
+      else if (possibleDaylightSavingHourDelta > 1) {
+        // From Daylight Saving to non-Daylight Saving (mostly in October)
+        if (addElseSubtract) {
+          return result.add(savingAdjustmentHours);
+        }
+        else {
+          return result.subtract(savingAdjustmentHours);
+        }
+      }
+    }
+    return result;
   }
 
   @override
@@ -191,33 +212,21 @@ class Schedule {
   }
 
   static DateTime addRepetitionStepToDateTime(DateTime from, RepetitionStep repetitionStep) {
-    switch(repetitionStep) {
-      case RepetitionStep.DAILY: return from.add(Duration(days: 1));
-      case RepetitionStep.EVERY_OTHER_DAY: return from.add(Duration(days: 2));
-      case RepetitionStep.WEEKLY: return from.add(Duration(days: 7));
-      case RepetitionStep.EVERY_OTHER_WEEK: return from.add(Duration(days: 14));
-      case RepetitionStep.MONTHLY: return Jiffy.parseFromDateTime(from).add(months: 1).dateTime;
-      case RepetitionStep.EVERY_OTHER_MONTH: return Jiffy.parseFromDateTime(from).add(months: 2).dateTime;
-      case RepetitionStep.QUARTERLY: return Jiffy.parseFromDateTime(from).add(months: 3).dateTime;
-      case RepetitionStep.HALF_YEARLY: return Jiffy.parseFromDateTime(from).add(months: 6).dateTime;
-      case RepetitionStep.YEARLY: return Jiffy.parseFromDateTime(from).add(years: 1).dateTime;
-      case RepetitionStep.CUSTOM: throw new Exception("custom repetition step not allowed here");
+    if (repetitionStep == RepetitionStep.CUSTOM) {
+      throw new Exception("custom repetition step not allowed here");
     }
+
+    var customRepetition = fromRepetitionStepToCustomRepetition(repetitionStep, null);
+    return customRepetition.getNextRepetitionFrom(from);
   }
 
   static DateTime subtractRepetitionStepToDateTime(DateTime from, RepetitionStep repetitionStep) {
-    switch(repetitionStep) {
-      case RepetitionStep.DAILY: return from.subtract(Duration(days: 1));
-      case RepetitionStep.EVERY_OTHER_DAY: return from.subtract(Duration(days: 2));
-      case RepetitionStep.WEEKLY: return from.subtract(Duration(days: 7));
-      case RepetitionStep.EVERY_OTHER_WEEK: return from.subtract(Duration(days: 14));
-      case RepetitionStep.MONTHLY: return Jiffy.parseFromDateTime(from).subtract(months: 1).dateTime;
-      case RepetitionStep.EVERY_OTHER_MONTH: return Jiffy.parseFromDateTime(from).subtract(months: 2).dateTime;
-      case RepetitionStep.QUARTERLY: return Jiffy.parseFromDateTime(from).subtract(months: 3).dateTime;
-      case RepetitionStep.HALF_YEARLY: return Jiffy.parseFromDateTime(from).subtract(months: 6).dateTime;
-      case RepetitionStep.YEARLY: return Jiffy.parseFromDateTime(from).subtract(years: 1).dateTime;
-      case RepetitionStep.CUSTOM: throw new Exception("custom repetition step not allowed here");
+    if (repetitionStep == RepetitionStep.CUSTOM) {
+      throw new Exception("custom repetition step not allowed here");
     }
+
+    var customRepetition = fromRepetitionStepToCustomRepetition(repetitionStep, null);
+    return customRepetition.getPreviousRepetitionFrom(from);
   }
 
   static String fromRepetitionStepToString(RepetitionStep repetitionStep) {
