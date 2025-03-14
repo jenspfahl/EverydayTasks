@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_translate/flutter_translate.dart';
@@ -313,6 +314,11 @@ String formatDuration(Duration duration, [bool? avoidNegativeDurationString, Cla
     else {
       durationText = minutes.toString();
     }
+  }
+  if (!kReleaseMode) {
+    var remainingHours = Hours(hours.value % 24, clause);
+    var remainingMinutes = Minutes(minutes.value % 60, clause);
+    return "$durationText + \n $remainingHours $remainingMinutes";
   }
   return durationText;
 }
