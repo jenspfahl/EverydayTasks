@@ -74,25 +74,28 @@ class CustomRepetition {
     else {
       result = jiffy.subtractDuration(duration).dateTime;
     }
-    final possibleDaylightSavingHourDelta = from.hour - result.hour;
-    if (possibleDaylightSavingHourDelta != 0) {
-      var savingAdjustmentHours = Duration(hours: possibleDaylightSavingHourDelta.abs());
-      if (possibleDaylightSavingHourDelta < 1) {
-        // From non-Daylight Saving to Daylight Saving (mostly in March)
-        if (addElseSubtract) {
-          return result.subtract(savingAdjustmentHours);
+    if (this.repetitionUnit != RepetitionUnit.HOURS && this.repetitionUnit != RepetitionUnit.MINUTES) {
+      final possibleDaylightSavingHourDelta = from.hour - result.hour;
+      if (possibleDaylightSavingHourDelta != 0) {
+        var savingAdjustmentHours = Duration(
+            hours: possibleDaylightSavingHourDelta.abs());
+        if (possibleDaylightSavingHourDelta < 1) {
+          // From non-Daylight Saving to Daylight Saving (mostly in March)
+          if (addElseSubtract) {
+            return result.subtract(savingAdjustmentHours);
+          }
+          else {
+            return result.add(savingAdjustmentHours);
+          }
         }
-        else {
-          return result.add(savingAdjustmentHours);
-        }
-      }
-      else if (possibleDaylightSavingHourDelta > 1) {
-        // From Daylight Saving to non-Daylight Saving (mostly in October)
-        if (addElseSubtract) {
-          return result.add(savingAdjustmentHours);
-        }
-        else {
-          return result.subtract(savingAdjustmentHours);
+        else if (possibleDaylightSavingHourDelta > 1) {
+          // From Daylight Saving to non-Daylight Saving (mostly in October)
+          if (addElseSubtract) {
+            return result.add(savingAdjustmentHours);
+          }
+          else {
+            return result.subtract(savingAdjustmentHours);
+          }
         }
       }
     }
