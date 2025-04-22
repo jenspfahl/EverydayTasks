@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
@@ -15,6 +16,11 @@ class PersonalTaskLoggerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQueryData = MediaQuery.of(context);
+    if (mediaQueryData.disableAnimations) {
+      timeDilation = 0.0001;
+    }
+
 
     var localizationDelegate = LocalizedApp.of(context).delegate;
     return AppBuilder(builder: (context) {
