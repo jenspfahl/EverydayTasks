@@ -75,7 +75,7 @@ class ScheduledTaskWidget extends StatefulWidget {
       if (template != null) {
         return TaskEventForm(
           formTitle: translate('forms.task_event.create.title_from_schedule'),
-          template: template,
+          template: template, description:  scheduledTask.translatedDescription
         );
       }
       else {

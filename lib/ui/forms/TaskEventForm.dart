@@ -125,7 +125,12 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
       }
 
       _titleController.text = _template!.translatedTitle;
-      _descriptionController.text = _template!.translatedDescription ?? "";
+      if (_description != null && _description.isNotEmpty) {
+        _descriptionController.text = _description;
+      }
+      else {
+        _descriptionController.text = _template!.translatedDescription ?? "";
+      }
 
       aroundDuration = _template!.when?.durationHours;
       duration = _template!.when?.durationExactly;
