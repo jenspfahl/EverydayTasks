@@ -19,7 +19,7 @@ version: 1.7.6+10706
 
 environment:
   sdk: ">=3.4.0"
-  flutter: 3.22.0
+  flutter: 3.32.8
 
 dependencies:
   flutter:
@@ -71,6 +71,7 @@ dev_dependencies:
 
 dependency_overrides:
   package_info_plus: ^4.0.1
+  intl: ^0.20.2
 
 flutter_icons:
   image_path: "icons/launcher_ptl.png"
