@@ -125,7 +125,7 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
                             onPressed: () async {
                               final iconData = await showIconPickerDialog(context, translate('forms.task_group.change_icon.message'));
                               if (iconData != null) {
-                                setState(() => _taskGroup!.iconData = iconData);
+                                setState(() => _taskGroup!.iconData = iconData.data);
                               }
                             },
                             icon: _taskGroup!.getIcon(false),

@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_iconpicker/Models/icon_picker_icon.dart';
 
 // copied from Material.dart and LineIcons.dart
 
@@ -28861,14 +28862,15 @@ Map<String, IconData> materialIcons = {
 
 bool _duplicatesRemoved = false;
 
-Map<String, IconData> getAllTaskGroupIcons() {
+Map<String, IconPickerIcon> getAllTaskGroupIcons() {
   if (!_duplicatesRemoved) {
     materialIcons.removeWhere((key, value) =>
         key.contains(RegExp("_outlined|_rounded|_filled|_sharp")));
     _duplicatesRemoved = true;
   }
+
   return {
-    ...lineAwesomeIcons,
-    ...materialIcons,
-  };
+    ...lineAwesomeIcons.map((k,v) => MapEntry(k, IconPickerIcon(name: k, data: v, pack: v.fontPackage??''))),
+    ...materialIcons.map((k,v) => MapEntry(k, IconPickerIcon(name: k, data: v, pack: v.fontPackage??'')))
+};
 }

@@ -16,7 +16,6 @@ Future<void> main() async {
   await LocalNotificationService().init();
   await TaskGroupRepository.loadAll(true); // load caches
   await PreferenceService().initWhenAtDayTimes();
-  await fillDayNumberCache();
 
 
   var delegate = await LocalizationDelegate.create(

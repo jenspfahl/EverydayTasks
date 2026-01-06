@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "de.jepfa.personaltasklogger"
-    compileSdkVersion 35
+    compileSdkVersion 36
 
 
     sourceSets {
@@ -34,7 +34,7 @@ android {
     defaultConfig {
         applicationId "de.jepfa.personaltasklogger"
         minSdkVersion 26
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -61,5 +61,5 @@ flutter {
 }
 
 dependencies {
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
