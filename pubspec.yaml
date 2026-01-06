@@ -103,3 +103,4 @@ flutter:
     - assets/i18n/ru.json
     - assets/i18n/es.json
     - assets/i18n/zh.json
+    - assets/i18n/pt.json
