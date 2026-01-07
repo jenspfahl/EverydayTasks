@@ -625,6 +625,7 @@
       "value": "值",
       "unit": "单位",
       "unknown": "未知",
+      "unspecified": "未设置",
       "others": "其他",
       "total": "总计"
     }

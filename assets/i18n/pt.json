@@ -632,6 +632,7 @@
       "value": "value",
       "unit": "unit",
       "unknown": "unknown",
+      "unspecified": "not set",
       "others": "others",
       "total": "total"
     }

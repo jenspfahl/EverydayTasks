@@ -679,6 +679,7 @@
       "value": "Wert",
       "unit": "Einheit",
       "unknown": "unbekannt",
+      "unspecified": "nicht angegeben",
       "others": "andere",
       "total": "insgesamt"
     }

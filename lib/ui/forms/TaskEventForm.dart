@@ -294,7 +294,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                             onChanged:  _isTrackingRunning() ? null : (value) {
                               _resetTracking();
                               if (value == AroundDurationHours.CUSTOM) {
-                                final initialDuration = _customDuration ?? (_selectedDurationHours != null ? When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration) : Duration(minutes: 1));
+                                final initialDuration = _customDuration ?? (_selectedDurationHours != null ? When.fromDurationHoursToDuration(_selectedDurationHours ?? AroundDurationHours.UNSPECIFIED, _customDuration) : Duration(minutes: 1));
                                 showDurationPickerDialog(
                                   context: context,
                                   initialDuration: initialDuration,
@@ -310,7 +310,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                               });
                             },
                             validator: (AroundDurationHours? value) {
-                              if (value == null || (value == AroundDurationHours.CUSTOM && _customDuration == null)) {
+                              if (value == AroundDurationHours.CUSTOM && _customDuration == null) {
                                 return translate('forms.task_event.duration_emphasis');
                               } else {
                                 return null;
@@ -519,7 +519,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                                 }
                                 if (_formKey.currentState!.validate()) {
 
-                                  final duration = When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration);
+                                  final duration = When.fromDurationHoursToDuration(_selectedDurationHours ?? AroundDurationHours.UNSPECIFIED, _customDuration);
 
                                   final startedAtTimeOfDay =
                                     When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt);
@@ -540,7 +540,7 @@ class _TaskEventFormState extends State<TaskEventForm> with AutomaticKeepAliveCl
                                     startedAt,
                                     _selectedWhenAtDay == AroundWhenAtDay.NOW ? AroundWhenAtDay.CUSTOM : _selectedWhenAtDay!,
                                     duration,
-                                    _selectedDurationHours!,
+                                    _selectedDurationHours ?? AroundDurationHours.UNSPECIFIED,
                                     _isTrackingPaused() ? _trackingPaused : null,
                                     _severity,
                                     _taskEvent?.favorite ?? false,
