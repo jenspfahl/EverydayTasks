@@ -163,57 +163,59 @@ class _TaskEventStatsState extends State<TaskEventStats> {
         .expand((e) => e.value.entries.map((e) => _getDataValue(e.value)))
         .fold(0.0, (double previous, current) => previous + current);
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          child: Row(
-            children: [
-              _createDataButton(),
-              Spacer(),
-              _createGroupByButton(),
-            ],
+    return SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Row(
+              children: [
+                _createDataButton(),
+                Spacer(),
+                _createGroupByButton(),
+              ],
+            ),
           ),
-        ),
-        AspectRatio(
-          aspectRatio: MediaQuery.of(context).orientation == Orientation.portrait ? 1.2 : 2.7,
-          child: Stack(
-            children: [
-              Visibility(
-                visible: _showIconInCircle(),
-                child: Center(
-                  child: _getTaskGroupIcon(_getTaskGroupFromFilter()),
+          AspectRatio(
+            aspectRatio: MediaQuery.of(context).orientation == Orientation.portrait ? 1.2 : 2.7,
+            child: Stack(
+              children: [
+                Visibility(
+                  visible: _showIconInCircle(),
+                  child: Center(
+                    child: _getTaskGroupIcon(_getTaskGroupFromFilter()),
+                  ),
                 ),
-              ),
-              PieChart(
-                PieChartData(
-                    pieTouchData: PieTouchData(
-                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                          setState(() {
-                            if (!event.isInterestedForInteractions ||
-                                pieTouchResponse == null ||
-                                pieTouchResponse.touchedSection == null) {
-                              _touchedIndex = -1;
-                              return;
-                            }
-                            _touchedIndex =
-                                pieTouchResponse.touchedSection!.touchedSectionIndex;
-                          });
-                        }),
-                    borderData: FlBorderData(
-                      show: false,
-                    ),
-                    sectionsSpace: 0.9,
-                    centerSpaceRadius: _groupBy == GroupBy.TEMPLATE ? 30 : 0,
-                    sections: _createSections(dataList, totalValue),
+                PieChart(
+                  PieChartData(
+                      pieTouchData: PieTouchData(
+                          touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                            setState(() {
+                              if (!event.isInterestedForInteractions ||
+                                  pieTouchResponse == null ||
+                                  pieTouchResponse.touchedSection == null) {
+                                _touchedIndex = -1;
+                                return;
+                              }
+                              _touchedIndex =
+                                  pieTouchResponse.touchedSection!.touchedSectionIndex;
+                            });
+                          }),
+                      borderData: FlBorderData(
+                        show: false,
+                      ),
+                      sectionsSpace: 0.9,
+                      centerSpaceRadius: _groupBy == GroupBy.TEMPLATE ? 30 : 0,
+                      sections: _createSections(dataList, totalValue),
+                  ),
+                  swapAnimationDuration: Duration(milliseconds: 75),
                 ),
-                swapAnimationDuration: Duration(milliseconds: 75),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        _buildLegend(dataList, totalValue),
-      ],
+          _buildLegend(dataList, totalValue),
+        ],
+      ),
     );
   }
 
