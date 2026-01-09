@@ -1,0 +1,5 @@
+* support unspecified durations for journal events
+* allow to complete scheduled tasks directly from the notifications
+* option to create a schedule from the task view
+* add portuguese language
+* small bug fixes
