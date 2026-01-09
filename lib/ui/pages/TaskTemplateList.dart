@@ -823,6 +823,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                           selectedTaskTemplate
                       );
                       _removeTemplate(template!);
+                      _expandNode(selectedTaskTemplate.getKey(), true);
 
                       toastInfo(context, translate('pages.tasks.action.move_task_down.success',
                           args: {"title" : newVariant.translatedTitle}));
