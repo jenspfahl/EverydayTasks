@@ -243,6 +243,7 @@
           "message_fixed_task": "В {when} наступит срок запланированной фиксированной задачи '{title}'."
         },
         "action_track": "Записать или отследить",
+        "action_done": "Сделано",
         "action_snooze": "Напомнить в {when}"
       },
       "action": {

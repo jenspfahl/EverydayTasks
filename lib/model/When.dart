@@ -140,6 +140,7 @@ class When {
       case AroundWhenAtDay.CUSTOM: return customWhenAt!;
     }
   }
+
   static String fromWhenAtDayToWord(AroundWhenAtDay whenAtDay) {
     switch(whenAtDay) {
       case AroundWhenAtDay.NOW: return translate('common.times.now');

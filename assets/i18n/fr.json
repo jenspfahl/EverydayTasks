@@ -244,6 +244,7 @@
           "message_fixed_task": "Scheduled fixed task '{title}' is due in {when}."
         },
         "action_track": "Journal ou suivi",
+        "action_done": "C'est fait",
         "action_snooze": "Rappel dans {when}"
       },
       "action": {

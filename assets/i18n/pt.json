@@ -245,6 +245,7 @@
           "message_fixed_task": "A tarefa fixa programada '{title}' vence em {when}."
         },
         "action_track": "Registrar ou rastrear",
+        "action_done": "Está feito",
         "action_snooze": "Lembrar em {when}"
       },
       "action": {

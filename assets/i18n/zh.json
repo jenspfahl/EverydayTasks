@@ -243,6 +243,7 @@
           "message_fixed_task": "固定计划任务 '{title}' 将在 {when} 到期。"
         },
         "action_track": "记录或跟踪",
+        "action_done": "已完成",
         "action_snooze": "在 {when} 提醒我"
       },
       "action": {

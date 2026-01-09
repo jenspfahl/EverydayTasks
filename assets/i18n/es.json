@@ -243,6 +243,7 @@
           "message_fixed_task": "La tarea fija programada '{title}' vence en {when}."
         },
         "action_track": "Registrar o supervisar",
+        "action_done": "Está hecho",
         "action_snooze": "Recordatorio en {when}"
       },
       "action": {

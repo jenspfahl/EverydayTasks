@@ -243,6 +243,7 @@
           "message_fixed_task": "Scheduled fixed task '{title}' is due in {when}."
         },
         "action_track": "Log or track",
+        "action_done": "It's done",
         "action_snooze": "Remind in {when}"
       },
       "action": {

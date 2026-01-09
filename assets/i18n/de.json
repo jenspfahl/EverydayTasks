@@ -243,6 +243,7 @@
           "message_fixed_task": "Geplante feste Aufgabe '{title}' ist in {when} fällig!"
         },
         "action_track": "Erfassen",
+        "action_done": "Ist erledigt",
         "action_snooze": "In {when} erinnern"
       },
       "action": {
