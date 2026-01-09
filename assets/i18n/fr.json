@@ -363,7 +363,9 @@
           "message_custom": "Cela va supprimer la catégorie '{name}'. Cette action est irréversible. ",
           "message_predefined": "Cela va uniquement cacher la catégorie '{name}'. Vous pourrez la restaurer en cliquant sur l'icône de restauration. ",
           "success": "La catégorie '{name}' a été supprimée"
-        }
+        },
+        "create_new_schedule_for_task": "Planifier cette tâche",
+        "create_new_schedule_for_variant": "Planifier cette sous-tâche"
       }
     },
     "calendar": {

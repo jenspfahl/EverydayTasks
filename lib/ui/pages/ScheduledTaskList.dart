@@ -884,39 +884,43 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             selectedTemplateItem = selectedItem;
           });
         },
-        okPressed: () async {
+        okPressed: () {
             if (selectedTemplateItem == null) {
               return;
             }
             Navigator.pop(context);
-            ScheduledTask? newScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return ScheduledTaskForm(
-                formTitle: translate('forms.schedule.create.title'),
-                taskGroup: selectedTemplateItem is Template
-                  ? TaskGroupRepository.findByIdFromCache((selectedTemplateItem as Template).taskGroupId)
-                  : selectedTemplateItem as TaskGroup,
-                template: selectedTemplateItem is Template
-                  ? selectedTemplateItem as Template
-                  : null,
-              );
-            }));
-
-            if (newScheduledTask != null) {
-              ScheduledTaskRepository.insert(newScheduledTask).then((newScheduledTask) {
-
-                toastInfo(context, translate('forms.schedule.create.success',
-                  args: {"title": newScheduledTask.translatedTitle}));
-
-                _addScheduledTask(newScheduledTask);
-
-                DueScheduleCountService().gather();
-              });
-            }
+            openNewScheduledTaskForm(selectedTemplateItem);
         },
         cancelPressed: () {
           Navigator.pop(super.context);
         });
 
+  }
+
+  Future<void> openNewScheduledTaskForm(Object? selectedTemplateItem) async {
+    ScheduledTask? newScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return ScheduledTaskForm(
+        formTitle: translate('forms.schedule.create.title'),
+        taskGroup: selectedTemplateItem is Template
+          ? TaskGroupRepository.findByIdFromCache((selectedTemplateItem).taskGroupId)
+          : selectedTemplateItem as TaskGroup,
+        template: selectedTemplateItem is Template
+          ? selectedTemplateItem
+          : null,
+      );
+    }));
+    
+    if (newScheduledTask != null) {
+      ScheduledTaskRepository.insert(newScheduledTask).then((newScheduledTask) {
+    
+        toastInfo(context, translate('forms.schedule.create.success',
+          args: {"title": newScheduledTask.translatedTitle}));
+    
+        _addScheduledTask(newScheduledTask);
+    
+        DueScheduleCountService().gather();
+      });
+    }
   }
 
   @override

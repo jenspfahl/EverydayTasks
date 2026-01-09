@@ -362,7 +362,9 @@
           "message_custom": "这将移除当前的类别 '{name}'。这不可撤销！",
           "message_predefined": "这将通过隐藏当前类别 '{name}' 来移除它。你可以通过点击恢复操作图标来恢复它。",
           "success": "类别 '{name}' 已被移除"
-        }
+        },
+        "create_new_schedule_for_task": "安排此任务",
+        "create_new_schedule_for_variant": "安排此变体"
       }
     },
     "calendar": {

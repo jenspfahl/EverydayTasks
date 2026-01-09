@@ -362,7 +362,9 @@
           "message_custom": "This will remove the current category '{name}'. This cannot be underdone!",
           "message_predefined": "This will remove the current category '{name}' by hiding it. You can restore it by clicking on the restore action icon.",
           "success": "The category '{name}' has been removed"
-        }
+        },
+        "create_new_schedule_for_task": "Schedule this task",
+        "create_new_schedule_for_variant": "Schedule this variant"
       }
     },
     "calendar": {

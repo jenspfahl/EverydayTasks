@@ -364,7 +364,9 @@
           "message_custom": "Isso removerá a categoria atual '{name}'. Esta ação não pode ser desfeita!",
           "message_predefined": "Isso ocultará a categoria atual '{name}'. Você pode restaurá‑la clicando no ícone de ação de restauração.",
           "success": "A categoria '{name}' foi removida"
-        }
+        },
+        "create_new_schedule_for_task": "Agendar esta tarefa",
+        "create_new_schedule_for_variant": "Agendar esta variante"
       }
     },
 

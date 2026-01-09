@@ -362,7 +362,9 @@
           "message_custom": "Esto eliminará la categoría actual '{name}'. Esto no se puede deshacer!",
           "message_predefined": "Esto ocultará la categoría actual '{name}'. Usted puede restaurarla clickeando en el ícono de Restaurar.",
           "success": "La categoría '{name}' ha sido removida"
-        }
+        },
+        "create_new_schedule_for_task": "Programar esta tarea",
+        "create_new_schedule_for_variant": "Programar esta variante"
       }
     },
     "calendar": {

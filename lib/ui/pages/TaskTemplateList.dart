@@ -486,13 +486,14 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
     TaskGroup? taskGroup;
     Template? template;
     late String message;
-    Widget? createAction;
+    Widget? createAction1;
+    Widget? createAction2;
     Widget? moveAction;
     Widget? changeAction;
     Widget? deleteAction;
     if (selectedItem == null) {
       message = translate('pages.tasks.action.description_nothing_selected');
-      createAction = ElevatedButton(
+      createAction1 = ElevatedButton(
         child: Text(translate('pages.tasks.action.create_task_group.title')),
         onPressed: () async {
           Navigator.pop(context);
@@ -521,7 +522,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       taskGroup = selectedItem;
       message = translate('pages.tasks.action.description_group',
           args: {"groupName" : taskGroup.translatedName});
-      createAction = ElevatedButton(
+      createAction1 = ElevatedButton(
         child: Text(translate('pages.tasks.action.add_task.title')),
         onPressed: () async {
           Navigator.pop(context);
@@ -584,7 +585,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       if (template.isVariant()) {
         message = translate('pages.tasks.action.description_variant',
             args: {"title" : template.translatedTitle});
-        createAction = ElevatedButton(
+        createAction1 = ElevatedButton(
           child: Text(translate('pages.tasks.action.clone_variant.title')),
           onPressed: () async {
             Navigator.pop(context);
@@ -615,6 +616,14 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
                 });
               });
             }
+          },
+        );
+        createAction2 = OutlinedButton(
+          child: Text(translate('pages.tasks.action.create_new_schedule_for_variant')),
+          onPressed: () {
+            Navigator.pop(super.context);
+            widget._pagesHolder?.scheduledTaskList?.getGlobalKey()
+                .currentState?.openNewScheduledTaskForm(template ?? taskGroup);
           },
         );
 
@@ -705,7 +714,7 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
       else {
         message = translate('pages.tasks.action.description_task',
             args: {"title" : template.translatedTitle});
-        createAction = ElevatedButton(
+        createAction1 = ElevatedButton(
           child: Text(translate('pages.tasks.action.add_variant.title')),
           onPressed: () async {
             Navigator.pop(context);
@@ -733,7 +742,14 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
             }
           },
         );
-
+        createAction2 = OutlinedButton(
+          child: Text(translate('pages.tasks.action.create_new_schedule_for_task')),
+          onPressed: () {
+            Navigator.pop(super.context);
+            widget._pagesHolder?.scheduledTaskList?.getGlobalKey()
+                .currentState?.openNewScheduledTaskForm(template ?? taskGroup);
+          },
+        );
         moveAction = TextButton(
           child: const Icon(Icons.move_down),
           onPressed: () async {
@@ -886,23 +902,25 @@ class TaskTemplateListState extends PageScaffoldState<TaskTemplateList> with Aut
               child: Text(message),
             ),
           ];
-          if (createAction != null) sheetChildren.add(createAction);
+          if (createAction1 != null) sheetChildren.add(createAction1);
+          if (createAction2 != null) sheetChildren.add(createAction2);
           if (moveAction != null) buttonBarChildren.add(moveAction);
           if (changeAction != null) buttonBarChildren.add(changeAction);
           if (deleteAction != null) buttonBarChildren.add(deleteAction);
           sheetChildren.add(ButtonBar(
 
             alignment: MainAxisAlignment.center,
-        //    buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
             children: buttonBarChildren,
           ));
-          return Container(
-            height: 200,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: sheetChildren,
+          return SafeArea(
+            child: Container(
+              height: createAction2 != null ? 250 : 200,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: sheetChildren,
+                ),
               ),
             ),
           );
