@@ -205,7 +205,6 @@ class LocalNotificationService {
         zonedTime,
         NotificationDetails(android: _createNotificationDetails(color, channelId, false, actions, withTranslation)),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         payload: receiverKey + "-" + id.toString() + RESCHEDULE_JSON_START_MARKER + parametersAsJson);
   }
 
