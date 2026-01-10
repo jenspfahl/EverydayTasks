@@ -244,6 +244,7 @@
           "message_fixed_task": "Scheduled fixed task '{title}' is due in {when}."
         },
         "action_track": "Journal ou suivi",
+        "action_done": "C'est fait",
         "action_snooze": "Rappel dans {when}"
       },
       "action": {
@@ -362,7 +363,9 @@
           "message_custom": "Cela va supprimer la catégorie '{name}'. Cette action est irréversible. ",
           "message_predefined": "Cela va uniquement cacher la catégorie '{name}'. Vous pourrez la restaurer en cliquant sur l'icône de restauration. ",
           "success": "La catégorie '{name}' a été supprimée"
-        }
+        },
+        "create_new_schedule_for_task": "Planifier cette tâche",
+        "create_new_schedule_for_variant": "Planifier cette sous-tâche"
       }
     },
     "calendar": {
@@ -383,7 +386,8 @@
               "breton": "Brezhoneg",
               "russian": "Русский",
               "spain": "Español",
-              "chinese": "中国人"
+              "chinese": "中国人",
+              "portuguese": "Português"
             }
           },
           "language_not_supported": "La langue '{languageCode}' n'est pas supportée"
@@ -625,6 +629,7 @@
       "value": "valeur",
       "unit": "unité",
       "unknown": "inconnu",
+      "unspecified": "indéterminé",
       "others": "autres",
       "total": "total"
     }

@@ -5,7 +5,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
+import 'package:personaltasklogger/model/ScheduledTask.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -15,9 +17,13 @@ const CHANNEL_ID_SCHEDULES = 'de.jepfa.ptl.notifications.schedules';
 const CHANNEL_ID_TRACKING = 'de.jepfa.ptl.notifications.tracking';
 
 
-
 const FIXED_SCHEDULE_NOTIFICATION_OFFSET =   1000000;
 const SNOOZED_NOTIFICATION_ID_OFFSET     = 100000000;
+
+
+enum LocalNotificationAction {
+  track, snooze, done
+}
 
 // stolen from https://github.com/iloveteajay/flutter_local_notification/https://github.com/iloveteajay/flutter_local_notification/
 
@@ -57,57 +63,63 @@ class LocalNotificationService {
   @pragma('vm:entry-point')
   static Future<void> handleNotificationResponseInBackground(NotificationResponse response) async {
     debugPrint('bg action pressed: ${response.actionId} p=${response.payload}');
-    if (response.actionId == "snooze") {
+    if (response.actionId == LocalNotificationAction.snooze.name) {
       final payload = response.payload;
       if (payload != null) {
-        final firstIndex = payload.indexOf(RESCHEDULE_JSON_START_MARKER);
-        if (firstIndex != -1) {
-          final parametersAsString = payload.substring(firstIndex + 4);
-          debugPrint("extracted params=$parametersAsString");
-          Map<String, dynamic> parameters = jsonDecode(parametersAsString);
-
-          List<dynamic>? actionsStrings = parameters['actions'];
-          List<AndroidNotificationAction>? actions = actionsStrings != null
-              ? actionsStrings
-              .map((s) => s.split("-"))
-              .map((splitted) => AndroidNotificationAction(splitted[0], splitted[2], showsUserInterface: splitted[1]=="true"))
-              .toList()
-              : null;
-
-          final notificationService = LocalNotificationService();
-          int id = parameters['id'];
-
-          var snoozePeriodValue = 1;
-          var snoozePeriodUnit = RepetitionUnit.HOURS;
-          if (parameters['snooze_period_value'] != null) {
-            snoozePeriodValue = parameters['snooze_period_value'];
-          }
-          if (parameters['snooze_period_unit'] != null) {
-            snoozePeriodUnit = RepetitionUnit.values.elementAt(parameters['snooze_period_unit']);
-          }
-          CustomRepetition snooze = CustomRepetition(snoozePeriodValue, snoozePeriodUnit);
-
-          // hack to move the id out of ScheduledTaskId range to not overwrite them
-          int newId = id < SNOOZED_NOTIFICATION_ID_OFFSET ? SNOOZED_NOTIFICATION_ID_OFFSET + id : id;
-
-          await notificationService.init();
-          notificationService.scheduleNotification(
-              parameters['receiverKey'],
-              newId,
-              parameters['title'],
-              parameters['message'],
-              snooze.toDuration(),
-              parameters['channelId'],
-              parameters['color'] != null ? Color(parameters['color']): null,
-              actions,
-              false,
-              snooze,
-          );
-        }
+        await _snoozeNotification(payload);
       }
       else {
         debugPrint("cannot reschedule notification");
       }
+    }
+  }
+
+
+
+  static Future<void> _snoozeNotification(String payload) async {
+    final firstIndex = payload.indexOf(RESCHEDULE_JSON_START_MARKER);
+    if (firstIndex != -1) {
+      final parametersAsString = payload.substring(firstIndex + 4);
+      debugPrint("extracted params=$parametersAsString");
+      Map<String, dynamic> parameters = jsonDecode(parametersAsString);
+  
+      List<dynamic>? actionsStrings = parameters['actions'];
+      List<AndroidNotificationAction>? actions = actionsStrings != null
+          ? actionsStrings
+          .map((s) => s.split("-"))
+          .map((splitted) => AndroidNotificationAction(splitted[0], splitted[2], showsUserInterface: splitted[1]=="true"))
+          .toList()
+          : null;
+  
+      final notificationService = LocalNotificationService();
+      int id = parameters['id'];
+  
+      var snoozePeriodValue = 1;
+      var snoozePeriodUnit = RepetitionUnit.HOURS;
+      if (parameters['snooze_period_value'] != null) {
+        snoozePeriodValue = parameters['snooze_period_value'];
+      }
+      if (parameters['snooze_period_unit'] != null) {
+        snoozePeriodUnit = RepetitionUnit.values.elementAt(parameters['snooze_period_unit']);
+      }
+      CustomRepetition snooze = CustomRepetition(snoozePeriodValue, snoozePeriodUnit);
+  
+      // hack to move the id out of ScheduledTaskId range to not overwrite them
+      int newId = id < SNOOZED_NOTIFICATION_ID_OFFSET ? SNOOZED_NOTIFICATION_ID_OFFSET + id : id;
+  
+      await notificationService.init();
+      notificationService.scheduleNotification(
+          parameters['receiverKey'],
+          newId,
+          parameters['title'],
+          parameters['message'],
+          snooze.toDuration(),
+          parameters['channelId'],
+          parameters['color'] != null ? Color(parameters['color']): null,
+          actions,
+          false,
+          snooze,
+      );
     }
   }
 
@@ -120,7 +132,7 @@ class LocalNotificationService {
 
     tz.initializeTimeZones();
     try {
-      final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
+      final String currentTimeZone = (await FlutterTimezone.getLocalTimezone()).identifier;
       debugPrint("currentTimeZone=$currentTimeZone");
       tz.setLocalLocation(tz.getLocation(currentTimeZone));
     } catch (e) {
@@ -193,7 +205,6 @@ class LocalNotificationService {
         zonedTime,
         NotificationDetails(android: _createNotificationDetails(color, channelId, false, actions, withTranslation)),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         payload: receiverKey + "-" + id.toString() + RESCHEDULE_JSON_START_MARKER + parametersAsJson);
   }
 

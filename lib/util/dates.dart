@@ -2,60 +2,15 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:ordinal_formatter/ordinal_formatter.dart';
-import 'package:personaltasklogger/main.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/When.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
 import 'package:personaltasklogger/util/units.dart';
 
 import 'i18n.dart';
-
-
-final DAY_OF_MONTH_NUMBERS = HashMap<String, Map<int, String>>(); // language, then day of month --> ordinal day
-
-Future<void> fillDayNumberCache() async {
-  final it = SUPPORTED_LANGUAGES.iterator;
-  while (it.moveNext()) {
-    final language = it.current;
-    final langMap = HashMap<int, String>();
-
-    for (int i = 0; i <= 31; i++) {
-      final ordinal = await _getOrdinalDayFor(i, language);
-      //debugPrint("DAYCACHE: $language $i --> $ordinal");
-      langMap[i] = ordinal;
-      DAY_OF_MONTH_NUMBERS[language] = langMap;
-    }
-  }
-
-}
-
-Future<String> _getOrdinalDayFor(int i, String language) async {
-  String ordinalNumber;
-  try {
-    ordinalNumber = await OrdinalFormatter().format(i, language) ?? '$i';
-  } on PlatformException catch (e) {
-    ordinalNumber = '$i';
-  }
-  return ordinalNumber;
-}
-
-String getOrdinalDayOf(String language, int day) {
-  final langMap = DAY_OF_MONTH_NUMBERS[language];
-  if (langMap == null) {
-    //debugPrint("DAYCACHE: GET OF $language not found");
-    return day.toString();
-  }
-  final lang = langMap[day];
-  //debugPrint("DAYCACHE: GET OF $day in $langMap");
-
-  return lang ?? day.toString();
-}
-
 
 DateTime fillToWholeDate(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day, 23, 59, 59, 9999);
@@ -122,9 +77,8 @@ String formatAllYearDate(AllYearDate allYearDate, BuildContext context) {
 
 // day: 0..6
 String getDayOfMonth(int day, BuildContext context) {
-  final language = currentLocale(context).languageCode.toString();
-  //debugPrint("DAYCACHE GET: $language $day");
-  return getOrdinalDayOf(language, day);
+  return "${translate("common.units.day.one")} $day";
+
 }
 
 // day: 0..6

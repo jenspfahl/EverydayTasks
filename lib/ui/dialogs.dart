@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_iconpicker/Models/configuration.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/Severity.dart';
@@ -22,21 +23,22 @@ import 'taskGroupIcons.dart';
 
 final int MAX_DAYS = 7300; // around 20 years
 
-Future<IconData?> showIconPickerDialog(BuildContext context, String title) {
+Future<IconPickerIcon?> showIconPickerDialog(BuildContext context, String title) {
 
   return showIconPicker(context,
-      iconSize: 32.0,
-      title: Text(title),
-      iconColor: BUTTON_COLOR,
-      searchHintText: "${translate('common.search')} ...",
- //     noResultsText: "Not found",
-      closeChild: TextButton(
-        child: Text(translate("common.cancel")),
-        onPressed:  () => Navigator.of(context).pop(),
-      ),
-      showTooltips: true,
-      customIconPack: getAllTaskGroupIcons(),
-      iconPackModes: [IconPack.custom],
+      configuration: new SinglePickerConfiguration(
+        iconSize: 32.0,
+        title: Text(title),
+        iconColor: BUTTON_COLOR,
+        searchHintText: "${translate('common.search')} ...",
+   //     noResultsText: "Not found",
+        closeChild: TextButton(
+          child: Text(translate("common.cancel")),
+          onPressed:  () => Navigator.of(context).pop(),
+        ),
+        showTooltips: true,
+        customIconPack: getAllTaskGroupIcons(),
+        iconPackModes: [IconPack.custom])
   );
 }
 

@@ -243,6 +243,7 @@
           "message_fixed_task": "固定计划任务 '{title}' 将在 {when} 到期。"
         },
         "action_track": "记录或跟踪",
+        "action_done": "已完成",
         "action_snooze": "在 {when} 提醒我"
       },
       "action": {
@@ -361,7 +362,9 @@
           "message_custom": "这将移除当前的类别 '{name}'。这不可撤销！",
           "message_predefined": "这将通过隐藏当前类别 '{name}' 来移除它。你可以通过点击恢复操作图标来恢复它。",
           "success": "类别 '{name}' 已被移除"
-        }
+        },
+        "create_new_schedule_for_task": "安排此任务",
+        "create_new_schedule_for_variant": "安排此变体"
       }
     },
     "calendar": {
@@ -382,7 +385,8 @@
               "breton": "Brezhoneg",
               "russian": "Русский",
               "spain": "Español",
-              "chinese": "中国人"
+              "chinese": "中国人",
+              "portuguese": "Português"
             }
           },
           "language_not_supported": "'{languageCode}' 不支持"
@@ -624,6 +628,7 @@
       "value": "值",
       "unit": "单位",
       "unknown": "未知",
+      "unspecified": "未设置",
       "others": "其他",
       "total": "总计"
     }

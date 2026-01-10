@@ -8,7 +8,7 @@ import 'package:personaltasklogger/util/dates.dart';
 import 'ui/PersonalTaskLoggerApp.dart';
 
 const String APP_NAME = "Everyday Tasks";
-const SUPPORTED_LANGUAGES = ['en', 'de', 'fr', 'ru', 'es', 'zh'];
+const SUPPORTED_LANGUAGES = ['en', 'de', 'fr', 'ru', 'es', 'zh', 'pt'];
 
 
 Future<void> main() async {
@@ -16,7 +16,6 @@ Future<void> main() async {
   await LocalNotificationService().init();
   await TaskGroupRepository.loadAll(true); // load caches
   await PreferenceService().initWhenAtDayTimes();
-  await fillDayNumberCache();
 
 
   var delegate = await LocalizationDelegate.create(

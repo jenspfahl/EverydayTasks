@@ -206,266 +206,289 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
             appBar: AppBar(
               title: Text(widget.formTitle),
             ),
-            body: SingleChildScrollView(
-              child: Container(
-                child: Builder(
-                  builder: (scaffoldContext) {
-                    final dueOnFixedScheduleWidget = buildDueOnWidget(context);
-                    Widget dueOnWidget;
-                    if (dueOnFixedScheduleWidget != null) {
-                      dueOnWidget = Column(
-                        children: [
-                          Container(
-                            height: 64.0,
-                            width: (MediaQuery
-                                .of(context)
-                                .size
-                                .width / 1) - 35,
-                            child: _buildDueOnDayDropDown(context),
-                          ),
-                          Container(
-                            height: 64.0,
-                            width: (MediaQuery
-                                .of(context)
-                                .size
-                                .width / 1) - 35,
-                            child: dueOnFixedScheduleWidget,
-                          ),
-                        ],
-                      );
-                    }
-                    else {
-                      dueOnWidget = Container(
-                        height: 64.0,
-                        width: (MediaQuery
-                            .of(context)
-                            .size
-                            .width / 1) - 35,
-                        child: _buildDueOnDayDropDown(context),
-                      );
-                    }
-
-                    return Form(
-                    key: _formKey,
-                    child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          TextFormField(
-                            controller: titleController,
-                            decoration: InputDecoration(
-                              hintText: translate('forms.schedule.title_hint'),
-                              icon: const Icon(Icons.next_plan_outlined),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: Container(
+                  child: Builder(
+                    builder: (scaffoldContext) {
+                      final dueOnFixedScheduleWidget = buildDueOnWidget(context);
+                      Widget dueOnWidget;
+                      if (dueOnFixedScheduleWidget != null) {
+                        dueOnWidget = Column(
+                          children: [
+                            Container(
+                              height: 64.0,
+                              width: (MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width / 1) - 35,
+                              child: _buildDueOnDayDropDown(context),
                             ),
-                            maxLength: 50,
-                            keyboardType: TextInputType.text,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return translate('forms.common.title_emphasis');
-                              }
-                              return null;
-                            },
-                          ),
-                          TextFormField(
-                            controller: descriptionController,
-                            decoration: InputDecoration(
-                              hintText: translate('forms.common.description_hint'),
-                              icon: Icon(Icons.info_outline),
+                            Container(
+                              height: 64.0,
+                              width: (MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width / 1) - 35,
+                              child: dueOnFixedScheduleWidget,
                             ),
-                            maxLength: 500,
-                            keyboardType: TextInputType.text,
-                            maxLines: 1,
-                          ),
-                          DropdownButtonFormField<Object?>(
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                              Navigator.pop(context);
-
-                              Object? selectedTemplateItem;
-
-                              showTemplateDialog(context,
-                                  translate('pages.schedules.action.addition.title'),
-                                  translate('pages.schedules.action.addition.message'),
-                                  initialSelectedKey: currentTemplate?.getKey() ?? _taskGroup.getKey(),
-                                  selectedItem: (selectedItem) {
-                                    setState(() {
-                                      selectedTemplateItem = selectedItem;
-                                    });
-                                  },
-                                  okPressed: () async {
-                                    Navigator.pop(context);
-                                    if (selectedTemplateItem == null) {
-                                      return;
-                                    }
-                                    else {
+                          ],
+                        );
+                      }
+                      else {
+                        dueOnWidget = Container(
+                          height: 64.0,
+                          width: (MediaQuery
+                              .of(context)
+                              .size
+                              .width / 1) - 35,
+                          child: _buildDueOnDayDropDown(context),
+                        );
+                      }
+              
+                      return Form(
+                      key: _formKey,
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            TextFormField(
+                              controller: titleController,
+                              decoration: InputDecoration(
+                                hintText: translate('forms.schedule.title_hint'),
+                                icon: const Icon(Icons.next_plan_outlined),
+                              ),
+                              maxLength: 50,
+                              keyboardType: TextInputType.text,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return translate('forms.common.title_emphasis');
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: descriptionController,
+                              decoration: InputDecoration(
+                                hintText: translate('forms.common.description_hint'),
+                                icon: Icon(Icons.info_outline),
+                              ),
+                              maxLength: 500,
+                              keyboardType: TextInputType.text,
+                              maxLines: 1,
+                            ),
+                            DropdownButtonFormField<Object?>(
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
+                                Navigator.pop(context);
+              
+                                Object? selectedTemplateItem;
+              
+                                showTemplateDialog(context,
+                                    translate('pages.schedules.action.addition.title'),
+                                    translate('pages.schedules.action.addition.message'),
+                                    initialSelectedKey: currentTemplate?.getKey() ?? _taskGroup.getKey(),
+                                    selectedItem: (selectedItem) {
                                       setState(() {
-                                        if (selectedTemplateItem is TaskGroup) {
-                                          var selectedTaskGroup = (selectedTemplateItem as TaskGroup);
-                                          _taskGroup = selectedTaskGroup;
-                                          _template = null;
-                                          _scheduledTask?.taskGroupId = selectedTaskGroup.id!;
-                                          _scheduledTask?.templateId = null;
-                                        }
-                                        else if (selectedTemplateItem is Template) {
-                                          var selectedTemplate = (selectedTemplateItem as Template);
-                                          _template = selectedTemplate;
-                                          _taskGroup = TaskGroupRepository.findByIdFromCache(selectedTemplate.taskGroupId);
-                                          _scheduledTask?.taskGroupId = selectedTemplate.taskGroupId;
-                                          _scheduledTask?.templateId = selectedTemplate.tId;
+                                        selectedTemplateItem = selectedItem;
+                                      });
+                                    },
+                                    okPressed: () async {
+                                      Navigator.pop(context);
+                                      if (selectedTemplateItem == null) {
+                                        return;
+                                      }
+                                      else {
+                                        setState(() {
+                                          if (selectedTemplateItem is TaskGroup) {
+                                            var selectedTaskGroup = (selectedTemplateItem as TaskGroup);
+                                            _taskGroup = selectedTaskGroup;
+                                            _template = null;
+                                            _scheduledTask?.taskGroupId = selectedTaskGroup.id!;
+                                            _scheduledTask?.templateId = null;
+                                          }
+                                          else if (selectedTemplateItem is Template) {
+                                            var selectedTemplate = (selectedTemplateItem as Template);
+                                            _template = selectedTemplate;
+                                            _taskGroup = TaskGroupRepository.findByIdFromCache(selectedTemplate.taskGroupId);
+                                            _scheduledTask?.taskGroupId = selectedTemplate.taskGroupId;
+                                            _scheduledTask?.templateId = selectedTemplate.tId;
+                                          }
+                                        });
+                                      }
+                                    },
+                                    cancelPressed: () {
+                                      Navigator.pop(super.context);
+                                    });
+              
+                              },
+                              value: currentTemplate ?? _taskGroup,
+                              icon: const Icon(Icons.task_alt),
+                              isExpanded: true,
+                              onChanged: (value) {},
+                              items: currentTemplate == null
+                                  ? [
+                                    DropdownMenuItem(
+                                      value: _taskGroup,
+                                      child: _taskGroup.getTaskGroupRepresentation(context, useIconColor: true))
+                                    ]
+                                  : [
+                                    DropdownMenuItem(
+                                        value: currentTemplate,
+                                        child: currentTemplate.getTemplateRepresentation()),
+                                    ],
+              
+                            ),
+              
+                            Padding(
+                                padding: EdgeInsets.only(top: 30.0),
+                                child: Container(
+                                  height: 64.0,
+                                  child: ToggleButtons(
+                                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                                    renderBorder: true,
+                                    borderWidth: 1.5,
+                                    borderColor: Colors.grey,
+                                    color: Colors.grey.shade600,
+                                    selectedBorderColor: BUTTON_COLOR,
+                                    children: [
+                                      SizedBox(
+                                          width: 80,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              _buildDynamicScheduleIcon(context),
+                                              Text(Schedule.fromRepetitionModeToString(RepetitionMode.DYNAMIC), textAlign: TextAlign.center,
+                                                  style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null)),
+                                            ],
+                                          )
+                                      ),
+                                      SizedBox(
+                                          width: 80,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              _buildFixedScheduleIcon(context, _repetitionMode == RepetitionMode.FIXED),
+                                              Text(Schedule.fromRepetitionModeToString(RepetitionMode.FIXED), textAlign: TextAlign.center,
+                                                  style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.FIXED ? PRIMARY_COLOR : null) : null)),
+                                            ],
+                                          )
+                                      ),
+                                      SizedBox(
+                                          width: 80,
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              _buildOneTimeScheduleIcon(context, _repetitionMode == RepetitionMode.ONE_TIME),
+                                              Text(Schedule.fromRepetitionModeToString(RepetitionMode.ONE_TIME), textAlign: TextAlign.center,
+                                                  style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.ONE_TIME ? PRIMARY_COLOR : null) : null)),
+                                            ],
+                                          )
+                                      ),
+                                    ],
+                                    isSelected: [_repetitionMode == RepetitionMode.DYNAMIC, _repetitionMode == RepetitionMode.FIXED, _repetitionMode == RepetitionMode.ONE_TIME],
+                                    onPressed: (int index) {
+                                      setState(() {
+                                        _repetitionMode = RepetitionMode.values[index];
+                                        if (_selectedNextDueOn != null) {
+                                          _updateFixedWeekSchedule(
+                                              When.fromWhenOnDateFutureToDate(
+                                                  _selectedNextDueOn!,
+                                                  _customNextDueOn));
                                         }
                                       });
-                                    }
-                                  },
-                                  cancelPressed: () {
-                                    Navigator.pop(super.context);
-                                  });
-
-                            },
-                            value: currentTemplate ?? _taskGroup,
-                            icon: const Icon(Icons.task_alt),
-                            isExpanded: true,
-                            onChanged: (value) {},
-                            items: currentTemplate == null
-                                ? [
-                                  DropdownMenuItem(
-                                    value: _taskGroup,
-                                    child: _taskGroup.getTaskGroupRepresentation(context, useIconColor: true))
-                                  ]
-                                : [
-                                  DropdownMenuItem(
-                                      value: currentTemplate,
-                                      child: currentTemplate.getTemplateRepresentation()),
-                                  ],
-
-                          ),
-
-                          Padding(
-                              padding: EdgeInsets.only(top: 30.0),
-                              child: Container(
-                                height: 64.0,
-                                child: ToggleButtons(
-                                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                                  renderBorder: true,
-                                  borderWidth: 1.5,
-                                  borderColor: Colors.grey,
-                                  color: Colors.grey.shade600,
-                                  selectedBorderColor: BUTTON_COLOR,
-                                  children: [
-                                    SizedBox(
-                                        width: 80,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            _buildDynamicScheduleIcon(context),
-                                            Text(Schedule.fromRepetitionModeToString(RepetitionMode.DYNAMIC), textAlign: TextAlign.center,
-                                                style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.DYNAMIC ? PRIMARY_COLOR : null) : null)),
-                                          ],
-                                        )
-                                    ),
-                                    SizedBox(
-                                        width: 80,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            _buildFixedScheduleIcon(context, _repetitionMode == RepetitionMode.FIXED),
-                                            Text(Schedule.fromRepetitionModeToString(RepetitionMode.FIXED), textAlign: TextAlign.center,
-                                                style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.FIXED ? PRIMARY_COLOR : null) : null)),
-                                          ],
-                                        )
-                                    ),
-                                    SizedBox(
-                                        width: 80,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            _buildOneTimeScheduleIcon(context, _repetitionMode == RepetitionMode.ONE_TIME),
-                                            Text(Schedule.fromRepetitionModeToString(RepetitionMode.ONE_TIME), textAlign: TextAlign.center,
-                                                style: TextStyle(color: isDarkMode(context) ? (_repetitionMode == RepetitionMode.ONE_TIME ? PRIMARY_COLOR : null) : null)),
-                                          ],
-                                        )
-                                    ),
-                                  ],
-                                  isSelected: [_repetitionMode == RepetitionMode.DYNAMIC, _repetitionMode == RepetitionMode.FIXED, _repetitionMode == RepetitionMode.ONE_TIME],
-                                  onPressed: (int index) {
-                                    setState(() {
-                                      _repetitionMode = RepetitionMode.values[index];
-                                      if (_selectedNextDueOn != null) {
-                                        _updateFixedWeekSchedule(
-                                            When.fromWhenOnDateFutureToDate(
-                                                _selectedNextDueOn!,
-                                                _customNextDueOn));
+              
+                                      // show this hint only 7 times max
+                                      if (_showScheduleModeCounter < 7) {
+                                        if (_repetitionModeHintShownForDynamic < 2 && _repetitionMode == RepetitionMode.DYNAMIC) {
+                                          toastInfo(context, translate('forms.schedule.repetition_mode_dynamic'));
+                                          _repetitionModeHintShownForDynamic++;
+                                          _showScheduleModeCounter++;
+                                        }
+                                        else if (_repetitionModeHintShownForFixed < 2 && _repetitionMode == RepetitionMode.FIXED) {
+                                          toastInfo(context, translate('forms.schedule.repetition_mode_fixed'));
+                                          _repetitionModeHintShownForFixed++;
+                                          _showScheduleModeCounter++;
+                                        }
+                                        else if (_repetitionModeHintShownForOneShot < 2 && _repetitionMode == RepetitionMode.FIXED) {
+                                          toastInfo(context, translate('forms.schedule.repetition_mode_one_shot'));
+                                          _repetitionModeHintShownForOneShot++;
+                                          _showScheduleModeCounter++;
+                                        }
+                                        debugPrint("_showScheduleModeCounter=$_showScheduleModeCounter");
+                                        PreferenceService().setInt(PreferenceService.DATA_SHOW_SCHEDULE_MODE_HINTS, _showScheduleModeCounter);
                                       }
-                                    });
-
-                                    // show this hint only 7 times max
-                                    if (_showScheduleModeCounter < 7) {
-                                      if (_repetitionModeHintShownForDynamic < 2 && _repetitionMode == RepetitionMode.DYNAMIC) {
-                                        toastInfo(context, translate('forms.schedule.repetition_mode_dynamic'));
-                                        _repetitionModeHintShownForDynamic++;
-                                        _showScheduleModeCounter++;
-                                      }
-                                      else if (_repetitionModeHintShownForFixed < 2 && _repetitionMode == RepetitionMode.FIXED) {
-                                        toastInfo(context, translate('forms.schedule.repetition_mode_fixed'));
-                                        _repetitionModeHintShownForFixed++;
-                                        _showScheduleModeCounter++;
-                                      }
-                                      else if (_repetitionModeHintShownForOneShot < 2 && _repetitionMode == RepetitionMode.FIXED) {
-                                        toastInfo(context, translate('forms.schedule.repetition_mode_one_shot'));
-                                        _repetitionModeHintShownForOneShot++;
-                                        _showScheduleModeCounter++;
-                                      }
-                                      debugPrint("_showScheduleModeCounter=$_showScheduleModeCounter");
-                                      PreferenceService().setInt(PreferenceService.DATA_SHOW_SCHEDULE_MODE_HINTS, _showScheduleModeCounter);
-                                    }
-                                  },
-
+                                    },
+              
+                                  ),
                                 ),
-                              ),
-                          ),
-
-                          Padding(
-                            padding: EdgeInsets.only(top: 10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                if (_repetitionMode == RepetitionMode.ONE_TIME)
-                                  Container(
-                                    height: 64.0,
-                                    width: (MediaQuery.of(context).size.width / 2) - 20,
-                                    child: _buildDueOnDayDropDown(context),
-                                  )
-                                else
-                                  Container(
-                                    height: 64.0,
-                                    width: (MediaQuery.of(context).size.width / 2) - 20,
-                                    child: DropdownButtonFormField<RepetitionStep?>(
-                                      onTap: () => FocusScope.of(context).unfocus(),
-                                      value: _selectedRepetitionStep,
-                                      hint: Text(translate('forms.schedule.repetition_steps_hint')),
-                                      isExpanded: true,
-                                      icon: Icon(Icons.next_plan_outlined),
-                                      onChanged: (value) {
-                                        if (value == RepetitionStep.CUSTOM) {
-                                          final initialRepetition = _customRepetition ?? (
-                                              _selectedRepetitionStep != null && _selectedRepetitionStep != RepetitionStep.CUSTOM
-                                                  ? Schedule.fromRepetitionStepToCustomRepetition(_selectedRepetitionStep!, _customRepetition)
-                                                  : null); // null fallback to 0:01
-                                          var tempSelectedRepetition = initialRepetition ?? RepetitionPicker.createDefaultRepetition();
-
-                                          showRepetitionPickerDialog(
-                                            context: context,
-                                            description: translate('forms.schedule.custom_repetition_steps_description'),
-                                            initialRepetition: initialRepetition,
-                                            onChanged: (repetition) => tempSelectedRepetition = repetition,
-                                          ).then((okPressed) {
-                                            if (okPressed ?? false) {
-                                              setState(() {
-                                                //TODO map back to predefined repetition steps if custom matches
-                                                _selectedRepetitionStep = RepetitionStep.CUSTOM;
-                                                _customRepetition = tempSelectedRepetition;
-
-                                                final interimSchedule = Schedule(
+                            ),
+              
+                            Padding(
+                              padding: EdgeInsets.only(top: 10.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  if (_repetitionMode == RepetitionMode.ONE_TIME)
+                                    Container(
+                                      height: 64.0,
+                                      width: (MediaQuery.of(context).size.width / 2) - 20,
+                                      child: _buildDueOnDayDropDown(context),
+                                    )
+                                  else
+                                    Container(
+                                      height: 64.0,
+                                      width: (MediaQuery.of(context).size.width / 2) - 20,
+                                      child: DropdownButtonFormField<RepetitionStep?>(
+                                        onTap: () => FocusScope.of(context).unfocus(),
+                                        value: _selectedRepetitionStep,
+                                        hint: Text(translate('forms.schedule.repetition_steps_hint')),
+                                        isExpanded: true,
+                                        icon: Icon(Icons.next_plan_outlined),
+                                        onChanged: (value) {
+                                          if (value == RepetitionStep.CUSTOM) {
+                                            final initialRepetition = _customRepetition ?? (
+                                                _selectedRepetitionStep != null && _selectedRepetitionStep != RepetitionStep.CUSTOM
+                                                    ? Schedule.fromRepetitionStepToCustomRepetition(_selectedRepetitionStep!, _customRepetition)
+                                                    : null); // null fallback to 0:01
+                                            var tempSelectedRepetition = initialRepetition ?? RepetitionPicker.createDefaultRepetition();
+              
+                                            showRepetitionPickerDialog(
+                                              context: context,
+                                              description: translate('forms.schedule.custom_repetition_steps_description'),
+                                              initialRepetition: initialRepetition,
+                                              onChanged: (repetition) => tempSelectedRepetition = repetition,
+                                            ).then((okPressed) {
+                                              if (okPressed ?? false) {
+                                                setState(() {
+                                                  //TODO map back to predefined repetition steps if custom matches
+                                                  _selectedRepetitionStep = RepetitionStep.CUSTOM;
+                                                  _customRepetition = tempSelectedRepetition;
+              
+                                                  final interimSchedule = Schedule(
+                                                    aroundStartAt: _selectedStartAt,
+                                                    startAtExactly: _customStartAt,
+                                                    repetitionStep: _selectedRepetitionStep!,
+                                                    customRepetition: _customRepetition,
+                                                    repetitionMode: _repetitionMode,
+                                                    weekBasedSchedules: weekBasedSchedules,
+                                                    monthBasedSchedules: monthBasedSchedules,
+                                                    yearBasedSchedules: yearBasedSchedules,
+                                                  );
+              
+                                                  final nextDueDate = interimSchedule.getNextRepetitionFrom(DateTime.now());
+                                                  _updateNextDueOn(nextDueDate);
+                                                });
+                                              }
+                                            });
+                                          }
+                                          else {
+                                            setState(() {
+                                              _selectedRepetitionStep = value;
+                                              _customRepetition = null;
+              
+                                              final interimSchedule = Schedule(
                                                   aroundStartAt: _selectedStartAt,
                                                   startAtExactly: _customStartAt,
                                                   repetitionStep: _selectedRepetitionStep!,
@@ -474,366 +497,345 @@ class _ScheduledTaskFormState extends State<ScheduledTaskForm> {
                                                   weekBasedSchedules: weekBasedSchedules,
                                                   monthBasedSchedules: monthBasedSchedules,
                                                   yearBasedSchedules: yearBasedSchedules,
-                                                );
-
-                                                final nextDueDate = interimSchedule.getNextRepetitionFrom(DateTime.now());
-                                                _updateNextDueOn(nextDueDate);
-                                              });
+                                              );
+                                              final nextDueDate = interimSchedule.getNextRepetitionFrom(DateTime.now());
+                                              _updateNextDueOn(nextDueDate);
+                                            });
+                                          }
+                                        },
+                                        items: RepetitionStep.values.map((RepetitionStep repetitionStep) {
+                                          return DropdownMenuItem(
+                                              value: repetitionStep,
+                                              child: Text(repetitionStep != RepetitionStep.CUSTOM
+                                                  ? Schedule.fromRepetitionStepToString(repetitionStep)
+                                                  : Schedule.fromCustomRepetitionToString(_customRepetition))
+                                          );
+                                        }).toList(),
+                                        validator: (RepetitionStep? value) {
+                                          if (_repetitionMode == RepetitionMode.ONE_TIME) {
+                                            return null;
+                                          }
+                                          if (value == null || (value == RepetitionStep.CUSTOM && _customRepetition == null)) {
+                                            return translate('forms.schedule.repetition_steps_emphasis');
+                                          } else {
+                                            return null;
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  Container(
+                                    height: 64.0,
+                                    width: (MediaQuery.of(context).size.width / 2) - 25,
+                                    child: DropdownButtonFormField<AroundWhenAtDay?>(
+                                      onTap: () => FocusScope.of(context).unfocus(),
+                                      value: _selectedStartAt,
+                                      hint: Text(translate('forms.schedule.due_at_hint')),
+                                      icon: Icon(Icons.watch_later_outlined),
+                                      isExpanded: true,
+                                      onChanged: (value) {
+                                        if (value == AroundWhenAtDay.CUSTOM) {
+                                          final initialWhenAt = _customStartAt ?? (
+                                              _selectedStartAt != null && _selectedStartAt != AroundWhenAtDay.CUSTOM
+                                                  ? When.fromWhenAtDayToTimeOfDay(_selectedStartAt!, _customStartAt)
+                                                  : TimeOfDay.now());
+                                          showTimePicker(
+                                            initialTime: initialWhenAt,
+                                            context: context,
+                                          ).then((selectedTimeOfDay) {
+                                            if (selectedTimeOfDay != null) {
+                                              setState(() =>
+                                              _customStartAt = selectedTimeOfDay);
                                             }
                                           });
                                         }
-                                        else {
-                                          setState(() {
-                                            _selectedRepetitionStep = value;
-                                            _customRepetition = null;
-
-                                            final interimSchedule = Schedule(
-                                                aroundStartAt: _selectedStartAt,
-                                                startAtExactly: _customStartAt,
-                                                repetitionStep: _selectedRepetitionStep!,
-                                                customRepetition: _customRepetition,
-                                                repetitionMode: _repetitionMode,
-                                                weekBasedSchedules: weekBasedSchedules,
-                                                monthBasedSchedules: monthBasedSchedules,
-                                                yearBasedSchedules: yearBasedSchedules,
-                                            );
-                                            final nextDueDate = interimSchedule.getNextRepetitionFrom(DateTime.now());
-                                            _updateNextDueOn(nextDueDate);
-                                          });
-                                        }
+                                        setState(() {
+                                          _selectedStartAt = value;
+                                        });
                                       },
-                                      items: RepetitionStep.values.map((RepetitionStep repetitionStep) {
-                                        return DropdownMenuItem(
-                                            value: repetitionStep,
-                                            child: Text(repetitionStep != RepetitionStep.CUSTOM
-                                                ? Schedule.fromRepetitionStepToString(repetitionStep)
-                                                : Schedule.fromCustomRepetitionToString(_customRepetition))
-                                        );
-                                      }).toList(),
-                                      validator: (RepetitionStep? value) {
-                                        if (_repetitionMode == RepetitionMode.ONE_TIME) {
-                                          return null;
-                                        }
-                                        if (value == null || (value == RepetitionStep.CUSTOM && _customRepetition == null)) {
-                                          return translate('forms.schedule.repetition_steps_emphasis');
+                                      validator: (AroundWhenAtDay? value) {
+                                        if (value == null || (value == AroundWhenAtDay.CUSTOM && _customStartAt == null)) {
+                                          return translate('forms.schedule.due_at_emphasis');
                                         } else {
                                           return null;
                                         }
                                       },
+                                      items: AroundWhenAtDay.values.map((AroundWhenAtDay whenAtDay) {
+                                        return DropdownMenuItem(
+                                          value: whenAtDay,
+                                          child: Text(
+                                            whenAtDay == AroundWhenAtDay.CUSTOM && _customStartAt != null
+                                                ? formatTimeOfDay(_customStartAt!)
+                                                : When.fromWhenAtDayToString(whenAtDay),
+                                          ),
+                                        );
+                                      }).toList(),
                                     ),
                                   ),
-                                Container(
-                                  height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) - 25,
-                                  child: DropdownButtonFormField<AroundWhenAtDay?>(
-                                    onTap: () => FocusScope.of(context).unfocus(),
-                                    value: _selectedStartAt,
-                                    hint: Text(translate('forms.schedule.due_at_hint')),
-                                    icon: Icon(Icons.watch_later_outlined),
-                                    isExpanded: true,
-                                    onChanged: (value) {
-                                      if (value == AroundWhenAtDay.CUSTOM) {
-                                        final initialWhenAt = _customStartAt ?? (
-                                            _selectedStartAt != null && _selectedStartAt != AroundWhenAtDay.CUSTOM
-                                                ? When.fromWhenAtDayToTimeOfDay(_selectedStartAt!, _customStartAt)
-                                                : TimeOfDay.now());
-                                        showTimePicker(
-                                          initialTime: initialWhenAt,
+                                ],
+                              ),
+                            ),
+              
+                            if (_repetitionMode != RepetitionMode.ONE_TIME)
+                              Padding(
+                                padding: EdgeInsets.only(top: 0.0),
+                                child: dueOnWidget
+                              ),
+              
+                            Padding(
+                                padding: EdgeInsets.only(top: 10.0),
+                                child: CheckboxListTile(
+                                  title: Row(
+                                    children: [
+                                      Icon(Icons.priority_high),
+                                      Text(translate('forms.schedule.mark_as_important')),
+                                    ],
+                                  ),
+                                  dense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  value: _isImportant,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      if (value != null) _isImportant = value;
+                                    });
+                                  },
+                                )
+                            ),
+              
+                            Padding(
+                              padding: EdgeInsets.only(top: 20.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                      height: 64.0,
+                                      width: (MediaQuery.of(context).size.width / 2) - 60,
+                                      child: CheckboxListTile(
+                                        title: Text(translate('forms.schedule.activate_reminders')),
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        value: _isRemindersEnabled,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            if (value != null) _isRemindersEnabled = value;
+                                          });
+                                        },
+                                      )
+                                  ),
+                                  Container(
+                                    height: 64.0,
+                                    width: (MediaQuery.of(context).size.width / 2) + 10,
+                                    child: DropdownButtonFormField<CustomRepetition>(
+                                      onTap: () {
+                                        FocusScope.of(context).unfocus();
+                                        Navigator.pop(context);
+              
+                                        CustomRepetition? tempSelectedRepetition = null;
+                                        showRepetitionPickerDialog(
                                           context: context,
-                                        ).then((selectedTimeOfDay) {
-                                          if (selectedTimeOfDay != null) {
-                                            setState(() =>
-                                            _customStartAt = selectedTimeOfDay);
+                                          description: translate('forms.schedule.remind_again_delay_description'),
+                                          initialRepetition: _reminderRepetition,
+                                          supportedUnits: [RepetitionUnit.MINUTES, RepetitionUnit.HOURS, RepetitionUnit.DAYS, RepetitionUnit.WEEKS],
+                                          onChanged: (repetition) {
+                                           tempSelectedRepetition = repetition;
+                                          },
+                                        ).then((okPressed) {
+                                          if (okPressed ?? false) {
+                                            setState(() {
+                                              if (tempSelectedRepetition != null) {
+                                                _reminderRepetition =
+                                                    tempSelectedRepetition!;
+                                              }
+                                            });
                                           }
                                         });
-                                      }
-                                      setState(() {
-                                        _selectedStartAt = value;
-                                      });
-                                    },
-                                    validator: (AroundWhenAtDay? value) {
-                                      if (value == null || (value == AroundWhenAtDay.CUSTOM && _customStartAt == null)) {
-                                        return translate('forms.schedule.due_at_emphasis');
-                                      } else {
-                                        return null;
-                                      }
-                                    },
-                                    items: AroundWhenAtDay.values.map((AroundWhenAtDay whenAtDay) {
-                                      return DropdownMenuItem(
-                                        value: whenAtDay,
-                                        child: Text(
-                                          whenAtDay == AroundWhenAtDay.CUSTOM && _customStartAt != null
-                                              ? formatTimeOfDay(_customStartAt!)
-                                              : When.fromWhenAtDayToString(whenAtDay),
-                                        ),
-                                      );
-                                    }).toList(),
+                                      },
+                                      value: _reminderRepetition,
+                                      isExpanded: true,
+                                      icon: Icon(Icons.notifications_paused),
+                                      onChanged: _isRemindersEnabled ? (value) {} : null,
+                                      items: [DropdownMenuItem(
+                                          value: _reminderRepetition,
+                                          child: Text(translate('forms.schedule.remind_after',
+                                              args: {"when": Schedule.fromCustomRepetitionToUnit(_reminderRepetition, usedClause(context, Clause.dative))})
+                                          ))
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-
-                          if (_repetitionMode != RepetitionMode.ONE_TIME)
+              
                             Padding(
-                              padding: EdgeInsets.only(top: 0.0),
-                              child: dueOnWidget
+                              padding: EdgeInsets.only(top: 5.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                      height: 64.0,
+                                      width: (MediaQuery.of(context).size.width / 2) - 60,
+                                      child: CheckboxListTile(
+                                        title: Text(translate('forms.schedule.remind_before_description')),
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        value: _isPreNotificationEnabled,
+                                        onChanged: _isRemindersEnabled
+                                            ? (bool? value) {
+                                                setState(() {
+                                                  if (value != null) _isPreNotificationEnabled = value;
+                                                });
+                                              }
+                                            : null,
+                                      )
+                                  ),
+                                  Container(
+                                    height: 64.0,
+                                    width: (MediaQuery.of(context).size.width / 2) + 10,
+                                    child: DropdownButtonFormField<CustomRepetition>(
+                                      onTap: () {
+                                        FocusScope.of(context).unfocus();
+                                        Navigator.pop(context);
+              
+                                        CustomRepetition? tempSelectedRepetition = null;
+                                        showRepetitionPickerDialog(
+                                          context: context,
+                                          description: translate('forms.schedule.remind_before_description'),
+                                          initialRepetition: _preNotification,
+                                          supportedUnits: [RepetitionUnit.MINUTES, RepetitionUnit.HOURS, RepetitionUnit.DAYS, RepetitionUnit.WEEKS, RepetitionUnit.MONTHS],
+                                          onChanged: (repetition) {
+                                            tempSelectedRepetition = repetition;
+                                          },
+                                        ).then((okPressed) {
+                                          if (okPressed ?? false) {
+                                            setState(() {
+                                              if (tempSelectedRepetition != null) {
+                                                _preNotification = tempSelectedRepetition!;
+                                              }
+                                            });
+                                          }
+                                        });
+                                      },
+                                      value: _preNotification,
+                                      isExpanded: true,
+                                      icon: Icon(Icons.notification_add),
+                                      onChanged: _isRemindersEnabled && _isPreNotificationEnabled ? (value) {} : null,
+                                      items: [DropdownMenuItem(
+                                          value: _preNotification,
+                                          child: Text(translate('forms.schedule.remind_before',
+                                              args: {"when": Schedule.fromCustomRepetitionToUnit(_preNotification, usedClause(context, Clause.dative))})
+                                          ))
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-
-                          Padding(
+              
+                            Padding(
                               padding: EdgeInsets.only(top: 10.0),
-                              child: CheckboxListTile(
-                                title: Row(
-                                  children: [
-                                    Icon(Icons.priority_high),
-                                    Text(translate('forms.schedule.mark_as_important')),
-                                  ],
-                                ),
+                              child: SwitchListTile(
+                                title: Text(translate('forms.schedule.activate_schedule')),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
-                                value: _isImportant,
+                                value: _isActive,
                                 onChanged: (bool? value) {
                                   setState(() {
-                                    if (value != null) _isImportant = value;
+                                    if (value != null) _isActive = value;
                                   });
                                 },
                               )
-                          ),
-
-                          Padding(
-                            padding: EdgeInsets.only(top: 20.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                    height: 64.0,
-                                    width: (MediaQuery.of(context).size.width / 2) - 60,
-                                    child: CheckboxListTile(
-                                      title: Text(translate('forms.schedule.activate_reminders')),
-                                      contentPadding: EdgeInsets.zero,
-                                      dense: true,
-                                      value: _isRemindersEnabled,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          if (value != null) _isRemindersEnabled = value;
-                                        });
-                                      },
-                                    )
-                                ),
-                                Container(
-                                  height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) + 10,
-                                  child: DropdownButtonFormField<CustomRepetition>(
-                                    onTap: () {
-                                      FocusScope.of(context).unfocus();
-                                      Navigator.pop(context);
-
-                                      CustomRepetition? tempSelectedRepetition = null;
-                                      showRepetitionPickerDialog(
-                                        context: context,
-                                        description: translate('forms.schedule.remind_again_delay_description'),
-                                        initialRepetition: _reminderRepetition,
-                                        supportedUnits: [RepetitionUnit.MINUTES, RepetitionUnit.HOURS, RepetitionUnit.DAYS, RepetitionUnit.WEEKS],
-                                        onChanged: (repetition) {
-                                         tempSelectedRepetition = repetition;
-                                        },
-                                      ).then((okPressed) {
-                                        if (okPressed ?? false) {
-                                          setState(() {
-                                            if (tempSelectedRepetition != null) {
-                                              _reminderRepetition =
-                                                  tempSelectedRepetition!;
-                                            }
-                                          });
-                                        }
-                                      });
-                                    },
-                                    value: _reminderRepetition,
-                                    isExpanded: true,
-                                    icon: Icon(Icons.notifications_paused),
-                                    onChanged: _isRemindersEnabled ? (value) {} : null,
-                                    items: [DropdownMenuItem(
-                                        value: _reminderRepetition,
-                                        child: Text(translate('forms.schedule.remind_after',
-                                            args: {"when": Schedule.fromCustomRepetitionToUnit(_reminderRepetition, usedClause(context, Clause.dative))})
-                                        ))
-                                    ],
-                                  ),
-                                ),
-                              ],
                             ),
-                          ),
-
-                          Padding(
-                            padding: EdgeInsets.only(top: 5.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                    height: 64.0,
-                                    width: (MediaQuery.of(context).size.width / 2) - 60,
-                                    child: CheckboxListTile(
-                                      title: Text(translate('forms.schedule.remind_before_description')),
-                                      contentPadding: EdgeInsets.zero,
-                                      dense: true,
-                                      value: _isPreNotificationEnabled,
-                                      onChanged: _isRemindersEnabled
-                                          ? (bool? value) {
-                                              setState(() {
-                                                if (value != null) _isPreNotificationEnabled = value;
-                                              });
-                                            }
-                                          : null,
-                                    )
-                                ),
-                                Container(
-                                  height: 64.0,
-                                  width: (MediaQuery.of(context).size.width / 2) + 10,
-                                  child: DropdownButtonFormField<CustomRepetition>(
-                                    onTap: () {
-                                      FocusScope.of(context).unfocus();
-                                      Navigator.pop(context);
-
-                                      CustomRepetition? tempSelectedRepetition = null;
-                                      showRepetitionPickerDialog(
-                                        context: context,
-                                        description: translate('forms.schedule.remind_before_description'),
-                                        initialRepetition: _preNotification,
-                                        supportedUnits: [RepetitionUnit.MINUTES, RepetitionUnit.HOURS, RepetitionUnit.DAYS, RepetitionUnit.WEEKS, RepetitionUnit.MONTHS],
-                                        onChanged: (repetition) {
-                                          tempSelectedRepetition = repetition;
-                                        },
-                                      ).then((okPressed) {
-                                        if (okPressed ?? false) {
-                                          setState(() {
-                                            if (tempSelectedRepetition != null) {
-                                              _preNotification = tempSelectedRepetition!;
-                                            }
-                                          });
-                                        }
-                                      });
-                                    },
-                                    value: _preNotification,
-                                    isExpanded: true,
-                                    icon: Icon(Icons.notification_add),
-                                    onChanged: _isRemindersEnabled && _isPreNotificationEnabled ? (value) {} : null,
-                                    items: [DropdownMenuItem(
-                                        value: _preNotification,
-                                        child: Text(translate('forms.schedule.remind_before',
-                                            args: {"when": Schedule.fromCustomRepetitionToUnit(_preNotification, usedClause(context, Clause.dative))})
-                                        ))
-                                    ],
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize:
+                                        Size(double.infinity, 40), // double.infinity is the width and 30 is the height
                                   ),
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+              
+                                      if (_selectedStartAt == AroundWhenAtDay.NOW) {
+                                        _selectedStartAt = AroundWhenAtDay.CUSTOM;
+                                        _customStartAt = TimeOfDay.now();
+                                      }
+              
+              
+                                      var schedule = Schedule(
+                                        aroundStartAt: _selectedStartAt!,
+                                        startAtExactly: _customStartAt,
+                                        repetitionStep: _selectedRepetitionStep ?? RepetitionStep.CUSTOM, // can be null if mode == ONE_TIME
+                                        customRepetition: _customRepetition,
+                                        repetitionMode: _repetitionMode,
+                                        weekBasedSchedules: weekBasedSchedules,
+                                        monthBasedSchedules: monthBasedSchedules,
+                                        yearBasedSchedules: yearBasedSchedules,
+                                      );
+              
+                                      var nextDueOn = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
+              
+                                      if (_repetitionMode == RepetitionMode.FIXED) {
+                                        // add the default schedule to the set
+                                        if (schedule.isMonthBased()) {
+                                          schedule.monthBasedSchedules.add(nextDueOn.day);
+                                        }
+                                        if (schedule.isYearBased()) {
+                                          schedule.yearBasedSchedules.add(AllYearDate(nextDueOn.day, MonthOfYear.values[nextDueOn.month - 1]));
+                                        }
+                                      }
+              
+              
+                                      // adjust back
+                                      var scheduleFrom = schedule.getPreviousRepetitionFrom(nextDueOn);
+              
+                                      var oneTimeDueOn = _scheduledTask?.schedule.oneTimeDueOn;
+                                      if (_repetitionMode == RepetitionMode.ONE_TIME) {
+                                        final now = DateTime.now();
+                                        if (_scheduledTask == null || _scheduledTask.isOneTimeCompleted) {
+                                          // reuse this schedule once completed
+                                          scheduleFrom = now;
+                                          oneTimeDueOn = nextDueOn;
+                                        }
+                                        else {
+                                          // just update this schedule
+                                          scheduleFrom = _scheduledTask.lastScheduledEventOn!;
+                                          oneTimeDueOn = nextDueOn;
+                                        }
+                                      }
+                                      schedule.oneTimeDueOn = oneTimeDueOn;
+              
+                                      var scheduledTask = ScheduledTask(
+                                        id: _scheduledTask?.id,
+                                        taskGroupId: _taskGroup.id!,
+                                        templateId: _template?.tId ?? _scheduledTask?.templateId,
+                                        title: titleController.text,
+                                        description: descriptionController.text,
+                                        createdAt: _scheduledTask?.createdAt ?? DateTime.now(),
+                                        schedule: schedule,
+                                        lastScheduledEventOn: scheduleFrom,
+                                        oneTimeCompletedOn: null,
+                                        active: _isActive,
+                                        important: _isImportant,
+                                        reminderNotificationEnabled: _isRemindersEnabled,
+                                        reminderNotificationRepetition: _reminderRepetition,
+                                        preNotificationEnabled: _isPreNotificationEnabled,
+                                        preNotification: _preNotification,
+                                      );
+              
+                                      Navigator.pop(context, scheduledTask);
+                                    }
+                                  },
+                                  child: Text(translate('forms.common.button_save')),
                                 ),
-                              ],
-                            ),
-                          ),
-
-                          Padding(
-                            padding: EdgeInsets.only(top: 10.0),
-                            child: SwitchListTile(
-                              title: Text(translate('forms.schedule.activate_schedule')),
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                              value: _isActive,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  if (value != null) _isActive = value;
-                                });
-                              },
-                            )
-                          ),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6.0),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  minimumSize:
-                                      Size(double.infinity, 40), // double.infinity is the width and 30 is the height
-                                ),
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-
-                                    if (_selectedStartAt == AroundWhenAtDay.NOW) {
-                                      _selectedStartAt = AroundWhenAtDay.CUSTOM;
-                                      _customStartAt = TimeOfDay.now();
-                                    }
-
-
-                                    var schedule = Schedule(
-                                      aroundStartAt: _selectedStartAt!,
-                                      startAtExactly: _customStartAt,
-                                      repetitionStep: _selectedRepetitionStep ?? RepetitionStep.CUSTOM, // can be null if mode == ONE_TIME
-                                      customRepetition: _customRepetition,
-                                      repetitionMode: _repetitionMode,
-                                      weekBasedSchedules: weekBasedSchedules,
-                                      monthBasedSchedules: monthBasedSchedules,
-                                      yearBasedSchedules: yearBasedSchedules,
-                                    );
-
-                                    var nextDueOn = When.fromWhenOnDateFutureToDate(_selectedNextDueOn!, _customNextDueOn);
-
-                                    if (_repetitionMode == RepetitionMode.FIXED) {
-                                      // add the default schedule to the set
-                                      if (schedule.isMonthBased()) {
-                                        schedule.monthBasedSchedules.add(nextDueOn.day);
-                                      }
-                                      if (schedule.isYearBased()) {
-                                        schedule.yearBasedSchedules.add(AllYearDate(nextDueOn.day, MonthOfYear.values[nextDueOn.month - 1]));
-                                      }
-                                    }
-
-
-                                    // adjust back
-                                    var scheduleFrom = schedule.getPreviousRepetitionFrom(nextDueOn);
-
-                                    var oneTimeDueOn = _scheduledTask?.schedule.oneTimeDueOn;
-                                    if (_repetitionMode == RepetitionMode.ONE_TIME) {
-                                      final now = DateTime.now();
-                                      if (_scheduledTask == null || _scheduledTask.isOneTimeCompleted) {
-                                        // reuse this schedule once completed
-                                        scheduleFrom = now;
-                                        oneTimeDueOn = nextDueOn;
-                                      }
-                                      else {
-                                        // just update this schedule
-                                        scheduleFrom = _scheduledTask.lastScheduledEventOn!;
-                                        oneTimeDueOn = nextDueOn;
-                                      }
-                                    }
-                                    schedule.oneTimeDueOn = oneTimeDueOn;
-
-                                    var scheduledTask = ScheduledTask(
-                                      id: _scheduledTask?.id,
-                                      taskGroupId: _taskGroup.id!,
-                                      templateId: _template?.tId ?? _scheduledTask?.templateId,
-                                      title: titleController.text,
-                                      description: descriptionController.text,
-                                      createdAt: _scheduledTask?.createdAt ?? DateTime.now(),
-                                      schedule: schedule,
-                                      lastScheduledEventOn: scheduleFrom,
-                                      oneTimeCompletedOn: null,
-                                      active: _isActive,
-                                      important: _isImportant,
-                                      reminderNotificationEnabled: _isRemindersEnabled,
-                                      reminderNotificationRepetition: _reminderRepetition,
-                                      preNotificationEnabled: _isPreNotificationEnabled,
-                                      preNotification: _preNotification,
-                                    );
-
-                                    Navigator.pop(context, scheduledTask);
-                                  }
-                                },
-                                child: Text(translate('forms.common.button_save')),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                  },
+                    );
+                    },
+                  ),
                 ),
               ),
             ),

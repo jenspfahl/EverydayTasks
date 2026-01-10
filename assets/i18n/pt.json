@@ -1,0 +1,1010 @@
+{
+  "navigation": {
+    "header_subtitle": "Rastreie, registre e agende tarefas",
+    "menus": {
+      "settings": "Configurações",
+      "export_as_csv": "Exportar como arquivo CSV",
+      "backup_as_file": "Criar arquivo de backup",
+      "restore_from_file": "Restaurar de arquivo",
+      "start_app_walk": "Iniciar tutorial da aplicação",
+      "online_help": "Ajuda online",
+      "about_the_app": "Sobre o aplicativo",
+      "help_translate": "Ajude a traduzir",
+      "report_a_bug": "Reportar um erro"
+    },
+    "system": {
+      "notifications": {
+        "channel_schedules": "Notificações sobre tarefas programadas pendentes",
+        "channel_tracking": "Notificações de rastreamento",
+        "channel_others": "Notificações gerais",
+        "denied_permission_message": "Sem esta permissão não será possível receber notificações."
+      }
+    }
+  },
+
+  "forms": {
+
+    "common": {
+      "title_emphasis": "Por favor, insira um título",
+      "description_hint": "Uma descrição opcional",
+      "button_save": "Salvar"
+    },
+    "task_event": {
+      "title_hint": "Título da entrada de diário",
+      "category_hint": "Pertence à categoria",
+      "category_emphasis": "Selecione uma categoria",
+      "duration_hint": "Duração",
+      "duration_emphasis": "Selecione uma duração",
+      "when_at_hint": "Horário de execução",
+      "when_at_emphasis": "Selecione quando a tarefa começa",
+      "when_on_hint": "Data de início",
+      "when_on_emphasis": "Selecione o dia em que a tarefa inicia",
+      "create": {
+        "title": "Criar nova entrada de diário",
+        "title_from_schedule": "Criar nova entrada de diário a partir da agenda",
+        "success": "Nova entrada de diário com nome '{title}' foi criada"
+      },
+      "change": {
+        "title": "Alterar entrada de diário '{title}'",
+        "success": "Entrada de diário com nome '{title}' alterada"
+      },
+      "tracking": {
+        "start_tracking_title": "Iniciar rastreamento",
+        "start_tracking_message": "Alguns valores serão sobrescritos ao iniciar o rastreamento. Continuar?",
+        "stop_tracking_first": "Por favor, pare o rastreamento primeiro!",
+        "tracking_started": "Rastreamento iniciado",
+        "tracking_resumed": "Rastreamento retomado",
+        "tracking_stopped": "Rastreamento interrompido",
+        "tracking_started_at": "Rastreamento iniciado às {when}",
+        "task_started_at": "'{title}' iniciado às {when}"
+      }
+    },
+    "schedule": {
+      "title_hint": "Título da agenda",
+      "repetition_steps_hint": "Intervalo",
+      "custom_repetition_steps_description": "Escolha um intervalo personalizado.",
+      "repetition_steps_emphasis": "Selecione um intervalo da tarefa",
+      "due_at_hint": "Vencimento em",
+      "due_at_emphasis": "Selecione quando a tarefa vence",
+      "activate_schedule": "Ativar agenda",
+      "mark_as_important": "Marcar agenda como importante",
+      "due_on_hint": "Vencimento em",
+      "scheduled_from_emphasis": "Selecione quando a agenda começa",
+      "activate_reminders": "Ativar lembrete",
+      "remind_again_delay_description": "Escolha um atraso para lembrar novamente.",
+      "remind_after": "Novamente após {when}",
+      "remind_before_description": "Escolha lembrete antecipado",
+      "remind_before": "{when} antes",
+      "repetition_mode": "Modo de repetição dinâmico",
+      "repetition_mode_dynamic": "A próxima tarefa vence com base no intervalo escolhido e quando a tarefa recente foi concluída.",
+      "repetition_mode_fixed": "A próxima tarefa vence com base no intervalo exato, independentemente de quando a tarefa recente foi concluída.",
+      "repetition_mode_one_shot": "A próxima tarefa vence com base na data de vencimento fornecida, sem repetição.",
+      "fixed_monthly_hint": "Adicionar dias de vencimento adicionais por mês",
+      "fixed_monthly_title": "Dias possíveis de um mês arbitrário",
+      "fixed_monthly_message": "Selecione dias de vencimento adicionais de um mês arbitrário para esta agenda. Se um dia não existir no mês real (ex.: 31 de abril), a agenda será disparada antes (30 de abril). O mesmo ocorre para dias bissextos.",
+      "fixed_yearly_hint": "Adicionar dias de vencimento adicionais por ano",
+      "fixed_yearly_title": "Dias possíveis de um ano arbitrário",
+      "fixed_yearly_message": "Selecione dias de vencimento adicionais de um ano arbitrário para esta agenda. Se um dia não existir no ano real (ex.: 31 de abril), a agenda será disparada antes (30 de abril). O mesmo ocorre para dias bissextos.",
+      "create": {
+        "title": "Criar nova agenda",
+        "success": "Nova agenda com nome '{title}' foi criada"
+      },
+      "change": {
+        "title": "Alterar agenda '{title}'",
+        "success": "Agenda com nome '{title}' alterada"
+      }
+    },
+    "task": {
+      "title_hint": "Título da tarefa",
+      "duration_hint": "Duração usual",
+      "when_at_hint": "Horário de execução usual",
+      "reset": {
+        "title": "Restaurar padrão",
+        "message_task": "Isso restaurará a tarefa atual '{title}' ao padrão pré-definido.",
+        "message_variant": "Isso restaurará a variante atual '{title}' ao padrão pré-definido."
+      }
+    },
+    "task_group": {
+      "title_hint": "Nome da categoria",
+      "reset": {
+        "title": "Restaurar padrão",
+        "message": "Isso restaurará a categoria atual '{name}' ao padrão pré-definido"
+      },
+      "change_icon": {
+        "title": "Alterar ícone",
+        "message": "Selecione um ícone"
+      },
+      "change_color": {
+        "title": "Alterar cor",
+        "message": "Escolha uma cor"
+      }
+    }
+  },
+
+  "pages": {
+    "quick_add": {
+      "title": "Adição Rápida",
+      "menu": {
+        "pinning": {
+          "pinned": "Adição Rápida fixada como página inicial",
+          "unpinned": "Desafixada como página inicial"
+        },
+        "grouping": {
+          "by_categories": "Agrupar por categorias",
+          "not_by_categories": "Desagrupar por categorias"
+        },
+        "sorting": {
+          "by_category": "Ordenar por categoria",
+          "by_title": "Ordenar por título"
+        }
+      },
+      "action": {
+        "description": "O que você deseja criar?",
+        "new_quick_add": {
+          "title": "Nova Adição Rápida",
+          "description": "Selecione uma tarefa ou variante a ser adicionada à Adição Rápida."
+        },
+        "new_journal_entry": {
+          "title": "Nova entrada de diário",
+          "description": "Selecione uma categoria, tarefa ou variante a ser usada numa nova entrada de diário."
+        }
+      },
+      "addition": {
+        "success": "'{title}' foi adicionado à Adição Rápida",
+        "exists": "Já existe uma Adição Rápida para '{title}'"
+      },
+      "deletion": {
+        "title": "Remover Adição Rápida",
+        "description": "Tem certeza de remover a Adição Rápida para '{title}'? Isso não afetará a tarefa associada.",
+        "success": "Adição Rápida para '{title}' foi removida"
+
+      }
+    },
+    "journal": {
+      "title": "Diário",
+      "action": {
+        "description": "De onde você quer criar uma nova entrada de diário?",
+        "from_scratch": {
+          "title": "Do zero"
+        },
+        "from_task": {
+          "title": "A partir de tarefa",
+          "description": "Selecione uma categoria, tarefa ou variante a ser usada numa nova entrada de diário."
+        },
+        "deletion": {
+          "title": "Excluir entrada de diário",
+          "message": "Tem certeza de excluir a entrada '{title}'?",
+          "success": "Entrada de diário '{title}' excluída"
+        }
+      },
+      "details": {
+        "title": "Detalhes da entrada",
+        "attrib_title": "Título",
+        "attrib_category": "Categoria",
+        "attrib_created_at": "Criado em",
+        "attrib_started_at": "Iniciado em",
+        "attrib_finished_at": "Finalizado em",
+        "attrib_duration": "Duração real",
+        "associated_task": "Tarefa associada",
+        "associated_schedule": "Agendas associadas",
+        "value_uncategorized": "não categorizado",
+        "value_none": "nenhum"
+      }
+    },
+    "schedules": {
+      "title": "Agendas",
+      "menu": {
+        "pinning": {
+          "pinned": "Agendas fixadas como página inicial",
+          "unpinned": "Agendas desafixadas como página inicial"
+        },
+        "sorting": {
+          "by_progress": "Ordenar por progresso",
+          "by_remaining_time": "Ordenar por tempo restante",
+          "by_category": "Ordenar por categoria",
+          "by_title": "Ordenar por título",
+          "hide_non_active": "Ocultar inativas",
+          "important_on_top": "Importantes no topo"
+        },
+        "notifications": {
+          "enabled": "Todos os lembretes e notificações ativados",
+          "disabled": "Todos os lembretes e notificações desativados"
+        }
+      },
+      "overview": {
+        "running": "em execução",
+        "due": "pendente",
+        "overdue": "atrasado",
+        "due_now": "vencendo agora",
+        "paused": "pausado",
+        "inactive": "inativo",
+        "scheduled": "programado",
+        "completed": "concluído",
+        "later_due": "pendente mais tarde",
+        "due_yesterday_and_before": "Vencido antes de hoje",
+        "due_today": "Vence hoje",
+        "due_tomorrow": "Vence amanhã",
+        "due_after_tomorrow": "Vence depois de amanhã",
+        "paused_schedules": "Agendas pausadas",
+        "inactive_schedules": "Agendas inativas",
+        "reminder_activated": "Lembrete ativado",
+        "reminder_passed": "Lembrete expirado",
+        "remind_again": "Lembrar novamente",
+        "remind_again_successful": "Lembrete aparecerá novamente em {when}"
+      },
+      "notification": {
+        "title_normal_task": "Tarefa programada pendente",
+        "title_fixed_task": "Tarefa fixa programada pendente",
+        "message_normal_task": "A tarefa programada '{title}' está pendente!",
+        "message_fixed_task": "A tarefa fixa programada '{title}' está pendente!",
+        "message_fixed_last_task": "A última tarefa fixa programada '{title}' está pendente! Clique para receber futuras notificações!",
+        "pre_notification": {
+          "title_normal_task": "Tarefa programada prestes a vencer",
+          "title_fixed_task": "Tarefa fixa programada prestes a vencer",
+          "message_normal_task": "A tarefa programada '{title}' vence em {when}.",
+          "message_fixed_task": "A tarefa fixa programada '{title}' vence em {when}."
+        },
+        "action_track": "Registrar ou rastrear",
+        "action_done": "Está feito",
+        "action_snooze": "Lembrar em {when}"
+      },
+      "action": {
+        "reset": {
+          "title": "Redefinir progresso",
+          "message_then": "Tem certeza de redefinir o progresso de '{title}'? A agenda ficará pendente {nextDueDate} em {newNextDueDate}.",
+          "message_still": "Tem certeza de redefinir o progresso de '{title}'? A agenda ainda ficará pendente {nextDueDate} em {newNextDueDate}.",
+          "success": "Progresso de '{title}' redefinido para agora",
+          "title_custom": "Próxima data de vencimento de '{title}' é …",
+          "success_custom": "Próxima data de vencimento de '{title}' atualizada"
+        },
+        "move_forward": {
+          "title": "Pular data de vencimento",
+          "message": "Deseja avançar a data de vencimento de '{title}' para a próxima data baseada na agenda? A agenda ficará pendente {nextDueDate} em {newNextDueDate}.",
+          "success": "Data de vencimento de '{title}' atualizada"
+        },
+        "one_time": {
+          "title": "Parar agenda",
+          "message": "Você está prestes a parar a agenda única atual de '{title}'. A agenda será marcada como concluída sem nova entrada de diário. Tem certeza?",
+          "success": "Data de vencimento de '{title}' atualizada"
+        },
+        "pause_resume": {
+          "paused": "Agenda '{title}' pausada",
+          "resumed": "Agenda '{title}' retomada"
+        },
+        "addition": {
+          "title": "Agendar uma tarefa",
+          "message": "Selecione uma categoria, tarefa ou variante a ser agendada repetidamente."
+        },
+        "deletion": {
+          "title": "Excluir agenda",
+          "message": "Tem certeza de excluir a agenda '{title}'?",
+          "success": "Agenda '{title}' excluída"
+        }
+      },
+      "errors": {
+        "cannot_resume": "Não é possível executar agenda pausada! Primeiro retome-a!",
+        "cannot_reset": "Não é possível redefinir agenda pausada! Primeiro retome-a!",
+        "cannot_change_paused": "Não é possível mudar agenda pausada! Primeiro retome-a!",
+        "no_journal_entries": "Nenhuma entrada de diário para esta agenda até o momento"
+      }
+    },
+    "tasks": {
+      "title": "Tarefas",
+      "menu": {
+        "restore_a_task": {
+          "title": "Restaurar uma tarefa",
+          "description": "Selecione uma tarefa ou variante pré-definida previamente removida para restaurar.",
+          "success_group": "Categoria '{name}' restaurada.",
+          "success_task": "Tarefa '{title}' restaurada.",
+          "success_variant": "Variante '{title}' restaurada.",
+          "success_variant_parent_task": "Variante '{title}' e tarefa pai restauradas."
+        }
+      },
+      "action": {
+        "error_nothing_selected": "Primeiro selecione um item!",
+        "description_nothing_selected": "Crie uma nova categoria. Para mudar uma categoria existente, selecione-a primeiro.",
+        "description_group": "Adicione uma nova tarefa sob '{groupName}' ou altere/exclua a categoria selecionada.",
+        "description_task": "Altere ou remova a tarefa selecionada '{title}' ou adicione uma nova variante abaixo dela.",
+        "description_variant": "Altere ou remova a variante selecionada '{title}' ou clone-a como nova.",
+        "add_task": {
+          "title": "Adicionar nova tarefa",
+          "success": "Nova tarefa com nome '{title}' adicionada"
+        },
+        "change_task": {
+          "title": "Alterar tarefa",
+          "success": "Tarefa com nome '{title}' alterada"
+        },
+        "move_task_down": {
+          "title": "Transformar tarefa em variante",
+          "message": "Para qual tarefa a variante transformada deve pertencer?",
+          "success": "Tarefa com nome '{title}' transformada em variante"
+        },
+        "add_variant": {
+          "title": "Adicionar nova variante",
+          "variant_postfix": "variante",
+          "success": "Variante com nome '{title}' adicionada"
+        },
+        "change_variant": {
+          "title": "Alterar variante",
+          "success": "Variante com nome '{title}' alterada"
+        },
+        "move_variant_up": {
+          "success": "Variante com nome '{title}' transformada em tarefa"
+        },
+        "clone_variant": {
+          "title": "Clonar variante",
+          "success": "Variante com nome '{title}' clonada",
+          "cloned_postfix": "clonada"
+        },
+        "remove_task": {
+          "error_has_children": "Remova as variantes abaixo primeiro!",
+          "title": "Remover tarefa",
+          "message_custom": "Isso removerá a tarefa atual '{title}'. Esta ação não pode ser desfeita!",
+          "message_predefined": "Isso ocultará a tarefa atual '{title}'. Você pode restaurá‑la clicando no ícone de ação de restauração.",
+          "success": "A tarefa '{title}' foi removida"
+        },
+        "remove_variant": {
+          "title": "Remover variante",
+          "message_custom": "Isso removerá a variante atual '{title}'. Esta ação não pode ser desfeita!",
+          "message_predefined": "Isso ocultará a variante atual '{title}'. Você pode restaurá‑la clicando no ícone de ação de restauração.",
+          "success": "A variante '{title}' foi removida"
+        },
+        "create_task_group": {
+          "title": "Criar categoria",
+          "success": "Categoria '{name}' criada"
+        },
+        "change_task_group": {
+          "title": "Alterar categoria",
+          "success": "Categoria '{name}' alterada"
+        },
+        "remove_task_group": {
+          "error_has_children": "Remova as tarefas abaixo primeiro!",
+          "error_has_schedules": "Remova as agendas associadas primeiro!",
+          "title": "Remover categoria",
+          "message_custom": "Isso removerá a categoria atual '{name}'. Esta ação não pode ser desfeita!",
+          "message_predefined": "Isso ocultará a categoria atual '{name}'. Você pode restaurá‑la clicando no ícone de ação de restauração.",
+          "success": "A categoria '{name}' foi removida"
+        },
+        "create_new_schedule_for_task": "Agendar esta tarefa",
+        "create_new_schedule_for_variant": "Agendar esta variante"
+      }
+    },
+
+    "calendar": {
+      "title": "Task Calendar"
+    },
+    "settings": {
+      "common": {
+        "title": "Common",
+        "language": {
+          "title": "Language",
+          "dialog": {
+            "title": "Choose a language",
+            "options": {
+              "system_default": "System language",
+              "english": "English",
+              "german": "Deutsch",
+              "french": "Français",
+              "breton": "Brezhoneg",
+              "russian": "Русский",
+              "spain": "Español",
+              "chinese": "中国人",
+              "portuguese": "Português"
+            }
+          },
+          "language_not_supported": "'{languageCode}' not supported"
+        },
+        "theme": {
+          "title": "Dark theme"
+        }
+      },
+      "date_n_time": {
+        "title": "Date & Time",
+        "used_date_format": {
+          "title": "Used date format",
+          "description": "E.g. '{example_date}'",
+          "dialog": {
+            "title": "Choose a date format"
+          }
+        },
+        "show_weekdays": {
+          "title": "Show weekdays",
+          "description": "Show weekdays for dates"
+        },
+        "show_daytime_as_word": {
+          "title": "Show daytime as word",
+          "description": "E.g. shows '{evening}' for the evening"
+        },
+        "configure_daytimes": {
+          "title": "Change preconfigured daytimes",
+          "description": "Changes the actual daytime of e.g. 'evening'"
+        },
+        "reset_daytimes": {
+          "title": "Reset daytimes",
+          "description": "Do you want to reset the current configured daytimes to the default values?"
+        }
+      },
+      "action_feedback": {
+        "title": "Action feedback",
+        "show_action_feedback": {
+          "title": "Show action feedback",
+          "description": "Shows a short message after several user actions"
+        },
+        "duration": {
+          "title": "Action feedback duration",
+          "description": "Duration before messages disappear",
+          "dialog": {
+            "title": "Choose your read duration",
+            "options": {
+              "slow": "I need more time",
+              "normal": "Normal speed",
+              "quick": "I read quickly",
+              "fast": "I am super fast"
+            }
+          }
+        }
+      },
+      "behaviour": {
+        "title": "Behaviour",
+        "set_schedules_automatically_done": {
+          "title": "Set schedules automatically done",
+          "description" : "When creating a new journal entry with a task used by one or more schedules, automatically set these schedules done."
+        },
+        "show_schedules_count_as_badge": {
+          "title": "Show due scheduled tasks indicator",
+          "description" : "Show a badge indicator displaying the number of due or overdue scheduled tasks."
+        }
+      }
+    },
+    "export": {
+      "description": "Here you can takeout all journal entries as CSV file. The export happens in the background and may take a while.",
+      "export_created" : "CSV file {dst_path} created",
+      "export_aborted" : "CSV export aborted!"
+    },
+    "backup": {
+      "description": "Create a backup to be able to restore your data either on another device or after a fresh installation.",
+      "backup_created" : "Backup file {dst_path} created",
+      "backup_aborted" : "Backup aborted!"
+    },
+    "restore": {
+      "dialog": {
+        "title": "Restore from file",
+        "message": "Restoring a backup file will swipe all your current data! Continue?"
+      },
+      "backup_restored" : "Backup restored",
+      "restore_aborted" : "Restore aborted!"
+    },
+    "about" : {
+      "title": "About Everyday Tasks",
+      "message": "Everyday Tasks is an easy and quickly to use app to log, track and schedule daily tasks",
+      "star_it": "If you like the app, give a star on {link}"
+    }
+  },
+
+  "filter": {
+    "menu": {
+      "by_date_range": "Filter by date range",
+      "by_severity": "Filter by severity",
+      "by_favorites": "Filter favorites",
+      "by_schedule": "Filter by schedule",
+      "by_task": "Filter by task",
+      "clear_all": "Clear filters"
+    },
+    "hint_filter_by_schedule": "Filter by schedule '{title}' is selected. Click '{clearAll}' to reset.",
+    "filter_by_task_title": "Filter by task",
+    "filter_by_task_description": "Select a category, task or variant to filter by."
+  },
+
+  "stats": {
+    "title": "Journal statistics",
+    "total_count": "Total count",
+    "total_duration": "Duration",
+    "by_categories": "Categories",
+    "by_tasks": "Tasks"
+  },
+
+  "walk_through": {
+    "banner": {
+      "text": "Learn how the app works! Start a walk-through here.",
+      "start_action": "Start",
+      "dismiss_action" : "Dismiss"
+    },
+    "action_button": {
+      "title": "Track tasks, create schedules etc..",
+      "description": "Click here to track tasks, bookmark them or create schedules. The actions are based on the selected page."
+    },
+    "quick_add": {
+      "title": "Fast tracking of your most important tasks",
+      "description": "Here you can bookmark your most frequent tasks to set them done quickly."
+    },
+    "journal": {
+      "title": "See all completed tasks",
+      "description": "On this page you will see all ever tracked and logged completed tasks."
+    },
+    "schedules": {
+      "title": "Schedule recurring tasks",
+      "description": "On this page you can define recurring tasks based on a schedule to get notified when due."
+    },
+    "tasks": {
+      "title": "Manage all predefined tasks",
+      "description": "And there you can manage all categories, tasks and variants to be used as templates."
+    },
+    "extensions": {
+      "title": "Drag up to see more extensions",
+      "description": "Here you can access additional features like an overall calendar view."
+    }
+  },
+
+  "common" : {
+    "ok": "Ok",
+    "cancel": "Cancel",
+    "search": "Search",
+    "units": {
+      "year": {
+        "zero": "years",
+        "one": "year",
+        "two": "years",
+        "other": "years"
+      },
+      "month": {
+        "zero": "months",
+        "one": "month",
+        "two": "months",
+        "other": "months"
+      },
+      "week": {
+        "zero": "weeks",
+        "one": "week",
+        "two": "weeks",
+        "other": "weeks"
+      },
+      "day": {
+        "zero": "days",
+        "one": "day",
+        "two": "days",
+        "other": "days"
+      },
+      "hour": {
+        "zero": "hours",
+        "one": "hour",
+        "two": "hours",
+        "other": "hours"
+      },
+      "minute": {
+        "zero": "minutes",
+        "one": "minute",
+        "two": "minutes",
+        "other": "minutes"
+      },
+      "second": {
+        "zero": "seconds",
+        "one": "second",
+        "two": "seconds",
+        "other": "seconds"
+      },
+      "item": {
+        "zero": "entries",
+        "one": "entry",
+        "two": "entries",
+        "other": "entries"
+      },
+      "schedule": {
+        "zero": "schedules",
+        "one": "schedule",
+        "two": "schedules",
+        "other": "schedules"
+      }
+    },
+    "dates": {
+      "before_yesterday": "Before yesterday",
+      "yesterday": "Yesterday",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "after_tomorrow": "After tomorrow"
+    },
+    "times": {
+      "now": "Now",
+      "in_the_morning": "In the morning",
+      "at_forenoon": "At forenoon",
+      "at_noon": "At noon",
+      "at_afternoon": "At afternoon",
+      "in_the_evening": "In the evening",
+      "at_night": "At night"
+    },
+    "durations": {
+      "half_an_hour": "half an hour",
+      "three_quarters_of_an_hour": "three quarters of an hour",
+      "an_hour": "an hour",
+      "one_and_a_half": "one and a half hours"
+    },
+    "words": {
+      "on_for_dates": "on",
+      "at_for_times": "at",
+      "for_for_times": "for",
+      "in_for_times": "in",
+      "to_for_times": "to",
+      "ago_for_times": "{when} ago",
+      "and": "and",
+      "thereof": "thereof",
+      "custom": "custom",
+      "around": "around",
+      "on_for_enabled": "on",
+      "off_for_disabled": "off",
+      "clear": "clear",
+      "important": "important",
+      "value": "value",
+      "unit": "unit",
+      "unknown": "unknown",
+      "unspecified": "not set",
+      "others": "others",
+      "total": "total"
+    }
+  },
+
+  "model": {
+
+    "severity": {
+      "easy": "Leve",
+      "medium": "Médio",
+      "hard": "Difícil"
+    },
+    "repetition_step": {
+      "daily": "Diariamente",
+      "every_other_day": "A cada dois dias",
+      "weekly": "Semanalmente",
+      "every_other_week": "A cada duas semanas",
+      "monthly": "Mensalmente",
+      "every_other_month": "A cada dois meses",
+      "quarterly": "Trimestralmente",
+      "half_yearly": "Semestralmente",
+      "yearly": "Anualmente",
+      "every": "Cada"
+    },
+    "repetition_unit": {
+      "minutes": "Minutos",
+      "hours": "Horas",
+      "days": "Dias",
+      "weeks": "Semanas",
+      "months": "Meses",
+      "years": "Anos"
+    },
+    "repetition_mode": {
+      "dynamic": "Flexível",
+      "fixed": "Fixo",
+      "one_time": "Único"
+    }
+  },
+
+  "task_groups": {
+
+    "cleaning_n_tidy_up": {
+      "name": "Limpeza & Organização",
+      "templates": {
+        "tidy_up": {
+          "title": "Arrumar",
+          "variants": {
+            "tidy_up_kitchen": {
+              "title": "Arrumar cozinha"
+            },
+            "tidy_up_living_room": {
+              "title": "Arrumar sala de estar"
+            }
+          }
+        },
+        "cleaning": {
+          "title": "Limpeza",
+          "variants": {
+            "cleaning_toilet": {
+              "title": "Limpar banheiro"
+            },
+            "cleaning_sink": {
+              "title": "Limpar pia"
+            },
+            "cleaning_shower_o_bathtub": {
+              "title": "Limpar chuveiro / banheira"
+            },
+            "cleaning_windows": {
+              "title": "Limpar janelas"
+            },
+            "cleaning_fridge": {
+              "title": "Limpar geladeira"
+            }
+          }
+        },
+        "hoovering": {
+          "title": "Passar aspirador"
+        },
+        "wiping": {
+          "title": "Passar pano"
+        },
+        "empty_bin": {
+          "title": "Esvaziar lixeira"
+        },
+        "dispose_wastepaper_n_used_glass": {
+          "title": "Descartar papel e vidro usado"
+        }
+      }
+    },
+
+    "laundry": {
+      "name": "Lavanderia",
+      "templates": {
+        "fill_washing_machine": {
+          "title": "Encher máquina de lavar"
+        },
+        "empty_washing_machine": {
+          "title": "Esvaziar máquina de lavar",
+          "description": "Esvaziar e colocar na secadora"
+        },
+        "get_from_laundry_rack": {
+          "title": "Retirar da secadora"
+        },
+        "put_to_closet": {
+          "title": "Guardar no armário"
+        },
+        "ironing": {
+          "title": "Passar roupa"
+        },
+        "change_bed_linen": {
+          "title": "Trocar roupa de cama"
+        },
+        "change_towels": {
+          "title": "Trocar toalhas"
+        }
+      }
+    },
+
+    "cooking": {
+      "name": "Cozinha",
+      "templates": {
+        "prepare_breakfast": {
+          "title": "Preparar café da manhã"
+        },
+        "cook_lunch": {
+          "title": "Preparar almoço"
+        },
+        "prepare_dinner": {
+          "title": "Preparar jantar"
+        }
+      }
+    },
+
+    "dishes": {
+      "name": "Louça",
+      "templates": {
+        "wash_up": {
+          "title": "Lavar louça",
+          "variants": {
+            "wash_up_after_dinner": {
+              "title": "Lavar louça após o jantar"
+            },
+            "wash_up_after_lunch": {
+              "title": "Lavar louça após o almoço"
+            }
+          }
+        },
+        "dry_up": {
+          "title": "Secar louça"
+        },
+        "fill_n_start_dishwasher": {
+          "title": "Encher e ligar a lava‑louças"
+        },
+        "empty_dishwasher": {
+          "title": "Esvaziar lava‑louças"
+        }
+      }
+    },
+
+    "errands": {
+      "name": "Compras",
+      "templates": {
+        "shop_groceries": {
+          "title": "Comprar mantimentos"
+        },
+        "shop_diapers": {
+          "title": "Comprar fraldas"
+        }
+      }
+    },
+
+    "kids": {
+      "name": "Crianças",
+      "templates": {
+        "feeding": {
+          "title": "Alimentar"
+        },
+        "bring_to_daycare": {
+          "title": "Levar ao berçário"
+        },
+        "pickup_from_daycare": {
+          "title": "Buscar no berçário"
+        },
+        "bring_to_bed": {
+          "title": "Levar para a cama"
+        }
+      }
+    },
+
+    "indoor_plants": {
+      "name": "Plantas internas",
+      "templates": {
+        "water_plants": {
+          "title": "Regar plantas"
+        },
+        "dung_plants": {
+          "title": "Adubar plantas"
+        }
+      }
+    },
+
+    "garden": {
+      "name": "Jardim",
+      "templates": {
+        "water_vegetable_patch": {
+          "title": "Regar horta"
+        },
+        "dig_vegetable_patch": {
+          "title": "Cavar horta"
+        },
+        "cut_lawn": {
+          "title": "Cortar grama"
+        }
+      }
+    },
+
+    "maintenance": {
+      "name": "Manutenção",
+      "templates": {
+        "defrost_fridge": {
+          "title": "Degelar geladeira"
+        },
+        "fixing": {
+          "title": "Consertar"
+        }
+      }
+    },
+
+    "organization": {
+      "name": "Organização",
+      "templates": {
+        "organize_vacation": {
+          "title": "Organizar férias"
+        },
+        "shop_gifts": {
+          "title": "Pesquisar presentes"
+        }
+      }
+    },
+
+    "car": {
+      "name": "Carro",
+      "templates": {
+        "regular_inspection": {
+          "title": "Inspeção regular"
+        },
+        "change_windshield_wipers": {
+          "title": "Trocar limpadores de para-brisa"
+        },
+        "change_tires": {
+          "title": "Trocar pneus",
+          "description": "pneus inverno / verão"
+        }
+      }
+    },
+
+    "pets": {
+      "name": "Animais de estimação",
+      "templates": {
+        "go_for_a_walk": {
+          "title": "Passear",
+          "description": "com o cachorro"
+        },
+        "clean_aquarium_terrarium": {
+          "title": "Limpar aquário/terrário"
+        },
+        "go_to_vet": {
+          "title": "Ir ao veterinário"
+        }
+      }
+    },
+
+    "finance": {
+      "name": "Finanças",
+      "templates": {
+        "pay_instalments": {
+          "title": "Pagar parcelas"
+        },
+        "pay_rent": {
+          "title": "Pagar aluguel"
+        }
+      }
+    },
+
+    "health": {
+      "name": "Saúde",
+      "templates": {
+        "take_medication": {
+          "title": "Tomar medicação"
+        },
+        "regular_health_check_up": {
+          "title": "Check‑up de saúde regular"
+        },
+        "yearly_dentist_examination": {
+          "title": "Exame odontológico anual"
+        }
+      }
+    },
+
+    "sport": {
+      "name": "Esporte",
+      "templates": {
+        "go_to_gym": {
+          "title": "Ir à academia"
+        },
+        "do_a_workout": {
+          "title": "Fazer treino"
+        }
+      }
+    },
+
+    "work": {
+      "name": "Trabalho",
+      "templates": {
+        "submit_expenses": {
+          "title": "Enviar despesas"
+        },
+        "negotiate_salary": {
+          "title": "Negociar salário"
+        }
+      }
+    },
+
+    "private": {
+      "name": "Privado",
+      "templates": {
+        "call_a_friend": {
+          "title": "Ligar para um amigo"
+        },
+        "visit_family": {
+          "title": "Visitar a família"
+        }
+      }
+    },
+
+    "hygiene": {
+      "name": "Higiene",
+      "templates": {
+        "brush_toots": {
+          "title": "Escovar os dentes"
+        },
+        "take_a_shower": {
+          "title": "Tomar banho"
+        },
+        "go_to_the_hairdresser": {
+          "title": "Ir ao cabeleireiro"
+        }
+      }
+    },
+
+    "voluntary": {
+      "name": "Voluntariado",
+      "templates": {
+        "donate_blood": {
+          "title": "Doar sangue"
+        },
+        "support_others": {
+          "title": "Apoiar outras pessoas"
+        }
+      }
+    },
+
+    "others": {
+      "name": "Outros"
+    },
+
+    "deleted": {
+      "name": ""
+    }
+
+  }
+}

@@ -155,7 +155,7 @@ class TaskEventFilterState extends State<TaskEventFilter> {
                       ]
                   ),
                   value: '4'),
-              PopupMenuItem<String>(
+              if (taskFilterSettings.isFilterActive()) PopupMenuItem<String>(
                   child: Row(
                       children: [
                         Icon(

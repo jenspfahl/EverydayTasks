@@ -716,8 +716,8 @@ class _CalendarPageStatus extends State<CalendarPage> {
     if (_selectedEvent != event) {
       debugPrint("open $sheetController");
       _updateSelectedEvent(event);
-      sheetController = scaffoldKey.currentState?.showBottomSheet((context) {
-        return _buildEventSheet(context, event.event!);
+      sheetController = scaffoldKey.currentState?.showBottomSheet((sheetContext) {
+        return _buildEventSheet(sheetContext, context, event.event!);
       });
       sheetController?.closed
           .whenComplete(() => _updateSelectedEvent(null));
@@ -727,9 +727,17 @@ class _CalendarPageStatus extends State<CalendarPage> {
     }
   }
 
-  Widget _buildEventSheet(BuildContext context, TitleAndDescription event) {
+  Widget _buildEventSheet(BuildContext sheetContext, BuildContext parentContext, TitleAndDescription event) {
     final taskGroup = _getTaskGroupFromEvent(event);
-    return _buildEventSheetContent(event, taskGroup);
+
+    EdgeInsets padding = MediaQuery.paddingOf(parentContext);
+
+    return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildEventSheetContent(event, taskGroup),
+          SizedBox(height: padding.bottom),
+        ]);
   }
 
   Widget _buildEventSheetContent(event, TaskGroup? taskGroup) {

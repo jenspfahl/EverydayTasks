@@ -63,7 +63,7 @@
       "title_hint": "Название расписания",
       "repetition_steps_hint": "Интервал",
       "custom_repetition_steps_description": "Выбрать свой интервал.",
-      "repetition_steps_emphasis": "Выберете интервал для задачи",
+      "repetition_steps_emphasis": "Выберите интервал для задачи",
       "due_at_hint": "Сделать до",
       "due_at_emphasis": "Выберите срок выполнения задачи",
       "activate_schedule": "Активировать расписание",
@@ -141,7 +141,7 @@
         "description" : "Что вы хотите создать?",
         "new_quick_add": {
           "title": "Из быстрого добавления",
-          "description": "Выберите задачу или вариант которую нужно добавить в Быстрое Добавление."
+          "description": "Выберите задачу или вариант которую нужно добавить в быстрое добавление."
         },
         "new_journal_entry": {
           "title": "Новая запись в журнале",
@@ -149,13 +149,13 @@
         }
       },
       "addition": {
-        "success": "'{title}' добавлено в Быстрые Добавления",
-        "exists": "Быстрое Добавление '{title}' ещё существует"
+        "success": "'{title}' добавлено в Быстрые добавления",
+        "exists": "Быстрое добавление '{title}' ещё существует"
       },
       "deletion": {
-        "title": "Удалить Быстрое Добавление",
-        "description": "Вы действительно хотите удалите Быстрое Добавление '{title}'? Это не затронет связанную задачу.",
-        "success": "Быстрое Добавление '{title}' было удалено"
+        "title": "Удалить быстрое добавление",
+        "description": "Вы действительно хотите удалите быстрое добавление '{title}'? Это не затронет связанную задачу.",
+        "success": "Быстрое добавление '{title}' было удалено"
       }
     },
     "journal": {
@@ -198,7 +198,7 @@
         },
         "sorting": {
           "by_progress": "Сортировать по прогрессу",
-          "by_remaining_time": "Сортировать по оставшемуся времени",
+          "by_remaining_time": "Сорт. по оставшемуся времени",
           "by_category": "Сортировать по категории",
           "by_title": "Сортировать по заголовку",
           "hide_non_active": "Скрыть неактивные",
@@ -243,6 +243,7 @@
           "message_fixed_task": "В {when} наступит срок запланированной фиксированной задачи '{title}'."
         },
         "action_track": "Записать или отследить",
+        "action_done": "Сделано",
         "action_snooze": "Напомнить в {when}"
       },
       "action": {
@@ -361,7 +362,9 @@
           "message_custom": "Удалить категорию '{name}'. Операция необратима!",
           "message_predefined": "Удалить категорию '{name}' скрыв её. Вы можете восстановить нажав на значок восстановления.",
           "success": "Категория '{name}' удалена."
-        }
+        },
+        "create_new_schedule_for_task": "Запланировать эту задачу",
+        "create_new_schedule_for_variant": "Запланировать этот вариант"
       }
     },
     "calendar": {
@@ -373,7 +376,7 @@
         "language": {
           "title": "Язык (Language)",
           "dialog": {
-            "title": "Выберете язык",
+            "title": "Выберите язык",
             "options": {
               "system_default": "Язык системы",
               "english": "English",
@@ -382,7 +385,8 @@
               "breton": "Brezhoneg",
               "russian": "Русский",
               "spain": "Español",
-              "chinese": "中国人"
+              "chinese": "中国人",
+              "portuguese": "Português"
             }
           },
           "language_not_supported": "'{languageCode}' not supported"
@@ -484,7 +488,7 @@
     },
     "hint_filter_by_schedule": "Выбран фильтр по расписанию '{title}'. Нажмите '{clearAll}' чтобы сбросить.",
     "filter_by_task_title": "Фильтровать по задаче",
-    "filter_by_task_description": "Выберете категорию, задачу или вариант по которым отфильтровать."
+    "filter_by_task_description": "Выберите категорию, задачу или вариант по которым отфильтровать."
   },
   "stats": {
     "title": "Статистика журнала",
@@ -601,7 +605,7 @@
       "at_night": "Ночью"
     },
     "durations": {
-      "half_an_hour": "пол часа",
+      "half_an_hour": "полчаса",
       "three_quarters_of_an_hour": "45 минут",
       "an_hour": "час",
       "one_and_a_half": "полтора часа"
@@ -610,9 +614,9 @@
       "on_for_dates": "числа",
       "at_for_times": "в",
       "for_for_times": "займёт",
-      "in_for_times": "в",
+      "in_for_times": "через",
       "to_for_times": "до",
-      "ago_for_times": "{when} тому",
+      "ago_for_times": "{when} тому назад",
       "and": "и",
       "thereof": "из них",
       "custom": "выбрать",
@@ -624,6 +628,7 @@
       "value": "значение",
       "unit": "единица",
       "unknown": "неизвестно",
+      "unspecified": "не задано",
       "others": "другие",
       "total": "всего"
     }
@@ -648,12 +653,12 @@
       "every": "Каждый"
     },
     "repetition_unit": {
-      "minutes": "Минут",
-      "hours": "Часов",
-      "days": "Дней",
-      "weeks": "Недель",
-      "months": "Месяцев",
-      "years": "Лет"
+      "minutes": "минут",
+      "hours": "часов",
+      "days": "дней",
+      "weeks": "недель",
+      "months": "месяцев",
+      "years": "лет"
     },
     "repetition_mode": {
       "dynamic": "Гибкий",

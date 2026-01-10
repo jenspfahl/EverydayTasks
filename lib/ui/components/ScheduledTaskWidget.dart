@@ -91,57 +91,62 @@ class ScheduledTaskWidget extends StatefulWidget {
     }));
 
     if (newTaskEvent != null) {
-      final insertedTaskEvent = await TaskEventRepository.insert(newTaskEvent);
-      pagesHolder
-          .taskEventList
-          ?.getGlobalKey()
-          .currentState
-          ?.addTaskEvent(insertedTaskEvent, justSetState: true);
-
-      if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
-
-        // move schedule forward if check-marked directly
-        var newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
-        if (!scheduledTask.isDue()) {
-          // get schedule after next due date to move forward
-          newNextDueDate = scheduledTask.getNextScheduleAfter(newNextDueDate);
-        }
-        scheduledTask.lastScheduledEventOn = scheduledTask.getPreviousScheduleBefore(newNextDueDate);
-
-      }
-      else {
-        scheduledTask.executeSchedule(insertedTaskEvent);
-      }
-      ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
-        cancelSnoozedNotification(scheduledTask);
-        pagesHolder
-            .scheduledTaskList
-            ?.getGlobalKey()
-            .currentState
-            ?.updateScheduledTask(scheduledTask, changedScheduledTask);
-
-        DueScheduleCountService().dec();
-
-        final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(insertedTaskEvent, scheduledTask);
-        ScheduledTaskEventRepository.insert(scheduledTaskEvent);
-
-        toastInfo(context, translate('forms.task_event.create.success',
-            args: {"title" : insertedTaskEvent.translatedTitle}));
-
-        PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-        if (root != null) {
-          final taskEventListState = pagesHolder.taskEventList?.getGlobalKey().currentState;
-          if (taskEventListState != null) {
-            taskEventListState.clearFilters();
-          }
-          root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, insertedTaskEvent.id.toString(), null);
-        }
-      });
-      return insertedTaskEvent;
+      return await insertTaskEvent(context, pagesHolder, newTaskEvent, scheduledTask);
     }
     else {
       return null;
     }
+  }
+
+  static Future<TaskEvent> insertTaskEvent(BuildContext context, PagesHolder pagesHolder,
+      TaskEvent newTaskEvent, ScheduledTask scheduledTask) async {
+    final insertedTaskEvent = await TaskEventRepository.insert(newTaskEvent);
+    pagesHolder
+        .taskEventList
+        ?.getGlobalKey()
+        .currentState
+        ?.addTaskEvent(insertedTaskEvent, justSetState: true);
+    
+    if (scheduledTask.schedule.repetitionMode == RepetitionMode.FIXED) {
+    
+      // move schedule forward if check-marked directly
+      var newNextDueDate = scheduledTask.simulateExecuteSchedule(null);
+      if (!scheduledTask.isDue()) {
+        // get schedule after next due date to move forward
+        newNextDueDate = scheduledTask.getNextScheduleAfter(newNextDueDate);
+      }
+      scheduledTask.lastScheduledEventOn = scheduledTask.getPreviousScheduleBefore(newNextDueDate);
+    
+    }
+    else {
+      scheduledTask.executeSchedule(insertedTaskEvent);
+    }
+    ScheduledTaskRepository.update(scheduledTask).then((changedScheduledTask) {
+      cancelSnoozedNotification(scheduledTask);
+      pagesHolder
+          .scheduledTaskList
+          ?.getGlobalKey()
+          .currentState
+          ?.updateScheduledTask(scheduledTask, changedScheduledTask);
+    
+      DueScheduleCountService().dec();
+    
+      final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(insertedTaskEvent, scheduledTask);
+      ScheduledTaskEventRepository.insert(scheduledTaskEvent);
+    
+      toastInfo(context, translate('forms.task_event.create.success',
+          args: {"title" : insertedTaskEvent.translatedTitle}));
+    
+      PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
+      if (root != null) {
+        final taskEventListState = pagesHolder.taskEventList?.getGlobalKey().currentState;
+        if (taskEventListState != null) {
+          taskEventListState.clearFilters();
+        }
+        root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, insertedTaskEvent.id.toString(), null);
+      }
+    });
+    return insertedTaskEvent;
   }
 
   static void cancelSnoozedNotification(ScheduledTask scheduledTask) {

@@ -10,8 +10,11 @@ import 'package:personaltasklogger/db/repository/ChronologicalPaging.dart';
 import 'package:personaltasklogger/db/repository/ScheduledTaskRepository.dart';
 import 'package:personaltasklogger/model/Schedule.dart';
 import 'package:personaltasklogger/model/ScheduledTask.dart';
+import 'package:personaltasklogger/model/Severity.dart';
+import 'package:personaltasklogger/model/TaskEvent.dart';
 import 'package:personaltasklogger/model/TaskGroup.dart';
 import 'package:personaltasklogger/model/Template.dart';
+import 'package:personaltasklogger/model/TemplateId.dart';
 import 'package:personaltasklogger/service/DueScheduleCountService.dart';
 import 'package:personaltasklogger/service/LocalNotificationService.dart';
 import 'package:personaltasklogger/service/PreferenceService.dart';
@@ -24,6 +27,8 @@ import 'package:personaltasklogger/util/extensions.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 import '../../db/repository/TaskGroupRepository.dart';
+import '../../db/repository/TemplateRepository.dart';
+import '../../model/When.dart';
 import '../../util/units.dart';
 import '../components/ScheduledTaskWidget.dart';
 import '../components/ToggleActionIcon.dart';
@@ -41,6 +46,7 @@ final String PREF_PIN_SCHEDULES = "scheduledTasks/pinPage";
 final pinSchedulesPageIconKey = new GlobalKey<ToggleActionIconState>();
 final disableNotificationIconKey = new GlobalKey<ToggleActionIconState>();
 final SCHEDULED_TASK_LIST_ROUTING_KEY = "ScheduledTasks";
+
 
 @immutable
 class ScheduledTaskList extends PageScaffold<ScheduledTaskListState> {
@@ -638,12 +644,62 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         final clickedScheduledTask = _scheduledTasks.firstWhereOrNull((scheduledTask) => scheduledTask.id == scheduleId);
         if (clickedScheduledTask != null) {
           _updateSelectedTile(clickedScheduledTask);
-          if (actionId == "track") {
+          if (actionId == LocalNotificationAction.track.name) {
             ScheduledTaskWidget.openAddJournalEntryFromSchedule(context, widget._pagesHolder, clickedScheduledTask);
+          }
+          else if (actionId == LocalNotificationAction.done.name) {
+            final templateId = clickedScheduledTask.templateId;
+            if (templateId != null) {
+              TemplateRepository.findById(templateId).then((template) {
+                _createTaskEventFromSchedule(clickedScheduledTask, template);
+              });
+            }
+            else {
+              _createTaskEventFromSchedule(clickedScheduledTask, null);
+            }
           }
         }
       }
     });
+  }
+
+  void _createTaskEventFromSchedule(ScheduledTask clickedScheduledTask, Template? template) {
+
+    final aroundDurationHours = template?.when?.durationHours;
+    Duration duration = Duration.zero;
+    if (aroundDurationHours != null) {
+      duration = When.fromDurationHoursToDuration(aroundDurationHours, template?.when?.durationExactly);
+    }
+
+    final aroundStartedAt = template?.when?.startAt ?? AroundWhenAtDay.NOW;
+    final TimeOfDay startedAtExactly;
+    if (aroundStartedAt == AroundWhenAtDay.NOW) {
+      startedAtExactly = TimeOfDay.fromDateTime(DateTime.now().subtract(duration));
+    }
+    else {
+      startedAtExactly = template?.when?.startAtExactly ?? When.fromWhenAtDayToTimeOfDay(aroundStartedAt, TimeOfDay.now());
+    }
+
+
+    final now = DateTime.now();
+    final startedAt = DateTime(now.year, now.month, now.day, startedAtExactly.hour,
+          startedAtExactly.minute, 0);
+
+
+    final newTaskEvent = TaskEvent(null,
+        template?.taskGroupId ?? clickedScheduledTask.taskGroupId,
+        template?.tId,
+        template?.translatedTitle ?? clickedScheduledTask.translatedTitle,
+        template?.translatedDescription ?? clickedScheduledTask.translatedDescription,
+        now,
+        startedAt,
+        aroundStartedAt, 
+        duration,
+        aroundDurationHours ?? AroundDurationHours.UNSPECIFIED,
+        now,
+        template?.severity ?? Severity.MEDIUM,
+        false);
+    ScheduledTaskWidget.insertTaskEvent(context, widget._pagesHolder, newTaskEvent, clickedScheduledTask);
   }
 
   Widget _buildRow(int index, ScheduledTask scheduledTask, TaskGroup taskGroup) {
@@ -828,39 +884,43 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
             selectedTemplateItem = selectedItem;
           });
         },
-        okPressed: () async {
+        okPressed: () {
             if (selectedTemplateItem == null) {
               return;
             }
             Navigator.pop(context);
-            ScheduledTask? newScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return ScheduledTaskForm(
-                formTitle: translate('forms.schedule.create.title'),
-                taskGroup: selectedTemplateItem is Template
-                  ? TaskGroupRepository.findByIdFromCache((selectedTemplateItem as Template).taskGroupId)
-                  : selectedTemplateItem as TaskGroup,
-                template: selectedTemplateItem is Template
-                  ? selectedTemplateItem as Template
-                  : null,
-              );
-            }));
-
-            if (newScheduledTask != null) {
-              ScheduledTaskRepository.insert(newScheduledTask).then((newScheduledTask) {
-
-                toastInfo(context, translate('forms.schedule.create.success',
-                  args: {"title": newScheduledTask.translatedTitle}));
-
-                _addScheduledTask(newScheduledTask);
-
-                DueScheduleCountService().gather();
-              });
-            }
+            openNewScheduledTaskForm(selectedTemplateItem);
         },
         cancelPressed: () {
           Navigator.pop(super.context);
         });
 
+  }
+
+  Future<void> openNewScheduledTaskForm(Object? selectedTemplateItem) async {
+    ScheduledTask? newScheduledTask = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return ScheduledTaskForm(
+        formTitle: translate('forms.schedule.create.title'),
+        taskGroup: selectedTemplateItem is Template
+          ? TaskGroupRepository.findByIdFromCache((selectedTemplateItem).taskGroupId)
+          : selectedTemplateItem as TaskGroup,
+        template: selectedTemplateItem is Template
+          ? selectedTemplateItem
+          : null,
+      );
+    }));
+    
+    if (newScheduledTask != null) {
+      ScheduledTaskRepository.insert(newScheduledTask).then((newScheduledTask) {
+    
+        toastInfo(context, translate('forms.schedule.create.success',
+          args: {"title": newScheduledTask.translatedTitle}));
+    
+        _addScheduledTask(newScheduledTask);
+    
+        DueScheduleCountService().gather();
+      });
+    }
   }
 
   @override
@@ -971,9 +1031,10 @@ class ScheduledTaskListState extends PageScaffoldState<ScheduledTaskList> with A
         CHANNEL_ID_SCHEDULES,
         taskGroup.backgroundColor(context),
         [
-          AndroidNotificationAction("track", translate('pages.schedules.notification.action_track'), showsUserInterface: true),
+          AndroidNotificationAction(LocalNotificationAction.track.name, translate('pages.schedules.notification.action_track'), showsUserInterface: true),
+          AndroidNotificationAction(LocalNotificationAction.done.name, translate('pages.schedules.notification.action_done'), showsUserInterface: true),
           if (snooze != null)
-            AndroidNotificationAction("snooze", translate('pages.schedules.notification.action_snooze',
+            AndroidNotificationAction(LocalNotificationAction.snooze.name, translate('pages.schedules.notification.action_snooze',
               args: {"when" : Schedule.fromCustomRepetitionToUnit(snooze, usedClause(context, Clause.dative))}), showsUserInterface: false),
         ],
         true,

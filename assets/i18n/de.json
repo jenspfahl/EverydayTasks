@@ -243,6 +243,7 @@
           "message_fixed_task": "Geplante feste Aufgabe '{title}' ist in {when} fällig!"
         },
         "action_track": "Erfassen",
+        "action_done": "Ist erledigt",
         "action_snooze": "In {when} erinnern"
       },
       "action": {
@@ -361,7 +362,9 @@
           "message_custom": "Die Kategorie '{name}' soll entfernt werden. Dies kann nicht rückgängig gemacht werden!",
           "message_predefined": "Die Kategorie '{name}' wird entfernt indem sie versteckt wird. Du kannst sie wiederherstellen, indem du auf das Wiederherstellungs-Symbol klickst.",
           "success": "Die Kategorie '{name}' wurde entfernt"
-        }
+        },
+        "create_new_schedule_for_task": "Plane diese Aufgabe",
+        "create_new_schedule_for_variant": "Plane diese Variante"
       }
     },
     "calendar": {
@@ -382,7 +385,8 @@
               "breton": "Brezhoneg",
               "russian": "Русский",
               "spain": "Español",
-              "chinese": "中国人"
+              "chinese": "中国人",
+              "portuguese": "Português"
             }
           },
           "language_not_supported": "'{languageCode}' nicht unterstützt"
@@ -678,6 +682,7 @@
       "value": "Wert",
       "unit": "Einheit",
       "unknown": "unbekannt",
+      "unspecified": "nicht angegeben",
       "others": "andere",
       "total": "insgesamt"
     }

@@ -92,96 +92,98 @@ class _TaskGroupFormState extends State<TaskGroupForm> {
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            child: Builder(
-              builder: (scaffoldContext) => Form(
-                key: _formKey,
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      TextFormField(
-                        controller: nameController,
-                        decoration: InputDecoration(
-                          hintText: translate('forms.task.title_hint'),
-                          icon: _taskGroup!.getIcon(true),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              child: Builder(
+                builder: (scaffoldContext) => Form(
+                  key: _formKey,
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        TextFormField(
+                          controller: nameController,
+                          decoration: InputDecoration(
+                            hintText: translate('forms.task.title_hint'),
+                            icon: _taskGroup!.getIcon(true),
+                          ),
+                          maxLength: 50,
+                          keyboardType: TextInputType.text,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return translate('forms.common.title_emphasis');
+                            }
+                            return null;
+                          },
                         ),
-                        maxLength: 50,
-                        keyboardType: TextInputType.text,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return translate('forms.common.title_emphasis');
-                          }
-                          return null;
-                        },
-                      ),
-                      ButtonBar(
-                        alignment: MainAxisAlignment.center,
-                        //    buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: () async {
-                              final iconData = await showIconPickerDialog(context, translate('forms.task_group.change_icon.message'));
-                              if (iconData != null) {
-                                setState(() => _taskGroup!.iconData = iconData);
-                              }
-                            },
-                            icon: _taskGroup!.getIcon(false),
-                            label: Text(translate('forms.task_group.change_icon.title')),
-                          ),
-                          OutlinedButton.icon(
-                            onPressed: () {
-                              Color? _color;
-                              showColorPicker(
-                                  context,
-                                  title: translate('forms.task_group.change_color.message'),
-                                  initialColor: _taskGroup!.foregroundColor(context),
-                                  onColorChanged: (color) => _color = color,
-                                  onOkClicked: () {
-                                    setState(() {
-                                      if (_color != null) {
-                                        _taskGroup!.colorRGB =
-                                            _color!.withAlpha(100);
-                                      }
-                                    });
-                                  }
-                              );
-                            },
-                            icon: Icon(Icons.palette_outlined, color: _taskGroup!.foregroundColor(context)),
-                            label: Text(translate('forms.task_group.change_color.title')),
-
-                          ),
-
-                        ],
-                      ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 26.0),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: Size(double.infinity, 40), // double.infinity is the width and 30 is the height
+                        ButtonBar(
+                          alignment: MainAxisAlignment.center,
+                          //    buttonPadding: EdgeInsets.symmetric(horizontal: 0.0),
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                final iconData = await showIconPickerDialog(context, translate('forms.task_group.change_icon.message'));
+                                if (iconData != null) {
+                                  setState(() => _taskGroup!.iconData = iconData.data);
+                                }
+                              },
+                              icon: _taskGroup!.getIcon(false),
+                              label: Text(translate('forms.task_group.change_icon.title')),
                             ),
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-
-                                if (_taskGroup == null) {
-                                  _taskGroup = TaskGroup(name: nameController.text);
+                            OutlinedButton.icon(
+                              onPressed: () {
+                                Color? _color;
+                                showColorPicker(
+                                    context,
+                                    title: translate('forms.task_group.change_color.message'),
+                                    initialColor: _taskGroup!.foregroundColor(context),
+                                    onColorChanged: (color) => _color = color,
+                                    onOkClicked: () {
+                                      setState(() {
+                                        if (_color != null) {
+                                          _taskGroup!.colorRGB =
+                                              _color!.withAlpha(100);
+                                        }
+                                      });
+                                    }
+                                );
+                              },
+                              icon: Icon(Icons.palette_outlined, color: _taskGroup!.foregroundColor(context)),
+                              label: Text(translate('forms.task_group.change_color.title')),
+          
+                            ),
+          
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 26.0),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(double.infinity, 40), // double.infinity is the width and 30 is the height
+                              ),
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+          
+                                  if (_taskGroup == null) {
+                                    _taskGroup = TaskGroup(name: nameController.text);
+                                  }
+                                  else {
+                                      // update task template
+                                    _taskGroup!.name = nameController.text;
+                                  }
+                                  Navigator.pop(context, _taskGroup);
                                 }
-                                else {
-                                    // update task template
-                                  _taskGroup!.name = nameController.text;
-                                }
-                                Navigator.pop(context, _taskGroup);
-                              }
-                            },
-                            child: Text(translate('forms.common.button_save')),
+                              },
+                              child: Text(translate('forms.common.button_save')),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -7,7 +7,7 @@ import 'package:personaltasklogger/util/units.dart';
 import '../service/PreferenceService.dart';
 
 enum AroundWhenAtDay {NOW, MORNING, FORENOON, NOON, AFTERNOON, EVENING, NIGHT, CUSTOM}
-enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES, TWENTY_MINUTES, THREE_QUARTERS, ONE_AND_A_HALF, ONE_MINUTE}
+enum AroundDurationHours {QUARTER, HALF, ONE, TWO, THREE, FOUR, CUSTOM, FIVE_MINUTES, TEN_MINUTES, TWENTY_MINUTES, THREE_QUARTERS, ONE_AND_A_HALF, ONE_MINUTE, UNSPECIFIED}
 
 enum WhenOnDatePast {TODAY, YESTERDAY, BEFORE_YESTERDAY, CUSTOM}
 enum WhenOnDateFuture {TODAY, TOMORROW, AFTER_TOMORROW, CUSTOM}
@@ -84,7 +84,7 @@ class When {
   }
 
   static Duration fromDurationHoursToDuration(AroundDurationHours durationHours, Duration? customDuration) {
-    switch(durationHours) {
+    switch (durationHours) {
       case AroundDurationHours.ONE_MINUTE: return Duration(minutes: 1);
       case AroundDurationHours.FIVE_MINUTES: return Duration(minutes: 5);
       case AroundDurationHours.TEN_MINUTES: return Duration(minutes: 10);
@@ -98,8 +98,10 @@ class When {
       case AroundDurationHours.THREE: return Duration(hours: 3);
       case AroundDurationHours.FOUR: return Duration(hours: 4);
       case AroundDurationHours.CUSTOM: return customDuration!;
+      case AroundDurationHours.UNSPECIFIED: return Duration.zero;
     }
   }
+
   static String fromDurationHoursToString(AroundDurationHours durationHours) {
     switch(durationHours) {
       case AroundDurationHours.ONE_MINUTE: return _translateAround(Minutes(1).toString());
@@ -115,6 +117,7 @@ class When {
       case AroundDurationHours.THREE: return _translateAround(Hours(3).toString());
       case AroundDurationHours.FOUR: return _translateAround(Hours(4).toString());
       case AroundDurationHours.CUSTOM: return translate('common.words.custom').capitalize() + ELLIPSIS;
+      case AroundDurationHours.UNSPECIFIED: return translate('common.words.unspecified').capitalize();
     }
   }
 
@@ -137,6 +140,7 @@ class When {
       case AroundWhenAtDay.CUSTOM: return customWhenAt!;
     }
   }
+
   static String fromWhenAtDayToWord(AroundWhenAtDay whenAtDay) {
     switch(whenAtDay) {
       case AroundWhenAtDay.NOW: return translate('common.times.now');

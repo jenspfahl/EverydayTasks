@@ -233,33 +233,35 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          return Container(
-            height: 200,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text(translate('pages.quick_add.action.description')),
-                  ),
-                  OutlinedButton(
-                    child: Text(translate('pages.quick_add.action.new_quick_add.title')),
-                    onPressed: () {
-                      Navigator.pop(super.context);
-
-                      _onCreateQuickAddPressed();
-                    },
-                  ),
-                  ElevatedButton(
-                    child: Text(translate('pages.quick_add.action.new_journal_entry.title')),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _onCreateTaskEventPressed(context);
-                    },
-                  )
-                ],
+          return SafeArea(
+            child: Container(
+              height: 200,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text(translate('pages.quick_add.action.description')),
+                    ),
+                    OutlinedButton(
+                      child: Text(translate('pages.quick_add.action.new_quick_add.title')),
+                      onPressed: () {
+                        Navigator.pop(super.context);
+            
+                        _onCreateQuickAddPressed();
+                      },
+                    ),
+                    ElevatedButton(
+                      child: Text(translate('pages.quick_add.action.new_journal_entry.title')),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _onCreateTaskEventPressed(context);
+                      },
+                    )
+                  ],
+                ),
               ),
             ),
           );

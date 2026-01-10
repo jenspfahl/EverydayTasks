@@ -243,6 +243,7 @@
           "message_fixed_task": "Scheduled fixed task '{title}' is due in {when}."
         },
         "action_track": "Log or track",
+        "action_done": "It's done",
         "action_snooze": "Remind in {when}"
       },
       "action": {
@@ -361,7 +362,9 @@
           "message_custom": "This will remove the current category '{name}'. This cannot be underdone!",
           "message_predefined": "This will remove the current category '{name}' by hiding it. You can restore it by clicking on the restore action icon.",
           "success": "The category '{name}' has been removed"
-        }
+        },
+        "create_new_schedule_for_task": "Schedule this task",
+        "create_new_schedule_for_variant": "Schedule this variant"
       }
     },
     "calendar": {
@@ -382,7 +385,8 @@
               "breton": "Brezhoneg",
               "russian": "Русский",
               "spain": "Español",
-              "chinese": "中国人"
+              "chinese": "中国人",
+              "portuguese": "Português"
             }
           },
           "language_not_supported": "'{languageCode}' not supported"
@@ -624,6 +628,7 @@
       "value": "value",
       "unit": "unit",
       "unknown": "unknown",
+      "unspecified": "not set",
       "others": "others",
       "total": "total"
     }

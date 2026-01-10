@@ -481,81 +481,83 @@ class TaskEventListState extends PageScaffoldState<TaskEventList> with Automatic
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          return Container(
-            height: 200,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text(translate('pages.journal.action.description')),
-                  ),
-                  OutlinedButton(
-                    child: Text(translate('pages.journal.action.from_scratch.title')),
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
-                        return TaskEventForm(formTitle: translate('forms.task_event.create.title'));
-                      }));
-
-                      if (newTaskEvent != null) {
-                        TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-
-                          toastInfo(super.context, translate('forms.task_event.create.success',
-                              args: {"title" : newTaskEvent.translatedTitle}));
-
-                          addTaskEvent(newTaskEvent);
-                        });
-                      }
-                    },
-                  ),
-                  ElevatedButton(
-                    child: Text(translate('pages.journal.action.from_task.title')),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Object? _selectedTemplateItem;
-                      showTemplateDialog(context,
-                          translate('forms.task_event.create.title'),
-                          translate('pages.journal.action.from_task.description'),
-                          selectedItem: (selectedItem) {
-                            setState(() {
-                              _selectedTemplateItem = selectedItem;
-                            });
-                          },
-                          okPressed: () async {
-                            Navigator.pop(super.context);
-                            TaskEvent? newTaskEvent = await Navigator.push(super.context, MaterialPageRoute(builder: (context) {
-                              if (_selectedTemplateItem is TaskGroup) {
-                                return TaskEventForm(
-                                  formTitle: translate('forms.task_event.create.title'),
-                                  taskGroup: _selectedTemplateItem as TaskGroup,);
-                              }
-                              else if (_selectedTemplateItem is Template) {
-                                return TaskEventForm(
-                                  formTitle: translate('forms.task_event.create.title'),
-                                  template: _selectedTemplateItem as Template,);
-                              }
-                              else {
-                                return TaskEventForm(formTitle: translate('forms.task_event.create.title'));
-                              }
-                            }));
-
-                            if (newTaskEvent != null) {
-                              TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-                                toastInfo(super.context, translate('forms.task_event.create.success',
-                                    args: {"title" : newTaskEvent.translatedTitle}));
-                                addTaskEvent(newTaskEvent);
-                              });
-                            }
-                          },
-                          cancelPressed: () {
-                            Navigator.pop(super.context);
+          return SafeArea(
+            child: Container(
+              height: 200,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text(translate('pages.journal.action.description')),
+                    ),
+                    OutlinedButton(
+                      child: Text(translate('pages.journal.action.from_scratch.title')),
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        TaskEvent? newTaskEvent = await Navigator.push(context, MaterialPageRoute(builder: (context) {
+                          return TaskEventForm(formTitle: translate('forms.task_event.create.title'));
+                        }));
+            
+                        if (newTaskEvent != null) {
+                          TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+            
+                            toastInfo(super.context, translate('forms.task_event.create.success',
+                                args: {"title" : newTaskEvent.translatedTitle}));
+            
+                            addTaskEvent(newTaskEvent);
                           });
-                    },
-                  )
-                ],
+                        }
+                      },
+                    ),
+                    ElevatedButton(
+                      child: Text(translate('pages.journal.action.from_task.title')),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Object? _selectedTemplateItem;
+                        showTemplateDialog(context,
+                            translate('forms.task_event.create.title'),
+                            translate('pages.journal.action.from_task.description'),
+                            selectedItem: (selectedItem) {
+                              setState(() {
+                                _selectedTemplateItem = selectedItem;
+                              });
+                            },
+                            okPressed: () async {
+                              Navigator.pop(super.context);
+                              TaskEvent? newTaskEvent = await Navigator.push(super.context, MaterialPageRoute(builder: (context) {
+                                if (_selectedTemplateItem is TaskGroup) {
+                                  return TaskEventForm(
+                                    formTitle: translate('forms.task_event.create.title'),
+                                    taskGroup: _selectedTemplateItem as TaskGroup,);
+                                }
+                                else if (_selectedTemplateItem is Template) {
+                                  return TaskEventForm(
+                                    formTitle: translate('forms.task_event.create.title'),
+                                    template: _selectedTemplateItem as Template,);
+                                }
+                                else {
+                                  return TaskEventForm(formTitle: translate('forms.task_event.create.title'));
+                                }
+                              }));
+            
+                              if (newTaskEvent != null) {
+                                TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
+                                  toastInfo(super.context, translate('forms.task_event.create.success',
+                                      args: {"title" : newTaskEvent.translatedTitle}));
+                                  addTaskEvent(newTaskEvent);
+                                });
+                              }
+                            },
+                            cancelPressed: () {
+                              Navigator.pop(super.context);
+                            });
+                      },
+                    )
+                  ],
+                ),
               ),
             ),
           );

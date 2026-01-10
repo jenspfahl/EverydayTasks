@@ -243,6 +243,7 @@
           "message_fixed_task": "La tarea fija programada '{title}' vence en {when}."
         },
         "action_track": "Registrar o supervisar",
+        "action_done": "Está hecho",
         "action_snooze": "Recordatorio en {when}"
       },
       "action": {
@@ -361,7 +362,9 @@
           "message_custom": "Esto eliminará la categoría actual '{name}'. Esto no se puede deshacer!",
           "message_predefined": "Esto ocultará la categoría actual '{name}'. Usted puede restaurarla clickeando en el ícono de Restaurar.",
           "success": "La categoría '{name}' ha sido removida"
-        }
+        },
+        "create_new_schedule_for_task": "Programar esta tarea",
+        "create_new_schedule_for_variant": "Programar esta variante"
       }
     },
     "calendar": {
@@ -383,7 +386,8 @@
               "breton": "Brezhoneg",
               "russian": "Русский",
               "spain": "Español",
-              "chinese": "中国人"
+              "chinese": "中国人",
+              "portuguese": "Português"
             }
           },
           "language_not_supported": "'{languageCode}' no soportado"
@@ -625,6 +629,7 @@
       "value": "valor",
       "unit": "unidad",
       "unknown": "desconocido",
+      "unspecified": "indeterminado",
       "others": "otros",
       "total": "total"
     }
