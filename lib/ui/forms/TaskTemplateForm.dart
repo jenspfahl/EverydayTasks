@@ -156,271 +156,273 @@ class _TaskTemplateFormState extends State<TaskTemplateForm> {
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            child: Builder(
-              builder: (scaffoldContext) => Form(
-                key: _formKey,
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      TextFormField(
-                        controller: titleController,
-                        decoration: InputDecoration(
-                          hintText: translate('forms.task.title_hint'),
-                          icon: widget.allowUpdateTaskGroup ? const Icon(Icons.task_alt) : widget._taskGroup.getIcon(true),
-                        ),
-                        maxLength: 50,
-                        keyboardType: TextInputType.text,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return translate('forms.common.title_emphasis');
-                          }
-                          return null;
-                        },
-                      ),
-                      TextFormField(
-                        controller: descriptionController,
-                        decoration: InputDecoration(
-                          hintText: translate('forms.common.description_hint'),
-                          icon: Icon(Icons.info_outline),
-                        ),
-                        maxLength: 500,
-                        keyboardType: TextInputType.text,
-                        maxLines: 1,
-                      ),
-                      if (widget.allowUpdateTaskGroup)
-                        DropdownButtonFormField<TaskGroup?>(
-                          onTap: () => FocusScope.of(context).unfocus(),
-                          value: _selectedTaskGroup,
-                          icon: const Icon(Icons.category_outlined),
-                          hint: Text(translate('forms.task_event.category_hint')),
-                          isExpanded: true,
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                _selectedTaskGroup = value;
-                              });
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              child: Builder(
+                builder: (scaffoldContext) => Form(
+                  key: _formKey,
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        TextFormField(
+                          controller: titleController,
+                          decoration: InputDecoration(
+                            hintText: translate('forms.task.title_hint'),
+                            icon: widget.allowUpdateTaskGroup ? const Icon(Icons.task_alt) : widget._taskGroup.getIcon(true),
+                          ),
+                          maxLength: 50,
+                          keyboardType: TextInputType.text,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return translate('forms.common.title_emphasis');
                             }
-                          },
-                          items: TaskGroupRepository.getAllCached(inclHidden: false).map((TaskGroup group) {
-                            return DropdownMenuItem(
-                              value: group,
-                              child: group.getTaskGroupRepresentation(context, useIconColor: true),
-                            );
-                          }).toList(),
-                          validator: (TaskGroup? value) {
-                            if (value == null) {
-                              return translate('forms.task_event.category_emphasis');
-                            } else {
-                              return null;
-                            }
+                            return null;
                           },
                         ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 20.0),
-                        child: SeverityPicker(
-                          showText: true,
-                          singleButtonWidth: 100,
-                          initialSeverity: _severity,
-                          onChanged: (severity) => _severity = severity,
+                        TextFormField(
+                          controller: descriptionController,
+                          decoration: InputDecoration(
+                            hintText: translate('forms.common.description_hint'),
+                            icon: Icon(Icons.info_outline),
+                          ),
+                          maxLength: 500,
+                          keyboardType: TextInputType.text,
+                          maxLines: 1,
                         ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 20.0),
-                        child:
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DropdownButtonFormField<AroundDurationHours?>(
-                                onTap: () => FocusScope.of(context).unfocus(),
-                                value: _selectedDurationHours,
-                                hint: Text(translate('forms.task.duration_hint')),
-                                icon: Icon(Icons.timer_outlined),
-                                isExpanded: true,
-                                onChanged: (value) {
-                                  if (value == AroundDurationHours.CUSTOM) {
-                                    final initialDuration = _customDuration ?? (_selectedDurationHours != null ? When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration) : Duration(minutes: 1));
-                                    showDurationPickerDialog(
-                                      context: context,
-                                      initialDuration: initialDuration,
-                                      onChanged: (duration) => _tempSelectedDuration = duration,
-                                    ).then((okPressed) {
-                                      if (okPressed ?? false) {
-                                        setState(() => _customDuration = _tempSelectedDuration ?? initialDuration);
-                                      }
-                                    });
-                                  }
-                                  setState(() {
-                                    _selectedDurationHours = value;
-                                  });
-                                },
-                                items: AroundDurationHours.values.map((AroundDurationHours durationHour) {
-                                  return DropdownMenuItem(
-                                    value: durationHour,
-                                    child: Text(
-                                      durationHour == AroundDurationHours.CUSTOM && _customDuration != null
-                                          ? formatDuration(_customDuration!)
-                                          : When.fromDurationHoursToString(durationHour),
-                                    ),
-                                  );
-                                }).toList()..sort((d1, d2) {
-                                  final duration1 = When.fromDurationHoursToDuration(d1.value!, Duration(days: 10000));
-                                  final duration2 = When.fromDurationHoursToDuration(d2.value!, Duration(days: 10000));
-                                  return duration1.compareTo(duration2);
-                                }),
-                              ),
-                            ),
-                            Visibility(
-                              visible: _selectedDurationHours != null,
-                              child: IconButton(
-                                padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
-                                constraints: BoxConstraints(),
-                                icon: Icon(Icons.clear_outlined),
-                                onPressed: () {
-                                  setState(() {
-                                    _selectedDurationHours = null;
-                                  });
-                                },
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 20.0),
-                        child:
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DropdownButtonFormField<AroundWhenAtDay?>(
-                                onTap: () => FocusScope.of(context).unfocus(),
-                                value: _selectedWhenAtDay,
-                                hint: Text(translate('forms.task.when_at_hint')),
-                                icon: Icon(Icons.watch_later_outlined),
-                                isExpanded: true,
-                                onChanged: (value) {
-                                  if (value == AroundWhenAtDay.CUSTOM) {
-                                    final initialWhenAt = _customWhenAt ?? (
-                                        _selectedWhenAtDay != null && _selectedWhenAtDay != AroundWhenAtDay.CUSTOM
-                                            ? When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt)
-                                            : TimeOfDay.now());
-                                    showTimePicker(
-                                      initialTime: initialWhenAt,
-                                      context: context,
-                                    ).then((selectedTimeOfDay) {
-                                      if (selectedTimeOfDay != null) {
-                                        setState(() => _customWhenAt = selectedTimeOfDay);
-                                      }
-                                    });
-                                  }
-                                  setState(() {
-                                    _selectedWhenAtDay = value;
-                                  });
-                                },
-                                items: AroundWhenAtDay.values.map((AroundWhenAtDay whenAtDay) {
-                                  return DropdownMenuItem(
-                                    value: whenAtDay,
-                                    child: Text(
-                                      whenAtDay == AroundWhenAtDay.CUSTOM && _customWhenAt != null
-                                          ? formatTimeOfDay(_customWhenAt!)
-                                          : When.fromWhenAtDayToString(whenAtDay),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                            Visibility(
-                              visible: _selectedWhenAtDay != null,
-                              child: IconButton(
-                                padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
-                                constraints: BoxConstraints(),
-                                icon: Icon(Icons.clear_outlined),
-                                onPressed: () {
-                                  setState(() {
-                                    _selectedWhenAtDay = null;
-                                  });
-                                },
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 26.0),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              minimumSize:
-                                  Size(double.infinity, 40), // double.infinity is the width and 30 is the height
-                            ),
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                TimeOfDay? startedAtTimeOfDay;
-                                if (_selectedWhenAtDay != null) {
-                                  startedAtTimeOfDay =
-                                      When.fromWhenAtDayToTimeOfDay(
-                                          _selectedWhenAtDay!,
-                                          _customWhenAt);
-                                }
-                                Duration? duration;
-
-                                if (_selectedDurationHours != null) {
-                                  duration =
-                                      When.fromDurationHoursToDuration(
-                                          _selectedDurationHours!,
-                                          _customDuration);
-                                }
-
-                                if (widget.createNew) {
-                                  if (template == null) {
-                                    // create new task template under given taskGroup
-                                    final taskTemplate = _createTaskTemplate(
-                                        null, startedAtTimeOfDay, duration, null);
-                                    Navigator.pop(context, taskTemplate);
-                                  }
-                                  else if (template!.isVariant() == false) {
-                                    // create new variant under given template
-                                    final taskTemplateVariant = _createTaskTemplateVariant(
-                                        null, template!.tId!.id, startedAtTimeOfDay, duration, null);
-                                    Navigator.pop(context, taskTemplateVariant);
-                                  }
-                                  else if (template!.isVariant() == true) {
-                                    // clone existing variant to a new one
-                                    final variant = template! as TaskTemplateVariant;
-                                    final taskTemplateVariant = _createTaskTemplateVariant(
-                                        null, variant.taskTemplateId, startedAtTimeOfDay, duration, null);
-                                    Navigator.pop(context, taskTemplateVariant);
-                                  }
-                                }
-                                else {
-                                  if (template == null) {
-                                    // update taskGroup, not supported
-                                  }
-                                  else if (template!.isVariant() == false) {
-                                    // update task template
-                                    final taskTemplate = _createTaskTemplate(
-                                        template!.tId!.id, startedAtTimeOfDay, duration, template!.favorite);
-                                    Navigator.pop(context, taskTemplate);
-                                  }
-                                  else if (template!.isVariant() == true) {
-                                    // update variant
-                                    final variant = template! as TaskTemplateVariant;
-                                    final taskTemplateVariant = _createTaskTemplateVariant(
-                                        variant.tId!.id, variant.taskTemplateId, startedAtTimeOfDay, duration, template!.favorite);
-                                    Navigator.pop(context, taskTemplateVariant);
-                                  }
-                                }
+                        if (widget.allowUpdateTaskGroup)
+                          DropdownButtonFormField<TaskGroup?>(
+                            onTap: () => FocusScope.of(context).unfocus(),
+                            value: _selectedTaskGroup,
+                            icon: const Icon(Icons.category_outlined),
+                            hint: Text(translate('forms.task_event.category_hint')),
+                            isExpanded: true,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  _selectedTaskGroup = value;
+                                });
                               }
                             },
-                            child: Text(translate('forms.common.button_save')),
+                            items: TaskGroupRepository.getAllCached(inclHidden: false).map((TaskGroup group) {
+                              return DropdownMenuItem(
+                                value: group,
+                                child: group.getTaskGroupRepresentation(context, useIconColor: true),
+                              );
+                            }).toList(),
+                            validator: (TaskGroup? value) {
+                              if (value == null) {
+                                return translate('forms.task_event.category_emphasis');
+                              } else {
+                                return null;
+                              }
+                            },
+                          ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20.0),
+                          child: SeverityPicker(
+                            showText: true,
+                            singleButtonWidth: 100,
+                            initialSeverity: _severity,
+                            onChanged: (severity) => _severity = severity,
                           ),
                         ),
-                      ),
-                    ],
+                        Padding(
+                          padding: EdgeInsets.only(top: 20.0),
+                          child:
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField<AroundDurationHours?>(
+                                  onTap: () => FocusScope.of(context).unfocus(),
+                                  value: _selectedDurationHours,
+                                  hint: Text(translate('forms.task.duration_hint')),
+                                  icon: Icon(Icons.timer_outlined),
+                                  isExpanded: true,
+                                  onChanged: (value) {
+                                    if (value == AroundDurationHours.CUSTOM) {
+                                      final initialDuration = _customDuration ?? (_selectedDurationHours != null ? When.fromDurationHoursToDuration(_selectedDurationHours!, _customDuration) : Duration(minutes: 1));
+                                      showDurationPickerDialog(
+                                        context: context,
+                                        initialDuration: initialDuration,
+                                        onChanged: (duration) => _tempSelectedDuration = duration,
+                                      ).then((okPressed) {
+                                        if (okPressed ?? false) {
+                                          setState(() => _customDuration = _tempSelectedDuration ?? initialDuration);
+                                        }
+                                      });
+                                    }
+                                    setState(() {
+                                      _selectedDurationHours = value;
+                                    });
+                                  },
+                                  items: AroundDurationHours.values.map((AroundDurationHours durationHour) {
+                                    return DropdownMenuItem(
+                                      value: durationHour,
+                                      child: Text(
+                                        durationHour == AroundDurationHours.CUSTOM && _customDuration != null
+                                            ? formatDuration(_customDuration!)
+                                            : When.fromDurationHoursToString(durationHour),
+                                      ),
+                                    );
+                                  }).toList()..sort((d1, d2) {
+                                    final duration1 = When.fromDurationHoursToDuration(d1.value!, Duration(days: 10000));
+                                    final duration2 = When.fromDurationHoursToDuration(d2.value!, Duration(days: 10000));
+                                    return duration1.compareTo(duration2);
+                                  }),
+                                ),
+                              ),
+                              Visibility(
+                                visible: _selectedDurationHours != null,
+                                child: IconButton(
+                                  padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+                                  constraints: BoxConstraints(),
+                                  icon: Icon(Icons.clear_outlined),
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedDurationHours = null;
+                                    });
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20.0),
+                          child:
+                          Row(
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField<AroundWhenAtDay?>(
+                                  onTap: () => FocusScope.of(context).unfocus(),
+                                  value: _selectedWhenAtDay,
+                                  hint: Text(translate('forms.task.when_at_hint')),
+                                  icon: Icon(Icons.watch_later_outlined),
+                                  isExpanded: true,
+                                  onChanged: (value) {
+                                    if (value == AroundWhenAtDay.CUSTOM) {
+                                      final initialWhenAt = _customWhenAt ?? (
+                                          _selectedWhenAtDay != null && _selectedWhenAtDay != AroundWhenAtDay.CUSTOM
+                                              ? When.fromWhenAtDayToTimeOfDay(_selectedWhenAtDay!, _customWhenAt)
+                                              : TimeOfDay.now());
+                                      showTimePicker(
+                                        initialTime: initialWhenAt,
+                                        context: context,
+                                      ).then((selectedTimeOfDay) {
+                                        if (selectedTimeOfDay != null) {
+                                          setState(() => _customWhenAt = selectedTimeOfDay);
+                                        }
+                                      });
+                                    }
+                                    setState(() {
+                                      _selectedWhenAtDay = value;
+                                    });
+                                  },
+                                  items: AroundWhenAtDay.values.map((AroundWhenAtDay whenAtDay) {
+                                    return DropdownMenuItem(
+                                      value: whenAtDay,
+                                      child: Text(
+                                        whenAtDay == AroundWhenAtDay.CUSTOM && _customWhenAt != null
+                                            ? formatTimeOfDay(_customWhenAt!)
+                                            : When.fromWhenAtDayToString(whenAtDay),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                              Visibility(
+                                visible: _selectedWhenAtDay != null,
+                                child: IconButton(
+                                  padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+                                  constraints: BoxConstraints(),
+                                  icon: Icon(Icons.clear_outlined),
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedWhenAtDay = null;
+                                    });
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 26.0),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize:
+                                    Size(double.infinity, 40), // double.infinity is the width and 30 is the height
+                              ),
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  TimeOfDay? startedAtTimeOfDay;
+                                  if (_selectedWhenAtDay != null) {
+                                    startedAtTimeOfDay =
+                                        When.fromWhenAtDayToTimeOfDay(
+                                            _selectedWhenAtDay!,
+                                            _customWhenAt);
+                                  }
+                                  Duration? duration;
+          
+                                  if (_selectedDurationHours != null) {
+                                    duration =
+                                        When.fromDurationHoursToDuration(
+                                            _selectedDurationHours!,
+                                            _customDuration);
+                                  }
+          
+                                  if (widget.createNew) {
+                                    if (template == null) {
+                                      // create new task template under given taskGroup
+                                      final taskTemplate = _createTaskTemplate(
+                                          null, startedAtTimeOfDay, duration, null);
+                                      Navigator.pop(context, taskTemplate);
+                                    }
+                                    else if (template!.isVariant() == false) {
+                                      // create new variant under given template
+                                      final taskTemplateVariant = _createTaskTemplateVariant(
+                                          null, template!.tId!.id, startedAtTimeOfDay, duration, null);
+                                      Navigator.pop(context, taskTemplateVariant);
+                                    }
+                                    else if (template!.isVariant() == true) {
+                                      // clone existing variant to a new one
+                                      final variant = template! as TaskTemplateVariant;
+                                      final taskTemplateVariant = _createTaskTemplateVariant(
+                                          null, variant.taskTemplateId, startedAtTimeOfDay, duration, null);
+                                      Navigator.pop(context, taskTemplateVariant);
+                                    }
+                                  }
+                                  else {
+                                    if (template == null) {
+                                      // update taskGroup, not supported
+                                    }
+                                    else if (template!.isVariant() == false) {
+                                      // update task template
+                                      final taskTemplate = _createTaskTemplate(
+                                          template!.tId!.id, startedAtTimeOfDay, duration, template!.favorite);
+                                      Navigator.pop(context, taskTemplate);
+                                    }
+                                    else if (template!.isVariant() == true) {
+                                      // update variant
+                                      final variant = template! as TaskTemplateVariant;
+                                      final taskTemplateVariant = _createTaskTemplateVariant(
+                                          variant.tId!.id, variant.taskTemplateId, startedAtTimeOfDay, duration, template!.favorite);
+                                      Navigator.pop(context, taskTemplateVariant);
+                                    }
+                                  }
+                                }
+                              },
+                              child: Text(translate('forms.common.button_save')),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
