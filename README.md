@@ -1,3 +1,8 @@
+[![Downloads last month](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgithub.com%2Fkitswas%2Ffdroid-metrics-dashboard%2Fraw%2Frefs%2Fheads%2Fmain%2Fprocessed%2Fmonthly%2Fde.jepfa.personaltasklogger.json&query=%24.total_downloads&logo=fdroid&label=Downloads%20last%20month)](https://f-droid.org/en/packages/de.jepfa.personaltasklogger/)
+
+
+[![Downloads (all time)](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgithub.com%2Fkitswas%2Ffdroid-metrics-dashboard%2Fraw%2Frefs%2Fheads%2Fmain%2Fprocessed%2Ftotal%2Fde.jepfa.personaltasklogger.json&query=%24.total_downloads&logo=fdroid&label=Downloads%20(all%20time))](https://f-droid.org/en/packages/de.jepfa.personaltasklogger/)
+
 # Everyday Tasks
 
 Track and log your tasks with EverydayTasks and create schedules for repetitive tasks. See how much time you have spent for certain tasks, and get notified if a scheduled task is due.
