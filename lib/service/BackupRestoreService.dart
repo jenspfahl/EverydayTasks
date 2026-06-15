@@ -28,7 +28,7 @@ class BackupRestoreService {
       final dbFolder = await getDatabasesPath();
       final srcFile = File("$dbFolder/app_database.db");
 
-      final destPath = await FilePicker.platform.getDirectoryPath();
+      final destPath = await FilePicker.getDirectoryPath();
       if (destPath != null) {
             final copyTo = Directory(destPath);
             if ((await copyTo.exists())) {
@@ -87,7 +87,7 @@ class BackupRestoreService {
       final dbJournalPath = join(dbFolder, 'app_database.db-journal');
       final restoreDbPath = join(dbFolder, 'restore_app_database.db');
 
-      final result = await FilePicker.platform.pickFiles();
+      final result = await FilePicker.pickFiles();
 
       if (result != null) {
         File? restoreDbFile;

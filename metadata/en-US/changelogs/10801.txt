@@ -1,0 +1,2 @@
+* Don't jump to events page when a scheduled task has been completed (#102)
+* Upgrade FilePicker dependency to mitigate erroneous behaviour (#104)

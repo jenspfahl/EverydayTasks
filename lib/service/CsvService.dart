@@ -30,7 +30,7 @@ class CsvService {
   Future<void> backup(BuildContext context, Function(bool, String?) successHandler, Function(String) errorHandler) async {
     try {
 
-      final destPath = await FilePicker.platform.getDirectoryPath();
+      final destPath = await FilePicker.getDirectoryPath();
       if (destPath != null) {
             final saveTo = Directory(destPath);
             if ((await saveTo.exists())) {
