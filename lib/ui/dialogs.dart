@@ -213,6 +213,20 @@ void showCustomDialog(BuildContext context,
   );
 }
 
+showWaitingDialog(BuildContext context) {
+  final dialog = AlertDialog(
+      content: SizedBox(height: 60,
+          child: Center(child: CircularProgressIndicator())));
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    routeSettings: RouteSettings(name: "waitingDialog"),
+    builder: (BuildContext context) {
+      return PopScope(canPop: false, child: dialog);
+    },
+  );
+}
+
 Future<bool?> showDurationPickerDialog({
   required BuildContext context,
   Duration? initialDuration,

@@ -28,47 +28,19 @@ class BackupRestoreService {
       final dbFolder = await getDatabasesPath();
       final srcFile = File("$dbFolder/app_database.db");
 
-      final destPath = await FilePicker.getDirectoryPath();
-      if (destPath != null) {
-            final copyTo = Directory(destPath);
-            if ((await copyTo.exists())) {
-              final status = await Permission.storage.status;
-              if (!status.isGranted) {
-                await Permission.storage.request();
-              }
-            } else {
-              if (await Permission.storage.request().isGranted) {
-                // Either the permission was already granted before or the user just granted it.
-                await copyTo.create();
-              } else {
-                errorHandler('Please give permission');
-              }
-            }
+      final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final fileName = "EverydayTasks_$today.db";
 
-            final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-            final basePath = "${copyTo.path}/EverydayTasks_$today";
-
-            int? version;
-            while(await File(_getFullPath(basePath, version)).exists()) {
-              if (version == null) {
-                version = 1;
-              }
-              else {
-                version++;
-              }
-              if (version > 100000) {
-                errorHandler('Cannot create backup file!');
-                return;
-              }
-            }
-
-
-            final dstFile = await srcFile.copy(_getFullPath(basePath, version));
-
-            successHandler(true, dstFile.path);
-          } else {
-            successHandler(false, null);
-          }
+      final savedPath = await FilePicker.saveFile(
+          fileName: fileName,
+          allowedExtensions: ["db"],
+          bytes: srcFile.readAsBytesSync(),
+      );
+      if (savedPath != null) {
+        successHandler(true, fileName);
+      } else {
+        successHandler(false, null);
+      }
     } on FileSystemException catch (e) {
       errorHandler("Cannot export database! " + e.message);
       print(e);
