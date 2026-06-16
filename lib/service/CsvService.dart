@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
@@ -30,48 +31,21 @@ class CsvService {
   Future<void> backup(BuildContext context, Function(bool, String?) successHandler, Function(String) errorHandler) async {
     try {
 
-      final destPath = await FilePicker.platform.getDirectoryPath();
-      if (destPath != null) {
-            final saveTo = Directory(destPath);
-            if ((await saveTo.exists())) {
-              final status = await Permission.storage.status;
-              if (!status.isGranted) {
-                await Permission.storage.request();
-              }
-            } else {
-              if (await Permission.storage.request().isGranted) {
-                // Either the permission was already granted before or the user just granted it.
-                await saveTo.create();
-              } else {
-                errorHandler('Please give permission');
-              }
-            }
+      final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final fileName = "EverydayTasks-Journal_$today.csv";
+      final csvAsString = await _getAllEventsAsCsv(context);
 
-            final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-            final basePath = "${saveTo.path}/EverydayTasks-Journal_$today";
+      final savedPath = await FilePicker.saveFile(
+        fileName: fileName,
+        allowedExtensions: ["csv"],
+        bytes: utf8.encode(csvAsString),
+      );
+      if (savedPath != null) {
+        successHandler(true, fileName);
+      } else {
+        successHandler(false, null);
+      }
 
-            int? version;
-            while(await File(_getFullPath(basePath, version)).exists()) {
-              if (version == null) {
-                version = 1;
-              }
-              else {
-                version++;
-              }
-              if (version > 100000) {
-                errorHandler('Cannot create backup file!');
-                return;
-              }
-            }
-
-            final csvAsString = await _getAllEventsAsCsv(context);
-
-            final dstFile = File(_getFullPath(basePath, version));
-            dstFile.writeAsString(csvAsString);
-            successHandler(true, dstFile.path);
-          } else {
-            successHandler(false, null);
-          }
     } on FileSystemException catch (e) {
       errorHandler("Cannot create file! " + e.message);
       print(e);
@@ -136,13 +110,8 @@ class CsvService {
       csvList.add(csv);
     }
     
-    final csvAsString = const ListToCsvConverter().convert(csvList);
-    return csvAsString;
+    return const ListToCsvConverter().convert(csvList);
   }
-
-
-  String _getFullPath(String basePath, int? version) =>
-      version != null ? "$basePath ($version).csv" : "$basePath.csv";
 
   String _formatCsvDuration(AroundDurationHours aroundDuration, Duration customDuration) {
     final duration = When.fromDurationHoursToDuration(aroundDuration, customDuration);

@@ -2,10 +2,15 @@
 
 Please help to translate the app to other languages! You only need a Github-account. 
 
-# These languages are still supported:
+# These languages are supported but might need additional translations:
 
 * English
 * German
+* Spanish
+* French
+* Portuguese
+* Russian
+* Chinese
 
 # Add a new language
 

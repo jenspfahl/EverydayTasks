@@ -298,8 +298,6 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
     
           if (newTaskEvent != null) {
             TaskEventRepository.insert(newTaskEvent).then((newTaskEvent) {
-              toastInfo(super.context, translate('forms.task_event.create.success',
-                  args: {"title" : newTaskEvent.translatedTitle}));
               _handleNewTaskEvent(newTaskEvent);
             });
           }
@@ -310,20 +308,24 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
   }
 
   void _handleNewTaskEvent(TaskEvent newTaskEvent) {
+    toastInfo(context,
+        translate('forms.task_event.create.success', args: {"title" : newTaskEvent.translatedTitle}),
+        action: SnackBarAction(
+            label: translate('common.show'),
+            onPressed: () {
+              PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
+              if (root != null) {
+                final taskEventListState = widget._pagesHolder.taskEventList?.getGlobalKey().currentState;
+                if (taskEventListState != null) {
+                  taskEventListState.clearFilters();
+                }
+                root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
+              }
+            })
+    );
+
     widget._pagesHolder.taskEventList?.getGlobalKey().currentState?.addTaskEvent(newTaskEvent);
 
-    if (_pinQuickAddPage != true) {
-      PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-      if (root != null) {
-        final taskEventListState = widget._pagesHolder.taskEventList
-            ?.getGlobalKey()
-            .currentState;
-        if (taskEventListState != null) {
-          taskEventListState.clearFilters();
-        }
-        root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, newTaskEvent.id.toString(), null);
-      }
-    }
   }
   
   GridView _buildTemplateTiles(Orientation orientation) {
@@ -373,9 +375,6 @@ class QuickAddTaskEventPageState extends PageScaffoldState<QuickAddTaskEventPage
               if (newTaskEvent != null) {
                 TaskEventRepository.insert(newTaskEvent).then((
                     newTaskEvent) {
-                  toastInfo(context,
-                      translate('forms.task_event.create.success',
-                          args: {"title" : newTaskEvent.translatedTitle}));
                   _handleNewTaskEvent(newTaskEvent);
                 });
               }

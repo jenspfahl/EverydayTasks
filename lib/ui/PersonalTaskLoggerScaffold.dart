@@ -248,18 +248,26 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                           cancelPressed: () => Navigator.pop(context),
                           okPressed: () {
                             Navigator.pop(context);
+
+                            showWaitingDialog(context);
+
                             CsvService().backup(context,
                                     (success, dstPath) {
-                                  if (success) {
-                                    toastInfo(context, translate(
-                                        'pages.export.export_created',
-                                        args: {'dst_path': dstPath}));
-                                  }
-                                  else {
-                                    toastInfo(context, translate(
-                                        'pages.export.export_aborted'));
-                                  }
-                                }, (errorMsg) => toastError(context, errorMsg));
+                                      Navigator.pop(context);
+
+                                      if (success) {
+                                        toastInfo(context, translate(
+                                            'pages.export.export_created',
+                                            args: {'dst_path': dstPath}));
+                                      }
+                                      else {
+                                        toastInfo(context, translate(
+                                            'pages.export.export_aborted'));
+                                      }
+                                }, (errorMsg) {
+                                  Navigator.pop(context);
+                                  return toastError(context, errorMsg);
+                                });
                           }
                       );
                     },
@@ -277,18 +285,25 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                           okPressed: () {
                             Navigator.pop(context);
 
+                            showWaitingDialog(context);
+
                             _backupRestoreService.backup(
                                     (success, dstPath) {
-                                  if (success) {
-                                    toastInfo(context, translate(
-                                        'pages.backup.backup_created',
-                                        args: {'dst_path': dstPath}));
-                                  }
-                                  else {
-                                    toastInfo(context, translate(
-                                        'pages.backup.backup_aborted'));
-                                  }
-                                }, (errorMsg) => toastError(context, errorMsg));
+                                      Navigator.pop(context);
+
+                                      if (success) {
+                                        toastInfo(context, translate(
+                                            'pages.backup.backup_created',
+                                            args: {'dst_path': dstPath}));
+                                      }
+                                      else {
+                                        toastInfo(context, translate(
+                                            'pages.backup.backup_aborted'));
+                                      }
+                                }, (errorMsg) {
+                                  Navigator.pop(context);
+                                  return toastError(context, errorMsg);
+                                });
                           }
                       );
                     },
@@ -306,8 +321,13 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                           cancelPressed: () => Navigator.pop(context),
                           okPressed: () async {
                             Navigator.pop(context);
+
+                            showWaitingDialog(context);
+
                             await _backupRestoreService.restore((
                                 success) async {
+                              Navigator.pop(context);
+
                               if (success) {
                                 await TaskGroupRepository.loadAll(
                                     true); // load caches
@@ -327,7 +347,10 @@ class PersonalTaskLoggerScaffoldState extends State<PersonalTaskLoggerScaffold> 
                                 toastInfo(context,
                                     translate('pages.restore.restore_aborted'));
                               }
-                            }, (errorMsg) => toastError(context, errorMsg));
+                            }, (errorMsg) {
+                              Navigator.pop(context);
+                              return toastError(context, errorMsg);
+                            });
                           });
                     },
                   ),

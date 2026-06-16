@@ -134,17 +134,22 @@ class ScheduledTaskWidget extends StatefulWidget {
       final scheduledTaskEvent = ScheduledTaskEvent.fromEvent(insertedTaskEvent, scheduledTask);
       ScheduledTaskEventRepository.insert(scheduledTaskEvent);
     
-      toastInfo(context, translate('forms.task_event.create.success',
-          args: {"title" : insertedTaskEvent.translatedTitle}));
-    
-      PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
-      if (root != null) {
-        final taskEventListState = pagesHolder.taskEventList?.getGlobalKey().currentState;
-        if (taskEventListState != null) {
-          taskEventListState.clearFilters();
-        }
-        root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, insertedTaskEvent.id.toString(), null);
-      }
+      toastInfo(context,
+          translate('forms.task_event.create.success', args: {"title" : insertedTaskEvent.translatedTitle}),
+          action: SnackBarAction(
+              label: translate('common.show'),
+              onPressed: () {
+                PersonalTaskLoggerScaffoldState? root = context.findAncestorStateOfType();
+                if (root != null) {
+                  final taskEventListState = pagesHolder.taskEventList?.getGlobalKey().currentState;
+                  if (taskEventListState != null) {
+                    taskEventListState.clearFilters();
+                  }
+                  root.sendEventFromClicked(TASK_EVENT_LIST_ROUTING_KEY, false, insertedTaskEvent.id.toString(), null);
+                }
+              })
+      );
+
     });
     return insertedTaskEvent;
   }

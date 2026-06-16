@@ -35,7 +35,7 @@ Widget createCheckIcon(bool checked) {
   );
 }
 
-toastInfo(BuildContext context, String message, {bool? forceShow}) {
+toastInfo(BuildContext context, String message, {bool? forceShow, SnackBarAction? action}) {
   PreferenceService().getBool(PreferenceService.PREF_SHOW_ACTION_NOTIFICATIONS)
       .then((show) {
         if (show != false || forceShow == true) {
@@ -45,6 +45,7 @@ toastInfo(BuildContext context, String message, {bool? forceShow}) {
             messenger.showSnackBar(
                 SnackBar(
                     duration: duration,
+                    action: action,
                     content: Text(message)));
           });
         }
