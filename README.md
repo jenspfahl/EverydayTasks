@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/made_by-a_human_(not_AI)-green?style=flat-square)
+![Static Badge](https://img.shields.io/badge/made_by-a_human_(not_AI)-green)
 
 
 [![Downloads last month](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgithub.com%2Fkitswas%2Ffdroid-metrics-dashboard%2Fraw%2Frefs%2Fheads%2Fmain%2Fprocessed%2Fmonthly%2Fde.jepfa.personaltasklogger.json&query=%24.total_downloads&logo=fdroid&label=Downloads%20last%20month)](https://f-droid.org/en/packages/de.jepfa.personaltasklogger/)
